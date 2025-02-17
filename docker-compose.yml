@@ -1,0 +1,22 @@
+services:
+  ai-news:
+    image: mysql:9.2.0
+    container_name: ai-news
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ai-news
+    ports:
+      - "23306:3306"
+    volumes:
+      - ai-news:/var/lib/mysql
+
+  redis:
+    image: redis:7.2.6
+    container_name: redis
+    restart: always
+    ports:
+      - "26379:6379"
+
+volumes:
+  ai-news:
