@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: ai-news-api
+  config:
+    import: classpath:core/application-oauth.yml
+
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
+
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:25432/postgres}
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+  profiles:
+    active: dev
+
+springdoc:
+  swagger-ui:
+    path: /
+
+security:
+  headers:
+    frame-options: ${SECURITY_FRAME_OPTIONS:DENY}

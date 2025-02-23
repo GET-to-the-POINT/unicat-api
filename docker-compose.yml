@@ -1,22 +1,16 @@
 services:
-  ai-news:
-    image: mysql:9.2.0
-    container_name: ai-news
-    restart: always
+  database:
+    image: postgres:15-alpine
+    container_name: ai-news-database
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: ai-news
+      POSTGRES_DB: "postgres"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
     ports:
-      - "23306:3306"
+      - "25432:5432"
     volumes:
-      - ai-news:/var/lib/mysql
-
-  redis:
-    image: redis:7.2.6
-    container_name: redis
+      - postgres_data:/var/lib/postgresql/data
     restart: always
-    ports:
-      - "26379:6379"
 
 volumes:
-  ai-news:
+  postgres_data:

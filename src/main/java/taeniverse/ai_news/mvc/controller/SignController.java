@@ -23,25 +23,20 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-
 @RestController
 @RequestMapping("/api")
 public class SignController {
 
     private final UserService userService;
-
     private final AuthenticationManager authenticationManager;
-
     private final JWTUtil jwtUtil;
 
-    /// backend
-    @Value("${ai-news.backend.protocol}")
+    @Value("${ai-news.api.protocol}")
     private String backProtocol;
-    @Value("${ai-news.backend.domain}")
+    @Value("${ai-news.api.domain}")
     private String backDomain;
-    @Value("${ai-news.backend.port}")
+    @Value("${ai-news.api.port}")
     private String backPort;
-
 
     public SignController(UserService userService, AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
         this.userService = userService;
@@ -85,7 +80,7 @@ public class SignController {
     @PreAuthorize("isAnonymous()")
     @GetMapping("/oauth2")
     public List<Map<String, String>> oauth2() {
-        return List.of(createOAuth2ProviderMap("naver", "#03C75A"), createOAuth2ProviderMap("google", "#4285F4"), createOAuth2ProviderMap("kakao", "#FFCD00"));
+        return List.of(createOAuth2ProviderMap("google", "#4285F4"));
     }
 
     private Map<String, String> createOAuth2ProviderMap(String provider, String backgroundColor) {
