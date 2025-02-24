@@ -17,7 +17,6 @@ spring:
 
 ai-news:
   jwt:
-    secret: ${JWT_SECRET}
     cookie:
       name: Authorization
       domain: ai-news.xiyo.dev
