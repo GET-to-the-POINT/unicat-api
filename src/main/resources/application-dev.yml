@@ -28,7 +28,7 @@ logging:
 
 ai-news:
   jwt:
-    secret: ${JWT_SECRET:879PP1tB6p2StH4oVAtvME7nmqM1eGCYrQpIskegR2fFsHa9kaftJpA6CqGs3aQCzszcdvSZRxWwO9FsS5s78Q==}
+    secret: 879PP1tB6p2StH4oVAtvME7nmqM1eGCYrQpIskegR2fFsHa9kaftJpA6CqGs3aQCzszcdvSZRxWwO9FsS5s78Q==
     cookie:
       name: Authorization
       domain: ai-news.com
