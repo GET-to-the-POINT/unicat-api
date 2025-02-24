@@ -15,11 +15,11 @@ spring:
       ddl-auto: validate
     open-in-view: false
 
-ai-news:
+app:
   jwt:
     cookie:
       name: Authorization
-      domain: ai-news.xiyo.dev
+      domain: unicat.day
       path: /
       secure: false
       httpOnly: true
@@ -28,11 +28,11 @@ ai-news:
     expiration: 604800000
 
   api:
-    protocol: https://
-    domain: api.ai-news.xiyo.dev
+    protocol: https
+    domain: api.unicat.day
     port: 443
 
-  frontend:
-    protocol: https://
-    domain: ai-news.xiyo.dev
+  ui:
+    protocol: https
+    domain: unicat.day
     port: 80

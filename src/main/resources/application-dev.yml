@@ -26,12 +26,12 @@ logging:
     org.springframework.jdbc.core.JdbcTemplate: DEBUG
     org.springframework.transaction: DEBUG
 
-ai-news:
+app:
   jwt:
     secret: 879PP1tB6p2StH4oVAtvME7nmqM1eGCYrQpIskegR2fFsHa9kaftJpA6CqGs3aQCzszcdvSZRxWwO9FsS5s78Q==
     cookie:
       name: Authorization
-      domain: ai-news.com
+      domain: unicat.day
       path: /
       secure: false
       httpOnly: true
@@ -40,11 +40,11 @@ ai-news:
     expiration: 604800000
 
   api:
-    protocol: http://
-    domain: api.ai-news.com
+    protocol: https
+    domain: api.unicat.day
     port: 8080
 
-  frontend:
-    protocol: http://
-    domain: ai-news.com
+  ui:
+    protocol: https
+    domain: unicat.day
     port: 3000

@@ -1,17 +1,17 @@
 services:
   api:
-    image: ghcr.io/get-to-the-point/ai-news-api:latest
-    container_name: ai-news-api
+    image: ghcr.io/get-to-the-point/unicat-api:latest
+    container_name: unicat-api
     ports:
       - "8081:8080"
     networks:
-      - ai-news-network
+      - unicat-network
     env_file:
       - .env
 
   database:
     image: postgres:15-alpine
-    container_name: ai-news-database
+    container_name: unicat-database
     environment:
       POSTGRES_DB: "postgres"
       POSTGRES_USER: "postgres"
@@ -21,11 +21,11 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-        - ai-news-network
+        - unicat-network
 
 volumes:
   postgres_data:
 
 networks:
-  ai-news-network:
+  unicat-network:
     driver: bridge

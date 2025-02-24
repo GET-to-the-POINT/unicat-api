@@ -1,6 +1,6 @@
 spring:
   application:
-    name: ai-news-api
+    name: unicat-api
   config:
     import: classpath:core/application-oauth.yml
 
@@ -26,6 +26,6 @@ security:
   headers:
     frame-options: ${SPRING_SECURITY_HEADERS_FRAME_OPTIONS:DENY}
 
-ai-news:
+app:
   jwt:
-    secret: ${SPRING_AI_NEWS_JWT_SECRET}
+    secret: ${APP_JWT_SECRET}
