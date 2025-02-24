@@ -26,7 +26,18 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-@Tag(name = "인증 API", description = "사인업, 사인인, 사인아웃 API")
+@Tag(name = "인증 API", description = """
+**인증은 JWT를 기반으로 합니다.**
+
+사인인하면 JWT 쿠키가 발급됩니다. \n
+헤더를 통한 인증도 가능하지만, **브라우저 환경에서는 쿠키 기반 인증을 추천합니다.**
+
+#### 사용 방법
+1. `/etc/hosts` 파일의 마지막에 다음 내용을 추가합니다.
+    127.0.0.1 unicat.day
+2. 공유받은 인증서를 사용하여 `webui` 서버를 실행합니다.
+3. 이후 **쿠키 기반 인증이 활성화**됩니다.
+""")
 @RestController
 @RequestMapping("/api")
 public class SignController {
