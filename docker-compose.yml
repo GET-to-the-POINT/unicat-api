@@ -1,4 +1,14 @@
 services:
+  api:
+    image: ghcr.io/get-to-the-point/ai-news-api:latest
+    container_name: ai-news-api
+    ports:
+      - "8081:8080"
+    networks:
+      - ai-news-network
+    env_file:
+      - .env
+
   database:
     image: postgres:15-alpine
     container_name: ai-news-database
@@ -10,7 +20,12 @@ services:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    restart: always
+    networks:
+        - ai-news-network
 
 volumes:
   postgres_data:
+
+networks:
+  ai-news-network:
+    driver: bridge
