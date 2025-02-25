@@ -2,11 +2,11 @@ package taeniverse.unicatApi.mvc.model.dto;
 
 import java.util.Map;
 
-public class KakkoResponse implements OAuth2Response {
+public class KakaoResponse implements OAuth2Response {
 
     private final Map<String, Object> attribute;
 
-    public KakkoResponse(Map<String, Object> attribute) {
+    public KakaoResponse(Map<String, Object> attribute) {
         this.attribute = (Map<String, Object>) attribute;
     }
 

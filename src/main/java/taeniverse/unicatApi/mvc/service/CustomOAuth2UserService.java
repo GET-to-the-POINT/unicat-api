@@ -1,89 +1,73 @@
 package taeniverse.unicatApi.mvc.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-import taeniverse.unicatApi.constant.Role;
-import taeniverse.unicatApi.mvc.model.dto.*;
+import taeniverse.unicatApi.mvc.model.entity.Member;
 import taeniverse.unicatApi.mvc.model.entity.OAuth2;
-import taeniverse.unicatApi.mvc.model.entity.User;
+import taeniverse.unicatApi.mvc.model.entity.Role;
+import taeniverse.unicatApi.mvc.repository.MemberRepository;
 import taeniverse.unicatApi.mvc.repository.OAuth2Repository;
-import taeniverse.unicatApi.mvc.repository.UserRepository;
+import taeniverse.unicatApi.mvc.repository.RoleRepository;
+import taeniverse.unicatApi.temp.CustomOAuth2User;
+import taeniverse.unicatApi.temp.OAuth2UserInfo;
+import taeniverse.unicatApi.temp.OAuth2UserInfoFactory;
 
 @Service
+@RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
-    private final UserRepository userRepository;
-    private final OAuth2Repository OAuth2Repository;
-
-    public CustomOAuth2UserService(UserRepository userRepository, OAuth2Repository oAuth2Repository) {
-        this.userRepository = userRepository;
-        this.OAuth2Repository = oAuth2Repository;
-    }
+    private final MemberRepository memberRepository;
+    private final OAuth2Repository oauth2Repository;
+    private final RoleRepository roleRepository;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(userRequest);
-
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
+        var attributes = oAuth2User.getAttributes();
 
-        OAuth2Response oAuth2Response = null;
+        OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(registrationId, attributes);
 
-        switch (registrationId) {
-            case "google" -> oAuth2Response = new GoogleResponse(oAuth2User.getAttributes());
-            case "naver" -> oAuth2Response = new NaverResponse(oAuth2User.getAttributes());
-            case "kakao" -> oAuth2Response = new KakkoResponse(oAuth2User.getAttributes());
-            default -> {
-                return null;
-            }
+        if (userInfo.getEmail() == null || userInfo.getEmail().isEmpty()) {
+            throw new OAuth2AuthenticationException(
+                    new OAuth2Error("invalid_email", "Email not found from OAuth2 provider", "")); // TODO 예외를 좀 더  정교하게 변경
         }
 
-        String username = oAuth2Response.getProvider() + "_" + oAuth2Response.getProviderId();
-        OAuth2 existData = OAuth2Repository.findByUsername(username);
-
-        if (existData == null) {
-            User user = User.builder()
-                            .email(oAuth2Response.getEmail())
-                            .role(Role.USER.name())
-                            .password("oauth2")
+        Member member = memberRepository.findByEmail(userInfo.getEmail())
+                .orElseGet(() -> {
+                    Member newMember = Member.builder()
+                            .email(userInfo.getEmail())
+                            .password("{noop}oauth2user") // TODO 좀 더 정교한 방식으로 변경하기
                             .build();
 
-            userRepository.save(user);
+                    memberRepository.save(newMember);
 
-            OAuth2 oAuth2 = OAuth2.builder()
-                    .username(username)
-                    .email(oAuth2Response.getEmail())
-                    .user(user)
-                    .build();
+                    Role role = Role.builder()
+                            .role("ROLE_USER")
+                            .member(newMember)
+                            .build();
 
-            OAuth2Repository.save(oAuth2);
+                    roleRepository.save(role);
 
-            OAuthDTO authDTO = OAuthDTO.builder()
-                    .userId(user.getId())
-                    .username(username)
-                    .name(oAuth2Response.getName())
-                    .role(Role.USER.name())
-                    .build();
+                    return newMember;
+                });
 
-            return new PrincipalDetails(authDTO);
+        OAuth2 oauth2 = oauth2Repository.findByUsername(userInfo.getId())
+                .orElseGet(() -> {
+                    OAuth2 newOAuth2 = OAuth2.builder()
+                            .provider(registrationId)
+                            .username(userInfo.getId())
+                            .member(member)
+                            .email(userInfo.getEmail())
+                            .build();
+                    return oauth2Repository.save(newOAuth2);
+                });
 
-        } else {
-
-            existData.setEmail(oAuth2Response.getEmail());
-
-            OAuth2Repository.save(existData);
-
-            OAuthDTO authDTO = OAuthDTO.builder()
-                    .userId(existData.getUser().getId())
-                    .username(username)
-                    .name(oAuth2Response.getName())
-                    .role(Role.USER.name())
-                    .build();
-
-            return new PrincipalDetails(authDTO);
-
-        }
+        return new CustomOAuth2User(member, oauth2, attributes);
     }
 }

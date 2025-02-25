@@ -28,7 +28,7 @@ logging:
 
 app:
   jwt:
-    secret: 879PP1tB6p2StH4oVAtvME7nmqM1eGCYrQpIskegR2fFsHa9kaftJpA6CqGs3aQCzszcdvSZRxWwO9FsS5s78Q==
+    secret: YiGSj3V73Aed7DZrt4gd4w2sdDWX9O/jB5mPeqk8MSc=
     cookie:
       name: Authorization
       domain: unicat.day
@@ -42,9 +42,17 @@ app:
   api:
     protocol: https
     domain: api.unicat.day
-    port: 8080
+    port: 443
 
   ui:
     protocol: https
     domain: unicat.day
-    port: 3000
+    port: 80
+
+server:
+  port: 443
+  ssl:
+    key-store: classpath:myCert.p12
+    key-store-type: PKCS12
+    key-store-password: "123456"
+    key-alias: myCert
