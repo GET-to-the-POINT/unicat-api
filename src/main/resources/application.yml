@@ -28,4 +28,6 @@ security:
 
 app:
   jwt:
-    secret: ${APP_JWT_SECRET}
+    private-key: ${APP_JWT_PRIVATE_KEY}
+    public-key: ${APP_JWT_PUBLIC_KEY}
+    key-id: ${APP_JWT_KEY_ID}

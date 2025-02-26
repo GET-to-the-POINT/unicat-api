@@ -17,24 +17,27 @@ public class OAuth2 {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
+    @Column(nullable = false)
+    private String provider;
+
+    @Column(unique = true, nullable = false)
     private String username;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
 
     @Setter
     private String email;
 
     private LocalDateTime createAt;
-
     private LocalDateTime updateAt;
 
     @Builder
-    public OAuth2(String username, User user, String email) {
+    public OAuth2(String provider, String username, Member member, String email) {
+        this.provider = provider;
         this.username = username;
-        this.user = user;
+        this.member = member;
         this.email = email;
     }
 
