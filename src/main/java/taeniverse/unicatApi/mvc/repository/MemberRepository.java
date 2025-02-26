@@ -1,13 +1,13 @@
 package taeniverse.unicatApi.mvc.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import taeniverse.unicatApi.mvc.model.entity.User;
+import taeniverse.unicatApi.mvc.model.entity.Member;
 
 import java.util.Optional;
 
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Boolean existsByEmail(String email);
 
-    Optional<User> findByEmail(String email);
+    Optional<Member> findByEmail(String email);
 }

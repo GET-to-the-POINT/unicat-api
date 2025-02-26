@@ -6,32 +6,34 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
-@Entity
 @Getter
 @NoArgsConstructor
-@Table(name = "users") // 예약어를 피하기 위해 변경
-public class User {
+@Entity
+public class Member {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Member 엔티티의 기본키 자동 생성
     private Long id;
 
-    private String password;
-
+    @Column(unique = true, nullable = false)
     private String email;
 
-    private String role;
+    @Column(nullable = false)
+    private String password;
+
+    @OneToMany(mappedBy = "member", fetch = FetchType.EAGER)
+    private List<Role> roles = new ArrayList<>();
 
     private LocalDateTime createAt;
-
     private LocalDateTime updateAt;
 
     @Builder
-    public User(String password, String email, String role) {
-        this.password = password;
+    public Member(String email, String password) {
         this.email = email;
-        this.role = role;
+        this.password = password;
     }
 
     @PrePersist
@@ -44,5 +46,4 @@ public class User {
     protected void onUpdate() {
         this.updateAt = LocalDateTime.now();
     }
-
 }

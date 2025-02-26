@@ -16,9 +16,14 @@ spring:
           batch_size: 50
           batch_versioned_data: true
 
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/postgres}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+
 logging:
   level:
-    root: INFO
+    root: WARN
     org.springframework.web: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.orm.jdbc.bind: TRACE
@@ -28,31 +33,33 @@ logging:
 
 app:
   jwt:
-    secret: 879PP1tB6p2StH4oVAtvME7nmqM1eGCYrQpIskegR2fFsHa9kaftJpA6CqGs3aQCzszcdvSZRxWwO9FsS5s78Q==
     cookie:
       name: Authorization
       domain: unicat.day
       path: /
-      secure: false
+      secure: true
       httpOnly: true
       sameSite: Lax
       maxAge: 604800
     expiration: 604800000
 
+    private-key: ${APP_JWT_PRIVATE_KEY:classpath:keys/private_key.sample}
+    public-key: ${APP_JWT_PUBLIC_KEY:classpath:keys/public_key.sample}
+    key-id: ${APP_JWT_KEY_ID:rsa-key-id}
+
   api:
     protocol: https
     domain: api.unicat.day
-    port: 8080
+    port: 443
 
   ui:
     protocol: https
     domain: unicat.day
-    port: 3000
+    port: 80
 
 server:
-  port: 443
   ssl:
-    key-store: classpath:keystore.p12
-    key-store-type: PKCS12
-    key-store-password: ""
-    key-alias: unicat.day
+    key-store: ${APP_SSL_KEY_STORE:classpath:keys/unicat.p12}
+    key-store-type: ${APP_SSL_KEY_STORE_TYPE:PKCS12}
+    key-store-password: ${APP_SSL_KEY_STORE_PASSWORD:unicat123}
+    key-alias: ${APP_SSL_KEY_ALIAS:unicat-day}
