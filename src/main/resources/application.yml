@@ -10,9 +10,9 @@ spring:
         enabled: true
 
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/postgres}
-    username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   profiles:
@@ -35,8 +35,3 @@ server:
     key-store-type: ${APP_SSL_KEY_STORE_TYPE:PKCS12}
     key-store-password: ${APP_SSL_KEY_STORE_PASSWORD}
     key-alias: ${APP_SSL_KEY_ALIAS}
-
-  # JSESSIONID 쿠키 발급이 안되도록 하기 위한 장치
-  servlet:
-    session:
-      tracking-modes: ssl
