@@ -28,7 +28,6 @@ logging:
 
 app:
   jwt:
-    secret: YiGSj3V73Aed7DZrt4gd4w2sdDWX9O/jB5mPeqk8MSc=
     cookie:
       name: Authorization
       domain: unicat.day
@@ -38,6 +37,10 @@ app:
       sameSite: Lax
       maxAge: 604800
     expiration: 604800000
+
+    private-key: classpath:keys/private_key.sample
+    public-key: classpath:keys/public_key.sample
+    key-id: rsa-key-id
 
   api:
     protocol: https
@@ -52,7 +55,9 @@ app:
 server:
   port: 443
   ssl:
-    key-store: classpath:myCert.p12
+    key-store: classpath:keys/unicat.p12
     key-store-type: PKCS12
-    key-store-password: "123456"
-    key-alias: myCert
+    key-store-password: unicat123
+    key-alias: unicat-day
+    enabled: true
+
