@@ -35,3 +35,7 @@ server:
     key-store-type: ${APP_SSL_KEY_STORE_TYPE:PKCS12}
     key-store-password: ${APP_SSL_KEY_STORE_PASSWORD}
     key-alias: ${APP_SSL_KEY_ALIAS}
+
+youtube:
+  api:
+    key: ${YOUTUBE_API_KEY:AIzaSyD98eK0PRdCvE9hr_7qLIwhriuxdM5mUZc}

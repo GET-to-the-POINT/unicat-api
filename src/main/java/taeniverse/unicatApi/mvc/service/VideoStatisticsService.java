@@ -1,75 +1,82 @@
 package taeniverse.unicatApi.mvc.service;
 
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.youtube.YouTube;
-import com.google.api.services.youtube.model.Video;
-import com.google.api.services.youtube.model.VideoListResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import taeniverse.unicatApi.mvc.model.entity.VideoStatistics;
 import taeniverse.unicatApi.mvc.repository.VideoStatisticsRepository;
-import java.io.IOException;
 import java.math.BigInteger;
-import java.security.GeneralSecurityException;
-import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
-
+@RequiredArgsConstructor
 @Service
 public class VideoStatisticsService {
 
-    //@Value("${youtube.api.key}")
-    private String API_KEY = "AIzaSyD98eK0PRdCvE9hr_7qLIwhriuxdM5mUZc";
-    private static final String VIDEO_ID = "4PQs57cq84U";  // 동영상 ID
+    private final VideoStatisticsRepository videoStatisticsRepository;
 
-    @Autowired
-    private VideoStatisticsRepository videoStatisticsRepository;
+    // 특정 비디오에 대한 특정 기간의 통계 계산
+    public String getStatisticsForVideo(String videoId, Date startDate, Date endDate) {
+        // 해당 비디오와 기간에 맞는 데이터 조회
+        List<VideoStatistics> statisticsList = videoStatisticsRepository.findByVideoIdAndTimestampBetween(videoId, startDate, endDate);
 
-    // YouTube 서비스 생성
-    private YouTube getYouTubeService() throws GeneralSecurityException, IOException {
-        //싱글톤
-        JacksonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-        //HTTP 트랜스포터, http 요청 보내는거
-        return new YouTube.Builder(GoogleNetHttpTransport.newTrustedTransport(),
-                jsonFactory,
-                //추가 요청
-                request -> {
-
-                })
-                .setApplicationName("My First Project")
-                .build();
-    }
-
-    // YouTube 동영상 조회수, 좋아요 등을 가져오는 메서드
-    public String getVideoStatistics() throws GeneralSecurityException, IOException {
-        YouTube youtubeService = getYouTubeService();
-        YouTube.Videos.List request = youtubeService.videos().list(Arrays.asList("statistics"));
-        request.setId(Arrays.asList(VIDEO_ID));
-        request.setKey(API_KEY);
-
-        VideoListResponse response = request.execute();
-
-        // 동영상 정보 추출
-        if (response.getItems() != null && !response.getItems().isEmpty()) {
-            Video video = response.getItems().get(0);
-            BigInteger viewCount = video.getStatistics().getViewCount();
-            BigInteger likeCount = video.getStatistics().getLikeCount();
-            BigInteger commentCount = video.getStatistics().getCommentCount();
-
-            // Video 객체 생성
-            VideoStatistics videoStatistics = new VideoStatistics();// 엔티티 Video 사용
-            videoStatistics.setVideoId(VIDEO_ID);  // 필드 수정
-            videoStatistics.setViewCount(viewCount);
-            videoStatistics.setLikeCount(likeCount);
-            videoStatistics.setCommentCount(commentCount);
-
-            // DB에 저장
-            videoStatisticsRepository.save(videoStatistics);  // 레파지토리 이름 수정
-
-            return String.format("조회수: %d, 좋아요 수: %d, 댓글 수: %d",
-                    viewCount, likeCount, commentCount);
-        } else {
-            return "동영상 정보를 찾을 수 없습니다.";
+        if (statisticsList.isEmpty()) {
+            return "해당 비디오와 기간에 대한 통계 데이터가 없습니다.";
         }
+
+        // 각 통계 값 계산
+        BigInteger totalViewCount = BigInteger.ZERO;
+        BigInteger totalLikeCount = BigInteger.ZERO;
+        BigInteger totalCommentCount = BigInteger.ZERO;
+
+        BigInteger maxViewCount = BigInteger.ZERO;
+        BigInteger minViewCount = BigInteger.valueOf(Long.MAX_VALUE);
+
+        BigInteger maxLikeCount = BigInteger.ZERO;
+        BigInteger minLikeCount = BigInteger.valueOf(Long.MAX_VALUE);
+
+        // 통계 계산
+        for (VideoStatistics videoStat : statisticsList) {
+            totalViewCount = totalViewCount.add(videoStat.getViewCount());
+            totalLikeCount = totalLikeCount.add(videoStat.getLikeCount());
+            totalCommentCount = totalCommentCount.add(videoStat.getCommentCount());
+
+            // 최대/최소 조회수
+            if (videoStat.getViewCount().compareTo(maxViewCount) > 0) {
+                maxViewCount = videoStat.getViewCount();
+            }
+            if (videoStat.getViewCount().compareTo(minViewCount) < 0) {
+                minViewCount = videoStat.getViewCount();
+            }
+
+            // 최대/최소 좋아요 수
+            if (videoStat.getLikeCount().compareTo(maxLikeCount) > 0) {
+                maxLikeCount = videoStat.getLikeCount();
+            }
+            if (videoStat.getLikeCount().compareTo(minLikeCount) < 0) {
+                minLikeCount = videoStat.getLikeCount();
+            }
+        }
+
+        // 평균 조회수, 좋아요 수 계산
+        BigInteger averageViewCount = totalViewCount.divide(BigInteger.valueOf(statisticsList.size()));
+        BigInteger averageLikeCount = totalLikeCount.divide(BigInteger.valueOf(statisticsList.size()));
+        BigInteger averageCommentCount = totalCommentCount.divide(BigInteger.valueOf(statisticsList.size()));
+
+        // 결과 문자열 생성
+        return String.format(
+                "기간: %s ~ %s<br>" +
+                        "비디오 ID: %s<br>" +
+                        "평균 조회수: %d<br>" +
+                        "평균 좋아요 수: %d<br>" +
+                        "평균 댓글 수: %d<br>" +
+                        "최대 조회수: %d<br>" +
+                        "최저 조회수: %d<br>" +
+                        "최대 좋아요 수: %d<br>" +
+                        "최저 좋아요 수: %d<br>",
+                startDate, endDate, videoId,
+                averageViewCount, averageLikeCount, averageCommentCount,
+                maxViewCount, minViewCount,
+                maxLikeCount, minLikeCount
+        );
     }
 }
