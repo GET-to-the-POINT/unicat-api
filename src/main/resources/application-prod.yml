@@ -21,7 +21,7 @@ app:
       name: Authorization
       domain: unicat.day
       path: /
-      secure: false
+      secure: true
       httpOnly: true
       sameSite: Lax
       maxAge: 604800
