@@ -61,3 +61,7 @@ server:
     key-alias: unicat-day
     enabled: true
 
+# JSESSIONID 쿠키 발급이 안되도록 하기 위한 장치
+  servlet:
+    session:
+      tracking-modes: ssl

@@ -26,13 +26,6 @@ security:
   headers:
     frame-options: ${SPRING_SECURITY_HEADERS_FRAME_OPTIONS:DENY}
 
-# JSESSIONID 쿠키 발급이 안되도록 하기 위한 장치
-
-server:
-  servlet:
-    session:
-      tracking-modes: ssl
-
 app:
   jwt:
     private-key: ${APP_JWT_PRIVATE_KEY}

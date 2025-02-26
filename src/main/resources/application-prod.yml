@@ -36,3 +36,11 @@ app:
     protocol: https
     domain: unicat.day
     port: 80
+
+server:
+  port: 443
+
+  # JSESSIONID 쿠키 발급이 안되도록 하기 위한 장치
+  servlet:
+    session:
+      tracking-modes: ssl

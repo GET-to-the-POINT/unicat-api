@@ -68,13 +68,6 @@ public class SwaggerConfig {
                                         .scheme("bearer")
                                         .bearerFormat("JWT"))
                         .addSecuritySchemes(oauth2SchemeName, oauth2Scheme));
-
-        if (environment.matchesProfiles("prod")) {
-            openAPI.addServersItem(
-                    new Server().url(PROD_PROTOCOL + "://" + PROD_HOST + ":" + PROD_PORT)
-            );
-        }
-
         return openAPI;
     }
 }
