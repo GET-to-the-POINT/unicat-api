@@ -6,9 +6,12 @@ spring:
           google:
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET}
+            authorization-grant-type: authorization_code
             scope:
               - profile
               - email
+              - "https://www.googleapis.com/auth/youtube.upload"
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
           kakao:
             client-name: kakao
             client-id: ${KAKAO_CLIENT_ID}

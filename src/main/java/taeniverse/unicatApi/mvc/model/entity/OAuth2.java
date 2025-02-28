@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 @Entity
@@ -30,8 +30,17 @@ public class OAuth2 {
     @Setter
     private String email;
 
-    private LocalDateTime createAt;
-    private LocalDateTime updateAt;
+    @Setter
+    private String accessToken;
+
+    @Setter
+    private String refreshToken;
+
+    @Setter
+    private Instant AccessTokenExpiresAt;
+
+    private Instant createAt;
+    private Instant updateAt;
 
     @Builder
     public OAuth2(String provider, String username, Member member, String email) {
@@ -43,12 +52,12 @@ public class OAuth2 {
 
     @PrePersist
     protected void onCreate() {
-        this.createAt = LocalDateTime.now();
-        this.updateAt = LocalDateTime.now();
+        this.createAt = Instant.now();
+        this.updateAt = Instant.now();
     }
 
     @PreUpdate
     protected void onUpdate() {
-        this.updateAt = LocalDateTime.now();
+        this.updateAt = Instant.now();
     }
 }
