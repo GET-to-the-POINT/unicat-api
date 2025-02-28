@@ -21,8 +21,8 @@ import java.util.Arrays;
 @Service
 public class YoutubeDataService {
 
-    @Value("${youtube.api.key}")
-    private String API_KEY;
+
+    private String API_KEY="AIzaSyD98eK0PRdCvE9hr_7qLIwhriuxdM5mUZc";
 
     private final YoutubeDataRepository youtubeDataRepository;
 
