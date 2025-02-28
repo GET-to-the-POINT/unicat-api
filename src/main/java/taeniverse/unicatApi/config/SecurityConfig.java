@@ -1,6 +1,5 @@
 package taeniverse.unicatApi.config;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -10,18 +9,13 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
-import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import taeniverse.unicatApi.mvc.service.CustomOAuth2UserService;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
@@ -56,44 +50,8 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
-                        .authorizationEndpoint(authorizationEndpoint ->
-                                authorizationEndpoint.authorizationRequestResolver(new OAuth2AuthorizationRequestResolver() {
-                                    // DefaultOAuth2AuthorizationRequestResolver를 내부에서 생성
-                                    private final DefaultOAuth2AuthorizationRequestResolver defaultResolver =
-                                            new DefaultOAuth2AuthorizationRequestResolver(clientRegistrationRepository, "/oauth2/authorization");
-
-                                    @Override
-                                    public OAuth2AuthorizationRequest resolve(HttpServletRequest request) {
-                                        OAuth2AuthorizationRequest authorizationRequest = defaultResolver.resolve(request);
-                                        return customize(request, authorizationRequest);
-                                    }
-
-                                    @Override
-                                    public OAuth2AuthorizationRequest resolve(HttpServletRequest request, String clientRegistrationId) {
-                                        OAuth2AuthorizationRequest authorizationRequest = defaultResolver.resolve(request, clientRegistrationId);
-                                        return customize(request, authorizationRequest);
-                                    }
-
-                                    // 추가 파라미터를 설정하는 메서드
-                                    private OAuth2AuthorizationRequest customize(HttpServletRequest request, OAuth2AuthorizationRequest authorizationRequest) {
-                                        // 요청 URI에서 registrationId 추출 (예: "/oauth2/authorization/google" -> "google")
-                                        String requestUri = request.getRequestURI();
-                                        String baseUri = "/oauth2/authorization/";
-                                        String registrationId = null;
-                                        if (requestUri.startsWith(baseUri)) {
-                                            registrationId = requestUri.substring(baseUri.length());
-                                        }
-                                        if (authorizationRequest != null && "google".equals(registrationId)) {
-                                            Map<String, Object> additionalParameters = new HashMap<>(authorizationRequest.getAdditionalParameters());
-                                            additionalParameters.put("access_type", "offline");
-                                            additionalParameters.put("prompt", "consent");
-                                            return OAuth2AuthorizationRequest.from(authorizationRequest)
-                                                    .additionalParameters(additionalParameters)
-                                                    .build();
-                                        }
-                                        return authorizationRequest;
-                                    }
-                                })
+                        .authorizationEndpoint(authorizationEndpoint -> authorizationEndpoint
+                                .authorizationRequestResolver(new CustomOAuth2AuthorizationRequestResolver(clientRegistrationRepository))
                         )
                         .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
                                 .userService(customOAuth2UserService)
