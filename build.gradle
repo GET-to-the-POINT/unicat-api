@@ -25,6 +25,13 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+
+	//spring -Retry
+	implementation 'org.springframework.retry:spring-retry:2.0.4'
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
+
 
 	// ===== Database Driver =====
 	runtimeOnly 'org.postgresql:postgresql'

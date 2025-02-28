@@ -35,13 +35,11 @@ public class Member {
         this.email = email;
         this.password = password;
     }
-
     @PrePersist
     protected void onCreate() {
         this.createAt = LocalDateTime.now();
         this.updateAt = LocalDateTime.now();
     }
-
     @PreUpdate
     protected void onUpdate() {
         this.updateAt = LocalDateTime.now();
