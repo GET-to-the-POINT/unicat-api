@@ -10,6 +10,7 @@ spring:
             scope:
               - profile
               - email
+              - "https://www.googleapis.com/auth/youtube.upload"
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
           kakao:
             client-name: kakao
