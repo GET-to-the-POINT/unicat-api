@@ -1,5 +1,6 @@
 package taeniverse.unicatApi.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -18,20 +19,12 @@ import taeniverse.unicatApi.mvc.service.CustomOAuth2UserService;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final CustomOAuth2AuthenticationSuccessHandler oauth2SuccessHandler;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final MultiBearerTokenResolver multiBearerTokenResolver;
-
-    public SecurityConfig(CustomOAuth2AuthenticationSuccessHandler oauth2SuccessHandler,
-                          CustomOAuth2UserService customOAuth2UserService,
-                          MultiBearerTokenResolver multiBearerTokenResolver
-    ) {
-        this.oauth2SuccessHandler = oauth2SuccessHandler;
-        this.customOAuth2UserService = customOAuth2UserService;
-        this.multiBearerTokenResolver = multiBearerTokenResolver;
-    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -42,14 +35,11 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/").permitAll()
+                        .requestMatchers("/", "/error").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers(HttpMethod.GET, "/.well-known/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/sign-in", "/api/sign-up").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/oauth-links").permitAll()
-                        .requestMatchers("/error").permitAll()
-
-                        .requestMatchers("/api/test").permitAll()  // 공개 API
 
                         .anyRequest().authenticated()
                 )
