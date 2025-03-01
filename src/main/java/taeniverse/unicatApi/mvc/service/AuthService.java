@@ -40,7 +40,7 @@ public class AuthService {
     public void signIn(SignInDto signInDto, HttpServletResponse response) {
         Member member = memberRepository.findByEmail(signInDto.getEmail()).orElse(null);
         if (member == null || !passwordEncoder.matches(signInDto.getPassword(), member.getPassword())) {
-            String errorMessage = messageSource.getMessage("error.invalid.credentials", null, LocaleContextHolder.getLocale());
+            String errorMessage = messageSource.getMessage("error.invalid.credentials", null, "", LocaleContextHolder.getLocale());
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, errorMessage);
         }
 
