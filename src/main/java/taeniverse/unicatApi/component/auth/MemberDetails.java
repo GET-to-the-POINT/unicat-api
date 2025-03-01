@@ -22,12 +22,12 @@ public class MemberDetails implements UserDetails {
 
     @Override
     public String getPassword() {
-        return password; // 패스워드는 JWT 기반 인증에서는 필요 없음
+        return password;
     }
 
     @Override
     public String getUsername() {
-        return email; // username 대신 email 사용
+        return email;
     }
 
     @Override
