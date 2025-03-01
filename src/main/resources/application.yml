@@ -33,11 +33,6 @@ app:
     domain: api.unicat.day
     port: 443
 
-  ui:
-    protocol: https
-    domain: unicat.day
-    port: 80
-
 server:
   port: 443
   http2:

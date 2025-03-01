@@ -44,7 +44,6 @@ app:
       httpOnly: true
       sameSite: Lax
       maxAge: 604800
-    expiration: 604800000
 
     private-key: ${APP_JWT_PRIVATE_KEY:classpath:keys/private_key.sample}
     public-key: ${APP_JWT_PUBLIC_KEY:classpath:keys/public_key.sample}
