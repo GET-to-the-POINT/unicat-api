@@ -1,4 +1,4 @@
-package taeniverse.unicatApi.config;
+package taeniverse.unicatApi.component.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

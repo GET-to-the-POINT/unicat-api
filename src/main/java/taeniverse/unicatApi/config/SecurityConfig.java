@@ -18,6 +18,7 @@ import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import taeniverse.unicatApi.component.oauth2.CustomOAuth2AuthenticationSuccessHandler;
 import taeniverse.unicatApi.component.oauth2.CustomOAuth2AuthorizationRequestResolver;
 import taeniverse.unicatApi.component.oauth2.MultiBearerTokenResolver;
+import taeniverse.unicatApi.component.filter.ReissueAccessTokenFilter;
 import taeniverse.unicatApi.mvc.service.CustomOAuth2UserService;
 
 @Configuration
