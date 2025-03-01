@@ -93,14 +93,14 @@ public class SignController {
     }
 
     // -------------------------------------------------
-    //                로그인 (Sign-In)
+    //                사인인 (Sign-In)
     // -------------------------------------------------
 
     @PostMapping(value = "/sign-in", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     @Operation(
-            summary = "로그인 (Sign-In) - JSON",
-            description = "JSON Body로 사용자 인증 정보를 받아 로그인 처리하며, 성공 시 JWT 토큰을 쿠키에 저장합니다.",
+            summary = "사인인 (Sign-In) - JSON",
+            description = "JSON Body로 사용자 인증 정보를 받아 사인인 처리하며, 성공 시 JWT 토큰을 쿠키에 저장합니다.",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     required = true,
                     content = @Content(
@@ -108,13 +108,13 @@ public class SignController {
                             schema = @Schema(implementation = SignInDto.class),
                             examples = @ExampleObject(
                                     name = "SignIn JSON Example",
-                                    summary = "로그인 JSON 요청 예시",
+                                    summary = "사인인 JSON 요청 예시",
                                     value = "{ \"email\": \"user@example.com\", \"password\": \"1234\" }"
                             )
                     )
             ),
             responses = {
-                    @ApiResponse(responseCode = "200", description = "로그인 성공"),
+                    @ApiResponse(responseCode = "200", description = "사인인 성공"),
                     @ApiResponse(
                             responseCode = "400",
                             description = "잘못된 요청 - Validation 오류 발생",
@@ -143,10 +143,10 @@ public class SignController {
     @PostMapping(value = "/sign-in", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     @ResponseStatus(HttpStatus.OK)
     @Operation(
-            summary = "로그인 (Sign-In) - Form",
-            description = "Form-URL-Encoded 파라미터로 사용자 인증 정보를 받아 로그인 처리하며, 성공 시 JWT 토큰을 쿠키에 저장합니다.",
+            summary = "사인인 (Sign-In) - Form",
+            description = "Form-URL-Encoded 파라미터로 사용자 인증 정보를 받아 사인인 처리하며, 성공 시 JWT 토큰을 쿠키에 저장합니다.",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "로그인 성공"),
+                    @ApiResponse(responseCode = "200", description = "사인인 성공"),
                     @ApiResponse(
                             responseCode = "401",
                             description = "인증 실패 - 잘못된 이메일 또는 비밀번호",
@@ -165,16 +165,16 @@ public class SignController {
     }
 
     // -------------------------------------------------
-    //                로그아웃 (Sign-Out)
+    //                사인아웃 (Sign-Out)
     // -------------------------------------------------
 
     @DeleteMapping("/sign-out")
     @ResponseStatus(HttpStatus.OK)
     @Operation(
-            summary = "로그아웃 (Sign-Out)",
-            description = "JWT 토큰 쿠키를 제거하여 로그아웃 처리합니다.",
+            summary = "사인아웃 (Sign-Out)",
+            description = "JWT 토큰 쿠키를 제거하여 사인아웃 처리합니다.",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "로그아웃 성공")
+                    @ApiResponse(responseCode = "200", description = "사인아웃 성공")
             }
     )
     public void signOut(HttpServletResponse response) {

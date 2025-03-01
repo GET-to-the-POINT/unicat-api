@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.extern.jackson.Jacksonized;
 
-@Schema(description = "사용자 로그인을 위한 데이터 DTO")
+@Schema(description = "사용자 사인인을 위한 데이터 DTO")
 @Builder
 @Jacksonized
 public record SignInDto(
