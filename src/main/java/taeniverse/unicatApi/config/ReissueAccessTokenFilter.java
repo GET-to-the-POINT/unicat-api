@@ -37,7 +37,8 @@ public class ReissueAccessTokenFilter extends OncePerRequestFilter {
             String newAccessToken = jwtUtil.generateJwtToken(email);
 
             jwtUtil.addJwtCookie(response, newAccessToken);
-            filterChain.doFilter(request, response);
         }
+
+        filterChain.doFilter(request, response);
     }
 }
