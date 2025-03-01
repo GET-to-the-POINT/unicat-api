@@ -10,11 +10,13 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import taeniverse.unicatApi.component.oauth2.CustomOAuth2AuthenticationSuccessHandler;
+import taeniverse.unicatApi.component.oauth2.CustomOAuth2AuthorizationRequestResolver;
 import taeniverse.unicatApi.component.oauth2.MultiBearerTokenResolver;
 import taeniverse.unicatApi.mvc.service.CustomOAuth2UserService;
 
@@ -23,6 +25,7 @@ import taeniverse.unicatApi.mvc.service.CustomOAuth2UserService;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final ClientRegistrationRepository clientRegistrationRepository;
     private final CustomOAuth2AuthenticationSuccessHandler oauth2SuccessHandler;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final MultiBearerTokenResolver multiBearerTokenResolver;
@@ -47,6 +50,11 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
+                        .authorizationEndpoint(authorizationEndpoint ->
+                                authorizationEndpoint.authorizationRequestResolver(
+                                        new CustomOAuth2AuthorizationRequestResolver(clientRegistrationRepository, "/oauth2/authorization")
+                                )
+                        )
                         .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
                                 .userService(customOAuth2UserService)
                         )

@@ -16,6 +16,7 @@ import taeniverse.unicatApi.mvc.service.MemberDetailsService;
 import taeniverse.unicatApi.component.util.JwtUtil;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -54,6 +55,15 @@ public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationS
         String token = jwt.getTokenValue();
 
         jwtUtil.addJwtCookie(response, token);
-        response.sendRedirect("/");
+
+        String state = request.getParameter("state");
+        String redirect = "/";
+        if (state != null && state.contains("|")) {
+            String[] parts = state.split("\\|");
+            if (parts.length == 2) {
+                redirect = java.net.URLDecoder.decode(parts[1], StandardCharsets.UTF_8);
+            }
+        }
+        response.sendRedirect(redirect);
     }
 }
