@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import taeniverse.unicatApi.component.oauth2.CustomOAuth2AuthenticationSuccessHandler;
 import taeniverse.unicatApi.component.oauth2.MultiBearerTokenResolver;
 import taeniverse.unicatApi.mvc.service.CustomOAuth2UserService;
 
