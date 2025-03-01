@@ -8,7 +8,7 @@ import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Component;
-import taeniverse.unicatApi.component.propertie.CookieProperties;
+import taeniverse.unicatApi.component.propertie.AppProperties;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -17,7 +17,7 @@ import java.time.temporal.ChronoUnit;
 @RequiredArgsConstructor
 public class JwtUtil {
 
-    private final CookieProperties jwtProperties;
+    private final AppProperties appProperties;
     private final JwtEncoder jwtEncoder;
 
     public void addJwtCookie(HttpServletResponse response, String token) {
@@ -26,12 +26,12 @@ public class JwtUtil {
     }
 
     private Cookie createJwtCookie(String token) {
-        Cookie jwtCookie = new Cookie(jwtProperties.getName(), token);
-        jwtCookie.setDomain(jwtProperties.getDomain());
-        jwtCookie.setPath(jwtProperties.getPath());
-        jwtCookie.setSecure(jwtProperties.isSecure());
-        jwtCookie.setHttpOnly(jwtProperties.isHttpOnly());
-        jwtCookie.setMaxAge(jwtProperties.getMaxAge());
+        Cookie jwtCookie = new Cookie(appProperties.jwt().cookie().name(), token);
+        jwtCookie.setDomain(appProperties.jwt().cookie().domain());
+        jwtCookie.setPath(appProperties.jwt().cookie().path());
+        jwtCookie.setSecure(appProperties.jwt().cookie().secure());
+        jwtCookie.setHttpOnly(appProperties.jwt().cookie().httpOnly());
+        jwtCookie.setMaxAge(appProperties.jwt().cookie().maxAge());
 
         return jwtCookie;
     }
