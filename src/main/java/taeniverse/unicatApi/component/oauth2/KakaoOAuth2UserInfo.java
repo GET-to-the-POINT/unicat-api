@@ -1,4 +1,4 @@
-package taeniverse.unicatApi.temp;
+package taeniverse.unicatApi.component.oauth2;
 
 import lombok.Getter;
 
@@ -7,10 +7,8 @@ import java.util.Map;
 @Getter
 public class KakaoOAuth2UserInfo implements OAuth2UserInfo {
 
-    // 카카오에서 받은 전체 사용자 속성을 저장하는 맵입니다.
     private final Map<String, Object> attributes;
 
-    // 생성자: 외부에서 전달받은 사용자 속성(attributes) 맵을 초기화합니다.
     public KakaoOAuth2UserInfo(Map<String, Object> attributes) {
         this.attributes = attributes;
     }

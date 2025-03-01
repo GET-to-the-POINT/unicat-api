@@ -1,4 +1,4 @@
-package taeniverse.unicatApi.config;
+package taeniverse.unicatApi.component.propertie;
 
 import lombok.Getter;
 import lombok.Setter;

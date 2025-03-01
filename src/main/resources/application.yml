@@ -3,12 +3,13 @@ spring:
     name: unicat-api
   config:
     import: classpath:core/application-oauth.yml
-
   mvc:
     hiddenmethod:
       filter:
         enabled: true
-
+  web:
+    locale: ko
+    locale-resolver: accept-header
   datasource:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
@@ -26,12 +27,27 @@ app:
   jwt:
     private-key: ${APP_JWT_PRIVATE_KEY}
     public-key: ${APP_JWT_PUBLIC_KEY}
-    key-id: ${APP_JWT_KEY_ID}
+    key-id: ${APP_JWT_KEY_ID}p
+  api:
+    protocol: https
+    domain: api.unicat.day
+    port: 443
+
+  ui:
+    protocol: https
+    domain: unicat.day
+    port: 80
 
 server:
   port: 443
+  http2:
+    enabled: true
   ssl:
     key-store: ${APP_SSL_KEY_STORE}
     key-store-type: ${APP_SSL_KEY_STORE_TYPE:PKCS12}
     key-store-password: ${APP_SSL_KEY_STORE_PASSWORD}
     key-alias: ${APP_SSL_KEY_ALIAS}
+  error:
+    include-exception: true
+    include-binding-errors: always
+    include-message: always
