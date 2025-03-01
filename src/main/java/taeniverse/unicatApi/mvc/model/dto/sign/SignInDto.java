@@ -1,24 +1,19 @@
 package taeniverse.unicatApi.mvc.model.dto.sign;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.extern.jackson.Jacksonized;
 
-@Getter
-@JsonDeserialize(builder = SignInDto.SignInDtoBuilder.class)
+@Schema(description = "사용자 로그인을 위한 데이터 DTO")
 @Builder
-public class SignInDto {
+@Jacksonized
+public record SignInDto(
+        @NotBlank(message = "{email.required}")
+        @Schema(description = "사용자 이메일", example = "user@example.com")
+        String email,
 
-    @NotBlank(message = "{email.required}")
-    private final String email;
-
-    @NotBlank(message = "{password.required}")
-    private final String password;
-
-    @JsonPOJOBuilder(withPrefix = "")
-    public static class SignInDtoBuilder {
-        // Lombok이 자동으로 빌더 메서드를 생성합니다.
-    }
-}
+        @NotBlank(message = "{password.required}")
+        @Schema(description = "사용자 비밀번호", example = "StrongPassword123")
+        String password
+) {}

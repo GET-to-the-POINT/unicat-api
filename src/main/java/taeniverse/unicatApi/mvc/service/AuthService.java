@@ -24,12 +24,12 @@ public class AuthService {
     private final MessageSource messageSource;
 
     public void signUp(SignUpDto signUpDto, HttpServletResponse response) {
-        if (memberRepository.existsByEmail(signUpDto.getEmail())) {
+        if (memberRepository.existsByEmail(signUpDto.email())) {
             String errorMessage = messageSource.getMessage("error.email.in.use", null, "", LocaleContextHolder.getLocale());
             throw new ResponseStatusException(HttpStatus.CONFLICT, errorMessage);
         }
 
-        Member member = Member.builder().email(signUpDto.getEmail()).password(passwordEncoder.encode(signUpDto.getPassword())).build();
+        Member member = Member.builder().email(signUpDto.email()).password(passwordEncoder.encode(signUpDto.password())).build();
 
         memberRepository.save(member);
 
@@ -38,8 +38,8 @@ public class AuthService {
     }
 
     public void signIn(SignInDto signInDto, HttpServletResponse response) {
-        Member member = memberRepository.findByEmail(signInDto.getEmail()).orElse(null);
-        if (member == null || !passwordEncoder.matches(signInDto.getPassword(), member.getPassword())) {
+        Member member = memberRepository.findByEmail(signInDto.email()).orElse(null);
+        if (member == null || !passwordEncoder.matches(signInDto.password(), member.getPassword())) {
             String errorMessage = messageSource.getMessage("error.invalid.credentials", null, "", LocaleContextHolder.getLocale());
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, errorMessage);
         }
