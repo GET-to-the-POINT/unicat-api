@@ -1,15 +1,18 @@
 package taeniverse.unicatApi.mvc.controller;
 
 import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.jwk.*;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.KeyUse;
+import com.nimbusds.jose.jwk.RSAKey;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import taeniverse.unicatApi.component.propertie.AppProperties;
 
 import java.security.interfaces.RSAPublicKey;
 import java.util.Map;
@@ -20,8 +23,7 @@ import java.util.Map;
 @Tag(name = "JWK API", description = "JSON Web Key Set 제공 API")
 public class JwkSetController {
 
-    @Value("${app.jwt.key-id}")
-    private String keyId;
+    private final AppProperties appProperties;
 
     private final RSAPublicKey publicKey;
 
@@ -35,7 +37,7 @@ public class JwkSetController {
     )
     public Map<String, Object> getJwks() {
         JWK jwk = new RSAKey.Builder(publicKey)
-                .keyID(keyId)
+                .keyID(appProperties.jwt().keyId())
                 .algorithm(JWSAlgorithm.RS256)
                 .keyUse(KeyUse.SIGNATURE)
                 .build();
