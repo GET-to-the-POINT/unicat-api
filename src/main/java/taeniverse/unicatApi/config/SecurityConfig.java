@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import taeniverse.unicatApi.component.oauth2.CustomOAuth2AuthenticationSuccessHandler;
 import taeniverse.unicatApi.component.oauth2.MultiBearerTokenResolver;
 import taeniverse.unicatApi.mvc.service.CustomOAuth2UserService;
@@ -25,6 +26,7 @@ public class SecurityConfig {
     private final CustomOAuth2AuthenticationSuccessHandler oauth2SuccessHandler;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final MultiBearerTokenResolver multiBearerTokenResolver;
+    private final ReissueAccessTokenFilter reissueAccessTokenFilter;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -54,7 +56,9 @@ public class SecurityConfig {
                         .jwt(jwtConfigurer -> jwtConfigurer
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter())
                         )
-                );
+                )
+                .addFilterAfter(reissueAccessTokenFilter, AuthorizationFilter.class);
+
         return http.build();
     }
 
