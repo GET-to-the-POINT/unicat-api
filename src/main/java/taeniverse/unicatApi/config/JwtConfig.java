@@ -1,11 +1,12 @@
 package taeniverse.unicatApi.config;
 
-import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
-import org.springframework.beans.factory.annotation.Value;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
@@ -14,8 +15,8 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.util.StreamUtils;
+import taeniverse.unicatApi.component.propertie.AppProperties;
 
-import jakarta.annotation.PostConstruct;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
@@ -26,16 +27,10 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
 @Configuration
+@RequiredArgsConstructor
 public class JwtConfig {
 
-    @Value("${app.jwt.private-key}")
-    private Resource privateKeyResource;
-
-    @Value("${app.jwt.public-key}")
-    private Resource publicKeyResource;
-
-    @Value("${app.jwt.key-id}")
-    private String keyId;
+    private final AppProperties appProperties;
 
     private RSAPrivateKey privateKey;
     private RSAPublicKey publicKey;
@@ -55,13 +50,13 @@ public class JwtConfig {
     }
 
     private RSAPrivateKey loadPrivateKey() throws Exception {
-        byte[] keyBytes = Base64.getDecoder().decode(readKey(privateKeyResource));
+        byte[] keyBytes = Base64.getDecoder().decode(readKey(appProperties.jwt().privateKey()));
         PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
         return (RSAPrivateKey) KeyFactory.getInstance("RSA").generatePrivate(keySpec);
     }
 
     private RSAPublicKey loadPublicKey() throws Exception {
-        byte[] keyBytes = Base64.getDecoder().decode(readKey(publicKeyResource));
+        byte[] keyBytes = Base64.getDecoder().decode(readKey(appProperties.jwt().publicKey()));
         X509EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
         return (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(keySpec);
     }
@@ -75,7 +70,7 @@ public class JwtConfig {
     public JwtEncoder jwtEncoder() {
         RSAKey rsaKey = new RSAKey.Builder(publicKey)
                 .privateKey(privateKey)
-                .keyID(keyId) // 키 ID 설정
+                .keyID(appProperties.jwt().keyId()) // 키 ID 설정
                 .build();
         JWKSource<SecurityContext> jwkSource = new ImmutableJWKSet<>(new JWKSet(rsaKey));
         return new NimbusJwtEncoder(jwkSource);
