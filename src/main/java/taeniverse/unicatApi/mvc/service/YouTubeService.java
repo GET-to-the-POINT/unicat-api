@@ -7,8 +7,8 @@ import com.google.api.client.http.FileContent;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.YouTubeScopes;
-import com.google.api.services.youtube.model.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.google.api.services.youtube.model.Video;
+import com.google.api.services.youtube.model.VideoStatus;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -78,3 +78,4 @@ public class YouTubeService {
         System.out.println("Video uploaded! Video ID: " + response.getId());
     }
 }
+

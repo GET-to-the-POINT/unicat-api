@@ -11,6 +11,7 @@ spring:
               - profile
               - email
               - "https://www.googleapis.com/auth/youtube.upload"
+              - "https://www.googleapis.com/auth/youtube"
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
           kakao:
             client-name: kakao

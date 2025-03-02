@@ -18,6 +18,7 @@ java {
 
 repositories {
 	mavenCentral()
+	google()
 }
 
 dependencies {
@@ -47,6 +48,17 @@ dependencies {
 	testImplementation 'org.assertj:assertj-core:3.26.3'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+
+	// ===== Youtube (yurim) =====
+
+	implementation 'com.google.api-client:google-api-client:1.34.0'
+	implementation 'com.google.http-client:google-http-client-jackson2:1.39.2'
+	implementation 'com.google.oauth-client:google-oauth-client:1.34.0'
+	implementation 'com.google.http-client:google-http-client:1.41.0'
+	implementation 'com.google.apis:google-api-services-youtube:v3-rev20230816-2.0.0'
+	implementation 'com.google.apis:google-api-services-youtubeAnalytics:v2-rev272-1.25.0'
+	implementation 'com.google.auth:google-auth-library-oauth2-http:1.10.0'
 }
 
 tasks.named('test') {
