@@ -15,10 +15,11 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
+import taeniverse.unicatApi.component.filter.ReissueAccessTokenFilter;
+import taeniverse.unicatApi.component.oauth2.CustomAuthenticationEntryPoint;
 import taeniverse.unicatApi.component.oauth2.CustomOAuth2AuthenticationSuccessHandler;
 import taeniverse.unicatApi.component.oauth2.CustomOAuth2AuthorizationRequestResolver;
 import taeniverse.unicatApi.component.oauth2.MultiBearerTokenResolver;
-import taeniverse.unicatApi.component.filter.ReissueAccessTokenFilter;
 import taeniverse.unicatApi.mvc.service.CustomOAuth2UserService;
 
 @Configuration
@@ -31,10 +32,13 @@ public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
     private final MultiBearerTokenResolver multiBearerTokenResolver;
     private final ReissueAccessTokenFilter reissueAccessTokenFilter;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
                 .sessionManagement(session ->
@@ -62,6 +66,7 @@ public class SecurityConfig {
                         .successHandler(oauth2SuccessHandler)
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
                         .bearerTokenResolver(multiBearerTokenResolver)
                         .jwt(jwtConfigurer -> jwtConfigurer
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter())
