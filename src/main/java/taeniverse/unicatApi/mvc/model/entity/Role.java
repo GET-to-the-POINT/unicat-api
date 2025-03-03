@@ -16,7 +16,7 @@ public class Role {
     private Long id;
 
     @Column(nullable = false)
-    private String role;
+    private String name;
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
@@ -24,8 +24,8 @@ public class Role {
     private Member member;
 
     @Builder
-    public Role(String role, Member member) {
-        this.role = role;
+    public Role(String name, Member member) {
+        this.name = name;
         this.member = member;
     }
 }

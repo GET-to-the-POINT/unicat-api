@@ -3,71 +3,54 @@ package taeniverse.unicatApi.config;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.security.*;
-import io.swagger.v3.oas.models.servers.Server;
-import org.springframework.beans.factory.annotation.Value;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Configuration
 public class SwaggerConfig {
 
-    @Value("${app.api.domain}")
-    private String PROD_HOST;
-
-    @Value("${app.api.port}")
-    private String PROD_PORT;
-
-    @Value("${app.api.protocol}")
-    private String PROD_PROTOCOL;
-
-    @Value("${spring.security.oauth2.client.registration.google.client-id:12312312}")
-    private String clientId;
-
-    @Value("${spring.security.oauth2.client.registration.google.client-secret:123123}")
-    private String clientSecret;
-
     @Bean
-    public OpenAPI customOpenAPI(Environment environment) {
+    public OpenAPI customOpenAPI() {
         String jwtSchemeName = "bearerAuth";
-        String oauth2SchemeName = "oauth2";
 
-        SecurityScheme oauth2Scheme = new SecurityScheme()
-                .name(oauth2SchemeName)
-                .type(SecurityScheme.Type.OAUTH2)
-                .flows(new OAuthFlows()
-                        .authorizationCode(new OAuthFlow()
-                                .authorizationUrl("/oauth2/authorization/google")
-                                .tokenUrl("/login/oauth2/code/google")
-                                .scopes(new Scopes()
-                                        .addString("profile", "프로필 정보")
-                                        .addString("email", "이메일 정보"))));
+        String description = """
+            # 유니캣 API에 오신 것을 환영합니다. 🐱
+            
+            ## 사용법
+            Oauth2를 이용한 **간편 인증 방법**과 **직접 정보를 기입하는 방식**이 있습니다.
 
-        // 개발 모드에서만 클라이언트 정보 추가
-        if (environment.matchesProfiles("dev")) {
-            Map<String, Object> extensions = new HashMap<>();
-            extensions.put("x-client-id", clientId);
-            extensions.put("x-client-secret", clientSecret);
-            oauth2Scheme.setExtensions(extensions);
-        }
+            ### Oauth2 간편 인증 방법
+            1. **[Oauth2 인증 링크 확인](#/OAuth%20Links/getOAuthHrefLinks)**
+            2. 해당 링크로 접속하여 외부 인증 시작
+            3. 인증 성공
 
-        OpenAPI openAPI = new OpenAPI()
-                .info(new Info().title("unicat-api"))
+            ### 직접 정보 입력 방식
+            1. **[회원가입](#/Sign%20API/signUpForm_1)** 에 정보를 입력합니다.
+            2. **[로그인](#/Sign%20API/signInForm_1)** 에 정보를 입력합니다.
+            3. 인증 성공
+            > 자세한 내용은 **[Sign API](#/Sign%20API)** 를 참조해주세요.
+
+            ## 시스템 특징
+            - 쿠키 기반 JWT를 사용하여 인증을 처리합니다.
+            
+            ## 이슈 보고
+            [GitHub 이슈](https://github.com/GET-to-the-POINT/unicat-api/issues)에 이슈를 등록해주세요.
+            
+            형식은 없으며 자유롭게 작성해주시면 됩니다.
+            """;
+
+        return new OpenAPI()
+                .info(new Info().title("unicat-api").description(description))
                 .addSecurityItem(new SecurityRequirement()
-                        .addList(jwtSchemeName)
-                        .addList(oauth2SchemeName))
+                        .addList(jwtSchemeName))
                 .components(new Components()
                         .addSecuritySchemes(jwtSchemeName,
                                 new SecurityScheme()
                                         .name(jwtSchemeName)
                                         .type(SecurityScheme.Type.HTTP)
                                         .scheme("bearer")
-                                        .bearerFormat("JWT"))
-                        .addSecuritySchemes(oauth2SchemeName, oauth2Scheme));
-        return openAPI;
+                                        .bearerFormat("JWT")));
     }
 }

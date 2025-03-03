@@ -13,9 +13,9 @@ import taeniverse.unicatApi.mvc.model.entity.Role;
 import taeniverse.unicatApi.mvc.repository.MemberRepository;
 import taeniverse.unicatApi.mvc.repository.OAuth2Repository;
 import taeniverse.unicatApi.mvc.repository.RoleRepository;
-import taeniverse.unicatApi.temp.CustomOAuth2User;
-import taeniverse.unicatApi.temp.OAuth2UserInfo;
-import taeniverse.unicatApi.temp.OAuth2UserInfoFactory;
+import taeniverse.unicatApi.component.oauth2.CustomOAuth2User;
+import taeniverse.unicatApi.component.oauth2.OAuth2UserInfo;
+import taeniverse.unicatApi.component.oauth2.OAuth2UserInfoFactory;
 
 @Service
 @RequiredArgsConstructor
@@ -48,7 +48,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     memberRepository.save(newMember);
 
                     Role role = Role.builder()
-                            .role("ROLE_USER")
+                            .name("USER")
                             .member(newMember)
                             .build();
 

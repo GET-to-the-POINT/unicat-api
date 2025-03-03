@@ -1,9 +1,10 @@
-package taeniverse.unicatApi.config;
+package taeniverse.unicatApi.component.oauth2;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -16,6 +17,8 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import taeniverse.unicatApi.mvc.service.MemberDetailsService;
+import taeniverse.unicatApi.component.util.JwtUtil;
 import taeniverse.unicatApi.mvc.model.entity.Member;
 import taeniverse.unicatApi.mvc.model.entity.OAuth2;
 import taeniverse.unicatApi.mvc.repository.MemberRepository;
@@ -24,8 +27,10 @@ import taeniverse.unicatApi.temp.CustomOAuth2User;
 import taeniverse.unicatApi.util.JwtUtil;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -33,6 +38,7 @@ public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationS
 
     private final JwtEncoder jwtEncoder;
     private final JwtUtil jwtUtil;
+    private final MemberDetailsService memberDetailsService;
     private final OAuth2AuthorizedClientService authorizedClientService;
     private final OAuth2Repository oauth2Repository;
     private final MemberRepository memberRepository;
@@ -44,8 +50,14 @@ public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationS
         // 1. 현재 인증 객체를 OAuth2AuthenticationToken으로 캐스팅
         OAuth2AuthenticationToken oauth2AuthenticationToken = (OAuth2AuthenticationToken) authentication;
         CustomOAuth2User customUser = (CustomOAuth2User) authentication.getPrincipal();
-        OAuth2User oauthUser = (OAuth2User) authentication.getPrincipal();
         String email = oauthUser.getAttribute("email");
+        assert email != null;
+
+        List<String> roles = memberDetailsService.loadUserByUsername(email)
+                .getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
         Member member = memberRepository.findByEmail(email).orElse(null);
         String registrationId = oauth2AuthenticationToken.getAuthorizedClientRegistrationId(); // 예: "google"
 
@@ -72,18 +84,27 @@ public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationS
             oauth2Repository.save(oauth2);
         }
 
-            Instant now = Instant.now();
-            JwtClaimsSet claims = JwtClaimsSet.builder()
-                    .subject(email)
-                    .issuedAt(now)
-                    .expiresAt(now.plus(1, ChronoUnit.DAYS))
-                    .build();
+        Instant now = Instant.now();
+        JwtClaimsSet claims = JwtClaimsSet.builder()
+                .subject(email)
+                .claim("roles", roles)
+                .issuedAt(now)
+                .expiresAt(now.plus(1, ChronoUnit.DAYS))
+                .build();
 
             Jwt jwt = jwtEncoder.encode(JwtEncoderParameters.from(claims));
             String token = jwt.getTokenValue();
 
-            jwtUtil.addJwtCookie(response, token);
-            response.sendRedirect("/");
+        jwtUtil.addJwtCookie(response, token);
 
+        String state = request.getParameter("state");
+        String redirect = "/";
+        if (state != null && state.contains("|")) {
+            String[] parts = state.split("\\|");
+            if (parts.length == 2) {
+                redirect = java.net.URLDecoder.decode(parts[1], StandardCharsets.UTF_8);
+            }
         }
+        response.sendRedirect(redirect);
     }
+}
