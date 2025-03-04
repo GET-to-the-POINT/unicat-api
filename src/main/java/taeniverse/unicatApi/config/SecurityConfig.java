@@ -8,12 +8,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import taeniverse.unicatApi.component.filter.ReissueAccessTokenFilter;
@@ -34,6 +30,7 @@ public class SecurityConfig {
     private final MultiBearerTokenResolver multiBearerTokenResolver;
     private final ReissueAccessTokenFilter reissueAccessTokenFilter;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final JwtAuthenticationConverter jwtAuthenticationConverter;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -68,28 +65,11 @@ public class SecurityConfig {
                         .authenticationEntryPoint(customAuthenticationEntryPoint)
                         .bearerTokenResolver(multiBearerTokenResolver)
                         .jwt(jwtConfigurer -> jwtConfigurer
-                                .jwtAuthenticationConverter(jwtAuthenticationConverter())
+                                .jwtAuthenticationConverter(jwtAuthenticationConverter)
                         )
                 )
                 .addFilterAfter(reissueAccessTokenFilter, AuthorizationFilter.class);
 
         return http.build();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        grantedAuthoritiesConverter.setAuthoritiesClaimName("roles");
-        grantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
-
-        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
-        converter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
-
-        return converter;
     }
 }
