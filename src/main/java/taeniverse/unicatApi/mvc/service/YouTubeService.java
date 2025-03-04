@@ -29,7 +29,6 @@ public class YouTubeService {
      * @return Google API 인증을 위한 Credential 객체
      */
     private Credential authorizeWithAccessToken(String accessToken) throws Exception {
-        // 받은 엑세스 토큰을 사용하여 Credential 생성
         return new GoogleCredential().setAccessToken(accessToken);
     }
 
@@ -39,13 +38,13 @@ public class YouTubeService {
      * @return YouTube 서비스 객체
      */
     private YouTube getYouTubeService(String accessToken) throws Exception {
-        Credential credential = authorizeWithAccessToken(accessToken);  // 인증된 자격증명
+        Credential credential = authorizeWithAccessToken(accessToken);
         return new YouTube.Builder(GoogleNetHttpTransport.newTrustedTransport(), JacksonFactory.getDefaultInstance(), credential)
                 .setApplicationName(APPLICATION_NAME)
                 .build();
     }
 
-    public void uploadVideo(String videoFileName, String accessToken, MultipartFile file, String title, String description) throws Exception {
+    public void uploadVideo(MultipartFile file, String accessToken, String title, String description) throws Exception {
         YouTube youtubeService = getYouTubeService(accessToken);  // 엑세스 토큰을 사용하여 YouTube 서비스 객체 가져오기
 
         // 업로드할 동영상 파일 설정
@@ -54,14 +53,13 @@ public class YouTubeService {
             throw new Exception("Video file does not exist.");
         }
 
-        //비디오 객체 생성(메타데이터 포함된 그 자체)
+        // 비디오 객체 생성 (메타데이터 포함된 그 자체)
         Video video = new Video();
 
-        // VideoSnippet 객체 (생성제목, 설명, 태그 등을 설정)
+        // VideoSnippet 객체 (제목, 설명 등 설정)
         VideoSnippet snippet = new VideoSnippet();
-        snippet.setTitle(title);  // 동영상 제목 설정
-        snippet.setDescription(description);  // 동영상 설명 설정
-
+        snippet.setTitle(title);
+        snippet.setDescription(description);
         video.setSnippet(snippet);
 
         // 업로드 설정 (일단 공개로 설정,,)
@@ -74,7 +72,7 @@ public class YouTubeService {
 
         // 동영상 업로드 요청
         YouTube.Videos.Insert request = youtubeService.videos()
-                .insert(List.of("snippet","status"), video, mediaContent);
+                .insert(List.of("snippet", "status"), video, mediaContent);
 
         // 업로드 실행
         Video response = request.execute();
