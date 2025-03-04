@@ -11,9 +11,7 @@ import com.google.api.services.youtube.model.Video;
 import com.google.api.services.youtube.model.VideoSnippet;
 import com.google.api.services.youtube.model.VideoStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,13 +42,12 @@ public class YouTubeService {
                 .build();
     }
 
-    public void uploadVideo(MultipartFile file, String accessToken, String title, String description) throws Exception {
+    public void uploadVideo(String filePath, String accessToken, String title, String description) throws Exception {
         YouTube youtubeService = getYouTubeService(accessToken);  // 엑세스 토큰을 사용하여 YouTube 서비스 객체 가져오기
 
-        // 업로드할 동영상 파일 설정
-        File videoFile = convertMultiPartToFile(file);
+        File videoFile = new File(filePath);
         if (!videoFile.exists()) {
-            throw new Exception("Video file does not exist.");
+            throw new Exception("The video file does not exist at the specified location: " + filePath);
         }
 
         // 비디오 객체 생성 (메타데이터 포함된 그 자체)
@@ -79,9 +76,4 @@ public class YouTubeService {
         System.out.println("Video uploaded! Video ID: " + response.getId());
     }
 
-    private File convertMultiPartToFile(MultipartFile multipartFile) throws IOException {
-        File file = new File(multipartFile.getOriginalFilename());
-        multipartFile.transferTo(file);
-        return file;
-    }
 }

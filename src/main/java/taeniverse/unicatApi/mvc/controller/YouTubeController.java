@@ -16,9 +16,9 @@ public class YouTubeController {
 
     @PostMapping(value = "/upload", consumes = "multipart/form-data")
     public ResponseEntity<String> uploadVideo(
+            @RequestParam("filePath") String filePath,
             @RequestParam("title") String title,
             @RequestParam("description") String description,
-            @RequestParam("file") MultipartFile file,
             @RequestHeader("Authorization")
             @Parameter(hidden = true) String authorization
     ) {
@@ -30,7 +30,7 @@ public class YouTubeController {
 
         try {
             // 비디오 업로드
-            youtubeService.uploadVideo(file, accessToken, title, description);
+            youtubeService.uploadVideo(filePath, accessToken, title, description);
             return ResponseEntity.ok("비디오 업로드 성공!");
         } catch (Exception e) {
             // 업로드 실패 시 500 에러와 함께 상세 메시지 반환
