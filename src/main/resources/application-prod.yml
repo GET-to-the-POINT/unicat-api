@@ -25,14 +25,3 @@ app:
       httpOnly: true
       sameSite: Lax
       maxAge: 604800
-    expiration: 604800000
-
-  api:
-    protocol: https
-    domain: api.unicat.day
-    port: 443
-
-  ui:
-    protocol: https
-    domain: unicat.day
-    port: 80

@@ -1,4 +1,4 @@
-package taeniverse.unicatApi.temp;
+package taeniverse.unicatApi.component.oauth2;
 
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
@@ -27,7 +27,7 @@ public class CustomOAuth2User implements OAuth2User {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return member.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority(role.getRole()))
+                .map(role -> new SimpleGrantedAuthority(role.getName()))
                 .collect(Collectors.toList());
     }
 

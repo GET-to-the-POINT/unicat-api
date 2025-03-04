@@ -24,13 +24,16 @@ spring:
 logging:
   level:
     root: WARN
-    org.springframework.web: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.orm.jdbc.bind: TRACE
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-    org.springframework.jdbc.core.JdbcTemplate: DEBUG
-    org.springframework.transaction: DEBUG
-
+    org:
+      SQL: DEBUG
+      hibernate:
+        orm.jdbc.bind: TRACE
+        type.descriptor.sql.BasicBinder: TRACE
+      springframework:
+        web: DEBUG
+        transaction: DEBUG
+        security: DEBUG
+        jdbc.core.JdbcTemplate: DEBUG
 app:
   jwt:
     cookie:
@@ -41,21 +44,10 @@ app:
       httpOnly: true
       sameSite: Lax
       maxAge: 604800
-    expiration: 604800000
 
     private-key: ${APP_JWT_PRIVATE_KEY:classpath:keys/private_key.sample}
     public-key: ${APP_JWT_PUBLIC_KEY:classpath:keys/public_key.sample}
     key-id: ${APP_JWT_KEY_ID:rsa-key-id}
-
-  api:
-    protocol: https
-    domain: api.unicat.day
-    port: 443
-
-  ui:
-    protocol: https
-    domain: unicat.day
-    port: 80
 
 server:
   ssl:

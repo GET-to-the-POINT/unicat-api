@@ -24,14 +24,15 @@ repositories {
 dependencies {
 	// ===== Spring Boot Core =====
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
 	// ===== Database Driver =====
 	runtimeOnly 'org.postgresql:postgresql'
 
 	// ===== Security & Authentication =====
+	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
 
 	// ===== Validation =====
 	implementation 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
