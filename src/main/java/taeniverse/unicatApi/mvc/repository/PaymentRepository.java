@@ -9,4 +9,5 @@ import java.util.Optional;
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
     Optional<Payment> findByOrder_OrderId(String orderId);
+    Optional<Payment> findByPaymentKey(String paymentKey);
 }

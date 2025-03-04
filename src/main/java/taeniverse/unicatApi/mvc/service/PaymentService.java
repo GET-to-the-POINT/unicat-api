@@ -59,6 +59,7 @@ public class PaymentService {
     public Payment savePayment(Order order, String paymentKey, long amount, TossPaymentStatus status, PayType payType) {
         Payment payment = Payment.builder()
                 .order(order)
+                .orderName(order.getOrderName())
                 .paymentKey(paymentKey)
                 .amount(amount)
                 .tossPaymentStatus(status)

@@ -15,6 +15,7 @@ public class PaymentResponse {
     private String payType;
     private Long amount;
     private String orderId;
+    private String orderName;
     private Long memberId;
     private String SuccessUrl;
     private String FailUrl;

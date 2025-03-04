@@ -22,7 +22,7 @@ public class Payment {
     @Enumerated(EnumType.STRING)
     private PayType payType;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, updatable = false)
     private String paymentKey;
 
     @Column(nullable = false)
@@ -36,12 +36,15 @@ public class Payment {
     @JoinColumn(name = "order_id")
     private Order order;
 
+    @Column(name = "order_name")
+    private String orderName;
+
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "member_id")
     private Member member;
 
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", updatable = false )
     private LocalDateTime createdAt;
 
     @PrePersist
@@ -56,6 +59,7 @@ public class Payment {
                 .payType(payType.name())
                 .paymentKey(paymentKey)
                 .orderId(order != null ? order.getOrderId() : null)
+                .orderName(order != null ? order.getOrderName() : null)
                 .amount(amount)
                 .tossPaymentStatus(tossPaymentStatus)
                 .memberId(member != null ? member.getId() : null)

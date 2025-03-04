@@ -1,25 +1,30 @@
 package taeniverse.unicatApi.mvc.controller;
 
 import lombok.RequiredArgsConstructor;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import taeniverse.unicatApi.mvc.model.entity.Member;
 import taeniverse.unicatApi.mvc.model.entity.Order;
 import taeniverse.unicatApi.mvc.model.entity.Payment;
-import taeniverse.unicatApi.mvc.repository.MemberRepository;
 import taeniverse.unicatApi.mvc.repository.OrderRepository;
 import taeniverse.unicatApi.mvc.service.PaymentService;
 import taeniverse.unicatApi.payment.PayType;
 import taeniverse.unicatApi.payment.TossPaymentStatus;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static javax.crypto.Cipher.SECRET_KEY;
 
 @RestController
 @RequestMapping("/api")
@@ -31,7 +36,9 @@ public class PaymentController {
     private final OrderRepository orderRepository;
     private final PaymentService paymentService;
 
-    private static final String SECRET_KEY = "test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6";
+    @Value("${toss.secret-key}")
+    private String tossSecretKey;
+
 
     @GetMapping(value = "/confirm")
     @Transactional
@@ -42,7 +49,7 @@ public class PaymentController {
             log.info("Received confirm request: paymentKey={}, orderId={}, amount={}", paymentKey, orderId, amount);
 
             // Toss API 호출하여 전체 응답을 Map으로 받아옵니다.
-            Map<String, Object> tossResponse = paymentService.confirmPayment(restTemplate, SECRET_KEY, paymentKey, orderId, amount);
+            Map<String, Object> tossResponse = paymentService.confirmPayment(restTemplate,tossSecretKey, paymentKey, orderId, amount);
 
             // 주문 엔티티 조회
             Order order = orderRepository.findByOrderId(orderId)
