@@ -4,6 +4,10 @@ spring:
   config:
     import: classpath:core/application-oauth.yml
 
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
   mvc:
     hiddenmethod:
       filter:
@@ -20,7 +24,7 @@ spring:
 
 springdoc:
   swagger-ui:
-    path: /
+   path: /
 
 app:
   jwt:
@@ -35,3 +39,4 @@ server:
     key-store-type: ${APP_SSL_KEY_STORE_TYPE:PKCS12}
     key-store-password: ${APP_SSL_KEY_STORE_PASSWORD}
     key-alias: ${APP_SSL_KEY_ALIAS}
+

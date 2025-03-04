@@ -63,3 +63,4 @@ server:
     key-store-type: ${APP_SSL_KEY_STORE_TYPE:PKCS12}
     key-store-password: ${APP_SSL_KEY_STORE_PASSWORD:unicat123}
     key-alias: ${APP_SSL_KEY_ALIAS:unicat-day}
+

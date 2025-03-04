@@ -8,10 +8,12 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.YouTubeScopes;
 import com.google.api.services.youtube.model.Video;
+import com.google.api.services.youtube.model.VideoSnippet;
 import com.google.api.services.youtube.model.VideoStatus;
 import org.springframework.stereotype.Service;
-
+import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -43,27 +45,28 @@ public class YouTubeService {
                 .build();
     }
 
-    /**
-     * 동영상을 YouTube에 업로드하는 메서드
-     * @param videoFilePath 업로드할 비디오 파일 경로
-     * @param videoFileName 업로드할 비디오 파일 이름
-     * @param accessToken 유효한 엑세스 토큰
-     */
-    public void uploadVideo(String videoFilePath, String videoFileName, String accessToken) throws Exception {
+    public void uploadVideo(String videoFileName, String accessToken, MultipartFile file, String title, String description) throws Exception {
         YouTube youtubeService = getYouTubeService(accessToken);  // 엑세스 토큰을 사용하여 YouTube 서비스 객체 가져오기
 
         // 업로드할 동영상 파일 설정
-        File videoFile = new File(videoFilePath);
+        File videoFile = convertMultiPartToFile(file);
         if (!videoFile.exists()) {
-            throw new Exception("Video file does not exist at the specified path: " + videoFilePath);
+            throw new Exception("Video file does not exist.");
         }
 
-        // Video 객체 생성 (메타데이터 설정)
+        //비디오 객체 생성(메타데이터 포함된 그 자체)
         Video video = new Video();
 
-        // 비공개 업로드 설정 (여기선 기본적으로 비공개로 설정)
+        // VideoSnippet 객체 (생성제목, 설명, 태그 등을 설정)
+        VideoSnippet snippet = new VideoSnippet();
+        snippet.setTitle(title);  // 동영상 제목 설정
+        snippet.setDescription(description);  // 동영상 설명 설정
+
+        video.setSnippet(snippet);
+
+        // 업로드 설정 (일단 공개로 설정,,)
         VideoStatus status = new VideoStatus();
-        status.setPrivacyStatus("private");  // "private", "public", "unlisted"
+        status.setPrivacyStatus("public");  // "private", "public", "unlisted"
         video.setStatus(status);
 
         // 업로드할 파일 설정
@@ -71,11 +74,16 @@ public class YouTubeService {
 
         // 동영상 업로드 요청
         YouTube.Videos.Insert request = youtubeService.videos()
-                .insert(List.of("status"), video, mediaContent);
+                .insert(List.of("snippet","status"), video, mediaContent);
 
         // 업로드 실행
         Video response = request.execute();
         System.out.println("Video uploaded! Video ID: " + response.getId());
     }
-}
 
+    private File convertMultiPartToFile(MultipartFile multipartFile) throws IOException {
+        File file = new File(multipartFile.getOriginalFilename());
+        multipartFile.transferTo(file);
+        return file;
+    }
+}
