@@ -32,7 +32,7 @@ public class AuthService {
 
         Member member = memberService.create(signUpDto.email(), passwordEncoder.encode(signUpDto.password()));
 
-        String token = jwtUtil.generateJwtToken(member.getEmail());
+        String token = jwtUtil.generateJwtToken(member.getId(), member.getEmail());
         jwtUtil.addJwtCookie(response, token);
     }
 
@@ -43,7 +43,7 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, errorMessage);
         }
 
-        String token = jwtUtil.generateJwtToken(member.getEmail());
+        String token = jwtUtil.generateJwtToken(member.getId(), member.getEmail());
         jwtUtil.addJwtCookie(response, token);
     }
 

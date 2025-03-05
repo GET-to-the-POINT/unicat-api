@@ -10,6 +10,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class CustomOAuth2User implements OAuth2User {
 
+    private final String memberId;
     private final OAuth2UserInfo oAuth2UserInfo;
     private final Collection<? extends GrantedAuthority> authorities;
 
@@ -23,8 +24,12 @@ public class CustomOAuth2User implements OAuth2User {
         return authorities;
     }
 
+    public String getEmail() {
+        return oAuth2UserInfo.getEmail();
+    }
+
     @Override
     public String getName() {
-        return oAuth2UserInfo.getEmail();
+        return memberId;
     }
 }
