@@ -1,72 +1,104 @@
 package taeniverse.unicatApi.mvc.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import taeniverse.unicatApi.component.propertie.AppProperties;
+import taeniverse.unicatApi.component.util.CharacterUtil;
+import taeniverse.unicatApi.mvc.model.dto.TossPaymentResponse;
+import taeniverse.unicatApi.mvc.model.entity.Member;
 import taeniverse.unicatApi.mvc.model.entity.Order;
 import taeniverse.unicatApi.mvc.model.entity.Payment;
 import taeniverse.unicatApi.mvc.repository.PaymentRepository;
 import taeniverse.unicatApi.payment.PayType;
 import taeniverse.unicatApi.payment.TossPaymentStatus;
 
-import java.time.LocalDateTime;
+import java.io.IOException;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class PaymentService {
 
-    private final PaymentRepository paymentRepository;
+    private final RestTemplate restTemplate;
     private final OrderService orderService;
+    private final SubscriptionService subscriptionService;
+    private final ObjectMapper objectMapper;
+    private final PaymentRepository paymentRepository;
+    private final AppProperties appProperties;
 
+    /**
+     * 외부 Toss API를 호출하고, 주문 및 결제 상태를 최종 처리한 후 Toss API 응답을 반환합니다.
+     *
+     * @param orderId    주문 ID
+     * @param amount     결제 금액
+     * @param paymentKey 결제 키
+     * @return Toss API 응답을 Map으로 파싱한 결과
+     */
+    public TossPaymentResponse confirmAndFinalizePayment(String orderId, Long amount, String paymentKey) {
+        TossPaymentResponse tossResponse = confirmPaymentExternal(paymentKey, orderId, amount);
+        // 구독
+        Order order = orderService.findById(orderId);
+        Member member = order.getMember();
+        subscriptionService.createSubscription(member, order);
+        // 주문
+        TossPaymentStatus status = TossPaymentStatus.valueOf(tossResponse.getStatus());
+        orderService.updateOrder(orderId, status);
+        // 결제
+        String method = CharacterUtil.convertToUTF8(tossResponse.getMethod());
 
-    //Toss 결제 API 호출 공통 로직
+        PayType payType = PayType.fromKoreanName(method);
+        savePayment(order, paymentKey, amount, status, payType);
 
-    public Map<String, Object> confirmPayment(RestTemplate restTemplate, String secretKey, String paymentKey, String orderId, Long amount) {
-        String encodedAuth = "Basic " + Base64.getEncoder().encodeToString((secretKey + ":").getBytes());
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", encodedAuth);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        Map<String, Object> tossRequest = new HashMap<>();
-        tossRequest.put("paymentKey", paymentKey);
-        tossRequest.put("orderId", orderId);
-        tossRequest.put("amount", amount);
-
-        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(tossRequest, headers);
-        String url = "https://api.tosspayments.com/v1/payments/confirm";
-
-        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
-                url,
-                HttpMethod.POST,
-                requestEntity,
-                new ParameterizedTypeReference<Map<String, Object>>() {}
-        );
-
-        orderService.finalizeOrder(orderId, TossPaymentStatus.SUCCESS, PayType.CARD);
-
-        log.info("Toss API response: {}", response.getBody());
-        return response.getBody();
+        tossResponse.setMethod(method);
+        return tossResponse;
     }
 
-    //결제 정보 저장 로직
-    public Payment savePayment(Order order, String paymentKey, long amount, TossPaymentStatus status, PayType payType) {
+    private TossPaymentResponse confirmPaymentExternal(String paymentKey, String orderId, Long amount) {
+        String url = "https://api.tosspayments.com/v1/payments/confirm";
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", createAuthorizationHeader());
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            Map<String, Object> requestBody = Map.of(
+                    "paymentKey", paymentKey,
+                    "orderId", orderId,
+                    "amount", amount
+            );
+
+            HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
+
+
+            ResponseEntity<String> responseEntity = restTemplate.exchange(
+                    url, HttpMethod.POST, requestEntity, String.class
+            );
+
+            String responseBody = responseEntity.getBody();
+
+            return objectMapper.readValue(responseBody, TossPaymentResponse.class);
+        } catch (IOException e) {
+            throw new RuntimeException("Toss API 호출 중 오류 발생: " + e.getMessage(), e);
+        }
+    }
+    private String createAuthorizationHeader() {
+        String authString = appProperties.toss().secretKey() + ":";
+        String encodedAuth = Base64.getEncoder().encodeToString(authString.getBytes());
+        return "Basic " + encodedAuth;
+    }
+    public void savePayment(Order order, String paymentKey, Long amount, TossPaymentStatus status, PayType payType) {
         Payment payment = Payment.builder()
-                .order(order)
-                .orderName(order.getOrderName())
                 .paymentKey(paymentKey)
                 .amount(amount)
-                .tossPaymentStatus(status)
                 .payType(payType)
+                .tossPaymentStatus(status)
+                .order(order)
+                .productName(order.getOrderName())
                 .member(order.getMember())
-                .createdAt(LocalDateTime.now())
                 .build();
-        return paymentRepository.save(payment);
+        paymentRepository.save(payment);
     }
 }

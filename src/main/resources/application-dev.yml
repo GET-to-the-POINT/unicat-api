@@ -50,19 +50,16 @@ app:
     public-key: ${APP_JWT_PUBLIC_KEY:classpath:keys/public_key.sample}
     key-id: ${APP_JWT_KEY_ID:rsa-key-id}
 
+  toss:
+    client-key: test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm
+    secret-key: test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6
+
 server:
   ssl:
     key-store: ${APP_SSL_KEY_STORE:classpath:keys/unicat.p12}
     key-store-type: ${APP_SSL_KEY_STORE_TYPE:PKCS12}
     key-store-password: ${APP_SSL_KEY_STORE_PASSWORD:unicat123}
     key-alias: ${APP_SSL_KEY_ALIAS:unicat-day}
-
-client:
-  key: ${CLIENT_KEY:test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm}
-
-
-toss:
-  secret-key: ${SECRET_KEY:test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6}
 
 
 

@@ -7,24 +7,29 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Builder
 public class CancelPaymentResponse {
-private String orderId;        // 주문 ID
-private String orderName;      // 주문명
-private String paymentKey;     // 결제 키
-private OffsetDateTime requestedAt; // 요청 시간
-private OffsetDateTime approvedAt;  // 승인 시간
-private String cardCompany;    // 카드사 정보
-private String cardNumber;     // 카드 번호
-private String receiptUrl;     // 영수증 URL
-private Long cancelAmount;     // 취소 금액
-private LocalDateTime cancelDate; // 취소 완료 시간
-private String cancelReason;   // 취소 사유
+    private String orderId;        // 주문 ID
+    private String orderName;      // 주문명
+    private String paymentKey;     // 결제 키
+    private OffsetDateTime requestedAt; // 요청 시간
+    private OffsetDateTime approvedAt;  // 승인 시간
+    private String cardCompany;    // 카드사 정보
+    private String cardNumber;     // 카드 번호
+    private String receiptUrl;     // 영수증 URL
+    private Long cancelAmount;     // 취소 금액
+    private LocalDateTime cancelDate; // 취소 완료 시간
+    private String cancelReason;   // 취소 사유
+
+    @JsonProperty("status")
+    private String status; // Toss API 응답의 status 값 (READY, IN_PROGRESS, DONE, CANCELED 등)
+
+    @JsonProperty("method")
+    private String method;
 
     @JsonCreator
     public CancelPaymentResponse(
@@ -35,7 +40,8 @@ private String cancelReason;   // 취소 사유
             @JsonProperty("approvedAt") OffsetDateTime approvedAt,
             @JsonProperty("cancelAmount") Long cancelAmount,
             @JsonProperty("cancels") List<CancelInfo> cancels,
-            @JsonProperty("cancelReason") String cancelReason
+            @JsonProperty("cancelReason") String cancelReason,
+            @JsonProperty("status") String status // Toss API 응답에서 status 값 매핑
     ) {
         this.orderId = orderId;
         this.orderName = orderName;
@@ -43,10 +49,12 @@ private String cancelReason;   // 취소 사유
         this.requestedAt = requestedAt;
         this.approvedAt = approvedAt;
         this.cancelAmount = cancelAmount;
-        if (cancels != null && !cancels.isEmpty() && cancels.get(0).getCanceledAt() != null) {
-            this.cancelDate = cancels.get(0).getCanceledAt().toLocalDateTime();
+        if (cancels != null && !cancels.isEmpty() && cancels.getFirst().getCanceledAt() != null) {
+            this.cancelDate = cancels.getFirst().getCanceledAt().toLocalDateTime();
         }
         this.cancelReason = cancelReason;
+        this.status = status;
     }
 }
+
 

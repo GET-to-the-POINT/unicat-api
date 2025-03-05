@@ -1,17 +1,17 @@
 package taeniverse.unicatApi.mvc.model.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
-import taeniverse.unicatApi.mvc.model.dto.CancelPaymentResponse;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import taeniverse.unicatApi.payment.PayType;
+import taeniverse.unicatApi.payment.TossPaymentStatus;
 
 import java.time.LocalDateTime;
 
 @Getter
-@Builder
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor
 @Entity
-@Table(name = "cancel_payment")
 public class CancelPayment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,37 +25,36 @@ public class CancelPayment {
     @Column(nullable = false)
     private String paymentKey;
 
-    @Column(nullable = false, length = 200)
+    @Column(nullable = false)
     private String cancelReason;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TossPaymentStatus status;
 
     private Long cancelAmount;
 
-    @Column(name = "cancel_date", nullable = false)
+    @Column(nullable = false)
     private LocalDateTime cancelDate;
-    // Payment 엔티티와 다대일 관계 설정 (Payment 엔티티 내에서 취소 내역 배열로 관리할 수 있음)
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "payment_id", nullable = false)
+
+    @ManyToOne
+    @JoinColumn(nullable = false)
     private Payment payment;
 
-    public CancelPaymentResponse toDto() {
-        return CancelPaymentResponse.builder()
-                .orderId(orderId)
-                .orderName(orderName)
-                .paymentKey(paymentKey)
-                .cancelReason(cancelReason)
-                .cancelAmount(cancelAmount)
-                .cancelDate(cancelDate)
-                .build();
-    }
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PayType method;
 
-    public static CancelPayment fromDto(CancelPaymentResponse dto) {
-        return CancelPayment.builder()
-                .orderId(dto.getOrderId())
-                .orderName(dto.getOrderName())
-                .paymentKey(dto.getPaymentKey())
-                .cancelReason(dto.getCancelReason())
-                .cancelAmount(dto.getCancelAmount())
-                .cancelDate(dto.getCancelDate())
-                .build();
+    @Builder
+    public CancelPayment(String orderId, String orderName, String paymentKey, String cancelReason, TossPaymentStatus status, Long cancelAmount, LocalDateTime cancelDate, Payment payment, PayType method) {
+        this.orderId = orderId;
+        this.orderName = orderName;
+        this.paymentKey = paymentKey;
+        this.cancelReason = cancelReason;
+        this.status = status;
+        this.cancelAmount = cancelAmount;
+        this.cancelDate = cancelDate;
+        this.payment = payment;
+        this.method = method;
     }
 }

@@ -59,4 +59,5 @@ public class MemberService {
             return newMember;
         });
     }
+
 }

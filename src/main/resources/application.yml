@@ -32,6 +32,10 @@ app:
     protocol: https
     domain: api.unicat.day
     port: 443
+  toss:
+    client-key: ${CLIENT_KEY}
+    secret-key: ${SECRET_KEY}
+
 
 server:
   port: 443

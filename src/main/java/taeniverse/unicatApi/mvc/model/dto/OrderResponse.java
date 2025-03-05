@@ -10,5 +10,4 @@ import lombok.NoArgsConstructor;
 public class OrderResponse {
     private Long memberId;
     private String orderId;
-    private String message;
 }

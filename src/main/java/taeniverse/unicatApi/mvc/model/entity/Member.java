@@ -24,6 +24,9 @@ public class Member {
     @Column(nullable = false)
     private String password;
 
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Order> orders = new ArrayList<>();
+
     @OneToMany(mappedBy = "member", fetch = FetchType.EAGER)
     private List<Role> roles = new ArrayList<>();
 

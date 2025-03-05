@@ -64,32 +64,28 @@
 	 */
 	async function createOrderAndRequestPayment(widgets) {
 		try {
-			console.log("✅ 주문 생성 요청을 서버로 보냅니다.");
-
 			// ✅ 주문 먼저 생성 (새로운 orderId를 서버에서 받아옴)
-			const orderResponse = await fetch("/api/orders/create", {
+			const orderResponse = await fetch("/order", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ orderName: "TodoList 구독", amount: 100 })
 			});
 
 			const orderData = await orderResponse.json();
-			console.log("✅ 주문 생성 응답:", orderData); // 응답 로그 확인
 
-			const orderId = orderData.orderId;
+			const orderId = orderData.id;
 
 			if (!orderId || orderId === "null") {
 				alert("❌ 주문 생성 실패: orderId가 존재하지 않습니다.");
 				return;
 			}
 
-			console.log("✅ 생성된 orderId:", orderId);
-
+			debugger;
 			// ✅ 주문 ID가 생성되면 Toss 결제 요청
 			await widgets.requestPayment({
-				orderId: orderId,  // ✅ 새로운 orderId 사용
+				orderId,  // ✅ 새로운 orderId 사용
 				orderName: "TodoList 구독",
-				successUrl: window.location.origin + "/api/confirm",
+				successUrl: window.location.origin + "/confirm",
 				failUrl: window.location.origin + "/fail",
 				customerEmail: "customer123@gmail.com",
 				customerName: "김토스",
