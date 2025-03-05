@@ -32,13 +32,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(registrationId, attributes);
 
-        if (userInfo.getEmail() == null || userInfo.getEmail().isEmpty()) {
-            throw new OAuth2AuthenticationException(
-                    new OAuth2Error("invalid_email", "Email not found from OAuth2 provider", "")
-            );
-        }
-
-        Member member = memberService.findOrCreateMember(userInfo.getEmail());
+        Member member = memberService.findOrCreateMember(userInfo.getEmail(), registrationId);
 
         Collection<GrantedAuthority> authorities = member.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName()))
