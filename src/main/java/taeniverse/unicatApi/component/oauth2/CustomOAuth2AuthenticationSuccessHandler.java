@@ -4,7 +4,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
@@ -12,6 +11,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import taeniverse.unicatApi.component.util.JwtUtil;
+import taeniverse.unicatApi.mvc.model.entity.Member;
 import taeniverse.unicatApi.mvc.model.entity.Role;
 import taeniverse.unicatApi.mvc.service.MemberService;
 
@@ -33,8 +33,11 @@ public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationS
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
             throws IOException {
 
-        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-        String email = oAuth2User.getName();
+        CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
+        String email = oAuth2User.getEmail();
+
+        Member member = memberService.findByEmail(email);
+        Long memberId = member.getId();
 
         List<Role> roles = memberService.findByEmail(email).getRoles();
         List<String> roleNames = roles.stream()
@@ -43,7 +46,8 @@ public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationS
 
         Instant now = Instant.now();
         JwtClaimsSet claims = JwtClaimsSet.builder()
-                .subject(email)
+                .subject(memberId.toString())
+                .claim("email", email)
                 .claim("roles", roleNames)
                 .issuedAt(now)
                 .expiresAt(now.plus(1, ChronoUnit.DAYS))
