@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import taeniverse.unicatApi.component.util.JwtUtil;
@@ -33,8 +34,10 @@ public class ReissueAccessTokenFilter extends OncePerRequestFilter {
         if (authentication != null && authentication.isAuthenticated()
                 && !(authentication instanceof AnonymousAuthenticationToken)) {
 
-            String email = authentication.getName();
-            String newAccessToken = jwtUtil.generateJwtToken(email);
+            Jwt jwt = (Jwt) authentication.getPrincipal();
+            Long memberId = Long.parseLong(jwt.getSubject());
+            String email = jwt.getClaim("email");
+            String newAccessToken = jwtUtil.generateJwtToken(memberId, email);
 
             jwtUtil.addJwtCookie(response, newAccessToken);
         }

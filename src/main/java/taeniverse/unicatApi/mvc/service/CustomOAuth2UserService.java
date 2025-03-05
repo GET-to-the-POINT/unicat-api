@@ -6,10 +6,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import taeniverse.unicatApi.component.oauth2.CustomOAuth2User;
 import taeniverse.unicatApi.component.oauth2.OAuth2UserInfo;
 import taeniverse.unicatApi.component.oauth2.OAuth2UserInfoFactory;
 import taeniverse.unicatApi.mvc.model.entity.Member;
@@ -38,6 +37,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 .map(role -> new SimpleGrantedAuthority(role.getName()))
                 .collect(Collectors.toList());
 
-        return new DefaultOAuth2User(authorities, attributes, "email");
+        return new CustomOAuth2User(member.getId().toString(), userInfo, authorities);
     }
 }

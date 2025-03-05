@@ -42,10 +42,11 @@ public class JwtUtil {
         response.addCookie(jwtCookie);
     }
 
-    public String generateJwtToken(String email) {
+    public String generateJwtToken(Long memberId, String email) {
         Instant now = Instant.now();
         JwtClaimsSet claims = JwtClaimsSet.builder()
-                .subject(email)
+                .subject(memberId.toString())
+                .claim("email", email)
                 .issuedAt(now)
                 .expiresAt(now.plus(appProperties.jwt().cookie().maxAge(), ChronoUnit.SECONDS))
                 .build();
