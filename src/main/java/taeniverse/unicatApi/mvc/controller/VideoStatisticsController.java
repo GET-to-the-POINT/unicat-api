@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import taeniverse.unicatApi.mvc.service.VideoStatisticsService;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @RequiredArgsConstructor
@@ -17,8 +19,8 @@ public class VideoStatisticsController {
     @GetMapping("/video/{videoId}/period")
     public String getStatisticsForVideo(
             @PathVariable String videoId,
-            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
-            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate) {
-        return videoStatisticsService.getStatisticsForVideo(videoId, startDate, endDate);
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDateTime start,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd")  LocalDateTime end) {
+        return videoStatisticsService.getStatisticsForVideo(videoId, start, end);
     }
 }

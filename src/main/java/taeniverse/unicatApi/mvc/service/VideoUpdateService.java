@@ -4,8 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import taeniverse.unicatApi.mvc.model.entity.UploadVideo;
 import taeniverse.unicatApi.mvc.model.entity.Videos;
-import taeniverse.unicatApi.mvc.model.entity.VideoStatistics;
-import taeniverse.unicatApi.mvc.model.entity.YoutubeVideo;
+
 import taeniverse.unicatApi.mvc.repository.VideoUpdateRepository;
 import taeniverse.unicatApi.mvc.repository.VideosRepository;
 
@@ -35,24 +34,25 @@ public class VideoUpdateService {
         String statistics = youtubeDataService.getVideoData(videoId);
 
         // 통계 데이터 파싱
+        String youtubeVideoId = statistics.split(",")[0].split(":")[1].trim().replace("\"", ""); // 유튜브 비디오 ID 추출
         BigInteger viewCount = new BigInteger(statistics.split(",")[0].split(":")[1].trim());
         BigInteger likeCount = new BigInteger(statistics.split(",")[1].split(":")[1].trim());
         BigInteger commentCount = new BigInteger(statistics.split(",")[2].split(":")[1].trim());
 
 
-        Videos video = videosRepository.findByVideoId(videoId).orElseThrow(() -> new IllegalArgumentException("Video not found"));
+        Videos video = videosRepository.findByVideoId(Long.valueOf(videoId)).orElseThrow(() -> new IllegalArgumentException("Video not found"));
 
-        // VideoStatistics 엔티티 생성
+        LocalDate updateScheduleDate = LocalDate.now();
+
+
         UploadVideo uploadVideo = UploadVideo.builder()
-                .video(video)
-                .viewCount(viewCount)
-                .likeCount(likeCount)
-                .commentCount(commentCount)
-                .build();
-
-//        // LocalDate를 java.sql.Date로 변환
-//        java.sql.Date sqlDate = java.sql.Date.valueOf(LocalDate.now());
-
+                .video(video)                        // Videos 객체
+                .updateScheduleDate(updateScheduleDate) // updateScheduleDate 값
+                .youtubeVideoId(youtubeVideoId)      // youtubeVideoId 값
+                .viewCount(viewCount)                // viewCount 값
+                .likeCount(likeCount)                // likeCount 값
+                .commentCount(commentCount)          // commentCount 값
+                .build();                            // 빌드
 
         // 저장 (Repository를 직접 호출)
         videoUpdateRepositor.save(uploadVideo);

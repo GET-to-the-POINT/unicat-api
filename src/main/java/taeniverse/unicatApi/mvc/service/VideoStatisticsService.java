@@ -1,10 +1,13 @@
 package taeniverse.unicatApi.mvc.service;
 
+import com.google.api.services.youtube.model.VideoStatistics;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import taeniverse.unicatApi.mvc.model.entity.VideoStatistics;
-import taeniverse.unicatApi.mvc.repository.VideoStatisticsRepository;
+import taeniverse.unicatApi.mvc.model.entity.UploadVideo;
+
+import taeniverse.unicatApi.mvc.repository.VideoUpdateRepository;
 import java.math.BigInteger;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -12,12 +15,12 @@ import java.util.List;
 @Service
 public class VideoStatisticsService {
 
-    private final VideoStatisticsRepository videoStatisticsRepository;
+    private final VideoUpdateRepository videoUpdateRepository;
 
     // 특정 비디오에 대한 특정 기간의 통계 계산
-    public String getStatisticsForVideo(String videoId, Date startDate, Date endDate) {
+    public String getStatisticsForVideo(String videoId, LocalDateTime start, LocalDateTime end) {
         // 해당 비디오와 기간에 맞는 데이터 조회
-        List<VideoStatistics> statisticsList = videoStatisticsRepository.findByVideoIdAndTimestampBetween(videoId, startDate, endDate);
+        List<UploadVideo> statisticsList = videoUpdateRepository.findByVideoIdAndTimestampBetween(videoId, start, end);
 
         if (statisticsList.isEmpty()) {
             return "해당 비디오와 기간에 대한 통계 데이터가 없습니다.";
@@ -35,7 +38,7 @@ public class VideoStatisticsService {
         BigInteger minLikeCount = BigInteger.valueOf(Long.MAX_VALUE);
 
         // 통계 계산
-        for (VideoStatistics videoStat : statisticsList) {
+        for (UploadVideo videoStat : statisticsList) {
             totalViewCount = totalViewCount.add(videoStat.getViewCount());
             totalLikeCount = totalLikeCount.add(videoStat.getLikeCount());
             totalCommentCount = totalCommentCount.add(videoStat.getCommentCount());
@@ -73,7 +76,7 @@ public class VideoStatisticsService {
                         "최저 조회수: %d<br>" +
                         "최대 좋아요 수: %d<br>" +
                         "최저 좋아요 수: %d<br>",
-                startDate, endDate, videoId,
+                start, end, videoId,
                 averageViewCount, averageLikeCount, averageCommentCount,
                 maxViewCount, minViewCount,
                 maxLikeCount, minLikeCount
