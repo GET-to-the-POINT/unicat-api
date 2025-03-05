@@ -3,9 +3,12 @@ package taeniverse.unicatApi.mvc.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import taeniverse.unicatApi.mvc.model.entity.UploadVideo;
+import taeniverse.unicatApi.mvc.model.entity.Videos;
 import taeniverse.unicatApi.mvc.model.entity.VideoStatistics;
 import taeniverse.unicatApi.mvc.model.entity.YoutubeVideo;
 import taeniverse.unicatApi.mvc.repository.VideoUpdateRepository;
+import taeniverse.unicatApi.mvc.repository.VideosRepository;
+
 import java.math.BigInteger;
 import java.time.LocalDate;
 import java.util.List;
@@ -16,6 +19,7 @@ public class VideoUpdateService {
 
     private final YoutubeDataService youtubeDataService;
     private final VideoUpdateRepository videoUpdateRepositor;
+    private final VideosRepository videosRepository;
 
     // 모든 비디오 업데이트 수행
     public void updateAllVideos() throws Exception {
@@ -36,7 +40,7 @@ public class VideoUpdateService {
         BigInteger commentCount = new BigInteger(statistics.split(",")[2].split(":")[1].trim());
 
 
-        Videos video = videoRepository.findById(videoId).orElseThrow(() -> new IllegalArgumentException("Video not found"));
+        Videos video = videosRepository.findByVideoId(videoId).orElseThrow(() -> new IllegalArgumentException("Video not found"));
 
         // VideoStatistics 엔티티 생성
         UploadVideo uploadVideo = UploadVideo.builder()
