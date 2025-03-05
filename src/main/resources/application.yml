@@ -47,3 +47,6 @@ server:
     include-exception: true
     include-binding-errors: always
     include-message: always
+  servlet:
+    session:
+      tracking-modes: ssl

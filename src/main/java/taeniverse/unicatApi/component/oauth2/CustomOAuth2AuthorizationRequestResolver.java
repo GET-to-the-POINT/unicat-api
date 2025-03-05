@@ -38,6 +38,11 @@ public class CustomOAuth2AuthorizationRequestResolver implements OAuth2Authoriza
         if (!StringUtils.hasText(redirect)) redirect = request.getHeader("Referer");
         if (!StringUtils.hasText(redirect)) redirect = request.getRequestURL().toString();
 
+        if (redirect.endsWith("/login")) {
+            String contextPath = request.getContextPath();
+            redirect = (StringUtils.hasText(contextPath) ? contextPath : "") + "/";
+        }
+
         String encodedRedirectUri = URLEncoder.encode(redirect, StandardCharsets.UTF_8);
         String modifiedState = authorizationRequest.getState() + "|" + encodedRedirectUri;
 
