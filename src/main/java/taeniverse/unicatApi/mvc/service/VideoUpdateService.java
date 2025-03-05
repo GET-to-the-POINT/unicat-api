@@ -2,7 +2,9 @@ package taeniverse.unicatApi.mvc.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import taeniverse.unicatApi.mvc.model.entity.UploadVideo;
 import taeniverse.unicatApi.mvc.model.entity.VideoStatistics;
+import taeniverse.unicatApi.mvc.model.entity.YoutubeVideo;
 import taeniverse.unicatApi.mvc.repository.VideoUpdateRepository;
 import java.math.BigInteger;
 import java.time.LocalDate;
@@ -33,18 +35,22 @@ public class VideoUpdateService {
         BigInteger likeCount = new BigInteger(statistics.split(",")[1].split(":")[1].trim());
         BigInteger commentCount = new BigInteger(statistics.split(",")[2].split(":")[1].trim());
 
-        // VideoStatistics 엔티티 생성
-        VideoStatistics videoStatistics = new VideoStatistics();
-        videoStatistics.setVideoId(videoId);
-        videoStatistics.setViewCount(viewCount);
-        videoStatistics.setLikeCount(likeCount);
-        videoStatistics.setCommentCount(commentCount);
 
-        // LocalDate를 java.sql.Date로 변환
-        java.sql.Date sqlDate = java.sql.Date.valueOf(LocalDate.now());
-        videoStatistics.setTimestamp(sqlDate);  // 날짜를 setTimestamp에 설정
+        Videos video = videoRepository.findById(videoId).orElseThrow(() -> new IllegalArgumentException("Video not found"));
+
+        // VideoStatistics 엔티티 생성
+        UploadVideo uploadVideo = UploadVideo.builder()
+                .video(video)
+                .viewCount(viewCount)
+                .likeCount(likeCount)
+                .commentCount(commentCount)
+                .build();
+
+//        // LocalDate를 java.sql.Date로 변환
+//        java.sql.Date sqlDate = java.sql.Date.valueOf(LocalDate.now());
+
 
         // 저장 (Repository를 직접 호출)
-        videoUpdateRepositor.save(videoStatistics);
+        videoUpdateRepositor.save(uploadVideo);
     }
 }
