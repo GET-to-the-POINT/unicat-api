@@ -49,4 +49,4 @@ server:
     include-message: always
   servlet:
     session:
-      tracking-modes: ssl
+      tracking-modes: cookie

@@ -1,24 +1,29 @@
 package taeniverse.unicatApi.mvc.model.entity;
 
 import jakarta.persistence.*;
-
+import lombok.Builder;
 import lombok.Getter;
-import org.springframework.data.jpa.repository.Temporal;
-import java.time.LocalDateTime;
+import lombok.NoArgsConstructor;
+import java.time.LocalDate;
 
+@NoArgsConstructor
 @Getter
 @Entity
 public class UploadVideo {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long videoId;
 
-    private String videoId;  // YouTube API에서 받은 동영상 ID
-    private String title;
-    private String description;
-    private String filePath;  // 동영상 파일 경로
-    private LocalDateTime uploadDate;
-    private String privacyStatus;  // "public", "private", "unlisted"
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
+    @JoinColumn(name = "video_id")
+    private Videos video;
 
+    private LocalDate updateScheduleDate;
+
+    @Builder
+    public UploadVideo(Videos video, LocalDate updateScheduleDate) {
+        this.video = video;
+        this.updateScheduleDate = updateScheduleDate;
+    }
 }
