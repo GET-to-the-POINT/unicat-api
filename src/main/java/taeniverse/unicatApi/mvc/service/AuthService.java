@@ -22,6 +22,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final MessageSource messageSource;
+    private final MemberService memberService;
 
     public void signUp(SignUpDto signUpDto, HttpServletResponse response) {
         if (memberRepository.existsByEmail(signUpDto.email())) {
@@ -29,9 +30,7 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, errorMessage);
         }
 
-        Member member = Member.builder().email(signUpDto.email()).password(passwordEncoder.encode(signUpDto.password())).build();
-
-        memberRepository.save(member);
+        Member member = memberService.create(signUpDto.email(), passwordEncoder.encode(signUpDto.password()));
 
         String token = jwtUtil.generateJwtToken(member.getEmail());
         jwtUtil.addJwtCookie(response, token);

@@ -22,8 +22,7 @@ public class SwaggerConfig {
             Oauth2를 이용한 **간편 인증 방법**과 **직접 정보를 기입하는 방식**이 있습니다.
 
             ### Oauth2 간편 인증 방법
-            1. **[Oauth2 인증 링크 확인](#/OAuth%20Links/getOAuthHrefLinks)**
-            2. 해당 링크로 접속하여 외부 인증 시작
+            1. **[Oauth2 인증](https://api.unicat.day/login)**
             3. 인증 성공
 
             ### 직접 정보 입력 방식

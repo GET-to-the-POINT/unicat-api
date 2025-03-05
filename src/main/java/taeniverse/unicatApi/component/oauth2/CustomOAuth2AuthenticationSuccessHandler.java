@@ -4,7 +4,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
@@ -12,8 +11,9 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import taeniverse.unicatApi.mvc.service.MemberDetailsService;
 import taeniverse.unicatApi.component.util.JwtUtil;
+import taeniverse.unicatApi.mvc.model.entity.Role;
+import taeniverse.unicatApi.mvc.service.MemberService;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -27,26 +27,24 @@ public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationS
 
     private final JwtEncoder jwtEncoder;
     private final JwtUtil jwtUtil;
-    private final MemberDetailsService memberDetailsService;
+    private final MemberService memberService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
             throws IOException {
 
-        OAuth2User oauthUser = (OAuth2User) authentication.getPrincipal();
-        String email = oauthUser.getAttribute("email");
-        assert email != null;
+        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+        String email = oAuth2User.getName();
 
-        List<String> roles = memberDetailsService.loadUserByUsername(email)
-                .getAuthorities()
-                .stream()
-                .map(GrantedAuthority::getAuthority)
+        List<Role> roles = memberService.findByEmail(email).getRoles();
+        List<String> roleNames = roles.stream()
+                .map(Role::getName)
                 .toList();
 
         Instant now = Instant.now();
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .subject(email)
-                .claim("roles", roles)
+                .claim("roles", roleNames)
                 .issuedAt(now)
                 .expiresAt(now.plus(1, ChronoUnit.DAYS))
                 .build();

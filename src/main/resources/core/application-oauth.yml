@@ -9,6 +9,7 @@ spring:
             scope:
               - profile
               - email
+              - https://www.googleapis.com/auth/youtube.upload
           kakao:
             client-name: kakao
             client-id: ${KAKAO_CLIENT_ID}
@@ -19,7 +20,10 @@ spring:
             scope:
               - profile_nickname
               - profile_image
+              - account_email
         provider:
+          google:
+            authorization-uri: "https://accounts.google.com/o/oauth2/v2/auth?access_type=offline"
           kakao:
             authorization-uri: ${KAKAO_AUTH_URI:https://kauth.kakao.com/oauth/authorize}
             token-uri: ${KAKAO_TOKEN_URI:https://kauth.kakao.com/oauth/token}

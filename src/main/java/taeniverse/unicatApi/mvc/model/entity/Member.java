@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,8 +27,11 @@ public class Member {
     @OneToMany(mappedBy = "member", fetch = FetchType.EAGER)
     private List<Role> roles = new ArrayList<>();
 
-    private LocalDateTime createAt;
-    private LocalDateTime updateAt;
+    @OneToMany
+    private List<OAuthLink> OAuthLinks = new ArrayList<>();
+
+    private Instant createAt;
+    private Instant updateAt;
 
     @Builder
     public Member(String email, String password) {
@@ -37,11 +40,11 @@ public class Member {
     }
     @PrePersist
     protected void onCreate() {
-        this.createAt = LocalDateTime.now();
-        this.updateAt = LocalDateTime.now();
+        this.createAt = Instant.now();
+        this.updateAt = Instant.now();
     }
     @PreUpdate
     protected void onUpdate() {
-        this.updateAt = LocalDateTime.now();
+        this.updateAt = Instant.now();
     }
 }
