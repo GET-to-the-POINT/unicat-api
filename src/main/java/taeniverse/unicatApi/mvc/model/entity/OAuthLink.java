@@ -1,8 +1,6 @@
 package taeniverse.unicatApi.mvc.model.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +11,7 @@ import lombok.NoArgsConstructor;
 public class OAuthLink {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String email;
@@ -20,6 +19,7 @@ public class OAuthLink {
     private String provider;
 
     @ManyToOne
+    @JoinColumn(name = "member_id")
     private Member member;
 
     @Builder
