@@ -29,10 +29,12 @@ public class UploadVideo {
     private BigInteger viewCount;
     private BigInteger likeCount;
     private BigInteger commentCount;
+    private String youtubeVideoId;
 
     @Builder
-    public UploadVideo(Videos video, LocalDate updateScheduleDate) {
+    public UploadVideo(Videos video, LocalDate updateScheduleDate, String youtubeVideoId) {
         this.video = video;
         this.updateScheduleDate = updateScheduleDate;
+        this.youtubeVideoId = youtubeVideoId;
     }
 }

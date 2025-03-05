@@ -109,6 +109,7 @@ public class YouTubeUploadService {
             UploadVideo uploadVideo = UploadVideo.builder()
                     .video(videos)
                     .updateScheduleDate(LocalDate.now())
+                    .youtubeVideoId(response.getId())
                     .build();
             youTubeUploadRepository.save(uploadVideo);
 
