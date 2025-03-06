@@ -24,14 +24,23 @@ repositories {
 dependencies {
 	// ===== Spring Boot Core =====
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+
+	//spring -Retry
+	implementation 'org.springframework.retry:spring-retry:2.0.4'
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
 
 	// ===== Database Driver =====
 	runtimeOnly 'org.postgresql:postgresql'
 
 	// ===== Security & Authentication =====
+	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
 
 	// ===== Validation =====
 	implementation 'org.hibernate.validator:hibernate-validator:8.0.1.Final'
@@ -49,6 +58,7 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+
 	// ===== Youtube (yurim) =====
 
 	implementation 'com.google.api-client:google-api-client:1.34.0'
@@ -59,8 +69,7 @@ dependencies {
 	implementation 'com.google.apis:google-api-services-youtubeAnalytics:v2-rev272-1.25.0'
 	implementation 'com.google.auth:google-auth-library-oauth2-http:1.10.0'
 
-
-}
+	}
 
 tasks.named('test') {
 	useJUnitPlatform()
