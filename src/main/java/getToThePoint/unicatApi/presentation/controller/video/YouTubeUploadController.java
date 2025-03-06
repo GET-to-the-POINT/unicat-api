@@ -1,4 +1,4 @@
-package taeniverse.unicatApi.mvc.controller;
+package getToThePoint.unicatApi.presentation.controller.video;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

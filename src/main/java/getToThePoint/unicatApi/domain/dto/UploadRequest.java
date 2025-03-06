@@ -1,4 +1,4 @@
-package taeniverse.unicatApi.mvc.model.dto;
+package getToThePoint.unicatApi.domain.dto;
 
 import lombok.Getter;
 

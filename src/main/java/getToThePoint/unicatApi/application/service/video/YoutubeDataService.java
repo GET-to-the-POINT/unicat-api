@@ -1,4 +1,4 @@
-package taeniverse.unicatApi.mvc.service;
+package getToThePoint.unicatApi.application.service.video;
 
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.json.JsonFactory;
@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -34,8 +36,8 @@ public class YoutubeDataService {
     // YouTube 동영상 조회수, 좋아요 등을 가져오는 메서드
     public String getVideoData(String videoId) throws GeneralSecurityException, IOException {
         YouTube youtubeService = getYouTubeService();
-        YouTube.Videos.List request = youtubeService.videos().list(Arrays.asList("statistics"));
-        request.setId(Arrays.asList(videoId));
+        YouTube.Videos.List request = youtubeService.videos().list(List.of("statistics"));
+        request.setId(Collections.singletonList(videoId));
         request.setKey(API_KEY);
 
         VideoListResponse response = request.execute();
@@ -59,7 +61,7 @@ public class YoutubeDataService {
         YouTube youtubeService = getYouTubeService();
 
         // 여러 개의 동영상 ID를 한 번에 전달
-        YouTube.Videos.List request = youtubeService.videos().list(Arrays.asList("statistics"));
+        YouTube.Videos.List request = youtubeService.videos().list(List.of("statistics"));
         request.setId(Arrays.asList(videoIds));  // 여러 동영상 ID를 리스트로 전달
         request.setKey(API_KEY);
 

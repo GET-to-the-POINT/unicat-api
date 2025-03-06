@@ -1,12 +1,9 @@
-package taeniverse.unicatApi.mvc.repository;
+package getToThePoint.unicatApi.domain.repository.video;
 
-import com.google.api.services.youtube.model.VideoStatistics;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import taeniverse.unicatApi.mvc.model.entity.UploadVideo;
+import getToThePoint.unicatApi.domain.entity.video.UploadVideo;
 
-import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 

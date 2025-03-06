@@ -9,8 +9,8 @@ import getToThePoint.unicatApi.domain.dto.payment.CancelPaymentRequest;
 import getToThePoint.unicatApi.domain.dto.payment.CancelPaymentResponse;
 import getToThePoint.unicatApi.domain.entity.CancelPayment;
 import getToThePoint.unicatApi.domain.entity.Payment;
-import getToThePoint.unicatApi.mvc.repository.CancelPaymentRepository;
-import getToThePoint.unicatApi.mvc.repository.PaymentRepository;
+import getToThePoint.unicatApi.domain.repository.CancelPaymentRepository;
+import getToThePoint.unicatApi.domain.repository.PaymentRepository;
 import getToThePoint.unicatApi.domain.constant.payment.PayType;
 import getToThePoint.unicatApi.domain.constant.payment.TossPaymentStatus;
 

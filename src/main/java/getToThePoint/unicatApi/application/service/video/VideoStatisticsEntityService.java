@@ -1,11 +1,11 @@
-package taeniverse.unicatApi.mvc.service;
+package getToThePoint.unicatApi.application.service.video;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import taeniverse.unicatApi.mvc.model.entity.VideoStatisticsEntity;
-import taeniverse.unicatApi.mvc.repository.VideoStatisticsEntityRepository;
-import taeniverse.unicatApi.mvc.repository.VideoUpdateRepository;
+import getToThePoint.unicatApi.domain.entity.video.VideoStatisticsEntity;
+import getToThePoint.unicatApi.domain.repository.video.VideoStatisticsEntityRepository;
+import getToThePoint.unicatApi.domain.repository.video.VideoUpdateRepository;
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.List;
@@ -15,7 +15,7 @@ import java.util.List;
 public class VideoStatisticsEntityService {
 
     private final VideoUpdateRepository videoUpdateRepository;
-    private final  VideoStatisticsEntityRepository VideoStatisticsEntityRepository;
+    private final VideoStatisticsEntityRepository VideoStatisticsEntityRepository;
 
     // 특정 비디오에 대한 특정 기간의 통계 계산
     public String getStatisticsForVideo(String videoId, Date startdate, Date enddate) {

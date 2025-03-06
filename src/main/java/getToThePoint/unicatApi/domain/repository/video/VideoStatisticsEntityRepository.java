@@ -1,8 +1,8 @@
-package taeniverse.unicatApi.mvc.repository;
+package getToThePoint.unicatApi.domain.repository.video;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import taeniverse.unicatApi.mvc.model.entity.VideoStatisticsEntity;
+import getToThePoint.unicatApi.domain.entity.video.VideoStatisticsEntity;
 import java.util.Date;
 import java.util.List;
 

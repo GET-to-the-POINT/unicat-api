@@ -1,9 +1,9 @@
-package taeniverse.unicatApi.mvc.controller;
+package getToThePoint.unicatApi.presentation.controller.video;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
-import taeniverse.unicatApi.mvc.service.VideoStatisticsEntityService;
+import getToThePoint.unicatApi.application.service.video.VideoStatisticsEntityService;
 
 import java.util.Date;
 

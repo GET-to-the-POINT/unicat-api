@@ -1,4 +1,4 @@
-//package taeniverse.unicatApi.mvc.model.entity;
+//package getToThePoint.unicatApi.model.entity;
 //
 //import jakarta.persistence.*;
 //import lombok.Data;

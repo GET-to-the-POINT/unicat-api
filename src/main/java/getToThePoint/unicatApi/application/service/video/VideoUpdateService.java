@@ -1,13 +1,11 @@
-package taeniverse.unicatApi.mvc.service;
+package getToThePoint.unicatApi.application.service.video;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import taeniverse.unicatApi.mvc.model.entity.UploadVideo;
-import taeniverse.unicatApi.mvc.model.entity.Videos;
+import getToThePoint.unicatApi.domain.entity.video.UploadVideo;
 
-import taeniverse.unicatApi.mvc.repository.VideoUpdateRepository;
-import taeniverse.unicatApi.mvc.repository.VideosRepository;
-import taeniverse.unicatApi.mvc.repository.VideoUpdateRepository;
+import getToThePoint.unicatApi.domain.repository.video.VideoUpdateRepository;
+import getToThePoint.unicatApi.domain.repository.video.VideosRepository;
 
 import java.math.BigInteger;
 import java.time.LocalDate;

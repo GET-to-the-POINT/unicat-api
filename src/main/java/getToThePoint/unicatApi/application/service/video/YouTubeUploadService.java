@@ -1,5 +1,6 @@
 package getToThePoint.unicatApi.application.service.video;
 
+
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.FileContent;
 import com.google.api.client.http.HttpRequestInitializer;
@@ -10,15 +11,16 @@ import com.google.api.services.youtube.model.VideoSnippet;
 import com.google.api.services.youtube.model.VideoStatus;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
+import getToThePoint.unicatApi.domain.entity.video.UploadVideo;
+import getToThePoint.unicatApi.domain.entity.video.Videos;
+import getToThePoint.unicatApi.domain.repository.video.VideosRepository;
+import getToThePoint.unicatApi.domain.repository.video.YouTubeUploadRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import getToThePoint.unicatApi.domain.entity.video.UploadVideo;
-import getToThePoint.unicatApi.domain.entity.video.Videos;
-import getToThePoint.unicatApi.domain.repository.video.VideosRepository;
-import getToThePoint.unicatApi.domain.repository.video.YouTubeUploadRepository;
+
 import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;

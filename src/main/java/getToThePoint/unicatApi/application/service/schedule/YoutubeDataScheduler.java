@@ -1,8 +1,9 @@
-package taeniverse.unicatApi.mvc.service;
+package getToThePoint.unicatApi.application.service.schedule;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import getToThePoint.unicatApi.application.service.video.VideoUpdateService;
 
 @RequiredArgsConstructor
 @Component
