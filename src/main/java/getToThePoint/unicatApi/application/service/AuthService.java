@@ -25,29 +25,43 @@ public class AuthService {
     private final MemberService memberService;
 
     public void signUp(SignUpDto signUpDto, HttpServletResponse response) {
-        if (memberRepository.existsByEmail(signUpDto.email())) {
-            String errorMessage = messageSource.getMessage("error.email.in.use", null, "", LocaleContextHolder.getLocale());
-            throw new ResponseStatusException(HttpStatus.CONFLICT, errorMessage);
-        }
-
-        Member member = memberService.create(signUpDto.email(), passwordEncoder.encode(signUpDto.password()));
-
-        String token = jwtUtil.generateJwtToken(member.getId(), member.getEmail());
-        jwtUtil.addJwtCookie(response, token);
+        validateEmail(signUpDto.email());
+        Member member = createMember(signUpDto.email(), signUpDto.password());
+        String token = generateAndAddJwtToken(response, member);
     }
 
     public void signIn(SignInDto signInDto, HttpServletResponse response) {
-        Member member = memberRepository.findByEmail(signInDto.email()).orElse(null);
-        if (member == null || !passwordEncoder.matches(signInDto.password(), member.getPassword())) {
-            String errorMessage = messageSource.getMessage("error.invalid.credentials", null, "", LocaleContextHolder.getLocale());
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, errorMessage);
-        }
-
-        String token = jwtUtil.generateJwtToken(member.getId(), member.getEmail());
-        jwtUtil.addJwtCookie(response, token);
+        Member member = validateCredentials(signInDto.email(), signInDto.password());
+        String token = generateAndAddJwtToken(response, member);
     }
 
     public void signOut(HttpServletResponse response) {
         jwtUtil.removeJwtCookie(response);
+    }
+
+    private void validateEmail(String email) {
+        if (memberRepository.existsByEmail(email)) {
+            String errorMessage = messageSource.getMessage("error.email.in.use", null, "", LocaleContextHolder.getLocale());
+            throw new ResponseStatusException(HttpStatus.CONFLICT, errorMessage);
+        }
+    }
+
+    private Member createMember(String email, String password) {
+        return memberService.create(email, passwordEncoder.encode(password));
+    }
+
+    private Member validateCredentials(String email, String password) {
+        Member member = memberRepository.findByEmail(email).orElse(null);
+        if (member == null || !passwordEncoder.matches(password, member.getPassword())) {
+            String errorMessage = messageSource.getMessage("error.invalid.credentials", null, "", LocaleContextHolder.getLocale());
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, errorMessage);
+        }
+        return member;
+    }
+
+    private String generateAndAddJwtToken(HttpServletResponse response, Member member) {
+        String token = jwtUtil.generateJwtToken(member.getId(), member.getEmail());
+        jwtUtil.addJwtCookie(response, token);
+        return token;
     }
 }
