@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import taeniverse.unicatApi.component.propertie.AppProperties;
-import taeniverse.unicatApi.component.util.CharacterUtil;
 import taeniverse.unicatApi.mvc.model.dto.CancelPaymentRequest;
 import taeniverse.unicatApi.mvc.model.dto.CancelPaymentResponse;
 import taeniverse.unicatApi.mvc.model.entity.CancelPayment;
@@ -51,7 +50,7 @@ public class PaymentCancelService {
         // 1. 기존 Payment 조회
         Payment payment = paymentService.findByPaymentKey(paymentKey);
 
-        // 3. Toss API 결제 취소 요청 및 응답 받기 (이제 `CancelPaymentResponse`가 반환됨)
+        // 3. Toss API 결제 취소 요청 및 응답 받기
         CancelPaymentResponse cancelPaymentResponse = requestExternalCancel(paymentKey, cancelRequest);
 
         // 4. Toss API 응답에서 `status`와 `method` 값 변환
@@ -78,7 +77,7 @@ public class PaymentCancelService {
 
         cancelPaymentRepository.save(cancelPaymentEntity);
 
-        // 7. CancelPaymentResponse DTO 반환
+
         return cancelPaymentResponse;
     }
 

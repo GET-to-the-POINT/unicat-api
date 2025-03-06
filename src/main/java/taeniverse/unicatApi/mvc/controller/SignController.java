@@ -89,6 +89,7 @@ public class SignController {
                             )
                     ),
                     @ApiResponse(
+
                             responseCode = "401",
                             description = "인증 실패 - 잘못된 이메일 또는 비밀번호",
                             content = @Content(
@@ -98,6 +99,8 @@ public class SignController {
                     )
             }
     )
+
+
     public void signInJson(
             @Valid @RequestBody SignInDto signInDto,
             HttpServletResponse response
