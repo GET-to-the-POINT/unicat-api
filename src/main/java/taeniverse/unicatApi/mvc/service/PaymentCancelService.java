@@ -5,14 +5,22 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import taeniverse.unicatApi.component.propertie.AppProperties;
+import taeniverse.unicatApi.component.util.CharacterUtil;
 import taeniverse.unicatApi.mvc.model.dto.CancelPaymentRequest;
 import taeniverse.unicatApi.mvc.model.dto.CancelPaymentResponse;
+import taeniverse.unicatApi.mvc.model.entity.CancelPayment;
+import taeniverse.unicatApi.mvc.model.entity.Payment;
+import taeniverse.unicatApi.mvc.repository.CancelPaymentRepository;
+import taeniverse.unicatApi.mvc.repository.PaymentRepository;
+import taeniverse.unicatApi.payment.PayType;
+import taeniverse.unicatApi.payment.TossPaymentStatus;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.UUID;
 
@@ -25,7 +33,9 @@ public class PaymentCancelService {
     private final AppProperties appProperties;
     private final ObjectMapper objectMapper;
     private final HttpClient httpClient;
-
+    private final PaymentService paymentService;
+    private final PaymentRepository paymentRepository;
+    private final CancelPaymentRepository cancelPaymentRepository;
     /**
      * 결제 취소 프로세스
      * 1. Payment 엔티티 조회 및 입력값 검증
@@ -38,45 +48,38 @@ public class PaymentCancelService {
      * @return 저장된 CancelPayment 엔티티
      */
     public CancelPaymentResponse cancelPayment(String paymentKey, CancelPaymentRequest cancelRequest) {
-//        // 1. 기존 Payment 조회
-//        Payment payment = paymentRepository.findByPaymentKey(paymentKey)
-//                .orElseThrow(() -> new RuntimeException("Payment not found with key: " + paymentKey));
-//
-//        // 2. 입력값 검증
-//        if (cancelRequest.getCancelReason() == null || cancelRequest.getCancelReason().trim().isEmpty()) {
-//            throw new RuntimeException("취소 사유는 필수입니다.");
-//        }
-//
-//        // 3. Toss API 결제 취소 요청 및 응답 받기 (이제 `CancelPaymentResponse`가 반환됨)
-//        CancelPaymentResponse cancelPaymentResponse = requestExternalCancel(paymentKey, cancelRequest);
-//
-//        // 4. Toss API 응답에서 `status`와 `method` 값 변환
-//        TossPaymentStatus tossPaymentStatus = cancelPaymentResponse.getTossPaymentStatus();
-//        PayType payType = cancelPaymentResponse.getPayType(); // ✅ `method` 값을 PayType Enum으로 변환
-//
-//        // 5. 기존 Payment 엔티티 상태 업데이트 및 저장
-//        payment.setTossPaymentStatus(tossPaymentStatus); // ✅ Toss API 응답 반영
-//        payment.setPayType(payType); // ✅ 결제 수단 반영
-//        paymentRepository.save(payment); // 변경사항 저장
-//
-//        // 6. CancelPayment 엔티티 생성 후 Payment와 연관 관계 설정
-//        CancelPayment cancelPaymentEntity = CancelPayment.builder()
-//                .orderId(payment.getOrder().getOrderId())
-//                .orderName(payment.getOrder().getOrderName())
-//                .paymentKey(payment.getPaymentKey())
-//                .cancelReason(cancelRequest.getCancelReason())
-//                .cancelAmount(cancelRequest.getCancelAmount())
-//                .cancelDate(LocalDateTime.now())
-//                .status(tossPaymentStatus)
-//                .method(payType)
-//                .payment(payment)
-//                .build();
-//
-//        cancelPaymentRepository.save(cancelPaymentEntity);
-//
-//        // 7. CancelPaymentResponse DTO 반환
-//        return cancelPaymentResponse;
-        return null;
+        // 1. 기존 Payment 조회
+        Payment payment = paymentService.findByPaymentKey(paymentKey);
+
+        // 3. Toss API 결제 취소 요청 및 응답 받기 (이제 `CancelPaymentResponse`가 반환됨)
+        CancelPaymentResponse cancelPaymentResponse = requestExternalCancel(paymentKey, cancelRequest);
+
+        // 4. Toss API 응답에서 `status`와 `method` 값 변환
+        TossPaymentStatus status = cancelPaymentResponse.getTossPaymentStatus();
+        PayType payType = cancelPaymentResponse.getPayType();
+
+        // 5. 기존 Payment 엔티티 상태 업데이트 및 저장
+        payment.setTossPaymentStatus(status);
+        payment.setPayType(payType);
+        paymentRepository.save(payment);
+
+        // 6. CancelPayment 엔티티 생성 후 Payment와 연관 관계 설정
+        CancelPayment cancelPaymentEntity = CancelPayment.builder()
+                .orderId(payment.getOrder().getId())
+                .orderName(payment.getOrder().getOrderName())
+                .paymentKey(payment.getPaymentKey())
+                .cancelReason(cancelRequest.getCancelReason())
+                .cancelAmount(cancelRequest.getCancelAmount())
+                .canceledAt(LocalDateTime.now())
+                .status(status)
+                .method(payType)
+                .payment(payment)
+                .build();
+
+        cancelPaymentRepository.save(cancelPaymentEntity);
+
+        // 7. CancelPaymentResponse DTO 반환
+        return cancelPaymentResponse;
     }
 
     /**

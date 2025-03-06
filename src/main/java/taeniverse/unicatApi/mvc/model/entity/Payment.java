@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import taeniverse.unicatApi.payment.PayType;
 import taeniverse.unicatApi.payment.TossPaymentStatus;
 
@@ -24,9 +25,11 @@ public class Payment {
     @Column(nullable = false)
     private long amount;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     private PayType payType;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TossPaymentStatus tossPaymentStatus;

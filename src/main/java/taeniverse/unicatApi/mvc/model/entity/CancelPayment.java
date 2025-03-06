@@ -35,7 +35,7 @@ public class CancelPayment {
     private Long cancelAmount;
 
     @Column(nullable = false)
-    private LocalDateTime cancelDate;
+    private LocalDateTime canceledAt;
 
     @ManyToOne
     @JoinColumn(nullable = false)
@@ -46,14 +46,14 @@ public class CancelPayment {
     private PayType method;
 
     @Builder
-    public CancelPayment(String orderId, String orderName, String paymentKey, String cancelReason, TossPaymentStatus status, Long cancelAmount, LocalDateTime cancelDate, Payment payment, PayType method) {
+    public CancelPayment(String orderId, String orderName, String paymentKey, String cancelReason, TossPaymentStatus status, Long cancelAmount, LocalDateTime canceledAt, Payment payment, PayType method) {
         this.orderId = orderId;
         this.orderName = orderName;
         this.paymentKey = paymentKey;
         this.cancelReason = cancelReason;
         this.status = status;
         this.cancelAmount = cancelAmount;
-        this.cancelDate = cancelDate;
+        this.canceledAt = canceledAt;
         this.payment = payment;
         this.method = method;
     }

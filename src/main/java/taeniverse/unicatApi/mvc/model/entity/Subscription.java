@@ -20,7 +20,7 @@ public class Subscription {
     @Setter
     private String status; // 구독 상태 (pending,active, cancel, expired)
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn
     private Member member; // 한 유저는 하나의 구독만 가능
 

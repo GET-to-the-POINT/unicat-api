@@ -3,6 +3,8 @@ package taeniverse.unicatApi.mvc.model.dto;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+import taeniverse.unicatApi.payment.PayType;
+import taeniverse.unicatApi.payment.TossPaymentStatus;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -54,6 +56,14 @@ public class CancelPaymentResponse {
         }
         this.cancelReason = cancelReason;
         this.status = status;
+    }
+
+    // Toss API의 status 값을 TossPaymentStatus Enum으로 변환하는 메서드
+    public TossPaymentStatus getTossPaymentStatus() {
+        return TossPaymentStatus.fromTossStatus(this.status);
+    }
+    public PayType getPayType() {
+        return PayType.fromKoreanName(this.method);
     }
 }
 

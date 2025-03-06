@@ -49,11 +49,12 @@ public class PaymentService {
         orderService.updateOrder(orderId, status);
         // 결제
         String method = CharacterUtil.convertToUTF8(tossResponse.getMethod());
-
+        String orderName = CharacterUtil.convertToUTF8(tossResponse.getOrderName());
         PayType payType = PayType.fromKoreanName(method);
         savePayment(order, paymentKey, amount, status, payType);
 
         tossResponse.setMethod(method);
+        tossResponse.setOrderName(orderName);
         return tossResponse;
     }
 
@@ -76,8 +77,9 @@ public class PaymentService {
             ResponseEntity<String> responseEntity = restTemplate.exchange(
                     url, HttpMethod.POST, requestEntity, String.class
             );
-
+            int statusCode = responseEntity.getStatusCode().value();//나중에 삭제
             String responseBody = responseEntity.getBody();
+            System.out.printf("Confirm API response status: %d, body: %s%n", statusCode, responseBody);//응답값 확인용 나중에 삭제
 
             return objectMapper.readValue(responseBody, TossPaymentResponse.class);
         } catch (IOException e) {
@@ -100,5 +102,9 @@ public class PaymentService {
                 .member(order.getMember())
                 .build();
         paymentRepository.save(payment);
+    }
+    public Payment findByPaymentKey(String paymentKey) {
+        return paymentRepository.findByPaymentKey(paymentKey)
+                .orElseThrow(() -> new IllegalArgumentException("결제 정보를 찾을 수 없습니다: " + paymentKey));
     }
 }
