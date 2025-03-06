@@ -3,24 +3,23 @@ package taeniverse.unicatApi.mvc.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
-import taeniverse.unicatApi.mvc.service.VideoStatisticsService;
+import taeniverse.unicatApi.mvc.service.VideoStatisticsEntityService;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/statistics")
-public class VideoStatisticsController {
+public class VideoStatisticsEntityController {
 
-    private final VideoStatisticsService videoStatisticsService;
+    private final VideoStatisticsEntityService VideoStatisticsEntityService;
 
     // 특정 비디오에 대한 (특정 기간동안) 통계 요청
     @GetMapping("/video/{videoId}/period")
     public String getStatisticsForVideo(
             @PathVariable String videoId,
-            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDateTime start,
-            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd")  LocalDateTime end) {
-        return videoStatisticsService.getStatisticsForVideo(videoId, start, end);
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date startdate,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd")  Date enddate) {
+        return VideoStatisticsEntityService.getStatisticsForVideo(videoId, startdate, enddate);
     }
 }

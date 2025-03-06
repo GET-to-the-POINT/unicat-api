@@ -17,7 +17,7 @@ public class YoutubeDataController {
 
     // YouTube 동영상 통계 반환 API
     @GetMapping("/api/video-statistics/{videoId}")
-    public String getVideoStatistics(@RequestParam String[] videoIds) {
+    public String getVideoStatisticsEntity(@RequestParam String[] videoIds) {
         try {
             return youtubeDataService.getVideosData(videoIds);
         } catch (Exception e) {

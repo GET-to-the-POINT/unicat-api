@@ -1,16 +1,14 @@
 package taeniverse.unicatApi.mvc.model.entity;
 
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 
+@Setter
 @NoArgsConstructor
 @Getter
 @Entity
