@@ -1,14 +1,12 @@
-package taeniverse.unicatApi.mvc.model.entity;
+package getToThePoint.unicatApi.domain.entity.video;
 
 import jakarta.persistence.*;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigInteger;
 import java.time.LocalDate;
-import java.util.Date;
 
 @NoArgsConstructor
 @Getter

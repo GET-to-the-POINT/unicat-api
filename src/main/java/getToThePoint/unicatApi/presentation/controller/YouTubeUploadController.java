@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.web.bind.annotation.*;
-import taeniverse.unicatApi.mvc.service.YouTubeUploadService;
+import getToThePoint.unicatApi.application.service.video.YouTubeUploadService;
 
 @RequiredArgsConstructor
 @RestController

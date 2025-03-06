@@ -1,4 +1,4 @@
-package taeniverse.unicatApi.mvc.service;
+package getToThePoint.unicatApi.application.service.video;
 
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.FileContent;
@@ -15,10 +15,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import taeniverse.unicatApi.mvc.model.entity.UploadVideo;
-import taeniverse.unicatApi.mvc.model.entity.Videos;
-import taeniverse.unicatApi.mvc.repository.VideosRepository;
-import taeniverse.unicatApi.mvc.repository.YouTubeUploadRepository;
+import getToThePoint.unicatApi.domain.entity.video.UploadVideo;
+import getToThePoint.unicatApi.domain.entity.video.Videos;
+import getToThePoint.unicatApi.domain.repository.video.VideosRepository;
+import getToThePoint.unicatApi.domain.repository.video.YouTubeUploadRepository;
 import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;

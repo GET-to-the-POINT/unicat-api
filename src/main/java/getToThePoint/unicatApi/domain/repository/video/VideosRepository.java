@@ -1,7 +1,7 @@
-package taeniverse.unicatApi.mvc.repository;
+package getToThePoint.unicatApi.domain.repository.video;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import taeniverse.unicatApi.mvc.model.entity.Videos;
+import getToThePoint.unicatApi.domain.entity.video.Videos;
 import java.util.Optional;
 
 public interface VideosRepository extends JpaRepository<Videos, Long> {
