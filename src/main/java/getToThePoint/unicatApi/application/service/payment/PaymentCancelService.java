@@ -35,34 +35,24 @@ public class PaymentCancelService {
     private final PaymentService paymentService;
     private final PaymentRepository paymentRepository;
     private final CancelPaymentRepository cancelPaymentRepository;
-    /**
-     * 결제 취소 프로세스
-     * 1. Payment 엔티티 조회 및 입력값 검증
-     * 2. 외부 결제 API 호출
-     * 3. Payment 상태를 CANCEL로 업데이트
-     * 4. CancelPayment 엔티티 생성 및 저장
-     *
-     * @param paymentKey 결제 고유 키 (외부 API 및 CancelPayment 조회용)
-     * @param cancelRequest 취소 요청 데이터 (취소 사유, 고객 정보 등)
-     * @return 저장된 CancelPayment 엔티티
-     */
+
     public CancelPaymentResponse cancelPayment(String paymentKey, CancelPaymentRequest cancelRequest) {
-        // 1. 기존 Payment 조회
         Payment payment = paymentService.findByPaymentKey(paymentKey);
-
-        // 3. Toss API 결제 취소 요청 및 응답 받기
         CancelPaymentResponse cancelPaymentResponse = requestExternalCancel(paymentKey, cancelRequest);
+        updatePaymentStatus(payment, cancelPaymentResponse);
+        saveCancelPayment(payment, cancelRequest, cancelPaymentResponse);
+        return cancelPaymentResponse;
+    }
 
-        // 4. Toss API 응답에서 `status`와 `method` 값 변환
+    private void updatePaymentStatus(Payment payment, CancelPaymentResponse cancelPaymentResponse) {
         TossPaymentStatus status = cancelPaymentResponse.getTossPaymentStatus();
         PayType payType = cancelPaymentResponse.getPayType();
-
-        // 5. 기존 Payment 엔티티 상태 업데이트 및 저장
         payment.setTossPaymentStatus(status);
         payment.setPayType(payType);
         paymentRepository.save(payment);
+    }
 
-        // 6. CancelPayment 엔티티 생성 후 Payment와 연관 관계 설정
+    private void saveCancelPayment(Payment payment, CancelPaymentRequest cancelRequest, CancelPaymentResponse cancelPaymentResponse) {
         CancelPayment cancelPaymentEntity = CancelPayment.builder()
                 .orderId(payment.getOrder().getId())
                 .orderName(payment.getOrder().getOrderName())
@@ -70,24 +60,13 @@ public class PaymentCancelService {
                 .cancelReason(cancelRequest.getCancelReason())
                 .cancelAmount(cancelRequest.getCancelAmount())
                 .canceledAt(LocalDateTime.now())
-                .status(status)
-                .method(payType)
+                .status(cancelPaymentResponse.getTossPaymentStatus())
+                .method(cancelPaymentResponse.getPayType())
                 .payment(payment)
                 .build();
-
         cancelPaymentRepository.save(cancelPaymentEntity);
-
-
-        return cancelPaymentResponse;
     }
 
-    /**
-     * 외부 결제 취소 API 호출
-     *
-     * @param paymentKey 결제 고유 키
-     * @param cancelRequest 취소 요청 객체
-     * @return 외부 API 응답을 기반으로 생성된 CancelPayment 엔티티
-     */
     private CancelPaymentResponse requestExternalCancel(String paymentKey, CancelPaymentRequest cancelRequest) {
         String url = API_URL + paymentKey + "/cancel";
         String requestBody = convertToJson(cancelRequest);
@@ -102,12 +81,16 @@ public class PaymentCancelService {
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build();
 
+        return sendCancelRequest(request);
+    }
+
+    private CancelPaymentResponse sendCancelRequest(HttpRequest request) {
         try {
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             System.out.printf("Cancel API response status: %d, body: %s%n", response.statusCode(), response.body());
 
             if (response.statusCode() >= 200 && response.statusCode() < 300) {
-                return objectMapper.readValue(response.body(), CancelPaymentResponse.class); // ✅ `CancelPaymentResponse` 반환
+                return objectMapper.readValue(response.body(), CancelPaymentResponse.class);
             } else {
                 throw new RuntimeException("결제 취소 실패 - 상태 코드: " + response.statusCode() + ", 응답: " + response.body());
             }
@@ -117,12 +100,6 @@ public class PaymentCancelService {
         }
     }
 
-    /**
-     * CancelPaymentRequest 객체를 JSON 문자열로 변환
-     *
-     * @param request 취소 요청 객체
-     * @return JSON 문자열
-     */
     private String convertToJson(CancelPaymentRequest request) {
         try {
             return objectMapper.writeValueAsString(request);
@@ -131,11 +108,6 @@ public class PaymentCancelService {
         }
     }
 
-    /**
-     * Basic 인증을 위한 Authorization 헤더 생성
-     *
-     * @return Basic Authorization 헤더 값
-     */
     private String createAuthorizationHeader() {
         String authString = appProperties.toss().secretKey() + ":";
         String encodedAuth = Base64.getEncoder().encodeToString(authString.getBytes());

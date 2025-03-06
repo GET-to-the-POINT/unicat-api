@@ -18,15 +18,18 @@ public class OrderService {
     private final OrderRepository orderRepository;
 
     public Order create(OrderRequest orderRequest, Member member) {
-        Order order = Order.builder()
+        Order order = buildOrder(orderRequest, member);
+        return orderRepository.save(order);
+    }
+
+    private Order buildOrder(OrderRequest orderRequest, Member member) {
+        return Order.builder()
                 .orderName(orderRequest.getOrderName())
                 .amount(orderRequest.getAmount())
                 .payMethod(orderRequest.getPayMethod())
                 .status(TossPaymentStatus.PENDING)
                 .member(member)
                 .build();
-
-        return orderRepository.save(order);
     }
 
     public Order findById(String orderId) {
@@ -35,9 +38,16 @@ public class OrderService {
     }
 
     public void updateOrder(String orderId, TossPaymentStatus status) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
+        Order order = findOrderById(orderId);
+        updateOrderStatus(order, status);
+    }
 
+    private Order findOrderById(String orderId) {
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
+    }
+
+    private void updateOrderStatus(Order order, TossPaymentStatus status) {
         order.setStatus(status);
         orderRepository.save(order);
     }

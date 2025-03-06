@@ -91,34 +91,48 @@ public class YouTubeUploadService {
             YouTube youtubeService = getYouTubeService(accessToken);
 
             // YouTube 업로드 메타데이터 설정
-            Video video = new Video();
-            VideoSnippet snippet = new VideoSnippet();
-            snippet.setTitle(title);
-            snippet.setDescription(description);
-            video.setSnippet(snippet);
-
-            VideoStatus status = new VideoStatus();
-            status.setPrivacyStatus("public"); // "private", "unlisted" 도 가능
-            video.setStatus(status);
+            Video video = createVideoMetadata(title, description);
 
             // YouTube API로 동영상 업로드
-            FileContent mediaContent = new FileContent("video/*", videoFile);
-            YouTube.Videos.Insert request = youtubeService.videos()
-                    .insert(List.of("snippet", "status"), video, mediaContent);
+            Video response = uploadToYouTube(youtubeService, video, videoFile);
 
-            Video response = request.execute();
-
-            UploadVideo uploadVideo = UploadVideo.builder()
-                    .video(videos)
-                    .updateScheduleDate(LocalDate.now())
-                    .youtubeVideoId(response.getId())
-                    .build();
-            youTubeUploadRepository.save(uploadVideo);
+            saveUploadVideo(videos, response);
 
             return response.getId();
 
         } catch (IOException | GeneralSecurityException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to upload video", e);
         }
+    }
+
+    private Video createVideoMetadata(String title, String description) {
+        Video video = new Video();
+        VideoSnippet snippet = new VideoSnippet();
+        snippet.setTitle(title);
+        snippet.setDescription(description);
+        video.setSnippet(snippet);
+
+        VideoStatus status = new VideoStatus();
+        status.setPrivacyStatus("public"); // "private", "unlisted" 도 가능
+        video.setStatus(status);
+
+        return video;
+    }
+
+    private Video uploadToYouTube(YouTube youtubeService, Video video, File videoFile) throws IOException {
+        FileContent mediaContent = new FileContent("video/*", videoFile);
+        YouTube.Videos.Insert request = youtubeService.videos()
+                .insert(List.of("snippet", "status"), video, mediaContent);
+
+        return request.execute();
+    }
+
+    private void saveUploadVideo(Videos videos, Video response) {
+        UploadVideo uploadVideo = UploadVideo.builder()
+                .video(videos)
+                .updateScheduleDate(LocalDate.now())
+                .youtubeVideoId(response.getId())
+                .build();
+        youTubeUploadRepository.save(uploadVideo);
     }
 }

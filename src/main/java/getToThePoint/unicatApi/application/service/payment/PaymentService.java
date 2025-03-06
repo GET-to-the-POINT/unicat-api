@@ -30,32 +30,34 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final AppProperties appProperties;
 
-    /**
-     * 외부 Toss API를 호출하고, 주문 및 결제 상태를 최종 처리한 후 Toss API 응답을 반환합니다.
-     *
-     * @param orderId    주문 ID
-     * @param amount     결제 금액
-     * @param paymentKey 결제 키
-     * @return Toss API 응답을 Map으로 파싱한 결과
-     */
     public TossPaymentResponse confirmAndFinalizePayment(String orderId, Long amount, String paymentKey) {
         TossPaymentResponse tossResponse = confirmPaymentExternal(paymentKey, orderId, amount);
-        // 구독
+        processSubscription(orderId);
+        processOrder(orderId, tossResponse);
+        processPayment(orderId, paymentKey, amount, tossResponse);
+        return tossResponse;
+    }
+
+    private void processSubscription(String orderId) {
         Order order = orderService.findById(orderId);
         Member member = order.getMember();
         subscriptionService.createSubscription(member, order);
-        // 주문
+    }
+
+    private void processOrder(String orderId, TossPaymentResponse tossResponse) {
         TossPaymentStatus status = TossPaymentStatus.valueOf(tossResponse.getStatus());
         orderService.updateOrder(orderId, status);
-        // 결제
+    }
+
+    private void processPayment(String orderId, String paymentKey, Long amount, TossPaymentResponse tossResponse) {
+        Order order = orderService.findById(orderId);
+        TossPaymentStatus status = TossPaymentStatus.valueOf(tossResponse.getStatus());
         String method = CharacterUtil.convertToUTF8(tossResponse.getMethod());
         String orderName = CharacterUtil.convertToUTF8(tossResponse.getOrderName());
         PayType payType = PayType.fromKoreanName(method);
         savePayment(order, paymentKey, amount, status, payType);
-
         tossResponse.setMethod(method);
         tossResponse.setOrderName(orderName);
-        return tossResponse;
     }
 
     private TossPaymentResponse confirmPaymentExternal(String paymentKey, String orderId, Long amount) {
@@ -73,24 +75,25 @@ public class PaymentService {
 
             HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
 
-
             ResponseEntity<String> responseEntity = restTemplate.exchange(
                     url, HttpMethod.POST, requestEntity, String.class
             );
-            int statusCode = responseEntity.getStatusCode().value();//나중에 삭제
+            int statusCode = responseEntity.getStatusCode().value();
             String responseBody = responseEntity.getBody();
-            System.out.printf("Confirm API response status: %d, body: %s%n", statusCode, responseBody);//응답값 확인용 나중에 삭제
+            System.out.printf("Confirm API response status: %d, body: %s%n", statusCode, responseBody);
 
             return objectMapper.readValue(responseBody, TossPaymentResponse.class);
         } catch (IOException e) {
             throw new RuntimeException("Toss API 호출 중 오류 발생: " + e.getMessage(), e);
         }
     }
+
     private String createAuthorizationHeader() {
         String authString = appProperties.toss().secretKey() + ":";
         String encodedAuth = Base64.getEncoder().encodeToString(authString.getBytes());
         return "Basic " + encodedAuth;
     }
+
     public void savePayment(Order order, String paymentKey, Long amount, TossPaymentStatus status, PayType payType) {
         Payment payment = Payment.builder()
                 .paymentKey(paymentKey)
@@ -103,6 +106,7 @@ public class PaymentService {
                 .build();
         paymentRepository.save(payment);
     }
+
     public Payment findByPaymentKey(String paymentKey) {
         return paymentRepository.findByPaymentKey(paymentKey)
                 .orElseThrow(() -> new IllegalArgumentException("결제 정보를 찾을 수 없습니다: " + paymentKey));
