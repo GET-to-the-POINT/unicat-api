@@ -3,7 +3,6 @@ spring:
     name: unicat-api
   config:
     import: classpath:core/application-oauth.yml
-
   mvc:
     hiddenmethod:
       filter:
@@ -47,6 +46,3 @@ server:
     include-exception: true
     include-binding-errors: always
     include-message: always
-  servlet:
-    session:
-      tracking-modes: cookie
