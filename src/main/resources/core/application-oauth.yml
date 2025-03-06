@@ -20,6 +20,7 @@ spring:
             scope:
               - profile_nickname
               - profile_image
+              - account_email
         provider:
           google:
             authorization-uri: "https://accounts.google.com/o/oauth2/v2/auth?access_type=offline"

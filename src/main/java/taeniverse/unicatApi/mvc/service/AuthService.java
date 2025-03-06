@@ -11,8 +11,11 @@ import org.springframework.web.server.ResponseStatusException;
 import taeniverse.unicatApi.mvc.model.dto.sign.SignInDto;
 import taeniverse.unicatApi.mvc.model.dto.sign.SignUpDto;
 import taeniverse.unicatApi.mvc.model.entity.Member;
+import taeniverse.unicatApi.mvc.model.entity.Role;
 import taeniverse.unicatApi.mvc.repository.MemberRepository;
 import taeniverse.unicatApi.component.util.JwtUtil;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +25,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final MessageSource messageSource;
+    private final MemberService memberService;
 
     public void signUp(SignUpDto signUpDto, HttpServletResponse response) {
         if (memberRepository.existsByEmail(signUpDto.email())) {
@@ -29,11 +33,13 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, errorMessage);
         }
 
-        Member member = Member.builder().email(signUpDto.email()).password(passwordEncoder.encode(signUpDto.password())).build();
+        Member member = memberService.create(signUpDto.email(), passwordEncoder.encode(signUpDto.password()));
 
-        memberRepository.save(member);
+        List<String> roleNames = member.getRoles().stream()
+                .map(Role::getName)
+                .toList();
 
-        String token = jwtUtil.generateJwtToken(member.getEmail());
+        String token = jwtUtil.generateJwtToken(member.getId(), member.getEmail(), roleNames);
         jwtUtil.addJwtCookie(response, token);
     }
 
@@ -44,7 +50,11 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, errorMessage);
         }
 
-        String token = jwtUtil.generateJwtToken(member.getEmail());
+        List<String> roleNames = member.getRoles().stream()
+                .map(Role::getName)
+                .toList();
+
+        String token = jwtUtil.generateJwtToken(member.getId(), member.getEmail(), roleNames);
         jwtUtil.addJwtCookie(response, token);
     }
 
