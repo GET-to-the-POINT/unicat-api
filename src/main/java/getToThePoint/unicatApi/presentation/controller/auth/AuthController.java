@@ -1,4 +1,4 @@
-package getToThePoint.unicatApi.presentation.controller;
+package getToThePoint.unicatApi.presentation.controller.auth;
 
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.JWK;

@@ -21,7 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 import getToThePoint.unicatApi.domain.dto.sign.SignInDto;
 import getToThePoint.unicatApi.domain.dto.sign.SignUpDto;
 import getToThePoint.unicatApi.application.service.AuthService;
-import getToThePoint.unicatApi.presentation.controller.SignController;
+import getToThePoint.unicatApi.presentation.controller.auth.SignController;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
