@@ -25,8 +25,8 @@ public class PaymentController {
 
     @PostMapping("/cancel")
     public CancelPaymentResponse cancelPayment(@RequestBody @Valid CancelPaymentRequest cancelRequest) {
-        String paymentKey = cancelRequest.getPaymentKey();
+        Long paymentId = cancelRequest.getPaymentId();
 
-        return paymentCancelService.cancelPayment(paymentKey, cancelRequest);
+        return paymentCancelService.cancelPayment(paymentId, cancelRequest);
     }
 }

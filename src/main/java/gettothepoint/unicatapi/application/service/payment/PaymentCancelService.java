@@ -2,17 +2,18 @@ package gettothepoint.unicatapi.application.service.payment;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 import gettothepoint.unicatapi.common.propertie.AppProperties;
+import gettothepoint.unicatapi.domain.constant.payment.PayType;
+import gettothepoint.unicatapi.domain.constant.payment.TossPaymentStatus;
 import gettothepoint.unicatapi.domain.dto.payment.CancelPaymentRequest;
 import gettothepoint.unicatapi.domain.dto.payment.CancelPaymentResponse;
 import gettothepoint.unicatapi.domain.entity.CancelPayment;
 import gettothepoint.unicatapi.domain.entity.Payment;
 import gettothepoint.unicatapi.domain.repository.CancelPaymentRepository;
 import gettothepoint.unicatapi.domain.repository.PaymentRepository;
-import gettothepoint.unicatapi.domain.constant.payment.PayType;
-import gettothepoint.unicatapi.domain.constant.payment.TossPaymentStatus;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URI;
@@ -27,20 +28,24 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PaymentCancelService {
 
-    private static final String API_URL = "https://api.tosspayments.com/v1/payments/";
-
     private final AppProperties appProperties;
     private final ObjectMapper objectMapper;
     private final HttpClient httpClient;
     private final PaymentService paymentService;
     private final PaymentRepository paymentRepository;
     private final CancelPaymentRepository cancelPaymentRepository;
+    private final SubscriptionService subscriptionService;
 
-    public CancelPaymentResponse cancelPayment(String paymentKey, CancelPaymentRequest cancelRequest) {
-        Payment payment = paymentService.findByPaymentKey(paymentKey);
-        CancelPaymentResponse cancelPaymentResponse = requestExternalCancel(paymentKey, cancelRequest);
-        updatePaymentStatus(payment, cancelPaymentResponse);
-        saveCancelPayment(payment, cancelRequest, cancelPaymentResponse);
+
+    public CancelPaymentResponse cancelPayment(Long paymentId, CancelPaymentRequest cancelRequest) {
+
+        Payment payment = paymentService.findById(paymentId); //payment id 조회
+        String storedPaymentKey = payment.getPaymentKey(); //payment 엔티티 안에 저장된 paymentKey 뽑아내기
+
+        CancelPaymentResponse cancelPaymentResponse = requestExternalCancel(storedPaymentKey, cancelRequest); //외부 API 호출
+        updatePaymentStatus(payment, cancelPaymentResponse); //결제 상태 업데이트
+        saveCancelPayment(payment, cancelRequest, cancelPaymentResponse); //결제 취소 엔티티 저장
+        subscriptionService.cancelSubscriptionByPayment(payment);
         return cancelPaymentResponse;
     }
 
@@ -68,7 +73,7 @@ public class PaymentCancelService {
     }
 
     private CancelPaymentResponse requestExternalCancel(String paymentKey, CancelPaymentRequest cancelRequest) {
-        String url = API_URL + paymentKey + "/cancel";
+        String url = appProperties.toss().cancelUrl() + paymentKey + "/cancel";
         String requestBody = convertToJson(cancelRequest);
         String idempotencyKey = UUID.randomUUID().toString();
         String authorizationHeader = createAuthorizationHeader();

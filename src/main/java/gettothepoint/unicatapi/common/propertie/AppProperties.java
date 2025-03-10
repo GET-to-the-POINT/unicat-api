@@ -11,7 +11,7 @@ public record AppProperties(Jwt jwt, Toss toss, Api api, Youtube youtube) {
         }
     }
 
-    public record Toss(String clientKey, String secretKey, String hi) {
+    public record Toss(String clientKey, String secretKey,String confirmUrl,String cancelUrl) {
     }
 
     public record Youtube(String apiKey) {

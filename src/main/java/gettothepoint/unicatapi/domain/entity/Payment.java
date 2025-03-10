@@ -8,6 +8,8 @@ import lombok.Setter;
 import gettothepoint.unicatapi.domain.constant.payment.PayType;
 import gettothepoint.unicatapi.domain.constant.payment.TossPaymentStatus;
 
+import java.time.LocalDateTime;
+
 @NoArgsConstructor
 @Getter
 @Entity
@@ -42,8 +44,15 @@ public class Payment {
     @JoinColumn
     private Member member;
 
+    @Column
+    private LocalDateTime approvedAt;
+
+
+
     @Builder
-    public Payment(String paymentKey, String productName, long amount, PayType payType, TossPaymentStatus tossPaymentStatus, Order order, Member member) {
+    public Payment(String paymentKey, String productName, long amount, PayType payType,
+                   TossPaymentStatus tossPaymentStatus, Order order, Member member,
+                   LocalDateTime approvedAt) {
         this.paymentKey = paymentKey;
         this.productName = productName;
         this.amount = amount;
@@ -51,5 +60,6 @@ public class Payment {
         this.tossPaymentStatus = tossPaymentStatus;
         this.order = order;
         this.member = member;
+        this.approvedAt = approvedAt;
     }
 }
