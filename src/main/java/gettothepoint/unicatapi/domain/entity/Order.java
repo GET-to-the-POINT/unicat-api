@@ -9,6 +9,7 @@ import lombok.Setter;
 import gettothepoint.unicatapi.domain.constant.payment.PayType;
 import gettothepoint.unicatapi.domain.constant.payment.TossPaymentStatus;
 
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -36,14 +37,13 @@ public class Order {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     @Setter
-    private TossPaymentStatus status; // 주문 상태
+    private TossPaymentStatus status;
 
     @OneToOne
     private Subscription subscription; // 주문이 특정 구독에 연결
 
-    @OneToOne(mappedBy = "order")
-    @JsonIgnore
-    private Payment payment;
+    @OneToMany(mappedBy = "order")
+    private List<Payment> payments;
 
     @Builder
     public Order(String orderName, Long amount, Member member, PayType payMethod, TossPaymentStatus status, Subscription subscription) {

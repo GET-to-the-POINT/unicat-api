@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -122,8 +123,13 @@ public class PaymentService {
         return paymentRepository.findByid(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "paymentId not found"));
     }
+
     public Payment findByOrderId(String orderId) {
         return paymentRepository.findByOrder_Id(orderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "orderId not found"));
+    }
+
+    public List<Payment> findByMemberEmail(String email) {
+        return paymentRepository.findByMember_Email(email);
     }
 }

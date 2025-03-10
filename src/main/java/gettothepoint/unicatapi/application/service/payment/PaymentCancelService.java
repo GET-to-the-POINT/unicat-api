@@ -3,16 +3,11 @@ package gettothepoint.unicatapi.application.service.payment;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gettothepoint.unicatapi.common.propertie.AppProperties;
-import gettothepoint.unicatapi.domain.constant.payment.PayType;
-import gettothepoint.unicatapi.domain.constant.payment.TossPaymentStatus;
 import gettothepoint.unicatapi.domain.dto.payment.CancelPaymentRequest;
 import gettothepoint.unicatapi.domain.dto.payment.CancelPaymentResponse;
-import gettothepoint.unicatapi.domain.entity.CancelPayment;
 import gettothepoint.unicatapi.domain.entity.Payment;
-import gettothepoint.unicatapi.domain.repository.CancelPaymentRepository;
 import gettothepoint.unicatapi.domain.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -33,43 +28,36 @@ public class PaymentCancelService {
     private final HttpClient httpClient;
     private final PaymentService paymentService;
     private final PaymentRepository paymentRepository;
-    private final CancelPaymentRepository cancelPaymentRepository;
     private final SubscriptionService subscriptionService;
 
 
     public CancelPaymentResponse cancelPayment(Long paymentId, CancelPaymentRequest cancelRequest) {
 
-        Payment payment = paymentService.findById(paymentId); //payment id 조회
-        String storedPaymentKey = payment.getPaymentKey(); //payment 엔티티 안에 저장된 paymentKey 뽑아내기
+        Payment originalPayment = paymentService.findById(paymentId); //payment id 조회
+        String storedPaymentKey = originalPayment.getPaymentKey(); //payment 엔티티 안에 저장된 paymentKey 뽑아내기
 
         CancelPaymentResponse cancelPaymentResponse = requestExternalCancel(storedPaymentKey, cancelRequest); //외부 API 호출
-        updatePaymentStatus(payment, cancelPaymentResponse); //결제 상태 업데이트
-        saveCancelPayment(payment, cancelRequest, cancelPaymentResponse); //결제 취소 엔티티 저장
-        subscriptionService.cancelSubscriptionByPayment(payment);
+
+        Payment canceledPayment = createCanceledPayment(originalPayment, cancelRequest, cancelPaymentResponse); //결제 취소 엔티티 저장
+        paymentRepository.save(canceledPayment);
+
+        subscriptionService.cancelSubscriptionByPayment(originalPayment);
         return cancelPaymentResponse;
     }
 
-    private void updatePaymentStatus(Payment payment, CancelPaymentResponse cancelPaymentResponse) {
-        TossPaymentStatus status = cancelPaymentResponse.getTossPaymentStatus();
-        PayType payType = cancelPaymentResponse.getPayType();
-        payment.setTossPaymentStatus(status);
-        payment.setPayType(payType);
-        paymentRepository.save(payment);
-    }
-
-    private void saveCancelPayment(Payment payment, CancelPaymentRequest cancelRequest, CancelPaymentResponse cancelPaymentResponse) {
-        CancelPayment cancelPaymentEntity = CancelPayment.builder()
-                .orderId(payment.getOrder().getId())
-                .orderName(payment.getOrder().getOrderName())
-                .paymentKey(payment.getPaymentKey())
-                .cancelReason(cancelRequest.getCancelReason())
-                .cancelAmount(cancelRequest.getCancelAmount())
-                .canceledAt(LocalDateTime.now())
-                .status(cancelPaymentResponse.getTossPaymentStatus())
-                .method(cancelPaymentResponse.getPayType())
-                .payment(payment)
+    private Payment createCanceledPayment (Payment original, CancelPaymentRequest cancelRequest, CancelPaymentResponse cancelPaymentResponse) {
+        return Payment.builder()
+                .paymentKey(original.getPaymentKey())           // 원래 결제와 동일한 결제 키 사용
+                .productName(original.getProductName())
+                .amount(original.getAmount())                     // 원래 결제 금액 (또는 취소 금액, 부분 취소 시 조정 가능)
+                .payType(cancelPaymentResponse.getPayType())      // 취소 시 사용된 결제 수단
+                .tossPaymentStatus(cancelPaymentResponse.getTossPaymentStatus()) // 취소 상태
+                .order(original.getOrder())
+                .member(original.getMember())
+                .approvedAt(original.getApprovedAt())             // 원래 승인 일시 보존
+                .canceledAt(LocalDateTime.now())                  // 취소 일시
+                .cancelReason(cancelRequest.getCancelReason())    // 취소 사유
                 .build();
-        cancelPaymentRepository.save(cancelPaymentEntity);
     }
 
     private CancelPaymentResponse requestExternalCancel(String paymentKey, CancelPaymentRequest cancelRequest) {
