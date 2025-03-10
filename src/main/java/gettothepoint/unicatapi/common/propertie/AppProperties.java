@@ -11,7 +11,7 @@ public record AppProperties(Jwt jwt, Toss toss, Api api) {
         }
     }
 
-    public record Toss(String clientKey, String secretKey) {
+    public record Toss(String clientKey, String secretKey,String confirmUrl,String cancelUrl) {
     }
 
     public record Api(String protocol, String domain, int port) {

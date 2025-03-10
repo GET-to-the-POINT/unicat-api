@@ -2,17 +2,17 @@ package gettothepoint.unicatapi.application.service.payment;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 import gettothepoint.unicatapi.common.propertie.AppProperties;
+import gettothepoint.unicatapi.domain.constant.payment.PayType;
+import gettothepoint.unicatapi.domain.constant.payment.TossPaymentStatus;
 import gettothepoint.unicatapi.domain.dto.payment.CancelPaymentRequest;
 import gettothepoint.unicatapi.domain.dto.payment.CancelPaymentResponse;
 import gettothepoint.unicatapi.domain.entity.CancelPayment;
 import gettothepoint.unicatapi.domain.entity.Payment;
 import gettothepoint.unicatapi.domain.repository.CancelPaymentRepository;
 import gettothepoint.unicatapi.domain.repository.PaymentRepository;
-import gettothepoint.unicatapi.domain.constant.payment.PayType;
-import gettothepoint.unicatapi.domain.constant.payment.TossPaymentStatus;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URI;
@@ -27,14 +27,13 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PaymentCancelService {
 
-    private static final String API_URL = "https://api.tosspayments.com/v1/payments/";
-
     private final AppProperties appProperties;
     private final ObjectMapper objectMapper;
     private final HttpClient httpClient;
     private final PaymentService paymentService;
     private final PaymentRepository paymentRepository;
     private final CancelPaymentRepository cancelPaymentRepository;
+
 
     public CancelPaymentResponse cancelPayment(String paymentKey, CancelPaymentRequest cancelRequest) {
         Payment payment = paymentService.findByPaymentKey(paymentKey);
@@ -68,7 +67,7 @@ public class PaymentCancelService {
     }
 
     private CancelPaymentResponse requestExternalCancel(String paymentKey, CancelPaymentRequest cancelRequest) {
-        String url = API_URL + paymentKey + "/cancel";
+        String url = appProperties.toss().cancelUrl() + paymentKey + "/cancel";
         String requestBody = convertToJson(cancelRequest);
         String idempotencyKey = UUID.randomUUID().toString();
         String authorizationHeader = createAuthorizationHeader();

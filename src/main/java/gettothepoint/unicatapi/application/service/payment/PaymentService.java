@@ -2,6 +2,7 @@ package gettothepoint.unicatapi.application.service.payment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -61,7 +62,8 @@ public class PaymentService {
     }
 
     private TossPaymentResponse confirmPaymentExternal(String paymentKey, String orderId, Long amount) {
-        String url = "https://api.tosspayments.com/v1/payments/confirm";
+
+
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.set("Authorization", createAuthorizationHeader());
@@ -76,7 +78,7 @@ public class PaymentService {
             HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
 
             ResponseEntity<String> responseEntity = restTemplate.exchange(
-                    url, HttpMethod.POST, requestEntity, String.class
+                   appProperties.toss().confirmUrl(), HttpMethod.POST, requestEntity, String.class
             );
             int statusCode = responseEntity.getStatusCode().value();
             String responseBody = responseEntity.getBody();
