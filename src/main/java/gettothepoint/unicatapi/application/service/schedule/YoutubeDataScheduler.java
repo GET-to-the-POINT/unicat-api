@@ -11,7 +11,7 @@ public class YoutubeDataScheduler {
 
     private final VideoUpdateService videoUpdateService;
 
-    @Scheduled(cron = "0 0 4 * * ?")
+    @Scheduled(cron = "0 * * * * ?")
     public void updateYoutubeData() {
         System.out.println("-- 유튜브 데이터 업데이트 시작 --");
         try {

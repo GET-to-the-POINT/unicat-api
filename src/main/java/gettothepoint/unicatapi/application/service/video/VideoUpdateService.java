@@ -1,58 +1,78 @@
 package gettothepoint.unicatapi.application.service.video;
 
+import gettothepoint.unicatapi.domain.entity.video.UploadVideo;
+import gettothepoint.unicatapi.domain.entity.video.VideoHistory;
+import gettothepoint.unicatapi.domain.repository.video.VideoHistoryRepository;
+import gettothepoint.unicatapi.domain.repository.video.VideoUpdateRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import gettothepoint.unicatapi.domain.entity.video.UploadVideo;
-
-import gettothepoint.unicatapi.domain.repository.video.VideoUpdateRepository;
-import gettothepoint.unicatapi.domain.repository.video.VideosRepository;
-
+import org.springframework.transaction.annotation.Transactional;
 import java.math.BigInteger;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
+@Transactional
 public class VideoUpdateService {
 
     private final YoutubeDataService youtubeDataService;
-    private final VideoUpdateRepository videoUpdateRepositor;
-    private final VideosRepository videosRepository;
-    private final VideoUpdateRepository uploadVideoRepository;
+    private final VideoUpdateRepository videoUpdateRepository;
+    private final VideoHistoryRepository videoHistoryRepository;
+
+    //******
+    @PersistenceContext  // ✅ EntityManager 주입
+    private EntityManager entityManager;
 
     // 모든 비디오 업데이트 수행
     public void updateAllVideos() throws Exception {
-        List<String> youtubeVideoIds = videoUpdateRepositor.findAllVideoIds();
+        List<String> youtubeVideoIds = videoUpdateRepository.findAllVideoIds();
         for (String youtubeVideoId : youtubeVideoIds) {
-            updateAndSaveVideoStatisticsEntity(youtubeVideoId);
+            updateOrInsertVideoData(youtubeVideoId);
         }
     }
 
-    // 특정 비디오의 통계를 업데이트하고 저장
-    public void updateAndSaveVideoStatisticsEntity(String youtubeVideoId) throws Exception {
+    // 기존 업로드 비디오가 존재하면 업데이트 없이 `VideoHistory`에만 저장
+    @Transactional
+    public void updateOrInsertVideoData(String youtubeVideoId) throws Exception {
         // 유튜브 API에서 통계 가져오기
         String statistics = youtubeDataService.getVideoData(youtubeVideoId);
 
-        // 통계 데이터 파싱
-        String parsedYoutubeVideoId = statistics.split(",")[0].split(":")[1].trim().replace("\"", ""); // 유튜브 비디오 ID 추출
-        BigInteger viewCount = new BigInteger(statistics.split(",")[0].split(":")[1].trim());
-        BigInteger likeCount = new BigInteger(statistics.split(",")[1].split(":")[1].trim());
-        BigInteger commentCount = new BigInteger(statistics.split(",")[2].split(":")[1].trim());
+        String[] parts = statistics.split(",");
+        if (parts.length < 3) {
+            throw new IllegalArgumentException("Invalid statistics format: " + statistics);
+        }
 
-        // UploadVideo에서 관리하는 youtubeVideoId로 조회 (기존의 videoId가 아니라 youtubeVideoId로 조회)
-        UploadVideo uploadVideo = videoUpdateRepositor.findByYoutubeVideoId(youtubeVideoId)
-                .orElseThrow(() -> new IllegalArgumentException("UploadVideo not found"));
+        // 숫자만 추출하는 함수 사용
+        BigInteger viewCount = extractNumber(parts[0]);
+        BigInteger likeCount = extractNumber(parts[1]);
+        BigInteger commentCount = extractNumber(parts[2]);
 
-        LocalDate updateScheduleDate = LocalDate.now();
+        Optional<UploadVideo> existingUploadVideo = videoUpdateRepository.findFirstByYoutubeVideoId(youtubeVideoId);
 
-        // 셋터 방식으로 UploadVideo 객체 생성
-        uploadVideo.setUpdateScheduleDate(updateScheduleDate); // updateScheduleDate 값 설정
-        uploadVideo.setYoutubeVideoId(parsedYoutubeVideoId);  // youtubeVideoId 값 설정
-        uploadVideo.setViewCount(viewCount);                // viewCount 값 설정
-        uploadVideo.setLikeCount(likeCount);                // likeCount 값 설정
-        uploadVideo.setCommentCount(commentCount);          // commentCount 값 설정
+        if (existingUploadVideo.isPresent()) {
+            // **************
+            UploadVideo uploadVideo = entityManager.merge(existingUploadVideo.get());
+           // UploadVideo uploadVideo = existingUploadVideo.get();
 
-        // 저장 (Repository를 직접 호출)
-        videoUpdateRepositor.save(uploadVideo);
+            VideoHistory videoHistory = VideoHistory.builder()
+                    .uploadVideo(uploadVideo)
+                    .viewCount(viewCount)
+                    .likeCount(likeCount)
+                    .commentCount(commentCount)
+                    .updateDate(LocalDateTime.now())
+                    .build();
+
+            videoHistoryRepository.save(videoHistory);
+            System.out.println("✅ VideoHistory 저장 완료: " + youtubeVideoId);
+        }
+    }
+
+    // 🔥 숫자만 추출하는 유틸리티 메서드
+    private BigInteger extractNumber(String text) {
+        return new BigInteger(text.replaceAll("[^0-9]", "")); // 숫자만 남기고 변환
     }
 }

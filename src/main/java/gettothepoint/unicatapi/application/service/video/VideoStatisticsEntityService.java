@@ -3,8 +3,8 @@ package gettothepoint.unicatapi.application.service.video;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import gettothepoint.unicatapi.domain.entity.video.VideoStatisticsEntity;
-import gettothepoint.unicatapi.domain.repository.video.VideoStatisticsEntityRepository;
+import gettothepoint.unicatapi.domain.entity.video.VideoHistory;
+import gettothepoint.unicatapi.domain.repository.video.VideoHistoryRepository;
 import gettothepoint.unicatapi.domain.repository.video.VideoUpdateRepository;
 import java.math.BigInteger;
 import java.util.Date;
@@ -15,12 +15,12 @@ import java.util.List;
 public class VideoStatisticsEntityService {
 
     private final VideoUpdateRepository videoUpdateRepository;
-    private final VideoStatisticsEntityRepository VideoStatisticsEntityRepository;
+    private final VideoHistoryRepository VideoStatisticsEntityRepository;
 
     // 특정 비디오에 대한 특정 기간의 통계 계산
-    public String getStatisticsForVideo(String videoId, Date startdate, Date enddate) {
+    public String getStatisticsForVideo(String youtubevideoId, Date startdate, Date enddate) {
         // 해당 비디오와 기간에 맞는 데이터 조회
-        List<VideoStatisticsEntity> statisticsList = VideoStatisticsEntityRepository.findByVideoIdAndTimestampBetween(videoId, startdate, enddate);
+        List<VideoHistory> statisticsList = VideoStatisticsEntityRepository.findByUploadVideo_YoutubeVideoIdAndUpdateDateBetween(youtubevideoId, startdate, enddate);
 
         if (statisticsList.isEmpty()) {
             return "해당 비디오와 기간에 대한 통계 데이터가 없습니다.";
@@ -38,7 +38,7 @@ public class VideoStatisticsEntityService {
         BigInteger minLikeCount = BigInteger.valueOf(Long.MAX_VALUE);
 
         // 통계 계산
-        for (VideoStatisticsEntity videoStat : statisticsList) {
+        for (VideoHistory videoStat : statisticsList) {
             totalViewCount = totalViewCount.add(videoStat.getViewCount());
             totalLikeCount = totalLikeCount.add(videoStat.getLikeCount());
             totalCommentCount = totalCommentCount.add(videoStat.getCommentCount());
@@ -76,7 +76,7 @@ public class VideoStatisticsEntityService {
                         "최저 조회수: %d<br>" +
                         "최대 좋아요 수: %d<br>" +
                         "최저 좋아요 수: %d<br>",
-                startdate, enddate, videoId,
+                startdate, enddate, youtubevideoId,
                 averageViewCount, averageLikeCount, averageCommentCount,
                 maxViewCount, minViewCount,
                 maxLikeCount, minLikeCount
