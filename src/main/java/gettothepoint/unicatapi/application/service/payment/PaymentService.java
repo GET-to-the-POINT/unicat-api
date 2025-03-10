@@ -17,6 +17,8 @@ import gettothepoint.unicatapi.domain.constant.payment.TossPaymentStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Base64;
 import java.util.Map;
 
@@ -58,7 +60,10 @@ public class PaymentService {
         String method = CharacterUtil.convertToUTF8(tossResponse.getMethod());
         String orderName = CharacterUtil.convertToUTF8(tossResponse.getOrderName());
         PayType payType = PayType.fromKoreanName(method);
-        savePayment(order, paymentKey, amount, status, payType);
+        String approvedAt = tossResponse.getApprovedAt();
+        OffsetDateTime offsetDateTime = OffsetDateTime.parse(approvedAt);
+        LocalDateTime approvedAtLocal = offsetDateTime.toLocalDateTime();
+        savePayment(order, paymentKey, amount, status, payType,approvedAtLocal);
         tossResponse.setMethod(method);
         tossResponse.setOrderName(orderName);
     }
@@ -98,7 +103,8 @@ public class PaymentService {
         return "Basic " + encodedAuth;
     }
 
-    public void savePayment(Order order, String paymentKey, Long amount, TossPaymentStatus status, PayType payType) {
+    public void savePayment(Order order, String paymentKey, Long amount, TossPaymentStatus status,
+                            PayType payType, LocalDateTime approvedAt) {
         Payment payment = Payment.builder()
                 .paymentKey(paymentKey)
                 .amount(amount)
@@ -107,6 +113,7 @@ public class PaymentService {
                 .order(order)
                 .productName(order.getOrderName())
                 .member(order.getMember())
+                .approvedAt(approvedAt)
                 .build();
         paymentRepository.save(payment);
     }

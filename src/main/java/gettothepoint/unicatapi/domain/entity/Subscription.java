@@ -15,6 +15,8 @@ public class Subscription {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
+    private LocalDateTime startDate;
+
     private LocalDateTime endDate;
 
     @Enumerated(EnumType.STRING)
@@ -34,12 +36,12 @@ public class Subscription {
     private Payment payment;
 
     @Builder
-    public Subscription(LocalDateTime endDate, Member member, Order order, Payment payment) {
-        this.endDate = endDate;
-        this.status =  SubscriptionStatus.ACTIVE;
+    public Subscription(Member member, Order order, Payment payment) {
+        this.startDate = LocalDateTime.now();
+        this.endDate = this.startDate.plusMonths(1);
+        this.status = SubscriptionStatus.ACTIVE;
         this.member = member;
         this.order = order;
         this.payment = payment;
-        this.endDate = LocalDateTime.now().plusMonths(1);
     }
 }
