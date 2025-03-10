@@ -1,5 +1,6 @@
 package gettothepoint.unicatapi.domain.entity;
 
+import gettothepoint.unicatapi.domain.constant.payment.SubscriptionStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,23 +17,29 @@ public class Subscription {
 
     private LocalDateTime endDate;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Setter
-    private String status; // 구독 상태 (pending,active, cancel, expired)
+    private SubscriptionStatus status; // 구독 상태 (pending,active, cancel, expired)
 
     @ManyToOne
     @JoinColumn
-    private Member member; // 한 유저는 하나의 구독만 가능
+    private Member member;
 
     @OneToOne
     private Order order; // 구독은 하나의 주문과 연결
 
+    @OneToOne
+    @JoinColumn
+    private Payment payment;
+
     @Builder
-    public Subscription(LocalDateTime endDate, Member member, Order order) {
+    public Subscription(LocalDateTime endDate, Member member, Order order, Payment payment) {
         this.endDate = endDate;
-        this.status = "Active";
+        this.status =  SubscriptionStatus.ACTIVE;
         this.member = member;
         this.order = order;
+        this.payment = payment;
         this.endDate = LocalDateTime.now().plusMonths(1);
     }
 }

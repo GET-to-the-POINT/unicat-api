@@ -12,6 +12,7 @@ import gettothepoint.unicatapi.domain.entity.Payment;
 import gettothepoint.unicatapi.domain.repository.CancelPaymentRepository;
 import gettothepoint.unicatapi.domain.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -33,13 +34,18 @@ public class PaymentCancelService {
     private final PaymentService paymentService;
     private final PaymentRepository paymentRepository;
     private final CancelPaymentRepository cancelPaymentRepository;
+    private final SubscriptionService subscriptionService;
 
 
-    public CancelPaymentResponse cancelPayment(String paymentKey, CancelPaymentRequest cancelRequest) {
-        Payment payment = paymentService.findByPaymentKey(paymentKey);
-        CancelPaymentResponse cancelPaymentResponse = requestExternalCancel(paymentKey, cancelRequest);
-        updatePaymentStatus(payment, cancelPaymentResponse);
-        saveCancelPayment(payment, cancelRequest, cancelPaymentResponse);
+    public CancelPaymentResponse cancelPayment(Long paymentId, CancelPaymentRequest cancelRequest) {
+
+        Payment payment = paymentService.findById(paymentId); //payment id 조회
+        String storedPaymentKey = payment.getPaymentKey(); //payment 엔티티 안에 저장된 paymentKey 뽑아내기
+
+        CancelPaymentResponse cancelPaymentResponse = requestExternalCancel(storedPaymentKey, cancelRequest); //외부 API 호출
+        updatePaymentStatus(payment, cancelPaymentResponse); //결제 상태 업데이트
+        saveCancelPayment(payment, cancelRequest, cancelPaymentResponse); //결제 취소 엔티티 저장
+        subscriptionService.cancelSubscriptionByPayment(payment);
         return cancelPaymentResponse;
     }
 

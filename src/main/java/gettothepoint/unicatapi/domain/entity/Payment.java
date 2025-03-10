@@ -42,6 +42,8 @@ public class Payment {
     @JoinColumn
     private Member member;
 
+
+
     @Builder
     public Payment(String paymentKey, String productName, long amount, PayType payType, TossPaymentStatus tossPaymentStatus, Order order, Member member) {
         this.paymentKey = paymentKey;
