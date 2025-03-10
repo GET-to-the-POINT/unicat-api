@@ -44,10 +44,12 @@ app:
       httpOnly: true
       sameSite: Lax
       maxAge: 604800
-
     private-key: ${APP_JWT_PRIVATE_KEY:classpath:keys/private_key.sample}
     public-key: ${APP_JWT_PUBLIC_KEY:classpath:keys/public_key.sample}
     key-id: ${APP_JWT_KEY_ID:rsa-key-id}
+  toss:
+    client-key: ${APP_TOSS_CLIENT_KEY:test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm}
+    secret-key: ${APP_TOSS_SECRET_KEY:test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6}
 
 server:
   ssl:
@@ -55,3 +57,4 @@ server:
     key-store-type: ${APP_SSL_KEY_STORE_TYPE:PKCS12}
     key-store-password: ${APP_SSL_KEY_STORE_PASSWORD:unicat123}
     key-alias: ${APP_SSL_KEY_ALIAS:unicat-day}
+
