@@ -1,4 +1,6 @@
 package gettothepoint.unicatapi.presentation.controller.payment;
+import gettothepoint.unicatapi.domain.dto.payment.PaymentHistoryDto;
+import gettothepoint.unicatapi.domain.entity.Payment;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -17,10 +19,10 @@ import gettothepoint.unicatapi.application.service.payment.PaymentCancelService;
 import gettothepoint.unicatapi.application.service.payment.PaymentService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Tag(name = "Payment API", description = "결제 관련 API")
 @RestController
-@RequestMapping("/payments")
 @RequiredArgsConstructor
 public class PaymentController {
 
@@ -36,10 +38,13 @@ public class PaymentController {
             @ApiResponse(responseCode = "401", description = "권한 없음")
         }
     )
-    @GetMapping
+    @GetMapping("/history")
     public List<PaymentHistoryDto> paymentsHistory(@AuthenticationPrincipal Jwt jwt) {
-        // TODO: 구매 이력 조회 로직 구현
-        throw new UnsupportedOperationException("Not implemented yet");
+        String email = jwt.getClaim("email");
+        List<Payment> payments = paymentService.findByMemberEmail(email);
+        return payments.stream()//payment 엔티티  paymentHistoryDto 리스트로 변환
+                .map(PaymentHistoryDto::fromEntity)
+                .collect(Collectors.toList());
     }
 
     @Operation(
@@ -74,9 +79,5 @@ public class PaymentController {
         Long paymentId = cancelRequest.getPaymentId();
 
         return paymentCancelService.cancelPayment(paymentId, cancelRequest);
-    }
-
-    public static class PaymentHistoryDto {
-        // TODO: 구매 이력 DTO 필드 정의
     }
 }
