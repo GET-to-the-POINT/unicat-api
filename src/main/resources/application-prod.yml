@@ -18,10 +18,4 @@ spring:
 app:
   jwt:
     cookie:
-      name: Authorization
       domain: unicat.day
-      path: /
-      secure: true
-      httpOnly: true
-      sameSite: Lax
-      maxAge: 604800

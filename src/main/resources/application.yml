@@ -28,6 +28,14 @@ app:
     private-key: ${APP_JWT_PRIVATE_KEY}
     public-key: ${APP_JWT_PUBLIC_KEY}
     key-id: ${APP_JWT_KEY_ID}
+    cookie:
+      name: Authorization
+      domain: ${APP_JWT_COOKIE_DOMAIN}
+      path: /
+      secure: ${APP_JWT_COOKIE_SECURE:true}
+      httpOnly: ${APP_JWT_COOKIE_HTTP_ONLY:true}
+      sameSite: ${APP_JWT_COOKIE_SAME_SITE:Lax}
+      maxAge: ${APP_JWT_COOKIE_MAX_AGE:604800}
   api:
     protocol: https
     domain: api.unicat.day
