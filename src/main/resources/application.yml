@@ -27,7 +27,7 @@ app:
   jwt:
     private-key: ${APP_JWT_PRIVATE_KEY}
     public-key: ${APP_JWT_PUBLIC_KEY}
-    key-id: ${APP_JWT_KEY_ID}p
+    key-id: ${APP_JWT_KEY_ID}
   api:
     protocol: https
     domain: api.unicat.day
@@ -35,6 +35,11 @@ app:
   toss:
     client-key: ${APP_TOSS_CLIENT_KEY}
     secret-key: ${APP_TOSS_SECRET_KEY}
+  supabase:
+    url: ${SUPABASE_URL}
+    key: ${SUPABASE_KEY}
+    storage:
+      bucket: media
 
 server:
   port: 443
