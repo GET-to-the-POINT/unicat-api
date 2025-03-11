@@ -6,6 +6,7 @@ import gettothepoint.unicatapi.domain.repository.MemberRepository;
 import gettothepoint.unicatapi.domain.repository.OAuthLinkRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -15,6 +16,7 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final OAuthLinkRepository oAuthLinkRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public Member create(String email, String password) {
         if (email == null || password == null) {
@@ -55,5 +57,13 @@ public class MemberService {
 
             return newMember;
         });
+    }
+
+    public Member validateCredentials(String email, String password) {
+        Member member = memberRepository.findByEmail(email).orElse(null);
+        if (member == null || !passwordEncoder.matches(password, member.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
+        }
+        return member;
     }
 }

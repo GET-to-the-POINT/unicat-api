@@ -1,6 +1,7 @@
 package gettothepoint.unicatapi.common.util;
 
 import gettothepoint.unicatapi.common.propertie.AppProperties;
+import gettothepoint.unicatapi.domain.entity.Member;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -60,5 +61,11 @@ public class JwtUtil {
         );
 
         return jwtEncoder.encode(parameters).getTokenValue();
+    }
+
+    public String generateAndAddJwtToken(HttpServletResponse response, Member member) {
+        String token = generateJwtToken(member.getId(), member.getEmail());
+        addJwtCookie(response, token);
+        return token;
     }
 }
