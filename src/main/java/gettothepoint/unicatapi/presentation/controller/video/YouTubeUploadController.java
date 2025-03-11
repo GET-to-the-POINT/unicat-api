@@ -12,7 +12,7 @@ import gettothepoint.unicatapi.application.service.video.YoutubeUploadService;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/youtube")
+@RequestMapping("/youtube")
 @Tag(name = "YouTube Upload", description = "YouTube 동영상 업로드 관련 API")
 public class YouTubeUploadController {
 
@@ -33,6 +33,10 @@ public class YouTubeUploadController {
             @RequestParam("description") String description, // 요청 파라미터로 받는 description
             @RegisteredOAuth2AuthorizedClient("google") OAuth2AuthorizedClient authorizedClient) { // OAuth2 인증 정보
 
-        return youTubeUploadService.uploadVideo(videoId, authorizedClient.getAccessToken(), title, description);
+        try {
+            return youTubeUploadService.uploadVideo(videoId, authorizedClient.getAccessToken(), title, description).get();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to upload video", e);
+        }
     }
 }

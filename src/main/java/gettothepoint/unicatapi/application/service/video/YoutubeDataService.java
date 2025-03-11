@@ -57,7 +57,6 @@ public class YoutubeDataService {
         YouTube.Videos.List request = youtubeService.videos().list(List.of("statistics"));
         request.setId(Arrays.asList(videoIds));  // 여러 동영상 ID를 리스트로 전달
 
-
         VideoListResponse response = request.execute();
 
         // 여러 동영상의 정보를 추출
@@ -74,7 +73,6 @@ public class YoutubeDataService {
         } else {
             return "동영상 정보를 찾을 수 없습니다.";
         }
-
         return result.toString();
     }
 }

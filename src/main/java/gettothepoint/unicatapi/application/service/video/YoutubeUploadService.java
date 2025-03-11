@@ -13,21 +13,22 @@ import gettothepoint.unicatapi.domain.repository.video.YouTubeUploadRepository;
 import gettothepoint.unicatapi.infrastructure.security.youtube.YoutubeOAuth2Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
-
 import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
+@EnableAsync
 public class YoutubeUploadService {
 
     private static final String APPLICATION_NAME = "YouTube Uploader";
@@ -36,9 +37,9 @@ public class YoutubeUploadService {
     private final YouTubeUploadRepository youTubeUploadRepository;
     private final YoutubeOAuth2Service youtubeoAuth2Service;
 
-
-
-    public String uploadVideo(String videoId, OAuth2AccessToken accessToken, String title, String description) {
+    @Async
+    public CompletableFuture<String> uploadVideo(String videoId, OAuth2AccessToken accessToken, String title, String description) {
+        System.out.println("비동기 업로드 시자아아악");
         // 필수 파라미터 검증
         Objects.requireNonNull(videoId, "videoId must not be null");
         Objects.requireNonNull(title, "title must not be null");
@@ -76,24 +77,35 @@ public class YoutubeUploadService {
 
             Video response = request.execute();
 
-//            Long memberId = youtubeoAuth2Service.getMemberIdFromAccessToken(accessToken);
+            // 비디오 업로드 후 후속 작업 처리
+            return CompletableFuture.completedFuture(response.getId())
+                    .thenApply(youtubeVideoId -> {
+                        // 후속 작업: DB에 업로드 완료 기록 저장
+                        UploadVideo uploadVideo = UploadVideo.builder()
+                                .video(videos)
+                                .timestamp(LocalDateTime.now())
+                                .youtubeVideoId(youtubeVideoId)
+                                .memberId(videos.getVideoId())
+                                .build();
 
-            UploadVideo uploadVideo = UploadVideo.builder()
-                    .video(videos)
-                    .timestamp(LocalDateTime.now())
-                    .youtubeVideoId(response.getId())
-                    .memberId(videos.getVideoId())
-                    .build();
+                        youTubeUploadRepository.save(uploadVideo);
+                        System.out.println("업로드 완료");
+                        // 추가 후속 작업 예: 알림 처리, 상태 업데이트 등
+                        notifyUser(youtubeVideoId);  // 후속 작업 예시: 사용자 알림
 
-            youTubeUploadRepository.save(uploadVideo);
-
-            return response.getId();
+                        return youtubeVideoId;
+                    });
 
         } catch (IOException | GeneralSecurityException e) {
             System.err.println("Error occurred: " + e.getMessage());
-            e.printStackTrace();  // 더 자세한 스택 트레이스를 기록
+            e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to upload video", e);
         }
+    }
 
+    // 후속 작업 예시: 사용자에게 비디오 업로드 완료 알림을 보내는 메서드
+    private void notifyUser(String youtubeVideoId) {
+        // 실제 알림 처리 로직 추가
+        System.out.println("User has been notified about video with ID: " + youtubeVideoId);
     }
 }

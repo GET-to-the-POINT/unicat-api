@@ -2,7 +2,6 @@ package gettothepoint.unicatapi.application.service.video;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import gettothepoint.unicatapi.domain.entity.video.VideoHistory;
 import gettothepoint.unicatapi.domain.repository.video.VideoHistoryRepository;
 import gettothepoint.unicatapi.domain.repository.video.VideoUpdateRepository;

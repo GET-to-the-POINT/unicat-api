@@ -22,8 +22,6 @@ public class VideoDataUpdateService {
     private final VideoUpdateRepository videoUpdateRepository;
     private final VideoHistoryRepository videoHistoryRepository;
 
-
-
     // 모든 비디오 업데이트 수행
     public void updateAllVideos(OAuth2AccessToken accessToken) throws Exception {
         List<String> youtubeVideoIds = videoUpdateRepository.findAllVideoIds();
@@ -64,11 +62,10 @@ public class VideoDataUpdateService {
                     .build();
 
             videoHistoryRepository.save(videoHistory);
-            System.out.println("✅ VideoHistory 저장 완료: " + youtubeVideoId);
         }
     }
 
-    // 🔥 숫자만 추출하는 유틸리티 메서드
+    // 숫자만 추출하는 유틸리티 메서드
     private BigInteger extractNumber(String text) {
         return new BigInteger(text.replaceAll("[^0-9]", "")); // 숫자만 남기고 변환
     }
