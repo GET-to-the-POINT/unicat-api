@@ -9,7 +9,7 @@ import java.time.Instant;
 @Getter
 @Entity
 @Setter
-public class Videos {
+public class Video {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "video_seq")

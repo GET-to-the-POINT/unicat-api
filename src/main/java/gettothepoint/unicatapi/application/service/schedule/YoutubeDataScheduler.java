@@ -27,7 +27,7 @@ public class YoutubeDataScheduler {
      * 매일 새벽 3시에 실행되는 스케줄러
      * upload_video 테이블에 있는 모든 동영상을 처리
      */
-    @Scheduled(cron = "0 * * * * ?")
+    @Scheduled(cron = "0 0 5 * * ?")
     public void updateYoutubeData() {
         System.out.println("-- 유튜브 데이터 업데이트 시작 --");
 

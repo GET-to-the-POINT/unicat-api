@@ -18,7 +18,7 @@ public class UploadVideo {
 
     @OneToOne
     @JoinColumn(name = "video_id", referencedColumnName = "video_id")
-    private Videos video;
+    private Video video;
 
     private BigInteger viewCount;
     private BigInteger likeCount;
@@ -29,7 +29,7 @@ public class UploadVideo {
     private Long memberId;
 
 
-    public UploadVideo(Videos video, LocalDateTime timestamp, String youtubeVideoId) {
+    public UploadVideo(Video video, LocalDateTime timestamp, String youtubeVideoId) {
         this.video = video;
         this.timestamp = timestamp.toLocalDate();
         this.youtubeVideoId = youtubeVideoId;
@@ -37,7 +37,7 @@ public class UploadVideo {
 
     // Builder 방식으로 객체 생성
     @Builder
-    public UploadVideo(Videos video, LocalDateTime timestamp, String youtubeVideoId, BigInteger viewCount, BigInteger likeCount, BigInteger commentCount , Long memberId) {
+    public UploadVideo(Video video, LocalDateTime timestamp, String youtubeVideoId, BigInteger viewCount, BigInteger likeCount, BigInteger commentCount , Long memberId) {
         this.video = video;
         this.timestamp = timestamp.toLocalDate();
         this.youtubeVideoId = youtubeVideoId;
