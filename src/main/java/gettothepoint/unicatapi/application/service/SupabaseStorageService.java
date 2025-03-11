@@ -31,12 +31,11 @@ public class SupabaseStorageService implements FileStorageService {
     @Override
     public StorageUpload uploadFile(MultipartFile file) {
         String uniqueFileName = generateUniqueFileName(file);
-        String supabaseUrl = appProperties.supabase().url();
         String supabaseKey = appProperties.supabase().key();
         String bucket = appProperties.supabase().storage().bucket();
 
         String key = "uploads/" + uniqueFileName;
-        String url = String.format("%s/storage/v1/object/%s/%s?upsert=false", supabaseUrl, bucket, key);
+        String url = getUrl(bucket, key);
 
         try {
             byte[] fileBytes = file.getBytes();
@@ -56,19 +55,17 @@ public class SupabaseStorageService implements FileStorageService {
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, errorMessage);
             }
 
-            String uploadedUrl = getUrl(bucket, key);
-            String originalFilename = file.getOriginalFilename();
-            return new StorageUpload(uploadedUrl, originalFilename);
+            return new StorageUpload(url, sanitizeFileName(file.getOriginalFilename()));
         } catch (IOException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to upload file", e);
         }
     }
 
     private String generateUniqueFileName(MultipartFile file) {
-        String originalFileName = file.getOriginalFilename();
+        String originalFileName = sanitizeFileName(file.getOriginalFilename());
         String extension = "";
 
-        if (originalFileName != null && originalFileName.lastIndexOf(".") != -1) {
+        if (originalFileName.lastIndexOf(".") != -1) {
             extension = originalFileName.substring(originalFileName.lastIndexOf("."));
         }
 
@@ -81,5 +78,13 @@ public class SupabaseStorageService implements FileStorageService {
                 .pathSegment("storage", "v1", "object", bucket, key)
                 .build()
                 .toUriString();
+    }
+
+    private String sanitizeFileName(String fileName) {
+        if (fileName == null || fileName.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid file name");
+        }
+
+        return fileName.replaceAll("[^a-zA-Z0-9._-]", "_");
     }
 }
