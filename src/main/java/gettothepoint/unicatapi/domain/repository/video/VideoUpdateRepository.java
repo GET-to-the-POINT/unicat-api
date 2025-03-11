@@ -10,6 +10,5 @@ import java.util.Optional;
 public interface VideoUpdateRepository extends JpaRepository<UploadVideo, Long> {
     @Query(value = "SELECT youtube_video_id FROM upload_video", nativeQuery = true)
     List<String> findAllVideoIds();
-    Optional<UploadVideo> findByYoutubeVideoId(String youtubeVideoId);
-
+    Optional<UploadVideo> findFirstByYoutubeVideoId(String youtubeVideoId);
 }
