@@ -12,7 +12,6 @@ public interface YouTubeUploadRepository extends JpaRepository<UploadVideo, Long
     @Query("SELECT v.video.videoId FROM UploadVideo v")
     List<Long> findAllVideoIds(); // 모든 동영상 ID 조회
 
-
     @Query("SELECT v.video.member.id FROM UploadVideo v WHERE v.video.videoId = :videoId")
     Long findOwnerByVideoId(@Param("videoId") Long videoId); // 특정 동영상의 주인 ID 조회
 
