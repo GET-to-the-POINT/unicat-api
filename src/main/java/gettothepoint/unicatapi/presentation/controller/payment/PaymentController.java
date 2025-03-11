@@ -1,5 +1,5 @@
 package gettothepoint.unicatapi.presentation.controller.payment;
-import gettothepoint.unicatapi.domain.dto.payment.PaymentHistoryDto;
+import gettothepoint.unicatapi.domain.dto.payment.*;
 import gettothepoint.unicatapi.domain.entity.Payment;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -12,9 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
-import gettothepoint.unicatapi.domain.dto.payment.CancelPaymentRequest;
-import gettothepoint.unicatapi.domain.dto.payment.CancelPaymentResponse;
-import gettothepoint.unicatapi.domain.dto.payment.TossPaymentResponse;
 import gettothepoint.unicatapi.application.service.payment.PaymentCancelService;
 import gettothepoint.unicatapi.application.service.payment.PaymentService;
 
@@ -74,10 +71,10 @@ public class PaymentController {
             @ApiResponse(responseCode = "401", description = "권한 없음")
         }
     )
-    @PostMapping("/cancel")
+//    @PostMapping("/cancel")
     public CancelPaymentResponse cancelPayment(@RequestBody @Valid CancelPaymentRequest cancelRequest) {
-        Long paymentId = cancelRequest.getPaymentId();
-
-        return paymentCancelService.cancelPayment(paymentId, cancelRequest);
+        PaymentCancelServiceDto dto =
+                new PaymentCancelServiceDto(cancelRequest.getPaymentId(), cancelRequest.getCancelReason());
+        return paymentCancelService.cancelPayment(dto);
     }
 }

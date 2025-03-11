@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @NoArgsConstructor
@@ -23,6 +24,9 @@ public class Member {
 
     @Column(nullable = false)
     private String password;
+
+    @Column(unique = true, nullable = false)
+    private String customerKey;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Order> orders = new ArrayList<>();
@@ -40,11 +44,13 @@ public class Member {
     public Member(String email, String password) {
         this.email = email;
         this.password = password;
+        this.customerKey = UUID.randomUUID().toString();
     }
     @PrePersist
     protected void onCreate() {
         this.createAt = Instant.now();
         this.updateAt = Instant.now();
+        this.customerKey = UUID.randomUUID().toString();
     }
     @PreUpdate
     protected void onUpdate() {

@@ -1,6 +1,7 @@
 package gettothepoint.unicatapi.application.service.payment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import gettothepoint.unicatapi.common.util.PaymentUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,6 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
@@ -33,7 +33,7 @@ public class PaymentService {
     private final ObjectMapper objectMapper;
     private final PaymentRepository paymentRepository;
     private final AppProperties appProperties;
-
+    private final PaymentUtil paymentUtil;
 
     public TossPaymentResponse confirmAndFinalizePayment(String orderId, Long amount, String paymentKey) {
         TossPaymentResponse tossResponse = confirmPaymentExternal(paymentKey, orderId, amount);
@@ -64,17 +64,15 @@ public class PaymentService {
         String approvedAt = tossResponse.getApprovedAt();
         OffsetDateTime offsetDateTime = OffsetDateTime.parse(approvedAt);
         LocalDateTime approvedAtLocal = offsetDateTime.toLocalDateTime();
-        savePayment(order, paymentKey, amount, status, payType,approvedAtLocal);
+        savePayment(order, paymentKey, amount, status, payType, approvedAtLocal);
         tossResponse.setMethod(method);
         tossResponse.setOrderName(orderName);
     }
 
     private TossPaymentResponse confirmPaymentExternal(String paymentKey, String orderId, Long amount) {
-
-
         try {
             HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", createAuthorizationHeader());
+            headers.set("Authorization", paymentUtil.createAuthorizationHeader());
             headers.setContentType(MediaType.APPLICATION_JSON);
 
             Map<String, Object> requestBody = Map.of(
@@ -88,20 +86,11 @@ public class PaymentService {
             ResponseEntity<String> responseEntity = restTemplate.exchange(
                     appProperties.toss().confirmUrl(), HttpMethod.POST, requestEntity, String.class
             );
-            int statusCode = responseEntity.getStatusCode().value();
             String responseBody = responseEntity.getBody();
-            System.out.printf("Confirm API response status: %d, body: %s%n", statusCode, responseBody);
-
             return objectMapper.readValue(responseBody, TossPaymentResponse.class);
         } catch (IOException e) {
             throw new RuntimeException("Toss API 호출 중 오류 발생: " + e.getMessage(), e);
         }
-    }
-
-    private String createAuthorizationHeader() {
-        String authString = appProperties.toss().secretKey() + ":";
-        String encodedAuth = Base64.getEncoder().encodeToString(authString.getBytes());
-        return "Basic " + encodedAuth;
     }
 
     public void savePayment(Order order, String paymentKey, Long amount, TossPaymentStatus status,
