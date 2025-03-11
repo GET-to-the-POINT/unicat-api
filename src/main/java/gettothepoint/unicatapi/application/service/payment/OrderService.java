@@ -10,7 +10,6 @@ import gettothepoint.unicatapi.domain.entity.Order;
 import gettothepoint.unicatapi.domain.repository.OrderRepository;
 import gettothepoint.unicatapi.domain.constant.payment.TossPaymentStatus;
 
-
 @Service
 @RequiredArgsConstructor
 public class OrderService {
@@ -38,16 +37,7 @@ public class OrderService {
     }
 
     public void updateOrder(String orderId, TossPaymentStatus status) {
-        Order order = findOrderById(orderId);
-        updateOrderStatus(order, status);
-    }
-
-    private Order findOrderById(String orderId) {
-        return orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
-    }
-
-    private void updateOrderStatus(Order order, TossPaymentStatus status) {
+        Order order = findById(orderId);
         order.setStatus(status);
         orderRepository.save(order);
     }

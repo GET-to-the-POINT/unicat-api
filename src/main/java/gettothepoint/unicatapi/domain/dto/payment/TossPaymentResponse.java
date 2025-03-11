@@ -12,4 +12,5 @@ public class TossPaymentResponse {
     private String paymentKey;
     private String method;
     private String status;
+    private String approvedAt;
 }

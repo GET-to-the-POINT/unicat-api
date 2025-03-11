@@ -1,5 +1,6 @@
 package gettothepoint.unicatapi.domain.entity;
 
+import gettothepoint.unicatapi.domain.dto.payment.CancelPaymentResponse;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -7,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import gettothepoint.unicatapi.domain.constant.payment.PayType;
 import gettothepoint.unicatapi.domain.constant.payment.TossPaymentStatus;
+
+import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @Getter
@@ -34,7 +37,7 @@ public class Payment {
     @Column(nullable = false)
     private TossPaymentStatus tossPaymentStatus;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn
     private Order order;
 
@@ -42,8 +45,19 @@ public class Payment {
     @JoinColumn
     private Member member;
 
+    @Column
+    private LocalDateTime approvedAt;
+
+    @Column
+    private LocalDateTime canceledAt;
+
+    @Column
+    private String cancelReason;
+
     @Builder
-    public Payment(String paymentKey, String productName, long amount, PayType payType, TossPaymentStatus tossPaymentStatus, Order order, Member member) {
+    public Payment(String paymentKey, String productName, long amount, PayType payType,
+                   TossPaymentStatus tossPaymentStatus, Order order, Member member,
+                   LocalDateTime approvedAt,LocalDateTime canceledAt, String cancelReason) {
         this.paymentKey = paymentKey;
         this.productName = productName;
         this.amount = amount;
@@ -51,5 +65,14 @@ public class Payment {
         this.tossPaymentStatus = tossPaymentStatus;
         this.order = order;
         this.member = member;
+        this.approvedAt = approvedAt;
+        this.canceledAt = canceledAt;
+        this.cancelReason = cancelReason;
+    }
+
+    public void setCancel(CancelPaymentResponse cancelPaymentResponse) {
+        this.tossPaymentStatus = cancelPaymentResponse.getTossPaymentStatus();
+        this.canceledAt = cancelPaymentResponse.getCancelDate();
+        this.cancelReason = cancelPaymentResponse.getCancelReason();
     }
 }
