@@ -11,9 +11,12 @@ import java.time.OffsetDateTime;
 @NoArgsConstructor
 public class CancelInfo {
     private OffsetDateTime canceledAt;
-
+    private String cancelReason;
     @JsonCreator
-    public CancelInfo(@JsonProperty("canceledAt") OffsetDateTime canceledAt) {
+    public CancelInfo(
+            @JsonProperty("canceledAt") OffsetDateTime canceledAt,
+            @JsonProperty("cancelReason") String cancelReason) {
         this.canceledAt = canceledAt;
+        this.cancelReason = cancelReason;
     }
 }

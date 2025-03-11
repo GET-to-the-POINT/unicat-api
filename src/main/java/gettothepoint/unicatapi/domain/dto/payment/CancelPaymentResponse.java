@@ -42,7 +42,6 @@ public class CancelPaymentResponse {
             @JsonProperty("approvedAt") OffsetDateTime approvedAt,
             @JsonProperty("cancelAmount") Long cancelAmount,
             @JsonProperty("cancels") List<CancelInfo> cancels,
-            @JsonProperty("cancelReason") String cancelReason,
             @JsonProperty("status") String status // Toss API 응답에서 status 값 매핑
     ) {
         this.orderId = orderId;
@@ -53,8 +52,8 @@ public class CancelPaymentResponse {
         this.cancelAmount = cancelAmount;
         if (cancels != null && !cancels.isEmpty() && cancels.getFirst().getCanceledAt() != null) {
             this.cancelDate = cancels.getFirst().getCanceledAt().toLocalDateTime();
+            this.cancelReason = cancels.getFirst().getCancelReason();
         }
-        this.cancelReason = cancelReason;
         this.status = status;
     }
 
