@@ -38,8 +38,8 @@ public class YoutubeUploadService {
     private final YoutubeOAuth2Service youtubeoAuth2Service;
 
     @Async
-    public CompletableFuture<String> uploadVideo(String videoId, OAuth2AccessToken accessToken, String title, String description) {
-        System.out.println("비동기 업로드 시자아아악");
+    public void uploadVideo(String videoId, OAuth2AccessToken accessToken, String title, String description) {
+        System.out.println("비동기 업로드 시작");
         // 필수 파라미터 검증
         Objects.requireNonNull(videoId, "videoId must not be null");
         Objects.requireNonNull(title, "title must not be null");
@@ -78,21 +78,18 @@ public class YoutubeUploadService {
             Video response = request.execute();
 
             // 비디오 업로드 후 후속 작업 처리
-            return CompletableFuture.completedFuture(response.getId())
+            CompletableFuture.completedFuture(response.getId())
                     .thenApply(youtubeVideoId -> {
                         // 후속 작업: DB에 업로드 완료 기록 저장
                         UploadVideo uploadVideo = UploadVideo.builder()
                                 .video(videos)
                                 .timestamp(LocalDateTime.now())
                                 .youtubeVideoId(youtubeVideoId)
-                                .memberId(videos.getVideoId())
+                                .memberId(videos.getMember().getId())
                                 .build();
 
                         youTubeUploadRepository.save(uploadVideo);
                         System.out.println("업로드 완료");
-                        // 추가 후속 작업 예: 알림 처리, 상태 업데이트 등
-                        notifyUser(youtubeVideoId);  // 후속 작업 예시: 사용자 알림
-
                         return youtubeVideoId;
                     });
 
@@ -101,11 +98,5 @@ public class YoutubeUploadService {
             e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to upload video", e);
         }
-    }
-
-    // 후속 작업 예시: 사용자에게 비디오 업로드 완료 알림을 보내는 메서드
-    private void notifyUser(String youtubeVideoId) {
-        // 실제 알림 처리 로직 추가
-        System.out.println("User has been notified about video with ID: " + youtubeVideoId);
     }
 }
