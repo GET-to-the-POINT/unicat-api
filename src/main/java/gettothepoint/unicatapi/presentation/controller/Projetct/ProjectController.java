@@ -17,11 +17,10 @@ public class ProjectController {
 
     @GetMapping("/projects") // 프로젝트 조회 API
     public  ProjectResponse getProjects(
-            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt,desc") String sort
     ) {
-        int adjustedPage = (page > 0) ? page - 1 : 0;
-        return projectService.getProjects(adjustedPage, size, sort);
+        return projectService.getProjects(page, size, sort);
     }
 }
