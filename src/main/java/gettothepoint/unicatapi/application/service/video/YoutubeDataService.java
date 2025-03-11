@@ -6,6 +6,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.Video;
 import com.google.api.services.youtube.model.VideoListResponse;
+import gettothepoint.unicatapi.common.propertie.AppProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
@@ -19,7 +20,7 @@ import java.util.List;
 @Service
 public class YoutubeDataService {
 
-    private String API_KEY = "AIzaSyD98eK0PRdCvE9hr_7qLIwhriuxdM5mUZc";
+    private final AppProperties appProperties;
 
     // YouTube 서비스 생성
     private YouTube getYouTubeService() throws GeneralSecurityException, IOException {
@@ -38,7 +39,7 @@ public class YoutubeDataService {
         YouTube youtubeService = getYouTubeService();
         YouTube.Videos.List request = youtubeService.videos().list(List.of("statistics"));
         request.setId(Collections.singletonList(videoId));
-        request.setKey(API_KEY);
+        request.setKey(appProperties.youtube().apiKey());
 
         VideoListResponse response = request.execute();
 
@@ -63,7 +64,7 @@ public class YoutubeDataService {
         // 여러 개의 동영상 ID를 한 번에 전달
         YouTube.Videos.List request = youtubeService.videos().list(List.of("statistics"));
         request.setId(Arrays.asList(videoIds));  // 여러 동영상 ID를 리스트로 전달
-        request.setKey(API_KEY);
+        request.setKey(appProperties.youtube().apiKey());
 
         VideoListResponse response = request.execute();
 

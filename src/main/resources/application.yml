@@ -35,6 +35,8 @@ app:
   toss:
     client-key: ${APP_TOSS_CLIENT_KEY}
     secret-key: ${APP_TOSS_SECRET_KEY}
+    confirm-url: ${APP_TOSS_CONFIRM_URL}
+    cancel-url: ${APP_TOSS_CANCEL_URL}
   supabase:
     url: ${SUPABASE_URL}
     key: ${SUPABASE_KEY}
