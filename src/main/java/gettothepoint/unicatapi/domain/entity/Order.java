@@ -37,13 +37,14 @@ public class Order {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     @Setter
-    private TossPaymentStatus status;
+    private TossPaymentStatus status; // 주문 상태
 
     @OneToOne
     private Subscription subscription; // 주문이 특정 구독에 연결
 
     @OneToMany(mappedBy = "order")
-    private List<Payment> payments;
+    @JsonIgnore
+    private List<Payment> payment;
 
     @Builder
     public Order(String orderName, Long amount, Member member, PayType payMethod, TossPaymentStatus status, Subscription subscription) {
@@ -53,5 +54,8 @@ public class Order {
         this.payMethod = payMethod;
         this.status = status;
         this.subscription = subscription;
+    }
+    public void cancelOrder() {
+        this.status = TossPaymentStatus.CANCELED;
     }
 }

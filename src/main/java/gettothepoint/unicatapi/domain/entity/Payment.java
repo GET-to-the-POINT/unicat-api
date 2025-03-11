@@ -1,5 +1,6 @@
 package gettothepoint.unicatapi.domain.entity;
 
+import gettothepoint.unicatapi.domain.dto.payment.CancelPaymentResponse;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -67,5 +68,11 @@ public class Payment {
         this.approvedAt = approvedAt;
         this.canceledAt = canceledAt;
         this.cancelReason = cancelReason;
+    }
+
+    public void setCancel(CancelPaymentResponse cancelPaymentResponse) {
+        this.tossPaymentStatus = cancelPaymentResponse.getTossPaymentStatus();
+        this.canceledAt = cancelPaymentResponse.getCancelDate();
+        this.cancelReason = cancelPaymentResponse.getCancelReason();
     }
 }
