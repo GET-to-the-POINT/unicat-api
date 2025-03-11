@@ -4,9 +4,8 @@ import gettothepoint.unicatapi.domain.entity.video.UploadVideo;
 import gettothepoint.unicatapi.domain.entity.video.VideoHistory;
 import gettothepoint.unicatapi.domain.repository.video.VideoHistoryRepository;
 import gettothepoint.unicatapi.domain.repository.video.VideoUpdateRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigInteger;
@@ -17,29 +16,27 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Service
 @Transactional
-public class VideoUpdateService {
+public class VideoDataUpdateService {
 
     private final YoutubeDataService youtubeDataService;
     private final VideoUpdateRepository videoUpdateRepository;
     private final VideoHistoryRepository videoHistoryRepository;
 
-    //******
-    @PersistenceContext  // ✅ EntityManager 주입
-    private EntityManager entityManager;
+
 
     // 모든 비디오 업데이트 수행
-    public void updateAllVideos() throws Exception {
+    public void updateAllVideos(OAuth2AccessToken accessToken) throws Exception {
         List<String> youtubeVideoIds = videoUpdateRepository.findAllVideoIds();
         for (String youtubeVideoId : youtubeVideoIds) {
-            updateOrInsertVideoData(youtubeVideoId);
+            updateOrInsertVideoData(youtubeVideoId , accessToken);
         }
     }
 
     // 기존 업로드 비디오가 존재하면 업데이트 없이 `VideoHistory`에만 저장
     @Transactional
-    public void updateOrInsertVideoData(String youtubeVideoId) throws Exception {
+    public void updateOrInsertVideoData(String youtubeVideoId, OAuth2AccessToken accessToken) throws Exception {
         // 유튜브 API에서 통계 가져오기
-        String statistics = youtubeDataService.getVideoData(youtubeVideoId);
+        String statistics = youtubeDataService.getVideoData(youtubeVideoId, accessToken);
 
         String[] parts = statistics.split(",");
         if (parts.length < 3) {
@@ -54,9 +51,8 @@ public class VideoUpdateService {
         Optional<UploadVideo> existingUploadVideo = videoUpdateRepository.findFirstByYoutubeVideoId(youtubeVideoId);
 
         if (existingUploadVideo.isPresent()) {
-            // **************
-            UploadVideo uploadVideo = entityManager.merge(existingUploadVideo.get());
-           // UploadVideo uploadVideo = existingUploadVideo.get();
+
+           UploadVideo uploadVideo = existingUploadVideo.get();
 
             VideoHistory videoHistory = VideoHistory.builder()
                     .uploadVideo(uploadVideo)
@@ -64,6 +60,7 @@ public class VideoUpdateService {
                     .likeCount(likeCount)
                     .commentCount(commentCount)
                     .updateDate(LocalDateTime.now())
+                    .memberId(uploadVideo.getMemberId())
                     .build();
 
             videoHistoryRepository.save(videoHistory);

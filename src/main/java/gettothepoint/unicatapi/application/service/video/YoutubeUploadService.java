@@ -1,75 +1,42 @@
 package gettothepoint.unicatapi.application.service.video;
 
 
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.FileContent;
-import com.google.api.client.http.HttpRequestInitializer;
-import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.Video;
 import com.google.api.services.youtube.model.VideoSnippet;
 import com.google.api.services.youtube.model.VideoStatus;
-import com.google.auth.http.HttpCredentialsAdapter;
-import com.google.auth.oauth2.GoogleCredentials;
 import gettothepoint.unicatapi.domain.entity.video.UploadVideo;
 import gettothepoint.unicatapi.domain.entity.video.Videos;
 import gettothepoint.unicatapi.domain.repository.video.VideosRepository;
 import gettothepoint.unicatapi.domain.repository.video.YouTubeUploadRepository;
+import gettothepoint.unicatapi.infrastructure.security.youtube.YoutubeOAuth2Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+
 import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
-public class YouTubeUploadService {
+public class YoutubeUploadService {
 
     private static final String APPLICATION_NAME = "YouTube Uploader";
 
     private final VideosRepository videosRepository;
     private final YouTubeUploadRepository youTubeUploadRepository;
+    private final YoutubeOAuth2Service youtubeoAuth2Service;
 
-    /**
-     * Google API 인증을 위한 Credential 객체 생성
-     * @param accessToken 유효한 액세스 토큰
-     * @return Google API 인증을 위한 Credential 객체
-     */
-    private HttpRequestInitializer authorizeWithAccessToken(OAuth2AccessToken accessToken) {
-        // Spring OAuth2AccessToken에서 토큰 값과 만료 시간을 가져옵니다.
-        String tokenValue = accessToken.getTokenValue();
-        // getExpiresAt()는 Instant를 반환하므로, Date로 변환합니다.
-        Date expirationTime = accessToken.getExpiresAt() != null ? Date.from(accessToken.getExpiresAt()) : null;
 
-        // Google의 AccessToken으로 변환
-        com.google.auth.oauth2.AccessToken googleAccessToken = new com.google.auth.oauth2.AccessToken(tokenValue, expirationTime);
-        GoogleCredentials credentials = GoogleCredentials.create(googleAccessToken);
-        return new HttpCredentialsAdapter(credentials);
-    }
-
-    /**
-     * YouTube API 서비스 객체를 생성하는 메서드
-     * @param accessToken 유효한 액세스 토큰
-     * @return YouTube 서비스 객체
-     */
-    private YouTube getYouTubeService(OAuth2AccessToken accessToken) throws GeneralSecurityException, IOException {
-        HttpRequestInitializer requestInitializer = authorizeWithAccessToken(accessToken);
-        return new YouTube.Builder(
-                GoogleNetHttpTransport.newTrustedTransport(),
-                GsonFactory.getDefaultInstance(),
-                requestInitializer)
-                .setApplicationName(APPLICATION_NAME)
-                .build();
-    }
 
     public String uploadVideo(String videoId, OAuth2AccessToken accessToken, String title, String description) {
         // 필수 파라미터 검증
@@ -89,7 +56,7 @@ public class YouTubeUploadService {
 
         try {
             // YouTube API 호출을 위한 YouTube 서비스 객체 생성
-            YouTube youtubeService = getYouTubeService(accessToken);
+            YouTube youtubeService = youtubeoAuth2Service.getYouTubeService(accessToken);
 
             // YouTube 업로드 메타데이터 설정
             Video video = new Video();
@@ -109,10 +76,13 @@ public class YouTubeUploadService {
 
             Video response = request.execute();
 
+//            Long memberId = youtubeoAuth2Service.getMemberIdFromAccessToken(accessToken);
+
             UploadVideo uploadVideo = UploadVideo.builder()
                     .video(videos)
                     .timestamp(LocalDateTime.now())
                     .youtubeVideoId(response.getId())
+                    .memberId(videos.getVideoId())
                     .build();
 
             youTubeUploadRepository.save(uploadVideo);
@@ -124,5 +94,6 @@ public class YouTubeUploadService {
             e.printStackTrace();  // 더 자세한 스택 트레이스를 기록
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to upload video", e);
         }
+
     }
 }

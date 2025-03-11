@@ -28,12 +28,16 @@ public class VideoHistory {
     private BigInteger likeCount;
     private BigInteger commentCount;
 
+    @Column(name = "member_id")  // memberId 컬럼 추가
+    private Long memberId;
+
     @Builder
-    public VideoHistory(UploadVideo uploadVideo, LocalDateTime updateDate, BigInteger viewCount, BigInteger likeCount, BigInteger commentCount) {
+    public VideoHistory(UploadVideo uploadVideo, LocalDateTime updateDate, BigInteger viewCount, BigInteger likeCount, BigInteger commentCount ,Long memberId) {
         this.uploadVideo = uploadVideo;
         this.updateDate = updateDate;
         this.viewCount = viewCount;
         this.likeCount = likeCount;
         this.commentCount = commentCount;
+        this.memberId = memberId;
     }
 }

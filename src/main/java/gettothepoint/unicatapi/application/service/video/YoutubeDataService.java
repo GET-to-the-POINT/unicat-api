@@ -1,12 +1,11 @@
 package gettothepoint.unicatapi.application.service.video;
 
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.Video;
 import com.google.api.services.youtube.model.VideoListResponse;
+import gettothepoint.unicatapi.infrastructure.security.youtube.YoutubeOAuth2Service;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -15,30 +14,24 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+
 @RequiredArgsConstructor
 @Service
 public class YoutubeDataService {
 
-    private String API_KEY = "AIzaSyD98eK0PRdCvE9hr_7qLIwhriuxdM5mUZc";
+    private final YoutubeOAuth2Service youtubeoAuth2Service;  // OAuth2Service 의존성 주입
 
     // YouTube 서비스 생성
-    private YouTube getYouTubeService() throws GeneralSecurityException, IOException {
-        JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-        return new YouTube.Builder(GoogleNetHttpTransport.newTrustedTransport(),
-                jsonFactory,
-                request -> {
-                    // 요청에 대한 추가 설정 (필요에 따라 수정 가능)
-                })
-                .setApplicationName("My First Project")
-                .build();
+    private YouTube getYouTubeService(OAuth2AccessToken accessToken) throws GeneralSecurityException, IOException {
+        return youtubeoAuth2Service.getYouTubeService(accessToken);  // OAuth2Service를 통해 YouTube 서비스 생성
     }
 
     // YouTube 동영상 조회수, 좋아요 등을 가져오는 메서드
-    public String getVideoData(String videoId) throws GeneralSecurityException, IOException {
-        YouTube youtubeService = getYouTubeService();
+    public String getVideoData(String videoId, OAuth2AccessToken accessToken) throws GeneralSecurityException, IOException {
+        YouTube youtubeService = getYouTubeService(accessToken);  // OAuth2 인증을 통해 서비스 객체 생성
+
         YouTube.Videos.List request = youtubeService.videos().list(List.of("statistics"));
         request.setId(Collections.singletonList(videoId));
-        request.setKey(API_KEY);
 
         VideoListResponse response = request.execute();
 
@@ -57,13 +50,13 @@ public class YoutubeDataService {
     }
 
     // YouTube 동영상 조회수, 좋아요 등을 가져오는 메서드 (여러 동영상)
-    public String getVideosData(String[] videoIds) throws GeneralSecurityException, IOException {
-        YouTube youtubeService = getYouTubeService();
+    public String getVideosData(String[] videoIds, OAuth2AccessToken accessToken) throws GeneralSecurityException, IOException {
+        YouTube youtubeService = getYouTubeService(accessToken);
 
         // 여러 개의 동영상 ID를 한 번에 전달
         YouTube.Videos.List request = youtubeService.videos().list(List.of("statistics"));
         request.setId(Arrays.asList(videoIds));  // 여러 동영상 ID를 리스트로 전달
-        request.setKey(API_KEY);
+
 
         VideoListResponse response = request.execute();
 

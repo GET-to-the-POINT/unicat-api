@@ -27,9 +27,9 @@ public class UploadVideo {
     private BigInteger commentCount;
     private LocalDate timestamp;
 
-    //*********
-    @Version // 📌 낙관적 잠금 추가 (JPA가 변경 추적 가능하도록)
-    private Integer version;
+    @Column(name = "member_id")  // memberId 컬럼 추가
+    private Long memberId;
+
 
     public UploadVideo(Videos video, LocalDateTime timestamp, String youtubeVideoId) {
         this.video = video;
@@ -39,12 +39,13 @@ public class UploadVideo {
 
     // Builder 방식으로 객체 생성
     @Builder
-    public UploadVideo(Videos video, LocalDateTime timestamp, String youtubeVideoId, BigInteger viewCount, BigInteger likeCount, BigInteger commentCount) {
+    public UploadVideo(Videos video, LocalDateTime timestamp, String youtubeVideoId, BigInteger viewCount, BigInteger likeCount, BigInteger commentCount , Long memberId) {
         this.video = video;
         this.timestamp = timestamp.toLocalDate();
         this.youtubeVideoId = youtubeVideoId;
         this.viewCount = viewCount;
         this.likeCount = likeCount;
         this.commentCount = commentCount;
+        this.memberId = memberId;
     }
 }

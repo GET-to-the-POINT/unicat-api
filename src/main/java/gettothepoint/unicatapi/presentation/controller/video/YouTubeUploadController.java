@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.web.bind.annotation.*;
-import gettothepoint.unicatapi.application.service.video.YouTubeUploadService;
+import gettothepoint.unicatapi.application.service.video.YoutubeUploadService;
 
 @RequiredArgsConstructor
 @RestController
@@ -16,7 +16,7 @@ import gettothepoint.unicatapi.application.service.video.YouTubeUploadService;
 @Tag(name = "YouTube Upload", description = "YouTube 동영상 업로드 관련 API")
 public class YouTubeUploadController {
 
-    private final YouTubeUploadService youTubeUploadService;
+    private final YoutubeUploadService youTubeUploadService;
 
     @Operation(
             summary = "YouTube에 동영상 업로드", // API 요약
