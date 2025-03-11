@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class VideoHistory {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // 📌 자동 증가 PK
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
