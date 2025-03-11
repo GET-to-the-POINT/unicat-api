@@ -9,9 +9,11 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -47,18 +49,18 @@ public class SupabaseStorageService implements FileStorageService {
             HttpEntity<byte[]> requestEntity = new HttpEntity<>(fileBytes, headers);
 
             try {
-                ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
-            } catch (Exception e) {
+                restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
+            } catch (RestClientException e) {
                 log.error(e.getMessage());
                 String errorMessage = messageSource.getMessage("error.unknown", null, "", LocaleContextHolder.getLocale());
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, errorMessage);
             }
 
-            String uploadedUrl = getUrl(key);
+            String uploadedUrl = getUrl(bucket, key);
             String originalFilename = file.getOriginalFilename();
             return new StorageUpload(uploadedUrl, originalFilename);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to upload file", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to upload file", e);
         }
     }
 
@@ -73,11 +75,11 @@ public class SupabaseStorageService implements FileStorageService {
         return UUID.randomUUID() + extension;
     }
 
-    private String getUrl(String key) {
-
+    private String getUrl(String bucket, String key) {
         String supabaseUrl = appProperties.supabase().url();
-        String bucket = appProperties.supabase().storage().bucket();
-
-        return String.format("%s/storage/v1/object/%s/%s", supabaseUrl, bucket, key);
+        return UriComponentsBuilder.fromUriString(supabaseUrl)
+                .pathSegment("storage", "v1", "object", bucket, key)
+                .build()
+                .toUriString();
     }
 }
