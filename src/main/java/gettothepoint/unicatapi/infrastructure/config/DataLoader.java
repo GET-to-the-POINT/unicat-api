@@ -18,7 +18,7 @@ public class DataLoader {
         if (projectRepository.count() == 0) { // 데이터가 없을 때만 실행
             IntStream.range(1, 21).forEach(i ->
                     projectRepository.save(Project.builder()
-                            .title("Project Title " + i)
+                            .title("말랑 개인기" + i)
                             .subtitle("Brief description of project " + i)
                             .imageUrl("https://example.com/images/project" + i + ".jpg")
                             .projectUrl("https://example.com/videos/project" + i + ".mp4")
