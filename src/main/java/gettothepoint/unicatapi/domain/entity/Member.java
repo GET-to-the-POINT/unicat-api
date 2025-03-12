@@ -29,13 +29,16 @@ public class Member {
     private String customerKey;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Order> orders = new ArrayList<>();
+    private final List<Order> orders = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL )
-    private List<Subscription> subscriptions = new ArrayList<>();
+    private final List<Subscription> subscriptions = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", fetch = FetchType.EAGER)
-    private List<OAuthLink> oAuthLinks = new ArrayList<>();
+    private final List<OAuthLink> oAuthLinks = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member")
+    private final List<Project> projects = new ArrayList<>();
 
     private Instant createAt;
     private Instant updateAt;
@@ -46,12 +49,14 @@ public class Member {
         this.password = password;
         this.customerKey = UUID.randomUUID().toString();
     }
+
     @PrePersist
     protected void onCreate() {
         this.createAt = Instant.now();
         this.updateAt = Instant.now();
         this.customerKey = UUID.randomUUID().toString();
     }
+
     @PreUpdate
     protected void onUpdate() {
         this.updateAt = Instant.now();

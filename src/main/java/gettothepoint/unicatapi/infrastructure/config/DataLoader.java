@@ -20,8 +20,8 @@ public class DataLoader {
                     projectRepository.save(Project.builder()
                             .title("말랑 개인기" + i)
                             .subtitle("Brief description of project " + i)
-                            .imageUrl("https://example.com/images/project" + i + ".jpg")
-                            .projectUrl("https://example.com/videos/project" + i + ".mp4")
+                            .thumbnailUrl("https://example.com/images/project" + i + ".jpg")
+                            .videoUrl("https://example.com/videos/project" + i + ".mp4")
                             .build())
             );
         }
