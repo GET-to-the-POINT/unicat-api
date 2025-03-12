@@ -1,8 +1,8 @@
 package gettothepoint.unicatapi.domain.dto.sign;
 
-import gettothepoint.unicatapi.common.validation.FieldCompare.CompareResult;
-import gettothepoint.unicatapi.common.validation.FieldCompare.CompareTarget;
-import gettothepoint.unicatapi.common.validation.FieldCompare.FieldComparison;
+import gettothepoint.unicatapi.common.validation.fieldcompare.CompareResult;
+import gettothepoint.unicatapi.common.validation.fieldcompare.CompareTarget;
+import gettothepoint.unicatapi.common.validation.fieldcompare.FieldComparison;
 import gettothepoint.unicatapi.common.validation.email.UniqueEmail;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
