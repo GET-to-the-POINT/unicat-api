@@ -63,7 +63,7 @@ public class SignController {
     @PostMapping(value = "/sign-up", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public void signUpForm(
-            @ModelAttribute SignUpDto signUpDto,
+           @Valid @ModelAttribute SignUpDto signUpDto,
             HttpServletResponse response
     ) {
         authService.signUp(signUpDto, response);
@@ -111,7 +111,7 @@ public class SignController {
     @PostMapping(value = "/sign-in", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public void signInForm(
-            @ModelAttribute SignInDto signInDto,
+           @Valid @ModelAttribute SignInDto signInDto,
             HttpServletResponse response
     ) {
         authService.signIn(signInDto, response);
