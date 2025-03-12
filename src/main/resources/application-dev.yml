@@ -38,12 +38,7 @@ app:
   jwt:
     cookie:
       name: Authorization
-      domain: unicat.day
-      path: /
-      secure: true
-      httpOnly: true
-      sameSite: Lax
-      maxAge: 604800
+      domain: ${APP_JWT_COOKIE_DOMAIN:unicat.day}
     private-key: ${APP_JWT_PRIVATE_KEY:classpath:keys/private_key.sample}
     public-key: ${APP_JWT_PUBLIC_KEY:classpath:keys/public_key.sample}
     key-id: ${APP_JWT_KEY_ID:rsa-key-id}
