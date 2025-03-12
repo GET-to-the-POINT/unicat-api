@@ -1,34 +1,29 @@
-package gettothepoint.unicatapi.domain.entity.video;
+package gettothepoint.unicatapi.domain.entity;
 
-import gettothepoint.unicatapi.domain.entity.Project;
 import jakarta.persistence.*;
-import lombok.*;
-import java.math.BigInteger;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
-@NoArgsConstructor
 @Getter
+@NoArgsConstructor
 @Entity
-public class UploadVideo {
+public class Section {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String linkId;
+    private String uploadImageUrl;
 
-    private BigInteger viewCount;
-    private BigInteger likeCount;
-    private BigInteger commentCount;
+    @Lob
+    private String script;
 
-    @OneToOne
+    @ManyToOne
+    @JoinColumn
     private Project project;
-
-    @Builder
-    public UploadVideo(String linkId, Project project) {
-        this.linkId = linkId;
-        this.project = project;
-    }
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -44,4 +39,12 @@ public class UploadVideo {
         this.updatedAt = LocalDateTime.now();
     }
 
+    @Builder
+    public Section(String uploadImageUrl, String script, Project project) {
+        this.uploadImageUrl = uploadImageUrl;
+        this.script = script;
+        this.project = project;
+    }
+
 }
+

@@ -24,6 +24,7 @@ springdoc:
     path: /
 
 app:
+  name: unicat-api
   jwt:
     private-key: ${APP_JWT_PRIVATE_KEY}
     public-key: ${APP_JWT_PUBLIC_KEY}

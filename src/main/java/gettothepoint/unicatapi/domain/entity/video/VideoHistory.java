@@ -17,24 +17,31 @@ public class VideoHistory {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "youtube_video_id", referencedColumnName = "youtube_video_id", nullable = false)
     private UploadVideo uploadVideo;
 
-    private LocalDateTime updateDate;
     private BigInteger viewCount;
     private BigInteger likeCount;
     private BigInteger commentCount;
 
-    @Column(name = "member_id")  // memberId 컬럼 추가
-    private Long memberId;
-
     @Builder
-    public VideoHistory(UploadVideo uploadVideo, LocalDateTime updateDate, BigInteger viewCount, BigInteger likeCount, BigInteger commentCount ,Long memberId) {
+    public VideoHistory(UploadVideo uploadVideo, BigInteger viewCount, BigInteger likeCount, BigInteger commentCount) {
         this.uploadVideo = uploadVideo;
-        this.updateDate = updateDate;
         this.viewCount = viewCount;
         this.likeCount = likeCount;
         this.commentCount = commentCount;
-        this.memberId = memberId;
+    }
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
     }
 }
