@@ -47,6 +47,8 @@ app:
     secret-key: ${APP_TOSS_SECRET_KEY:test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6}
     confirm-url: ${APP_TOSS_CONFIRM_URL:https://api.tosspayments.com/v1/payments/confirm}
     cancel-url: ${APP_TOSS_CANCEL_URL:https://api.tosspayments.com/v1/payments/}
+  cors:
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:["https://unicat.day"]}
 
 server:
   ssl:
