@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.domain.dto.project;
 
-import gettothepoint.unicatapi.domain.entity.Project;
+import gettothepoint.unicatapi.domain.entity.dashboard.Project;
 import org.springframework.data.domain.Page;
 
 import java.util.List;

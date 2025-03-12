@@ -1,19 +1,20 @@
-package gettothepoint.unicatapi.domain.entity;
+package gettothepoint.unicatapi.domain.entity.dashboard;
 
+import gettothepoint.unicatapi.domain.entity.BaseEntity;
+import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.entity.video.UploadVideo;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Entity
 @NoArgsConstructor
-public class Project {
+public class Project extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,20 +35,6 @@ public class Project {
 
     @OneToMany(mappedBy = "project")
     private final List<Section> sections = new ArrayList<>();
-
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
 
     @Builder
     public Project(String title, String subtitle, String thumbnailUrl, String videoUrl, Member member) {

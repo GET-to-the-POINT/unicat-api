@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.application.service;
 
 import gettothepoint.unicatapi.domain.dto.project.ProjectResponse;
-import gettothepoint.unicatapi.domain.entity.Project;
+import gettothepoint.unicatapi.domain.entity.dashboard.Project;
 import gettothepoint.unicatapi.domain.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

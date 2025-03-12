@@ -5,7 +5,7 @@ import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.Video;
 import com.google.api.services.youtube.model.VideoSnippet;
 import com.google.api.services.youtube.model.VideoStatus;
-import gettothepoint.unicatapi.domain.entity.Project;
+import gettothepoint.unicatapi.domain.entity.dashboard.Project;
 import gettothepoint.unicatapi.domain.entity.video.UploadVideo;
 import gettothepoint.unicatapi.domain.repository.ProjectRepository;
 import gettothepoint.unicatapi.domain.repository.video.UploadVideoRepository;

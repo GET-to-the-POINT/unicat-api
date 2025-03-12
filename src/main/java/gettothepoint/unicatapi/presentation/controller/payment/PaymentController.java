@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.presentation.controller.payment;
 import gettothepoint.unicatapi.domain.dto.payment.*;
-import gettothepoint.unicatapi.domain.entity.Payment;
+import gettothepoint.unicatapi.domain.entity.payment.Payment;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;

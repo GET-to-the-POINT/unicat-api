@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.application.service.video;
 
-import gettothepoint.unicatapi.domain.entity.Project;
+import gettothepoint.unicatapi.domain.entity.dashboard.Project;
 import gettothepoint.unicatapi.domain.entity.video.UploadVideo;
 import gettothepoint.unicatapi.domain.entity.video.VideoHistory;
 import gettothepoint.unicatapi.domain.repository.ProjectRepository;

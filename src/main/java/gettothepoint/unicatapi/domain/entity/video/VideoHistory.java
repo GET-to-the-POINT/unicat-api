@@ -1,16 +1,15 @@
 package gettothepoint.unicatapi.domain.entity.video;
 
+import gettothepoint.unicatapi.domain.entity.BaseEntity;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
-import java.math.BigInteger;
-import java.time.LocalDateTime;
+import lombok.*;
 
-@RequiredArgsConstructor
-@Data
+import java.math.BigInteger;
+
+@Getter
+@NoArgsConstructor
 @Entity
-public class VideoHistory {
+public class VideoHistory extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,19 +28,5 @@ public class VideoHistory {
         this.viewCount = viewCount;
         this.likeCount = likeCount;
         this.commentCount = commentCount;
-    }
-
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
     }
 }

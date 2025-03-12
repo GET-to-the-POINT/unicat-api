@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import gettothepoint.unicatapi.domain.dto.payment.OrderRequest;
-import gettothepoint.unicatapi.domain.entity.Member;
-import gettothepoint.unicatapi.domain.entity.Order;
+import gettothepoint.unicatapi.domain.entity.member.Member;
+import gettothepoint.unicatapi.domain.entity.payment.Order;
 import gettothepoint.unicatapi.application.service.MemberService;
 import gettothepoint.unicatapi.application.service.payment.OrderService;
 

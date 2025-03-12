@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.application.service.storage;
 
 import gettothepoint.unicatapi.common.propertie.AppProperties;
-import gettothepoint.unicatapi.domain.dto.StorageUpload;
+import gettothepoint.unicatapi.domain.dto.storage.StorageUpload;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;

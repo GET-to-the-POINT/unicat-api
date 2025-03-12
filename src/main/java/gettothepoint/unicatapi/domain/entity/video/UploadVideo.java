@@ -1,15 +1,15 @@
 package gettothepoint.unicatapi.domain.entity.video;
 
-import gettothepoint.unicatapi.domain.entity.Project;
+import gettothepoint.unicatapi.domain.entity.BaseEntity;
+import gettothepoint.unicatapi.domain.entity.dashboard.Project;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigInteger;
-import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @Getter
 @Entity
-public class UploadVideo {
+public class UploadVideo extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,20 +28,6 @@ public class UploadVideo {
     public UploadVideo(String linkId, Project project) {
         this.linkId = linkId;
         this.project = project;
-    }
-
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
     }
 
 }
