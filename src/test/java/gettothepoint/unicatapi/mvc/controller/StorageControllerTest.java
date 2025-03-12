@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.mvc.controller;
-import gettothepoint.unicatapi.application.service.FileStorageService;
+import gettothepoint.unicatapi.application.service.storage.FileStorageService;
 import gettothepoint.unicatapi.common.util.JwtUtil;
-import gettothepoint.unicatapi.presentation.controller.FileUploadController;
+import gettothepoint.unicatapi.presentation.controller.StorageController;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +17,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
-@WebMvcTest(FileUploadController.class)
+@WebMvcTest(StorageController.class)
 @AutoConfigureMockMvc(addFilters = false)
-@Import(FileUploadControllerTest.TestConfig.class)
-class FileUploadControllerTest {
+@Import(StorageControllerTest.TestConfig.class)
+class StorageControllerTest {
 
     @Autowired
     private MockMvc mockMvc;

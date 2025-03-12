@@ -1,4 +1,4 @@
-package gettothepoint.unicatapi.application.service;
+package gettothepoint.unicatapi.application.service.storage;
 
 import gettothepoint.unicatapi.common.propertie.AppProperties;
 import gettothepoint.unicatapi.domain.dto.StorageUpload;
