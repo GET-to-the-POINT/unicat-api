@@ -1,4 +1,4 @@
-package gettothepoint.unicatapi.application.service;
+package gettothepoint.unicatapi.application.service.storage;
 
 import gettothepoint.unicatapi.domain.dto.StorageUpload;
 import org.springframework.web.multipart.MultipartFile;
