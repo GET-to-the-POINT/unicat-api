@@ -19,7 +19,7 @@ import java.util.UUID;
 public class Order {
     @Id
     @Column(updatable = false, nullable = false)
-    private final String Id = UUID.randomUUID().toString();
+    private final String id = UUID.randomUUID().toString();
 
     @Column
     private String orderName;
