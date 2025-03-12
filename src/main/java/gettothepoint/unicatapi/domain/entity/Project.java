@@ -1,5 +1,6 @@
 package gettothepoint.unicatapi.domain.entity;
 
+import gettothepoint.unicatapi.domain.entity.video.UploadVideo;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,6 +27,10 @@ public class Project {
     @ManyToOne
     @JoinColumn
     private Member member;
+
+    @OneToOne
+    @JoinColumn
+    private UploadVideo uploadVideo;
 
     @OneToMany(mappedBy = "project")
     private final List<Section> sections = new ArrayList<>();
