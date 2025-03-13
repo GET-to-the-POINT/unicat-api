@@ -2,8 +2,8 @@ package gettothepoint.unicatapi.presentation.controller;
 
 import gettothepoint.unicatapi.application.service.storage.FileStorageService;
 import gettothepoint.unicatapi.application.service.storage.SampleVoiceService;
-import gettothepoint.unicatapi.domain.dto.SampleVoice;
-import gettothepoint.unicatapi.domain.dto.StorageUpload;
+import gettothepoint.unicatapi.domain.dto.storage.SampleVoice;
+import gettothepoint.unicatapi.domain.dto.storage.StorageUpload;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;

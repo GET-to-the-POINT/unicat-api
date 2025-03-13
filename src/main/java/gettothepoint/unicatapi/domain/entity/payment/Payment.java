@@ -1,6 +1,7 @@
-package gettothepoint.unicatapi.domain.entity;
+package gettothepoint.unicatapi.domain.entity.payment;
 
 import gettothepoint.unicatapi.domain.dto.payment.CancelPaymentResponse;
+import gettothepoint.unicatapi.domain.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,19 +15,17 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Entity
-public class Payment {
+public class Payment extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, updatable = false)
     private String paymentKey;
-
-    @Column
     private String productName;
 
     @Column(nullable = false)
-    private long amount;
+    private Long amount;
 
     @Setter
     @Enumerated(EnumType.STRING)
@@ -37,37 +36,24 @@ public class Payment {
     @Column(nullable = false)
     private TossPaymentStatus tossPaymentStatus;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn
     private Order order;
 
-    @ManyToOne
-    @JoinColumn
-    private Member member;
-
-    @Column
     private LocalDateTime approvedAt;
-
-    @Column
     private LocalDateTime canceledAt;
-
-    @Column
     private String cancelReason;
 
     @Builder
-    public Payment(String paymentKey, String productName, long amount, PayType payType,
-                   TossPaymentStatus tossPaymentStatus, Order order, Member member,
-                   LocalDateTime approvedAt,LocalDateTime canceledAt, String cancelReason) {
-        this.paymentKey = paymentKey;
-        this.productName = productName;
-        this.amount = amount;
-        this.payType = payType;
-        this.tossPaymentStatus = tossPaymentStatus;
+    public Payment(Order order, String paymentKey, Long amount, TossPaymentStatus tossPaymentStatus,
+                   PayType payType, String productName, LocalDateTime approvedAt) {
         this.order = order;
-        this.member = member;
+        this.paymentKey = paymentKey;
+        this.amount = amount;
+        this.tossPaymentStatus = tossPaymentStatus;
+        this.payType = payType;
+        this.productName = productName;
         this.approvedAt = approvedAt;
-        this.canceledAt = canceledAt;
-        this.cancelReason = cancelReason;
     }
 
     public void setCancel(CancelPaymentResponse cancelPaymentResponse) {

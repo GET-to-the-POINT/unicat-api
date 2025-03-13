@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.application.service;
 
-import gettothepoint.unicatapi.domain.entity.Member;
-import gettothepoint.unicatapi.domain.entity.OAuthLink;
+import gettothepoint.unicatapi.domain.entity.member.Member;
+import gettothepoint.unicatapi.domain.entity.member.OAuthLink;
 import gettothepoint.unicatapi.domain.repository.MemberRepository;
 import gettothepoint.unicatapi.domain.repository.OAuthLinkRepository;
 import lombok.RequiredArgsConstructor;

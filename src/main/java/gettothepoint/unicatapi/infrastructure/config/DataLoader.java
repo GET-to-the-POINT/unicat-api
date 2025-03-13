@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.infrastructure.config;
 
-import gettothepoint.unicatapi.domain.entity.Project;
+import gettothepoint.unicatapi.domain.entity.dashboard.Project;
 import gettothepoint.unicatapi.domain.repository.ProjectRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;

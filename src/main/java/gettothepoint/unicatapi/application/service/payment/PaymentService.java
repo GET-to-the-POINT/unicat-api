@@ -9,9 +9,9 @@ import org.springframework.web.client.RestTemplate;
 import gettothepoint.unicatapi.common.propertie.AppProperties;
 import gettothepoint.unicatapi.common.util.CharacterUtil;
 import gettothepoint.unicatapi.domain.dto.payment.TossPaymentResponse;
-import gettothepoint.unicatapi.domain.entity.Member;
-import gettothepoint.unicatapi.domain.entity.Order;
-import gettothepoint.unicatapi.domain.entity.Payment;
+import gettothepoint.unicatapi.domain.entity.member.Member;
+import gettothepoint.unicatapi.domain.entity.payment.Order;
+import gettothepoint.unicatapi.domain.entity.payment.Payment;
 import gettothepoint.unicatapi.domain.repository.PaymentRepository;
 import gettothepoint.unicatapi.domain.constant.payment.PayType;
 import gettothepoint.unicatapi.domain.constant.payment.TossPaymentStatus;
@@ -46,8 +46,7 @@ public class PaymentService {
     private void processSubscription(String orderId) {
         Order order = orderService.findById(orderId);
         Member member = order.getMember();
-        Payment payment = findByOrderId(orderId);
-        subscriptionService.createSubscription(member, order, payment);
+        subscriptionService.createSubscription(member, order);
     }
 
     private void processOrder(String orderId, TossPaymentResponse tossResponse) {
@@ -102,7 +101,6 @@ public class PaymentService {
                 .tossPaymentStatus(status)
                 .order(order)
                 .productName(order.getOrderName())
-                .member(order.getMember())
                 .approvedAt(approvedAt)
                 .build();
         paymentRepository.save(payment);
@@ -113,12 +111,7 @@ public class PaymentService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "paymentId not found"));
     }
 
-    public Payment findByOrderId(String orderId) {
-        return paymentRepository.findByOrder_Id(orderId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "orderId not found"));
-    }
-
     public List<Payment> findByMemberEmail(String email) {
-        return paymentRepository.findByMember_Email(email);
+        return paymentRepository.findByOrder_Member_Email(email);
     }
 }

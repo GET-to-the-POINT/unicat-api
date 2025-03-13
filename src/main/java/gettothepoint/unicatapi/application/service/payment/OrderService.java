@@ -5,8 +5,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import gettothepoint.unicatapi.domain.dto.payment.OrderRequest;
-import gettothepoint.unicatapi.domain.entity.Member;
-import gettothepoint.unicatapi.domain.entity.Order;
+import gettothepoint.unicatapi.domain.entity.member.Member;
+import gettothepoint.unicatapi.domain.entity.payment.Order;
 import gettothepoint.unicatapi.domain.repository.OrderRepository;
 import gettothepoint.unicatapi.domain.constant.payment.TossPaymentStatus;
 

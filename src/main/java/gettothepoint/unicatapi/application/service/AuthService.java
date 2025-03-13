@@ -3,7 +3,7 @@ package gettothepoint.unicatapi.application.service;
 import gettothepoint.unicatapi.common.util.JwtUtil;
 import gettothepoint.unicatapi.domain.dto.sign.SignInDto;
 import gettothepoint.unicatapi.domain.dto.sign.SignUpDto;
-import gettothepoint.unicatapi.domain.entity.Member;
+import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.repository.MemberRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
