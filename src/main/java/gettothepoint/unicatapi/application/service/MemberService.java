@@ -56,4 +56,7 @@ public class MemberService {
             return newMember;
         });
     }
+    public boolean isEmailTaken(String email) {
+        return memberRepository.findByEmail(email).isPresent();
+    }
 }

@@ -1,8 +1,8 @@
 package gettothepoint.unicatapi.infrastructure.config;
 
 import gettothepoint.unicatapi.infrastructure.security.oAuth2Client.CustomOAuth2AuthenticationSuccessHandler;
-import gettothepoint.unicatapi.infrastructure.security.oAuth2Client.CustomOAuth2AuthorizationRequestResolver;
 import gettothepoint.unicatapi.infrastructure.security.oAuth2Client.CustomOAuth2UserService;
+import gettothepoint.unicatapi.infrastructure.security.oAuth2Client.authorizedClient.HttpCookieOAuth2AuthorizationRequestRepository;
 import gettothepoint.unicatapi.infrastructure.security.oauth2ResourceServer.CustomAuthenticationEntryPoint;
 import gettothepoint.unicatapi.infrastructure.security.oauth2ResourceServer.MultiBearerTokenResolver;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -22,12 +21,12 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final ClientRegistrationRepository clientRegistrationRepository;
     private final CustomOAuth2AuthenticationSuccessHandler oauth2SuccessHandler;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final MultiBearerTokenResolver multiBearerTokenResolver;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final JwtAuthenticationConverter jwtAuthenticationConverter;
+    private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -51,7 +50,7 @@ public class SecurityConfig {
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .authorizationEndpoint(authorizationEndpoint -> authorizationEndpoint
-                                .authorizationRequestResolver(new CustomOAuth2AuthorizationRequestResolver(clientRegistrationRepository, "/oauth2/authorization"))
+                                .authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository)
                         )
                         .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
                                 .userService(customOAuth2UserService)
