@@ -21,7 +21,7 @@ import java.util.Base64;
 public class HttpCookieOAuth2AuthorizationRequestRepository implements AuthorizationRequestRepository<OAuth2AuthorizationRequest> {
 
     public static final String OAUTH2_AUTH_REQUEST = HttpCookieOAuth2AuthorizationRequestRepository.class.getName() + "oauth2_auth_request";
-    public static final String REDIRECT_URI = HttpCookieOAuth2AuthorizationRequestRepository.class.getName() + "redirect";
+    public static final String REDIRECT_URI = HttpCookieOAuth2AuthorizationRequestRepository.class.getName() + "redirect_uri";
     private static final int COOKIE_EXPIRE_SECONDS = 180;
 
     @Override
