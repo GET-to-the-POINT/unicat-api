@@ -16,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j
@@ -32,7 +33,7 @@ public class SupabaseStorageService implements FileStorageService {
     public StorageUpload uploadFile(MultipartFile file) {
         String uniqueFileName = generateUniqueFileName(file);
         String supabaseKey = appProperties.supabase().key();
-        String bucket = appProperties.supabase().storage().bucket();
+        String bucket = getBucketName(file.getContentType());
 
         String key = "uploads/" + uniqueFileName;
         String url = getUrl(bucket, key);
@@ -43,7 +44,7 @@ public class SupabaseStorageService implements FileStorageService {
             HttpHeaders headers = new HttpHeaders();
             headers.set("apikey", supabaseKey);
             headers.set("Authorization", "Bearer " + supabaseKey);
-            headers.setContentType(MediaType.parseMediaType(file.getContentType()));
+            headers.setContentType(MediaType.parseMediaType(Objects.requireNonNull(file.getContentType())));
 
             HttpEntity<byte[]> requestEntity = new HttpEntity<>(fileBytes, headers);
 
@@ -59,6 +60,20 @@ public class SupabaseStorageService implements FileStorageService {
         } catch (IOException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to upload file", e);
         }
+    }
+
+    private String getBucketName(String contentType) {
+        if (contentType == null || contentType.isBlank()) {
+            return appProperties.supabase().storage().bucket();
+        }
+        if (contentType.startsWith("image/")) {
+            return "image";
+        } else if (contentType.startsWith("audio/")) {
+            return "voice";
+        } else if (contentType.startsWith("video/")) {
+            return "video";
+        }
+        return appProperties.supabase().storage().bucket();
     }
 
     private String generateUniqueFileName(MultipartFile file) {
