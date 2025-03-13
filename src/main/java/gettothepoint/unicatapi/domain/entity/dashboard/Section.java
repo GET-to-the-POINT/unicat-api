@@ -20,6 +20,9 @@ public class Section extends BaseEntity {
     @Lob
     private String script;
 
+    private String ttsUrl;
+    private Long order;
+
     @ManyToOne
     @JoinColumn
     private Project project;
