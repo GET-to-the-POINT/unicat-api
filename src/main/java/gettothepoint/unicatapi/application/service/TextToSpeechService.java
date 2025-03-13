@@ -16,7 +16,7 @@ public class TextToSpeechService {
         this.textToSpeechClient = TextToSpeechClient.create();
     }
 
-    public byte[] createTextToSpeech(String text) {
+    public byte[] createTextToSpeech(String text, String voiceName) {
 
         SynthesisInput input = SynthesisInput.newBuilder()
                 .setText(text)
@@ -24,8 +24,7 @@ public class TextToSpeechService {
 
         VoiceSelectionParams voice = VoiceSelectionParams.newBuilder()
                 .setLanguageCode("ko-KR")
-                .setName("ko-KR-Wavenet-A")
-                .setSsmlGender(SsmlVoiceGender.FEMALE)
+                .setName(voiceName)
                 .build();
 
         AudioConfig audioConfig = AudioConfig.newBuilder()
