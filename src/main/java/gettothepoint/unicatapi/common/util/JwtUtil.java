@@ -4,10 +4,7 @@ import gettothepoint.unicatapi.common.propertie.AppProperties;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.oauth2.jwt.JwsHeader;
-import org.springframework.security.oauth2.jwt.JwtClaimsSet;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -19,6 +16,7 @@ public class JwtUtil {
 
     private final AppProperties appProperties;
     private final JwtEncoder jwtEncoder;
+    private final JwtDecoder jwtDecoder;
 
     public void addJwtCookie(HttpServletResponse response, String token) {
         Cookie jwtCookie = this.createJwtCookie(token);
@@ -60,5 +58,9 @@ public class JwtUtil {
         );
 
         return jwtEncoder.encode(parameters).getTokenValue();
+    }
+    public String getEmailFromToken(String token){
+        Jwt decodedJwt = jwtDecoder.decode(token);
+        return decodedJwt.getClaim("email");
     }
 }

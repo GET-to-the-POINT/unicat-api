@@ -1,6 +1,7 @@
 package gettothepoint.unicatapi.application.service.email;
 
 import gettothepoint.unicatapi.common.propertie.AppProperties;
+import gettothepoint.unicatapi.common.util.JwtUtil;
 import gettothepoint.unicatapi.common.util.UrlUtil;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.AddressException;
@@ -26,6 +27,7 @@ public class EmailService {
 
     private final JavaMailSender emailSender;
     private final AppProperties appProperties;
+    private final JwtUtil jwtUtil;
 
     public void sendEmail(String toEmail, String title, String content) {
         MimeMessage message = emailSender.createMimeMessage();
@@ -64,13 +66,15 @@ public class EmailService {
             }
         }
     }
-    public String createVerificationLink(String email) {
+    public String createVerificationLink(String email, Long memberId) {
+        String token = jwtUtil.generateJwtToken(memberId, email);
         String baseUrl = UrlUtil.buildBaseUrl(appProperties.api());
-        return String.format("%s/email/verifyEmail?email=%s", baseUrl, URLEncoder.encode(email, StandardCharsets.UTF_8));
+
+        return String.format("%s/email/verifyEmail?token=%s", baseUrl, URLEncoder.encode(token, StandardCharsets.UTF_8));
     }
 
-    public void sendVerificationEmail(String email) {
-        String verifyUrl = createVerificationLink(email);
+    public void sendVerificationEmail(String email, Long memberId) {
+        String verifyUrl = createVerificationLink(email, memberId);
         String title = "Unicat 회원 가입 인증 이메일입니다.";
         String content = String.format(
                 "<html>" +
