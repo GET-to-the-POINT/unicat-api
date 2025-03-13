@@ -61,9 +61,9 @@ class SignControllerTest {
         @Test
         @DisplayName("Valid Sign Up")
         void testSignUpWithValidData() throws Exception {
-            SignUpDto signUpDto = SignUpDto.builder().email("test@example.com").password("password").build();
+            SignUpDto signUpDto = SignUpDto.builder().email("test@example.com").password("password").confirmPassword("password").build();
             doNothing().when(authService).signUp(any(SignUpDto.class), any(HttpServletResponse.class));
-            mockMvc.perform(post("/api/sign-up")
+            mockMvc.perform(post("/sign-up")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(signUpDto)))
                     .andExpect(status().isCreated());
@@ -74,7 +74,7 @@ class SignControllerTest {
             SignUpDto signUpDto = SignUpDto.builder().build();
             doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email and password are required"))
                     .when(authService).signUp(any(SignUpDto.class), any(HttpServletResponse.class));
-            mockMvc.perform(post("/api/sign-up")
+            mockMvc.perform(post("/sign-up")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(signUpDto)))
                     .andExpect(status().isBadRequest());
@@ -82,10 +82,10 @@ class SignControllerTest {
         @Test
         @DisplayName("Missing Email Sign Up")
         void testSignUpWithMissingEmail() throws Exception {
-            SignUpDto signUpDto = SignUpDto.builder().password("password").build();
-            doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is already in use"))
+            SignUpDto signUpDto = SignUpDto.builder().password("password").confirmPassword("password").build();
+            doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is required"))
                     .when(authService).signUp(any(SignUpDto.class), any(HttpServletResponse.class));
-            mockMvc.perform(post("/api/sign-up")
+            mockMvc.perform(post("/sign-up")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(signUpDto)))
                     .andExpect(status().isBadRequest());
@@ -93,10 +93,10 @@ class SignControllerTest {
         @Test
         @DisplayName("Missing Password Sign Up")
         void testSignUpWithMissingPassword() throws Exception {
-            SignInDto signUpDto = SignInDto.builder().email("test@example.com").build();
+            SignUpDto signUpDto = SignUpDto.builder().email("test@example.com").confirmPassword("password").build();
             doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password is required"))
                     .when(authService).signUp(any(SignUpDto.class), any(HttpServletResponse.class));
-            mockMvc.perform(post("/api/sign-up")
+            mockMvc.perform(post("/sign-up")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(signUpDto)))
                     .andExpect(status().isBadRequest());
@@ -104,13 +104,24 @@ class SignControllerTest {
         @Test
         @DisplayName("Duplicate Email Sign Up")
         void testSignUpWithDuplicateEmail() throws Exception {
-            SignInDto signUpDto = SignInDto.builder().email("duplicate@example.com").password("password").build();
+            SignUpDto signUpDto = SignUpDto.builder().email("duplicate@example.com").password("password").confirmPassword("password").build();
             doThrow(new ResponseStatusException(HttpStatus.CONFLICT, "Email is already in use"))
                     .when(authService).signUp(any(SignUpDto.class), any(HttpServletResponse.class));
-            mockMvc.perform(post("/api/sign-up")
+            mockMvc.perform(post("/sign-up")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(signUpDto)))
                     .andExpect(status().isConflict());
+        }
+        @Test
+        @DisplayName("Password Mismatch Sign Up")
+        void testSignUpWithPasswordMismatch() throws Exception {
+            SignUpDto signUpDto = SignUpDto.builder().email("test@example.com").password("password").confirmPassword("differentPassword").build();
+            doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Passwords do not match"))
+                    .when(authService).signUp(any(SignUpDto.class), any(HttpServletResponse.class));
+            mockMvc.perform(post("/sign-up")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(signUpDto)))
+                    .andExpect(status().isBadRequest());
         }
     }
 
@@ -120,47 +131,45 @@ class SignControllerTest {
         @Test
         @DisplayName("Valid Sign In")
         void testSignInWithValidData() throws Exception {
-            SignInDto signUpDto = SignInDto.builder().email("test@example.com").password("password").build();
+            SignInDto signInDto = SignInDto.builder().email("test@example.com").password("password").build();
             doNothing().when(authService).signIn(any(SignInDto.class), any(HttpServletResponse.class));
-            mockMvc.perform(post("/api/sign-in")
+            mockMvc.perform(post("/sign-in")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(signUpDto)))
+                            .content(objectMapper.writeValueAsString(signInDto)))
                     .andExpect(status().isOk());
         }
         @Test
         @DisplayName("Missing Email Sign In")
         void testSignInWithMissingEmail() throws Exception {
-            SignInDto signUpDto = SignInDto.builder().password("password").build();
+            SignInDto signInDto = SignInDto.builder().password("password").build();
             doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is required"))
                     .when(authService).signIn(any(SignInDto.class), any(HttpServletResponse.class));
-            mockMvc.perform(post("/api/sign-in")
+            mockMvc.perform(post("/sign-in")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(signUpDto)))
+                            .content(objectMapper.writeValueAsString(signInDto)))
                     .andExpect(status().isBadRequest());
         }
         @Test
         @DisplayName("Missing Password Sign In")
         void testSignInWithMissingPassword() throws Exception {
-            SignInDto signUpDto = SignInDto.builder().email("test@example.com").build();
+            SignInDto signInDto = SignInDto.builder().email("test@example.com").build();
             doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password is required"))
                     .when(authService).signIn(any(SignInDto.class), any(HttpServletResponse.class));
-            mockMvc.perform(post("/api/sign-in")
+            mockMvc.perform(post("/sign-in")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(signUpDto)))
+                            .content(objectMapper.writeValueAsString(signInDto)))
                     .andExpect(status().isBadRequest());
         }
         @Test
         @DisplayName("Invalid Credentials Sign In")
         void testSignInWithInvalidCredentials() throws Exception {
-            SignInDto signUpDto = SignInDto.builder().email("test@example.com").password("wrongpassword").build();
-            doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid email or password"))
+            SignInDto signInDto = SignInDto.builder().email("test@example.com").password("wrongpassword").build();
+            doThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password"))
                     .when(authService).signIn(any(SignInDto.class), any(HttpServletResponse.class));
-            mockMvc.perform(post("/api/sign-in")
+            mockMvc.perform(post("/sign-in")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(signUpDto)))
-                    .andExpect(status().isBadRequest());
+                            .content(objectMapper.writeValueAsString(signInDto)))
+                    .andExpect(status().isUnauthorized());
         }
     }
-
-
 }
