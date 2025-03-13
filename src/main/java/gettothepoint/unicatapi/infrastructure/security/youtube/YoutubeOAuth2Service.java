@@ -12,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Date;
@@ -24,10 +23,7 @@ public class YoutubeOAuth2Service {
     private final AppProperties appProperties;
 
     /**
-     * Google API 인증을 위한 Credential 객체 생성
-     *
-     * @param accessToken 유효한 액세스 토큰
-     * @return Google API 인증을 위한 Credential 객체
+      Google API 인증을 위한 Credential 객체 생성
      */
     private HttpRequestInitializer authorizeWithAccessToken(OAuth2AccessToken accessToken) {
         String tokenValue = accessToken.getTokenValue();
@@ -40,11 +36,8 @@ public class YoutubeOAuth2Service {
     }
 
     /**
-     * YouTube API 서비스 객체를 생성하는 메서드
-     *
-     * @param accessToken 유효한 액세스 토큰
-     * @return YouTube 서비스 객체
-     */
+     YouTube API 서비스 객체를 생성하는 메서드
+    */
     public YouTube getYouTubeService(OAuth2AccessToken accessToken) {
         try {
             HttpRequestInitializer requestInitializer = authorizeWithAccessToken(accessToken);

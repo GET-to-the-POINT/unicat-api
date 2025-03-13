@@ -7,7 +7,6 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,8 +44,7 @@ public class Project extends BaseEntity {
         this.member = member;
     }
 
-    public void setUploadVideo(UploadVideo uploadVideo) {
+    public void assignUploadVideo(UploadVideo uploadVideo) {
         this.uploadVideo = uploadVideo;
-
     }
 }

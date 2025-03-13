@@ -18,7 +18,6 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -102,7 +101,7 @@ public class YoutubeUploadService {
     @Transactional
     public void saveUploadVideoAndUpdateProject(UploadVideo uploadVideo, Project project) {
         uploadVideoRepository.save(uploadVideo);
-        project.setUploadVideo(uploadVideo);
+        project.assignUploadVideo(uploadVideo);
         projectRepository.save(project);
         uploadProgressService.markCompleted(project.getId());
     }

@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import gettothepoint.unicatapi.application.service.video.VideoStatisticsEntityService;
-
 import java.time.LocalDateTime;
+import java.util.regex.Matcher;
 
 @RequiredArgsConstructor
 @RestController
@@ -16,7 +16,8 @@ import java.time.LocalDateTime;
 @Tag(name = "Video Statistics", description = "비디오 통계 관련 API")
 public class VideoStatisticsEntityController {
 
-    private final VideoStatisticsEntityService VideoStatisticsEntityService;
+    private final VideoStatisticsEntityService videoStatisticsEntityService;
+    private static final String VIDEO_ID_REGEX = "^[a-zA-Z0-9_-]{11}$";
 
     @Operation(
             summary = "특정 비디오에 대한 통계 조회", // API 요약
@@ -32,6 +33,10 @@ public class VideoStatisticsEntityController {
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime startDateTime,
             @Parameter(description = "통계 조회 종료 날짜 및 시간 (yyyy-MM-dd'T'HH:mm:ss 형식)")
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime endDateTime) {
-        return VideoStatisticsEntityService.getStatisticsForVideo(videoId, startDateTime, endDateTime);
+
+        if (startDateTime.isAfter(endDateTime)) {
+            throw new IllegalArgumentException("Start time cannot be after end time.");
+        }
+        return videoStatisticsEntityService.getStatisticsForVideo(videoId, startDateTime, endDateTime);
     }
 }
