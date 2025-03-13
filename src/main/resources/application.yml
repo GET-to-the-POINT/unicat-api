@@ -80,6 +80,9 @@ app:
     allowed-headers: [ "*" ]
     allow-credentials: true
     max-age: 3600
+  tts:
+    file-path: "/Users/wooyeon/Desktop/"
+    file-extension: ".mp3"
 
 server:
   port: 443

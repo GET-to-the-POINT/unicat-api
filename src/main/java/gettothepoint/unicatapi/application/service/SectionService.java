@@ -1,6 +1,7 @@
 package gettothepoint.unicatapi.application.service;
 
 import gettothepoint.unicatapi.application.service.storage.FileStorageService;
+import gettothepoint.unicatapi.common.propertie.AppProperties;
 import gettothepoint.unicatapi.common.util.MultipartFileUtil;
 import gettothepoint.unicatapi.domain.dto.project.SectionRequest;
 import gettothepoint.unicatapi.domain.dto.storage.StorageUpload;
@@ -33,6 +34,7 @@ public class SectionService {
     private final FileStorageService fileStorageService;
     private final TextToSpeechService textToSpeechService;
     private final MessageSource messageSource;
+    private final AppProperties appProperties;
     private static final String SECTION_NOT_FOUND_MSG = "Section not found with id: ";
 
     public Long createSection(Long projectId) {
@@ -80,7 +82,7 @@ public class SectionService {
                     .orElseThrow(() -> new EntityNotFoundException(SECTION_NOT_FOUND_MSG + request.sectionId()));
             String script = section.getScript();
             String voiceName = request.voiceName();
-            String filePath = "/Users/wooyeon/Desktop/" + section.getId() + ".mp3";
+            String filePath = appProperties.tts().filePath() + section.getId() + appProperties.tts().fileExtension();
 
             try {
                 textToSpeechService.createAndSaveTTSFile(script, voiceName, filePath);
