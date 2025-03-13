@@ -2,7 +2,10 @@ package gettothepoint.unicatapi.application.service;
 
 import gettothepoint.unicatapi.domain.dto.project.ProjectResponse;
 import gettothepoint.unicatapi.domain.entity.dashboard.Project;
+import gettothepoint.unicatapi.domain.entity.member.Member;
+import gettothepoint.unicatapi.domain.repository.MemberRepository;
 import gettothepoint.unicatapi.domain.repository.ProjectRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,6 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
+    private final MemberRepository memberRepository;
 
     public ProjectResponse getProjects(int page, int size, String sort) {
         PageRequest pageable = PageRequest.of(page, size, parseSort(sort));
@@ -34,5 +38,16 @@ public class ProjectService {
             return Sort.by(Sort.Direction.fromString(sortParams[1]), sortParams[0]);
         }
         return Sort.by(Sort.Direction.DESC, sortParams[0]);
+    }
+
+    public Long createProject(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new EntityNotFoundException("Member not found with id: " + memberId));
+        Project project = Project.builder()
+                .member(member)
+                .build();
+        projectRepository.save(project);
+
+        return project.getId();
     }
 }
