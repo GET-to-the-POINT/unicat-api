@@ -12,14 +12,6 @@ spring:
         use_sql_comments: true
         highlight_sql: true
         show_sql: true
-        jdbc:
-          batch_size: 50
-          batch_versioned_data: true
-
-  datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/postgres}
-    username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
 
 logging:
   level:
@@ -34,26 +26,3 @@ logging:
         transaction: DEBUG
         security: DEBUG
         jdbc.core.JdbcTemplate: DEBUG
-app:
-  jwt:
-    cookie:
-      name: Authorization
-      domain: ${APP_JWT_COOKIE_DOMAIN:unicat.day}
-    private-key: ${APP_JWT_PRIVATE_KEY:classpath:unicat.day/unicat.day.key}
-    public-key: ${APP_JWT_PUBLIC_KEY:classpath:unicat.day/unicat.day.pub}
-    key-id: ${APP_JWT_KEY_ID:rsa-key-id}
-  toss:
-    client-key: ${APP_TOSS_CLIENT_KEY:test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm}
-    secret-key: ${APP_TOSS_SECRET_KEY:test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6}
-    confirm-url: ${APP_TOSS_CONFIRM_URL:https://api.tosspayments.com/v1/payments/confirm}
-    cancel-url: ${APP_TOSS_CANCEL_URL:https://api.tosspayments.com/v1/payments/}
-  cors:
-    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:["https://unicat.day"]}
-
-server:
-  ssl:
-    key-store: ${APP_SSL_KEY_STORE:classpath:unicat.day/unicat.day.p12}
-    key-store-type: ${APP_SSL_KEY_STORE_TYPE:PKCS12}
-    key-store-password: ${APP_SSL_KEY_STORE_PASSWORD:unicat.day}
-    key-alias: ${APP_SSL_KEY_ALIAS:unicat.day}
-
