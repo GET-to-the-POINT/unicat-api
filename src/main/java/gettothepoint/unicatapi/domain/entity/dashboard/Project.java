@@ -44,4 +44,9 @@ public class Project extends BaseEntity {
         this.videoUrl = videoUrl;
         this.member = member;
     }
+
+    public void setUploadVideo(UploadVideo uploadVideo) {
+        this.uploadVideo = uploadVideo;
+
+    }
 }
