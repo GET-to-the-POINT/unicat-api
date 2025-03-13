@@ -63,7 +63,8 @@ app:
     confirm-url: ${APP_TOSS_CONFIRM_URL}
     cancel-url: ${APP_TOSS_CANCEL_URL}
   email:
-    reply-to: ${APP_MAIL_REPLY_TO}
+    from: ${APP_MAIL_MAIL_FROM}
+    from-name: ${APP_MAIL_MAIL_FROM_NAME}
   supabase:
     url: ${SUPABASE_URL}
     key: ${SUPABASE_KEY}
