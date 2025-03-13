@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,7 @@ public class Member extends BaseEntity {
     private String email;
 
     @Column(nullable = false)
+    @Setter
     private String password;
 
     @Column(nullable = false)
