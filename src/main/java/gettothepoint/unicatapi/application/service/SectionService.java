@@ -15,6 +15,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -98,6 +99,35 @@ public class SectionService {
     public StorageUpload uploadTTSFile(File file) {
         MultipartFileUtil multipartFile = new MultipartFileUtil(file, file.getName(), "audio/mpeg");
         return fileStorageService.uploadFile(multipartFile);
+    }
+
+    @Transactional
+    public Long updateSectionSortOrder(Long sectionId, int newOrder) {
+        Section section = sectionRepository.findById(sectionId)
+                .orElseThrow(() -> new EntityNotFoundException(SECTION_NOT_FOUND_MSG + sectionId));
+        Project project = section.getProject();
+
+        List<Section> sections = sectionRepository.findAllByProjectIdOrderBySortOrderAsc(project.getId());
+
+        int currentIndex = section.getSortOrder().intValue() - 1;
+
+        sections.remove(currentIndex);
+
+        if (newOrder < 1) {
+            newOrder = 1;
+        } else if (newOrder > sections.size() + 1) {
+            newOrder = sections.size() + 1;
+        }
+
+        sections.add(newOrder - 1, section);
+
+        for (int i = 0; i < sections.size(); i++) {
+            Section s = sections.get(i);
+            s.setSortOrder((long) (i + 1));
+            sectionRepository.save(s);
+        }
+
+        return section.getSortOrder();
     }
 
 }

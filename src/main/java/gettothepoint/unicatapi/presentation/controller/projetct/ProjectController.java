@@ -52,7 +52,7 @@ public class ProjectController {
         sectionService.uploadScript(sectionId, script);
     }
 
-    @GetMapping("/{projectId}")
+    @GetMapping("/{projectId}/sections")
     public List<SectionResponse> getAllSections(@PathVariable Long projectId) {
         return projectService.getAllSections(projectId);
     }
@@ -60,6 +60,11 @@ public class ProjectController {
     @PostMapping("/{projectId}")
     public void createVideo(@PathVariable Long projectId, @RequestBody List<SectionRequest> sectionRequests) {
         projectService.createVideo(sectionRequests);
+    }
+
+    @PostMapping("/{sectionId}/updateOrder")
+    public Long updateSectionOrder(@PathVariable Long sectionId, @RequestBody int newOrder) {
+        return sectionService.updateSectionSortOrder(sectionId, newOrder);
     }
 
 }
