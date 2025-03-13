@@ -36,11 +36,7 @@ public class Project extends BaseEntity {
     private final List<Section> sections = new ArrayList<>();
 
     @Builder
-    public Project(String title, String subtitle, String thumbnailUrl, String videoUrl, Member member) {
-        this.title = title;
-        this.subtitle = subtitle;
-        this.thumbnailUrl = thumbnailUrl;
-        this.videoUrl = videoUrl;
+    public Project(Member member) {
         this.member = member;
     }
 

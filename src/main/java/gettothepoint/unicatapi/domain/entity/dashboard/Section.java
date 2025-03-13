@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @NoArgsConstructor
@@ -15,20 +16,22 @@ public class Section extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Setter
     private String uploadImageUrl;
 
     @Lob
     private String script;
+
+    private Long sortOrder;
 
     @ManyToOne
     @JoinColumn
     private Project project;
 
     @Builder
-    public Section(String uploadImageUrl, String script, Project project) {
-        this.uploadImageUrl = uploadImageUrl;
-        this.script = script;
+    public Section(Project project, Long sortOrder) {
         this.project = project;
+        this.sortOrder = sortOrder;
     }
 
 }
