@@ -35,14 +35,13 @@ public class EmailService {
             log.error("Failed to send email to {}: {}", toEmail, e.getMessage(), e);
         }
     }
-
-    public String generateVerificationLink(String email) {
+    public String createVerificationLink(String email) {
         String baseUrl = UrlUtil.buildBaseUrl(appProperties.api());
         return String.format("%s/email/verifyEmail?email=%s", baseUrl, URLEncoder.encode(email, StandardCharsets.UTF_8));
     }
 
     public void sendVerificationEmail(String email) {
-        String verifyUrl = generateVerificationLink(email);
+        String verifyUrl = createVerificationLink(email);
         String title = "Unicat 회원 가입 인증 이메일입니다.";
         String content = String.format(
                 "<html>" +
