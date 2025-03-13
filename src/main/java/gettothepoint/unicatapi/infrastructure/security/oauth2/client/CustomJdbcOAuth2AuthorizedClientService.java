@@ -31,7 +31,7 @@ public class CustomJdbcOAuth2AuthorizedClientService implements OAuth2Authorized
     }
 
     @Override
-    public OAuth2AuthorizedClient loadAuthorizedClient(String clientRegistrationId, String principalName) {
+    public <T extends OAuth2AuthorizedClient> T loadAuthorizedClient(String clientRegistrationId, String principalName) {
         return delegate.loadAuthorizedClient(clientRegistrationId, principalName);
     }
 
