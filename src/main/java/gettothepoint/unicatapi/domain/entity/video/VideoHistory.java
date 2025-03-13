@@ -3,7 +3,6 @@ package gettothepoint.unicatapi.domain.entity.video;
 import gettothepoint.unicatapi.domain.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.math.BigInteger;
 
 @Getter

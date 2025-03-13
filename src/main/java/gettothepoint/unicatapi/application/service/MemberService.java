@@ -5,10 +5,12 @@ import gettothepoint.unicatapi.domain.entity.member.OAuthLink;
 import gettothepoint.unicatapi.domain.repository.MemberRepository;
 import gettothepoint.unicatapi.domain.repository.OAuthLinkRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MemberService {
@@ -56,7 +58,18 @@ public class MemberService {
             return newMember;
         });
     }
+
     public boolean isEmailTaken(String email) {
         return memberRepository.findByEmail(email).isPresent();
     }
+
+    public void verifyEmail(String email) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member not found"));
+
+        member.verified();
+        memberRepository.save(member);
+    }
 }
+
+

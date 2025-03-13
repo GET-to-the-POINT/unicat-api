@@ -19,6 +19,22 @@ spring:
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
 
+  mail:
+    host: ${SPRING_MAIL_HOST}
+    port: ${SPRING_MAIL_PORT:587}
+    username: ${SPRING_MAIL_USERNAME}
+    password: ${SPRING_MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: ${SPRING_MAIL_SMTP_AUTH:true}
+          starttls:
+            enable: ${SPRING_MAIL_STARTTLS_ENABLE:true}
+            required: ${SPRING_MAIL_STARTTLS_REQUIRED:true}
+          connectiontimeout: ${SPRING_MAIL_CONNECTION_TIMEOUT:5000}
+          timeout: ${SPRING_MAIL_TIMEOUT:5000}
+          writetimeout: ${SPRING_MAIL_WRITE_TIMEOUT:5000}
+
 springdoc:
   swagger-ui:
     path: /
@@ -46,6 +62,9 @@ app:
     secret-key: ${APP_TOSS_SECRET_KEY}
     confirm-url: ${APP_TOSS_CONFIRM_URL}
     cancel-url: ${APP_TOSS_CANCEL_URL}
+  email:
+    from: ${APP_MAIL_MAIL_FROM}
+    from-name: ${APP_MAIL_MAIL_FROM_NAME}
   supabase:
     url: ${SUPABASE_URL}
     key: ${SUPABASE_KEY}
