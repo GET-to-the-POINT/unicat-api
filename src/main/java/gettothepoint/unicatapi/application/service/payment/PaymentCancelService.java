@@ -7,8 +7,8 @@ import gettothepoint.unicatapi.common.util.PaymentUtil;
 import gettothepoint.unicatapi.domain.dto.payment.CancelPaymentRequest;
 import gettothepoint.unicatapi.domain.dto.payment.CancelPaymentResponse;
 import gettothepoint.unicatapi.domain.dto.payment.PaymentCancelServiceDto;
-import gettothepoint.unicatapi.domain.entity.Order;
-import gettothepoint.unicatapi.domain.entity.Payment;
+import gettothepoint.unicatapi.domain.entity.payment.Order;
+import gettothepoint.unicatapi.domain.entity.payment.Payment;
 import gettothepoint.unicatapi.domain.repository.OrderRepository;
 import gettothepoint.unicatapi.domain.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
@@ -49,7 +49,7 @@ public class PaymentCancelService {
         paymentRepository.save(originalPayment);
         orderRepository.save(order);
 
-        subscriptionService.cancelSubscriptionByPayment(originalPayment);
+        subscriptionService.cancelSubscriptionByOrder(order);
         return cancelPaymentResponse;
     }
 

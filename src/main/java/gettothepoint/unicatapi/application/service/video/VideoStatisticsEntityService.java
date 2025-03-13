@@ -4,22 +4,21 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import gettothepoint.unicatapi.domain.entity.video.VideoHistory;
 import gettothepoint.unicatapi.domain.repository.video.VideoHistoryRepository;
-import gettothepoint.unicatapi.domain.repository.video.VideoUpdateRepository;
+
 import java.math.BigInteger;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RequiredArgsConstructor
 @Service
 public class VideoStatisticsEntityService {
 
-    private final VideoUpdateRepository videoUpdateRepository;
-    private final VideoHistoryRepository VideoStatisticsEntityRepository;
+    private final VideoHistoryRepository videoHistoryRepository;
 
     // 특정 비디오에 대한 특정 기간의 통계 계산
-    public String getStatisticsForVideo(String youtubevideoId, Date startdate, Date enddate) {
+    public String getStatisticsForVideo(String linkId, LocalDateTime startDate, LocalDateTime endDate) {
         // 해당 비디오와 기간에 맞는 데이터 조회
-        List<VideoHistory> statisticsList = VideoStatisticsEntityRepository.findByUploadVideo_YoutubeVideoIdAndUpdateDateBetween(youtubevideoId, startdate, enddate);
+        List<VideoHistory> statisticsList = videoHistoryRepository.findByUploadVideo_LinkIdAndUpdatedAtBetween(linkId, startDate, endDate);
 
         if (statisticsList.isEmpty()) {
             return "해당 비디오와 기간에 대한 통계 데이터가 없습니다.";
@@ -75,7 +74,7 @@ public class VideoStatisticsEntityService {
                         "최저 조회수: %d<br>" +
                         "최대 좋아요 수: %d<br>" +
                         "최저 좋아요 수: %d<br>",
-                startdate, enddate, youtubevideoId,
+                startDate, endDate, linkId,
                 averageViewCount, averageLikeCount, averageCommentCount,
                 maxViewCount, minViewCount,
                 maxLikeCount, minLikeCount

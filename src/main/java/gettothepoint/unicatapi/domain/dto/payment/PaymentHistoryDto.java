@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.domain.dto.payment;
 
-import gettothepoint.unicatapi.domain.entity.Payment;
+import gettothepoint.unicatapi.domain.entity.payment.Payment;
 import lombok.Builder;
 import lombok.Getter;
 

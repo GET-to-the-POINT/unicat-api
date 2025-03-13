@@ -16,7 +16,6 @@ public class OrderRequest {
     // 결제 상태
     private String status;
 
-
     private String subscriptionId;
     private PayType payMethod;
 }

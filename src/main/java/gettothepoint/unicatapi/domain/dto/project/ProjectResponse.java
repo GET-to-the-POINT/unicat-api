@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.domain.dto.project;
 
-import gettothepoint.unicatapi.domain.entity.Project;
+import gettothepoint.unicatapi.domain.entity.dashboard.Project;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -14,7 +14,7 @@ public record ProjectResponse (
 ) {
     public record ProjectDTO(String title, String subtitle, String imageUrl,String projectUrl) {
         public static ProjectDTO fromEntity(Project project) {
-            return new ProjectDTO(project.getTitle(), project.getSubtitle(), project.getImageUrl(), project.getProjectUrl());
+            return new ProjectDTO(project.getTitle(), project.getSubtitle(), project.getThumbnailUrl(), project.getVideoUrl());
         }
     }
 

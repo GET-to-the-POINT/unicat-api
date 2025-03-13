@@ -1,5 +1,6 @@
-package gettothepoint.unicatapi.domain.entity;
+package gettothepoint.unicatapi.domain.entity.member;
 
+import gettothepoint.unicatapi.domain.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -8,14 +9,13 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @Entity
-public class OAuthLink {
+public class OAuthLink extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String email;
-
     private String provider;
 
     @ManyToOne

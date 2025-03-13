@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.infrastructure.config;
 
-import gettothepoint.unicatapi.domain.entity.Project;
+import gettothepoint.unicatapi.domain.entity.dashboard.Project;
 import gettothepoint.unicatapi.domain.repository.ProjectRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +20,8 @@ public class DataLoader {
                     projectRepository.save(Project.builder()
                             .title("말랑 개인기" + i)
                             .subtitle("Brief description of project " + i)
-                            .imageUrl("https://example.com/images/project" + i + ".jpg")
-                            .projectUrl("https://example.com/videos/project" + i + ".mp4")
+                            .thumbnailUrl("https://example.com/images/project" + i + ".jpg")
+                            .videoUrl("https://example.com/videos/project" + i + ".mp4")
                             .build())
             );
         }
