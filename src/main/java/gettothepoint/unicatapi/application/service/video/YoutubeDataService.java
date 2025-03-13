@@ -16,16 +16,15 @@ import java.util.List;
 @Service
 public class YoutubeDataService {
 
-    private final YoutubeOAuth2Service youtubeoAuth2Service;  // OAuth2Service 의존성 주입
+    private final YoutubeOAuth2Service youtubeoAuth2Service;
 
     private YouTube getYouTubeService(OAuth2AccessToken accessToken) {
-        return youtubeoAuth2Service.getYouTubeService(accessToken);  // OAuth2Service를 통해 YouTube 서비스 생성
+        return youtubeoAuth2Service.getYouTubeService(accessToken);
     }
 
-    // YouTube 동영상 조회수, 좋아요 등을 가져오는 메서드
     public String getVideoData(String linkId, OAuth2AccessToken accessToken) {
         try {
-            YouTube youtubeService = getYouTubeService(accessToken);  // OAuth2 인증을 통해 서비스 객체 생성
+            YouTube youtubeService = getYouTubeService(accessToken);
 
             YouTube.Videos youtubeRequest = youtubeService.videos();
             YouTube.Videos.List youtubeVideos = youtubeRequest.list(List.of("statistics"));
@@ -33,9 +32,8 @@ public class YoutubeDataService {
 
             VideoListResponse response = youtubeVideos.execute();
 
-            // 동영상 정보 추출
             if (response.getItems() != null && !response.getItems().isEmpty()) {
-                Video video = response.getItems().get(0);
+                Video video = response.getItems().getFirst();
                 BigInteger viewCount = video.getStatistics().getViewCount();
                 BigInteger likeCount = video.getStatistics().getLikeCount();
                 BigInteger commentCount = video.getStatistics().getCommentCount();

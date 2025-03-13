@@ -44,7 +44,7 @@ public class YouTubeUploadController {
 
     @Operation(summary = "SSE를 통해 실시간 업로드 진행률 조회", description = "YouTube 업로드 진행률을 실시간으로 반환하는 SSE API")
     @GetMapping(value = "/{projectId}/progress", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<Double> UploadProgress(@PathVariable Long projectId) {
+    public Flux<Double>uploadProgress(@PathVariable Long projectId) {
         return Flux.interval(Duration.ofSeconds(1))
                 .map(i -> uploadProgressService.getProgress(projectId))
                 .takeUntil(progress -> progress >= 100.0);

@@ -27,7 +27,6 @@ public class VideoDataUpdateService {
     private final ProjectRepository projectRepository;
     private final OAuth2AuthorizedClientService authorizedClientService;
 
-    // 모든 비디오 업데이트 수행
     public void updateAllVideos(Long memberId) {
         OAuth2AccessToken accessToken = getAccessTokenFromAuthorizedClient(memberId);
         List<Project> projects = projectRepository.findProjectsWithUploadVideoByMemberId(memberId);
@@ -38,15 +37,12 @@ public class VideoDataUpdateService {
 
     @Transactional
     public void updateOrInsertVideoData(String linkId, OAuth2AccessToken accessToken) {
-        // 유튜브 API에서 통계 가져오기
         String statistics = youtubeDataService.getVideoData(linkId, accessToken);
-
         String[] parts = statistics.split(",");
         if (parts.length < 3) {
             throw new IllegalArgumentException("Invalid statistics format: " + statistics);
         }
 
-        // 숫자만 추출하는 함수 사용
         BigInteger viewCount = extractNumber(parts[0]);
         BigInteger likeCount = extractNumber(parts[1]);
         BigInteger commentCount = extractNumber(parts[2]);
@@ -65,23 +61,15 @@ public class VideoDataUpdateService {
         }
     }
 
-    // 숫자만 추출하는 유틸리티 메서드
     private BigInteger extractNumber(String text) {
-        return new BigInteger(text.replaceAll("[^0-9]", "")); // 숫자만 남기고 변환
+        return new BigInteger(text.replaceAll("\\D", ""));
     }
 
-
-    /**
-     * OAuth2AuthorizedClientService에서 액세스 토큰을 조회
-     * @param memberId 회원의 ID
-     * @return 해당 회원의 액세스 토큰
-     */
     private OAuth2AccessToken getAccessTokenFromAuthorizedClient(Long memberId) {
-        // memberId와 일치하는 클라이언트를 로드
         String principalName = memberId.toString();
 
         OAuth2AuthorizedClient authorizedClient = authorizedClientService
-                .loadAuthorizedClient("google", principalName); // "youtube"는 클라이언트 ID
+                .loadAuthorizedClient("google", principalName);
 
         if (authorizedClient == null) {
             throw new IllegalStateException("Access token not found for member " + memberId);
