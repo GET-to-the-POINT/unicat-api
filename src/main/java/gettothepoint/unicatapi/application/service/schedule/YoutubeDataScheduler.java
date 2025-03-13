@@ -12,6 +12,7 @@ import java.util.List;
 public class YoutubeDataScheduler {
 
     private final VideoDataUpdateService videoDataUpdateService;
+
     private final ProjectRepository projectRepository;
 
     @Scheduled(cron = "0 0 5 * * ?")

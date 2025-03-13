@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import gettothepoint.unicatapi.domain.entity.video.VideoHistory;
 import gettothepoint.unicatapi.domain.repository.video.VideoHistoryRepository;
-
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,16 +14,13 @@ public class VideoStatisticsEntityService {
 
     private final VideoHistoryRepository videoHistoryRepository;
 
-    // 특정 비디오에 대한 특정 기간의 통계 계산
     public String getStatisticsForVideo(String linkId, LocalDateTime startDate, LocalDateTime endDate) {
-        // 해당 비디오와 기간에 맞는 데이터 조회
         List<VideoHistory> statisticsList = videoHistoryRepository.findByUploadVideo_LinkIdAndUpdatedAtBetween(linkId, startDate, endDate);
 
         if (statisticsList.isEmpty()) {
             return "해당 비디오와 기간에 대한 통계 데이터가 없습니다.";
         }
 
-        // 각 통계 값 계산
         BigInteger totalViewCount = BigInteger.ZERO;
         BigInteger totalLikeCount = BigInteger.ZERO;
         BigInteger totalCommentCount = BigInteger.ZERO;
@@ -35,13 +31,11 @@ public class VideoStatisticsEntityService {
         BigInteger maxLikeCount = BigInteger.ZERO;
         BigInteger minLikeCount = BigInteger.valueOf(Long.MAX_VALUE);
 
-        // 통계 계산
         for (VideoHistory videoStat : statisticsList) {
             totalViewCount = totalViewCount.add(videoStat.getViewCount());
             totalLikeCount = totalLikeCount.add(videoStat.getLikeCount());
             totalCommentCount = totalCommentCount.add(videoStat.getCommentCount());
 
-            // 최대/최소 조회수
             if (videoStat.getViewCount().compareTo(maxViewCount) > 0) {
                 maxViewCount = videoStat.getViewCount();
             }
@@ -49,7 +43,6 @@ public class VideoStatisticsEntityService {
                 minViewCount = videoStat.getViewCount();
             }
 
-            // 최대/최소 좋아요 수
             if (videoStat.getLikeCount().compareTo(maxLikeCount) > 0) {
                 maxLikeCount = videoStat.getLikeCount();
             }
@@ -58,12 +51,10 @@ public class VideoStatisticsEntityService {
             }
         }
 
-        // 평균 조회수, 좋아요 수 계산
         BigInteger averageViewCount = totalViewCount.divide(BigInteger.valueOf(statisticsList.size()));
         BigInteger averageLikeCount = totalLikeCount.divide(BigInteger.valueOf(statisticsList.size()));
         BigInteger averageCommentCount = totalCommentCount.divide(BigInteger.valueOf(statisticsList.size()));
 
-        // 결과 문자열 생성
         return String.format(
                 "기간: %s ~ %s<br>" +
                         "비디오 ID: %s<br>" +

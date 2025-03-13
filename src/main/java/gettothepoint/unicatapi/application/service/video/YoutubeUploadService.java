@@ -34,17 +34,14 @@ public class YoutubeUploadService {
     private final UploadProgressService uploadProgressService;
 
     public void uploadVideo(Long projectId, OAuth2AccessToken accessToken, String title, String description, String visibility) {
-        log.info("업로드 요청 수신 - projectId: {}", projectId);
 
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> {
-                    log.error("Video not found for ID: {}", projectId);
                     return new ResponseStatusException(HttpStatus.NOT_FOUND, "Video not found for ID: " + projectId);
                 });
 
         File videoFile = new File(project.getVideoUrl());
         if (!videoFile.exists() || !videoFile.isFile()) {
-            log.error("Video file not found at path: {}", project.getVideoUrl());
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Video file not found at path: " + project.getVideoUrl());
         }
 
