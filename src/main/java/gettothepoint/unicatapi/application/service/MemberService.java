@@ -7,6 +7,7 @@ import gettothepoint.unicatapi.domain.repository.OAuthLinkRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -17,6 +18,7 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final OAuthLinkRepository oAuthLinkRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public Member create(String email, String password) {
         if (email == null || password == null) {
@@ -68,6 +70,11 @@ public class MemberService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member not found"));
 
         member.verified();
+        memberRepository.save(member);
+    }
+    public void updatePassword(String email, String newPassword) {
+        Member member = findByEmail(email);
+        member.setPassword(passwordEncoder.encode(newPassword));
         memberRepository.save(member);
     }
 }
