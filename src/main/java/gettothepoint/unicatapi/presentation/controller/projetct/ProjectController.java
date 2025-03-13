@@ -38,8 +38,14 @@ public class ProjectController {
        return sectionService.createSection(projectId);
     }
 
-    @PostMapping(value="/{sectionId}/upload-image", consumes = "multipart/form-data")
+    @PostMapping(value="/{sectionId}/image", consumes = "multipart/form-data")
     public StorageUpload uploadImage(@PathVariable Long sectionId, @RequestParam("file") MultipartFile file) {
         return sectionService.uploadImage(sectionId, file);
     }
+
+    @PostMapping("/{sectionId}/script")
+    public void uploadScript(@PathVariable Long sectionId, @RequestBody String script) {
+        sectionService.uploadScript(sectionId, script);
+    }
+
 }

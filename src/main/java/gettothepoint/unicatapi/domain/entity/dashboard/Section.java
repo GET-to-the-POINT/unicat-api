@@ -19,7 +19,8 @@ public class Section extends BaseEntity {
     @Setter
     private String uploadImageUrl;
 
-    @Lob
+    @Setter
+    @Column(columnDefinition = "TEXT")
     private String script;
 
     private Long sortOrder;

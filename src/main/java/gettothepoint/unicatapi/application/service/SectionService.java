@@ -50,4 +50,12 @@ public class SectionService {
 
         return storageUpload;
     }
+
+    public void uploadScript(Long sectionId, String script) {
+        Section section = sectionRepository.findById(sectionId)
+                .orElseThrow(() -> new EntityNotFoundException("Section not found with id: " + sectionId));
+
+        section.setScript(script);
+        sectionRepository.save(section);
+    }
 }
