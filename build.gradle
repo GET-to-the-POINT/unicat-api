@@ -66,8 +66,11 @@ dependencies {
 	implementation 'com.google.http-client:google-http-client-jackson2:1.39.2'
 	implementation 'com.google.apis:google-api-services-youtube:v3-rev20230816-2.0.0'
 	implementation 'com.google.apis:google-api-services-youtubeAnalytics:v2-rev272-1.25.0'
-	implementation 'com.google.auth:google-auth-library-oauth2-http:1.10.0'
-	}
+	implementation 'com.google.auth:google-auth-library-oauth2-http:1.33.1'
+
+	// ===== TTS =====
+	implementation 'com.google.cloud:google-cloud-texttospeech:2.60.0'
+}
 
 tasks.named('test') {
 	useJUnitPlatform()
