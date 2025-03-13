@@ -1,5 +1,6 @@
 package gettothepoint.unicatapi.application.service;
 
+import gettothepoint.unicatapi.application.service.email.EmailService;
 import gettothepoint.unicatapi.common.util.JwtUtil;
 import gettothepoint.unicatapi.domain.dto.sign.SignInDto;
 import gettothepoint.unicatapi.domain.dto.sign.SignUpDto;
@@ -23,11 +24,13 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final MessageSource messageSource;
     private final MemberService memberService;
+    private final EmailService emailService;
 
     public void signUp(SignUpDto signUpDto, HttpServletResponse response) {
         validateEmail(signUpDto.email());
         Member member = createMember(signUpDto.email(), signUpDto.password());
         String token = generateAndAddJwtToken(response, member);
+        emailService.sendVerificationEmail(member.getEmail(),member.getId());
     }
 
     public void signIn(SignInDto signInDto, HttpServletResponse response) {
