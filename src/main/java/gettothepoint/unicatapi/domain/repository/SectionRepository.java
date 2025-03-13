@@ -11,4 +11,6 @@ import java.util.List;
 public interface SectionRepository extends JpaRepository<Section, Long> {
 
     List<Section> findAllByProject(Project project);
+
+    List<Section> findAllByProjectIdOrderBySortOrderAsc(Long projectId);
 }

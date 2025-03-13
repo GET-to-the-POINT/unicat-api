@@ -3,12 +3,16 @@ package gettothepoint.unicatapi.presentation.controller.projetct;
 import gettothepoint.unicatapi.application.service.ProjectService;
 import gettothepoint.unicatapi.application.service.SectionService;
 import gettothepoint.unicatapi.domain.dto.project.ProjectResponse;
+import gettothepoint.unicatapi.domain.dto.project.SectionRequest;
+import gettothepoint.unicatapi.domain.dto.project.SectionResponse;
 import gettothepoint.unicatapi.domain.dto.storage.StorageUpload;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/project")
@@ -46,6 +50,16 @@ public class ProjectController {
     @PostMapping("/{sectionId}/script")
     public void uploadScript(@PathVariable Long sectionId, @RequestBody String script) {
         sectionService.uploadScript(sectionId, script);
+    }
+
+    @GetMapping("/{projectId}")
+    public List<SectionResponse> getAllSections(@PathVariable Long projectId) {
+        return projectService.getAllSections(projectId);
+    }
+
+    @PostMapping("/{projectId}")
+    public void createVideo(@PathVariable Long projectId, @RequestBody List<SectionRequest> sectionRequests) {
+        projectService.createVideo(sectionRequests);
     }
 
 }

@@ -24,6 +24,8 @@ public class Section extends BaseEntity {
     private String script;
 
     private Long sortOrder;
+
+    @Setter
     private String ttsUrl;
 
     @ManyToOne
