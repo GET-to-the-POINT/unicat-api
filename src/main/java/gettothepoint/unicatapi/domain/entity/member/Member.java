@@ -26,6 +26,9 @@ public class Member extends BaseEntity {
     @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false)
+    private boolean verified = false;
+
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<Order> orders = new ArrayList<>();
 
@@ -39,5 +42,9 @@ public class Member extends BaseEntity {
     public Member(String email, String password) {
         this.email = email;
         this.password = password;
+    }
+
+    public void verified() {
+        this.verified = true;
     }
 }
