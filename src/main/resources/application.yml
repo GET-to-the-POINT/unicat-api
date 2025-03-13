@@ -34,6 +34,10 @@ spring:
           connectiontimeout: ${SPRING_MAIL_CONNECTION_TIMEOUT:5000}
           timeout: ${SPRING_MAIL_TIMEOUT:5000}
           writetimeout: ${SPRING_MAIL_WRITE_TIMEOUT:5000}
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
 
 springdoc:
   swagger-ui:
@@ -76,6 +80,9 @@ app:
     allowed-headers: [ "*" ]
     allow-credentials: true
     max-age: 3600
+  tts:
+    file-path: "/Users/wooyeon/Desktop/"
+    file-extension: ".mp3"
 
 server:
   port: 443
