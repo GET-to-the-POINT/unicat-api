@@ -1,4 +1,4 @@
-package gettothepoint.unicatapi.infrastructure.security.oauth2ResourceServer;
+package gettothepoint.unicatapi.infrastructure.security.oauth2.resourceserver;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

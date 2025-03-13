@@ -1,4 +1,4 @@
-package gettothepoint.unicatapi.infrastructure.security.oAuth2Client.authorizedClient;
+package gettothepoint.unicatapi.infrastructure.security.oauth2.client.authorizedclient;
 
 import gettothepoint.unicatapi.common.util.CookieUtil;
 import jakarta.servlet.http.Cookie;

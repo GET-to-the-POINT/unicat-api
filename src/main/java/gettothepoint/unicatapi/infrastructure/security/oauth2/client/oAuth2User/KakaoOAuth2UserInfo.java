@@ -1,4 +1,4 @@
-package gettothepoint.unicatapi.infrastructure.security.oAuth2Client.oAuth2User;
+package gettothepoint.unicatapi.infrastructure.security.oauth2.client.oAuth2User;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

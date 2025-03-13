@@ -1,8 +1,8 @@
-package gettothepoint.unicatapi.infrastructure.security.oAuth2Client;
+package gettothepoint.unicatapi.infrastructure.security.oauth2.client;
 
 import gettothepoint.unicatapi.common.util.CookieUtil;
 import gettothepoint.unicatapi.common.util.JwtUtil;
-import gettothepoint.unicatapi.infrastructure.security.oAuth2Client.authorizedClient.HttpCookieOAuth2AuthorizationRequestRepository;
+import gettothepoint.unicatapi.infrastructure.security.oauth2.client.authorizedclient.HttpCookieOAuth2AuthorizationRequestRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

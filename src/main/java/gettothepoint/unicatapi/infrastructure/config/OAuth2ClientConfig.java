@@ -7,7 +7,7 @@ import org.springframework.security.oauth2.client.*;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
-import gettothepoint.unicatapi.infrastructure.security.oAuth2Client.CustomJdbcOAuth2AuthorizedClientService;
+import gettothepoint.unicatapi.infrastructure.security.oauth2.client.CustomJdbcOAuth2AuthorizedClientService;
 
 @Configuration
 public class OAuth2ClientConfig {
