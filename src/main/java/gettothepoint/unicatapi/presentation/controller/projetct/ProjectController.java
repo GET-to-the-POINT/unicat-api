@@ -62,7 +62,7 @@ public class ProjectController {
         projectService.createVideo(sectionRequests);
     }
 
-    @PostMapping("/{sectionId}/updateOrder")
+    @PostMapping("/{sectionId}/order")
     public Long updateSectionOrder(@PathVariable Long sectionId, @RequestBody int newOrder) {
         return sectionService.updateSectionSortOrder(sectionId, newOrder);
     }
