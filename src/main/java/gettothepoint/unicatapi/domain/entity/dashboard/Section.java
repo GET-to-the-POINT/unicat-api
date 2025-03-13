@@ -28,7 +28,6 @@ public class Section extends BaseEntity {
 
     @Setter
     private String ttsUrl;
-    private Long sortOrder;
 
     @ManyToOne
     @JoinColumn
