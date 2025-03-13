@@ -1,7 +1,8 @@
 package gettothepoint.unicatapi.infrastructure.security.oAuth2Client;
 
+import gettothepoint.unicatapi.common.util.CookieUtil;
 import gettothepoint.unicatapi.common.util.JwtUtil;
-import jakarta.servlet.ServletException;
+import gettothepoint.unicatapi.infrastructure.security.oAuth2Client.authorizedClient.HttpCookieOAuth2AuthorizationRequestRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,7 @@ public class CustomOAuth2AuthenticationSuccessHandler extends SimpleUrlAuthentic
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
-            throws IOException, ServletException {
+            throws IOException {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
 
         Long memberId = oAuth2User.getAttribute("memberId");
@@ -30,6 +31,10 @@ public class CustomOAuth2AuthenticationSuccessHandler extends SimpleUrlAuthentic
         String token = jwtUtil.generateJwtToken(memberId, email);
         jwtUtil.addJwtCookie(response, token);
 
-        super.onAuthenticationSuccess(request, response, authentication);
+        String redirectUri = CookieUtil.getCookieValue(request, HttpCookieOAuth2AuthorizationRequestRepository.REDIRECT_URI)
+                .orElse("/");
+        CookieUtil.deleteCookie(request, response, HttpCookieOAuth2AuthorizationRequestRepository.REDIRECT_URI);
+
+        getRedirectStrategy().sendRedirect(request, response, redirectUri);
     }
 }
