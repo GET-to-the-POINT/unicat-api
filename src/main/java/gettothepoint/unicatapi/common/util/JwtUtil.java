@@ -54,7 +54,7 @@ public class JwtUtil {
                 .claim("email", email)
                 .claim("scope", "all")
                 .issuedAt(now)
-                .expiresAt(now.plus(30, ChronoUnit.SECONDS))
+                .expiresAt(now.plus(appProperties.jwt().cookie().maxAge(), ChronoUnit.SECONDS))
                 .build();
 
         JwtEncoderParameters parameters = JwtEncoderParameters.from(

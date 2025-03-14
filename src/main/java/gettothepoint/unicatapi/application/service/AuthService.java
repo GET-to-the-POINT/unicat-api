@@ -30,9 +30,8 @@ public class AuthService {
     public void signUp(SignUpDto signUpDto, HttpServletResponse response) {
         validateEmail(signUpDto.email());
         Member member = createMember(signUpDto.email(), signUpDto.password());
-        String token = generateAndAddJwtToken(response, member);
-        String verificationToken = jwtUtil.generateJwtToken(member.getId(), member.getEmail());
-        emailService.sendVerificationEmail(member.getEmail(),verificationToken );
+        generateAndAddJwtToken(response, member);
+        emailService.sendVerificationEmail(member);
     }
 
     public void signIn(SignInDto signInDto, HttpServletResponse response) {
@@ -78,7 +77,10 @@ public class AuthService {
                 .filter(m -> !m.isVerified())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "인증할 수 없는 이메일입니다."));
 
-        String newToken = jwtUtil.generateJwtToken(member.getId(), email);
-        emailService.sendVerificationEmail(email, newToken);
+        if (member.isVerified()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 인증된 이메일입니다.");
+        }
+
+        emailService.sendVerificationEmail(member);
     }
 }
