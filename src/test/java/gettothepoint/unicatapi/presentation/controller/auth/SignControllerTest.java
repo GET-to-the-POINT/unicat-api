@@ -1,6 +1,10 @@
-package gettothepoint.unicatapi.mvc.controller;
+package gettothepoint.unicatapi.presentation.controller.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import gettothepoint.unicatapi.application.service.AuthService;
+import gettothepoint.unicatapi.application.service.MemberService;
+import gettothepoint.unicatapi.domain.dto.sign.SignInDto;
+import gettothepoint.unicatapi.domain.dto.sign.SignUpDto;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -18,10 +22,6 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.server.ResponseStatusException;
-import gettothepoint.unicatapi.domain.dto.sign.SignInDto;
-import gettothepoint.unicatapi.domain.dto.sign.SignUpDto;
-import gettothepoint.unicatapi.application.service.AuthService;
-import gettothepoint.unicatapi.presentation.controller.auth.SignController;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -47,6 +47,12 @@ class SignControllerTest {
         public AuthService authService() {
             return Mockito.mock(AuthService.class);
         }
+
+        @Bean
+        public MemberService memberService() {
+            return Mockito.mock(MemberService.class);
+        }
+
         @Bean
         public SecurityFilterChain testSecurityFilterChain(HttpSecurity http) throws Exception {
             http.csrf(AbstractHttpConfigurer::disable)
@@ -56,12 +62,12 @@ class SignControllerTest {
     }
 
     @Nested
-    @DisplayName("SignUp Test Cases")
+    @DisplayName("회원가입 테스트 케이스")
     class SignUpTest {
         @Test
-        @DisplayName("Valid Sign Up")
+        @DisplayName("유효한 회원가입")
         void testSignUpWithValidData() throws Exception {
-            SignUpDto signUpDto = SignUpDto.builder().email("test@example.com").password("password").confirmPassword("password").build();
+            SignUpDto signUpDto = SignUpDto.builder().email("test@example.com").password("Password1@").confirmPassword("Password1@").build();
             doNothing().when(authService).signUp(any(SignUpDto.class), any(HttpServletResponse.class));
             mockMvc.perform(post("/sign-up")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -69,7 +75,7 @@ class SignControllerTest {
                     .andExpect(status().isCreated());
         }
         @Test
-        @DisplayName("Empty Data Sign Up")
+        @DisplayName("빈 데이터 회원가입")
         void testSignUpWithEmptyData() throws Exception {
             SignUpDto signUpDto = SignUpDto.builder().build();
             doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email and password are required"))
@@ -80,7 +86,7 @@ class SignControllerTest {
                     .andExpect(status().isBadRequest());
         }
         @Test
-        @DisplayName("Missing Email Sign Up")
+        @DisplayName("이메일 누락 회원가입")
         void testSignUpWithMissingEmail() throws Exception {
             SignUpDto signUpDto = SignUpDto.builder().password("password").confirmPassword("password").build();
             doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is required"))
@@ -91,7 +97,7 @@ class SignControllerTest {
                     .andExpect(status().isBadRequest());
         }
         @Test
-        @DisplayName("Missing Password Sign Up")
+        @DisplayName("비밀번호 누락 회원가입")
         void testSignUpWithMissingPassword() throws Exception {
             SignUpDto signUpDto = SignUpDto.builder().email("test@example.com").confirmPassword("password").build();
             doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password is required"))
@@ -102,9 +108,9 @@ class SignControllerTest {
                     .andExpect(status().isBadRequest());
         }
         @Test
-        @DisplayName("Duplicate Email Sign Up")
+        @DisplayName("중복 이메일 회원가입")
         void testSignUpWithDuplicateEmail() throws Exception {
-            SignUpDto signUpDto = SignUpDto.builder().email("duplicate@example.com").password("password").confirmPassword("password").build();
+            SignUpDto signUpDto = SignUpDto.builder().email("duplicate@example.com").password("Password1@").confirmPassword("Password1@").build();
             doThrow(new ResponseStatusException(HttpStatus.CONFLICT, "Email is already in use"))
                     .when(authService).signUp(any(SignUpDto.class), any(HttpServletResponse.class));
             mockMvc.perform(post("/sign-up")
@@ -113,7 +119,7 @@ class SignControllerTest {
                     .andExpect(status().isConflict());
         }
         @Test
-        @DisplayName("Password Mismatch Sign Up")
+        @DisplayName("비밀번호 불일치 회원가입")
         void testSignUpWithPasswordMismatch() throws Exception {
             SignUpDto signUpDto = SignUpDto.builder().email("test@example.com").password("password").confirmPassword("differentPassword").build();
             doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Passwords do not match"))
@@ -126,10 +132,10 @@ class SignControllerTest {
     }
 
     @Nested
-    @DisplayName("SignIn Test Cases")
+    @DisplayName("로그인 테스트 케이스")
     class SignInTest {
         @Test
-        @DisplayName("Valid Sign In")
+        @DisplayName("유효한 로그인")
         void testSignInWithValidData() throws Exception {
             SignInDto signInDto = SignInDto.builder().email("test@example.com").password("password").build();
             doNothing().when(authService).signIn(any(SignInDto.class), any(HttpServletResponse.class));
@@ -139,7 +145,7 @@ class SignControllerTest {
                     .andExpect(status().isOk());
         }
         @Test
-        @DisplayName("Missing Email Sign In")
+        @DisplayName("이메일 누락 로그인")
         void testSignInWithMissingEmail() throws Exception {
             SignInDto signInDto = SignInDto.builder().password("password").build();
             doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is required"))
@@ -150,7 +156,7 @@ class SignControllerTest {
                     .andExpect(status().isBadRequest());
         }
         @Test
-        @DisplayName("Missing Password Sign In")
+        @DisplayName("비밀번호 누락 로그인")
         void testSignInWithMissingPassword() throws Exception {
             SignInDto signInDto = SignInDto.builder().email("test@example.com").build();
             doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password is required"))
@@ -161,7 +167,7 @@ class SignControllerTest {
                     .andExpect(status().isBadRequest());
         }
         @Test
-        @DisplayName("Invalid Credentials Sign In")
+        @DisplayName("잘못된 자격 증명 로그인")
         void testSignInWithInvalidCredentials() throws Exception {
             SignInDto signInDto = SignInDto.builder().email("test@example.com").password("wrongpassword").build();
             doThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password"))

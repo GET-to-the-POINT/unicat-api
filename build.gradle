@@ -57,7 +57,7 @@ dependencies {
 	testImplementation 'org.assertj:assertj-core:3.26.3'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
+	testImplementation 'com.h2database:h2'
 
 	// ===== Youtube  =====
 	implementation 'com.google.api-client:google-api-client:1.34.0'
