@@ -1,7 +1,6 @@
-package gettothepoint.unicatapi.mvc.controller;
+package gettothepoint.unicatapi.presentation.controller;
 import gettothepoint.unicatapi.application.service.storage.FileStorageService;
 import gettothepoint.unicatapi.common.util.JwtUtil;
-import gettothepoint.unicatapi.presentation.controller.StorageController;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
