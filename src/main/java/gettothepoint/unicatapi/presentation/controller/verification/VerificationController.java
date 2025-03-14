@@ -27,16 +27,19 @@ public class VerificationController {
         String email = jwtUtil.getEmailFromToken(token);
         memberService.verifyEmail(email);
     }
+
     @PostMapping("/email/resend")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void resendVerificationEmail(@RequestParam("token") String expiredToken) {
         authService.resendVerificationEmailFromExpiredToken(expiredToken);
     }
+
     @PostMapping("/password/reset-request")
     public ResponseEntity<Void> requestPasswordReset(@RequestParam String email) {
         passwordService.sendPasswordResetEmail(email);
         return ResponseEntity.noContent().build();
     }
+
     @PostMapping("/password/reset")
     public ResponseEntity<Void> resetPassword(@RequestParam String email,
                                               @Valid @ModelAttribute ChangePasswordDto changePasswordDto) {
