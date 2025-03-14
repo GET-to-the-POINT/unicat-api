@@ -13,6 +13,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -30,7 +31,8 @@ public class AuthService {
         validateEmail(signUpDto.email());
         Member member = createMember(signUpDto.email(), signUpDto.password());
         String token = generateAndAddJwtToken(response, member);
-        emailService.sendVerificationEmail(member.getEmail(),member.getId());
+        String verificationToken = jwtUtil.generateJwtToken(member.getId(), member.getEmail());
+        emailService.sendVerificationEmail(member.getEmail(),verificationToken );
     }
 
     public void signIn(SignInDto signInDto, HttpServletResponse response) {
@@ -66,5 +68,17 @@ public class AuthService {
         String token = jwtUtil.generateJwtToken(member.getId(), member.getEmail());
         jwtUtil.addJwtCookie(response, token);
         return token;
+    }
+
+    @Transactional
+    public void resendVerificationEmailFromExpiredToken(String expiredToken) {
+        String email = jwtUtil.getEmailFromExpiredToken(expiredToken);
+
+        Member member = memberRepository.findByEmail(email)
+                .filter(m -> !m.isVerified())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "인증할 수 없는 이메일입니다."));
+
+        String newToken = jwtUtil.generateJwtToken(member.getId(), email);
+        emailService.sendVerificationEmail(email, newToken);
     }
 }

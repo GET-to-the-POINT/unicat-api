@@ -27,7 +27,6 @@ public class EmailService {
 
     private final JavaMailSender emailSender;
     private final AppProperties appProperties;
-    private final JwtUtil jwtUtil;
 
     public void sendEmail(String toEmail, String title, String content) {
         MimeMessage message = emailSender.createMimeMessage();
@@ -66,24 +65,25 @@ public class EmailService {
             }
         }
     }
-    public String createVerificationLink(String email, Long memberId) {
-        String token = jwtUtil.generateJwtToken(memberId, email);
+    public String createVerificationLink(String token) {
         String baseUrl = UrlUtil.buildBaseUrl(appProperties.api());
-
-        return String.format("%s/email/verifyEmail?token=%s", baseUrl, URLEncoder.encode(token, StandardCharsets.UTF_8));
+        return String.format("%s/email/verifyEmail?token=%s",
+                baseUrl, URLEncoder.encode(token, StandardCharsets.UTF_8));
     }
 
-    public void sendVerificationEmail(String email, Long memberId) {
-        String verifyUrl = createVerificationLink(email, memberId);
+    public void sendVerificationEmail(String email, String token) {
+        String verifyUrl = createVerificationLink(token);
         String title = "Unicat 회원 가입 인증 이메일입니다.";
-        String content = String.format(
-                "<html>" +
-                        "<body>" +
-                        "<h1>Unicat 인증 이메일입니다.</h1>" +
-                        "<p>아래 링크를 클릭하시면 회원 인증이 완료됩니다.</p>" +
-                        "<a href=\"%s\">회원 인증하기</a>" +
-                        "</body>" +
-                        "</html>", verifyUrl);
+        String content = String.format("""
+            <html>
+            <body>
+                <h1>Unicat 인증 이메일입니다.</h1>
+                <p>아래 링크를 클릭하시면 회원 인증이 완료됩니다.</p>
+                <a href="%s">회원 인증하기</a>
+            </body>
+            </html>
+            """, verifyUrl);
+
         sendEmail(email, title, content);
     }
 }

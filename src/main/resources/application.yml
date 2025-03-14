@@ -52,7 +52,7 @@ app:
       secure: ${APP_JWT_COOKIE_SECURE:true}
       httpOnly: ${APP_JWT_COOKIE_HTTP_ONLY:true}
       sameSite: ${APP_JWT_COOKIE_SAME_SITE:Lax}
-      maxAge: ${APP_JWT_COOKIE_MAX_AGE:604800}
+      maxAge: ${APP_JWT_COOKIE_MAX_AGE:30}
   api:
     protocol: https
     domain: api.unicat.day
