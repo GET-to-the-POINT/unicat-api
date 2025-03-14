@@ -1,17 +1,20 @@
 package gettothepoint.unicatapi.common.util;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import gettothepoint.unicatapi.common.propertie.AppProperties;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.oauth2.jwt.JwsHeader;
-import org.springframework.security.oauth2.jwt.JwtClaimsSet;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Base64;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -19,6 +22,8 @@ public class JwtUtil {
 
     private final AppProperties appProperties;
     private final JwtEncoder jwtEncoder;
+    private final JwtDecoder jwtDecoder;
+    private final ObjectMapper objectMapper;
 
     public void addJwtCookie(HttpServletResponse response, String token) {
         Cookie jwtCookie = this.createJwtCookie(token);
@@ -60,5 +65,29 @@ public class JwtUtil {
         );
 
         return jwtEncoder.encode(parameters).getTokenValue();
+    }
+
+    public String getEmailFromToken(String token) {
+        try {
+            Jwt decodedJwt = jwtDecoder.decode(token);
+            return decodedJwt.getClaim("email");
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다.");
+        }
+    }
+
+    public String getEmailFromExpiredToken(String token) {
+        try {
+            String payload = token.split("\\.")[1];
+
+            Map<String, Object> claims = objectMapper.readValue(
+                    Base64.getUrlDecoder().decode(payload),
+                    new TypeReference<>() {}
+            );
+
+            return claims.get("email").toString();
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다.");
+        }
     }
 }

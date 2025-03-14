@@ -1,5 +1,6 @@
 package gettothepoint.unicatapi.application.service;
 
+import gettothepoint.unicatapi.application.service.email.EmailService;
 import gettothepoint.unicatapi.common.util.JwtUtil;
 import gettothepoint.unicatapi.domain.dto.sign.SignInDto;
 import gettothepoint.unicatapi.domain.dto.sign.SignUpDto;
@@ -12,6 +13,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -23,11 +25,13 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final MessageSource messageSource;
     private final MemberService memberService;
+    private final EmailService emailService;
 
     public void signUp(SignUpDto signUpDto, HttpServletResponse response) {
         validateEmail(signUpDto.email());
         Member member = createMember(signUpDto.email(), signUpDto.password());
-        String token = generateAndAddJwtToken(response, member);
+        generateAndAddJwtToken(response, member);
+        emailService.sendVerificationEmail(member);
     }
 
     public void signIn(SignInDto signInDto, HttpServletResponse response) {
@@ -63,5 +67,20 @@ public class AuthService {
         String token = jwtUtil.generateJwtToken(member.getId(), member.getEmail());
         jwtUtil.addJwtCookie(response, token);
         return token;
+    }
+
+    @Transactional
+    public void resendVerificationEmailFromExpiredToken(String expiredToken) {
+        String email = jwtUtil.getEmailFromExpiredToken(expiredToken);
+
+        Member member = memberRepository.findByEmail(email)
+                .filter(m -> !m.isVerified())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "인증할 수 없는 이메일입니다."));
+
+        if (member.isVerified()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 인증된 이메일입니다.");
+        }
+
+        emailService.sendVerificationEmail(member);
     }
 }
