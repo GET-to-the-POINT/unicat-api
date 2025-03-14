@@ -19,12 +19,10 @@ public class UniqueEmailValidator implements ConstraintValidator<UniqueEmail, St
 
     @Override
     public boolean isValid(String email, ConstraintValidatorContext context) {
-        // 이메일이 비어 있으면 다른 검증으로 처리하므로 true 반환
+
         if (email == null || email.isEmpty()) {
             return true;
         }
-
-        // 이메일 중복 여부 확인
         return !memberService.isEmailTaken(email);
     }
 }

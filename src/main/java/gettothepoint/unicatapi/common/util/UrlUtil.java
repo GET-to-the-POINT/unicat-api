@@ -1,9 +1,12 @@
 package gettothepoint.unicatapi.common.util;
 
 import gettothepoint.unicatapi.common.propertie.AppProperties;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.springframework.web.util.UriComponentsBuilder;
 
-public class UrlUtil {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public  class UrlUtil {
 
     public static String buildBaseUrl(AppProperties.Api api) {
         return UriComponentsBuilder.newInstance()

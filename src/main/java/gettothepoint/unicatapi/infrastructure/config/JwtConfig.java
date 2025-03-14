@@ -73,7 +73,7 @@ public class JwtConfig {
     public JwtEncoder jwtEncoder() {
         RSAKey rsaKey = new RSAKey.Builder(publicKey)
                 .privateKey(privateKey)
-                .keyID(appProperties.jwt().keyId()) // 키 ID 설정
+                .keyID(appProperties.jwt().keyId())
                 .build();
         JWKSource<SecurityContext> jwkSource = new ImmutableJWKSet<>(new JWKSet(rsaKey));
         return new NimbusJwtEncoder(jwkSource);

@@ -45,6 +45,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/sign-in", "/sign-up").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/sign-out").permitAll()
                         .requestMatchers(HttpMethod.GET, "/oauth-links").permitAll()
+                        .requestMatchers("/verification/email", "/verification/email/resend").permitAll()
 
                         .anyRequest().authenticated()
                 )
