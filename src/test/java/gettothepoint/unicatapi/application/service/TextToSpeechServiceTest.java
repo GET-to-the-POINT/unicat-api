@@ -1,6 +1,5 @@
-package gettothepoint.unicatapi.mvc.service;
+package gettothepoint.unicatapi.application.service;
 
-import gettothepoint.unicatapi.application.service.TextToSpeechService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -1,4 +1,4 @@
-package gettothepoint.unicatapi.infrastructure.security.oauth2.client.oAuth2User;
+package gettothepoint.unicatapi.infrastructure.security.oauth2.client.user;
 
 import java.util.Map;
 

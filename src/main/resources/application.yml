@@ -11,9 +11,9 @@ spring:
     locale: ko
     locale-resolver: accept-header
   datasource:
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/postgres}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
 
   profiles:
@@ -34,6 +34,10 @@ spring:
           connectiontimeout: ${SPRING_MAIL_CONNECTION_TIMEOUT:5000}
           timeout: ${SPRING_MAIL_TIMEOUT:5000}
           writetimeout: ${SPRING_MAIL_WRITE_TIMEOUT:5000}
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
 
 springdoc:
   swagger-ui:
@@ -42,12 +46,12 @@ springdoc:
 app:
   name: unicat-api
   jwt:
-    private-key: ${APP_JWT_PRIVATE_KEY}
-    public-key: ${APP_JWT_PUBLIC_KEY}
-    key-id: ${APP_JWT_KEY_ID}
+    private-key: ${APP_JWT_PRIVATE_KEY:classpath:unicat.day/unicat.day.key}
+    public-key: ${APP_JWT_PUBLIC_KEY:classpath:unicat.day/unicat.day.pub}
+    key-id: ${APP_JWT_KEY_ID:rsa-key-id}
     cookie:
       name: Authorization
-      domain: ${APP_JWT_COOKIE_DOMAIN}
+      domain: ${APP_JWT_COOKIE_DOMAIN:unicat.day}
       path: /
       secure: ${APP_JWT_COOKIE_SECURE:true}
       httpOnly: ${APP_JWT_COOKIE_HTTP_ONLY:true}
@@ -58,10 +62,10 @@ app:
     domain: api.unicat.day
     port: 443
   toss:
-    client-key: ${APP_TOSS_CLIENT_KEY}
-    secret-key: ${APP_TOSS_SECRET_KEY}
-    confirm-url: ${APP_TOSS_CONFIRM_URL}
-    cancel-url: ${APP_TOSS_CANCEL_URL}
+    client-key: ${APP_TOSS_CLIENT_KEY:test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm} # 토스거 공개적으로 제공하는 키
+    secret-key: ${APP_TOSS_SECRET_KEY:test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6} # 토스가 공개적으로 제공하는 키
+    confirm-url: ${APP_TOSS_CONFIRM_URL:https://api.tosspayments.com/v1/payments/confirm}
+    cancel-url: ${APP_TOSS_CANCEL_URL:https://api.tosspayments.com/v1/payments/}
   email:
     from: ${APP_MAIL_MAIL_FROM}
     from-name: ${APP_MAIL_MAIL_FROM_NAME}
@@ -71,21 +75,24 @@ app:
     storage:
       bucket: media
   cors:
-    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS}
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:["https://unicat.day"]}
     allowed-methods: [ "GET", "POST", "PUT", "DELETE", "OPTIONS" ]
     allowed-headers: [ "*" ]
     allow-credentials: true
     max-age: 3600
+  tts:
+    file-path: "/Users/wooyeon/Desktop/"
+    file-extension: ".mp3"
 
 server:
   port: 443
   http2:
     enabled: true
   ssl:
-    key-store: ${APP_SSL_KEY_STORE}
+    key-store: ${APP_SSL_KEY_STORE:classpath:unicat.day/unicat.day.p12}
     key-store-type: ${APP_SSL_KEY_STORE_TYPE:PKCS12}
-    key-store-password: ${APP_SSL_KEY_STORE_PASSWORD}
-    key-alias: ${APP_SSL_KEY_ALIAS}
+    key-store-password: ${APP_SSL_KEY_STORE_PASSWORD:unicat.day}
+    key-alias: ${APP_SSL_KEY_ALIAS:unicat.day}
   error:
     include-exception: true
     include-binding-errors: always

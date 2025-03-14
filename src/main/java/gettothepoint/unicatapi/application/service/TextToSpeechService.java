@@ -4,6 +4,7 @@ import com.google.cloud.texttospeech.v1.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 @Service
@@ -14,6 +15,11 @@ public class TextToSpeechService {
 
     public TextToSpeechService() throws IOException {
         this.textToSpeechClient = TextToSpeechClient.create();
+    }
+
+    public void createAndSaveTTSFile(String text, String voiceName, String filePath) throws IOException {
+        byte[] audioData = createTextToSpeech(text, voiceName);
+        saveTTSFile(audioData, filePath);
     }
 
     public byte[] createTextToSpeech(String text, String voiceName) {
@@ -34,4 +40,11 @@ public class TextToSpeechService {
         SynthesizeSpeechResponse response = textToSpeechClient.synthesizeSpeech(input, voice, audioConfig);
         return response.getAudioContent().toByteArray();
     }
+
+    public void saveTTSFile(byte[] audioData, String filePath) throws IOException {
+        try (FileOutputStream fos = new FileOutputStream(filePath)) {
+            fos.write(audioData);
+        }
+    }
+
 }
