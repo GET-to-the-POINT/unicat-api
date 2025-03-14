@@ -2,24 +2,19 @@ package gettothepoint.unicatapi.presentation.controller.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gettothepoint.unicatapi.application.service.AuthService;
-import gettothepoint.unicatapi.application.service.MemberService;
 import gettothepoint.unicatapi.domain.dto.sign.SignInDto;
 import gettothepoint.unicatapi.domain.dto.sign.SignUpDto;
+import gettothepoint.unicatapi.test.config.TestDummyTextToSpeechConfiguration;
+import gettothepoint.unicatapi.test.config.TestSecurityConfig;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -30,7 +25,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(SignController.class)
-@Import(SignControllerTest.TestConfig.class)
+@Import({TestSecurityConfig.class, TestDummyTextToSpeechConfiguration.class})
 class SignControllerTest {
 
     @Autowired
@@ -40,26 +35,6 @@ class SignControllerTest {
     private AuthService authService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-
-    @TestConfiguration
-    static class TestConfig {
-        @Bean
-        public AuthService authService() {
-            return Mockito.mock(AuthService.class);
-        }
-
-        @Bean
-        public MemberService memberService() {
-            return Mockito.mock(MemberService.class);
-        }
-
-        @Bean
-        public SecurityFilterChain testSecurityFilterChain(HttpSecurity http) throws Exception {
-            http.csrf(AbstractHttpConfigurer::disable)
-                    .authorizeHttpRequests(authz -> authz.anyRequest().permitAll());
-            return http.build();
-        }
-    }
 
     @Nested
     @DisplayName("회원가입 테스트 케이스")
