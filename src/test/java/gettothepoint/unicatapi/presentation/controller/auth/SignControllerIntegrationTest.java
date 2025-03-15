@@ -3,6 +3,7 @@ package gettothepoint.unicatapi.presentation.controller.auth;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gettothepoint.unicatapi.domain.dto.sign.SignInDto;
 import gettothepoint.unicatapi.domain.dto.sign.SignUpDto;
+import gettothepoint.unicatapi.test.config.TestDummyEmailServiceConfiguration;
 import gettothepoint.unicatapi.test.config.TestDummyTextToSpeechConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-@Import(TestDummyTextToSpeechConfiguration.class)
+@Import({TestDummyTextToSpeechConfiguration.class, TestDummyEmailServiceConfiguration.class})
 class SignControllerIntegrationTest {
 
     @Autowired

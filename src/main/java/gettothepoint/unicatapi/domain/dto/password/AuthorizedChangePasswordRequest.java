@@ -13,7 +13,7 @@ import lombok.extern.jackson.Jacksonized;
 @Builder
 @FieldComparison(message = "새 비밀번호와 비밀번호 확인이 일치하지 않습니다.")
 @Jacksonized
-public record ChangePasswordDto(
+public record AuthorizedChangePasswordRequest(
 
 
         @NotBlank(message = "새 비밀번호를 입력해주세요.")
