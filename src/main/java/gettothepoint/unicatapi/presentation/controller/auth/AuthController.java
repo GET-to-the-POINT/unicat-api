@@ -17,10 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import gettothepoint.unicatapi.common.propertie.AppProperties;
 import gettothepoint.unicatapi.domain.dto.oauth.OAuthLinkDto;
 
@@ -30,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 @Tag(name = "Auth API", description = "Auth 관련 기능 API")
 public class AuthController {
@@ -66,7 +64,16 @@ public class AuthController {
 
         Iterable<ClientRegistration> registrations = ((InMemoryClientRegistrationRepository) clientRegistrationRepository);
 
-        String baseUrl = appProperties.api().protocol() + "://" + appProperties.api().domain() + ":" + appProperties.api().port();
+        String protocol = appProperties.api().protocol();
+        String domain = appProperties.api().domain();
+        int port = appProperties.api().port();
+        String baseUrl;
+        if (("http".equals(protocol) && port == 80) || ("https".equals(protocol) && port == 443)) {
+            baseUrl = protocol + "://" + domain;
+        } else {
+            baseUrl = protocol + "://" + domain + ":" + port;
+        }
+
         registrations.forEach(registration -> {
             String href = "/oauth2/authorization/" + registration.getRegistrationId();
             OAuthLinkDto oAuthLinkDto = OAuthLinkDto.builder().provider(registration.getClientName()).link(baseUrl + href).build();
@@ -75,7 +82,7 @@ public class AuthController {
         return oAuthLinkDtos;
     }
 
-    @PostMapping("/token")
+    @PostMapping("/token/refresh")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "토큰 리프레시", description = "쿠키에 담긴 토큰을 직접 리프레시 합니다. 모든 요청에 토큰이 리프레시 되기 때문에 별도의 요청이 필요하지 않습니다. <br><br> [![](https://mermaid.ink/img/pako:eNrNVEFL3EAU_iuPAWEFPdRjDh52yx4KPVkQSi7TZNTQTbLOJkIRYcEobjd0K-xitjWiKKuHLay6C3vwF2Ve_kMnCVFD09JDS5tAmDfve--b-V74dolm64wopMW2XWZp7KVBNzk1VQvkQ13HtlzzHeNZ3KTcMTSjSS0HakBbUGsYzHJ-TNaTZJ3bcrnG-E5ZfTWBVKn2nll6AZR9FxYAvdvofgb40MZwih-v4IUCr9bfQHTXxlGYp-OvHohOmsf9UG4Cfunj3besTW15dbWulAKgkjSLe-N4cLOYoesZ-hlJJZqNRe8A8Hwg7qeAZ0cY-s_QVeUX5NXlUvahJy79vIVE1JTHq4bHojuDSnw8x-4p4MAXowfJ7eHhhSRN3p9ps5IdG8_GYnIazTu_owv8QWFODqUwYHMQ1768XlGi4snKJML9oxQlJkE8DAqksvD_HEY-iu5V7N88jaJkEHjyWfQ8KJPs7_ym_2IaKediUUoxGot-X5x38CDIC-JBEM0nEH8KEr2u2-JCihtORW-YFpMlYjJuUkOXrrSb7KjE2WImU4kilzrboG7DUYlq7Ulo4lBrHyyNKA532RLhtru5RZQN2mjJyG3q1Mkt7XFX2s9b236KmW44Nn-d-WBqh3vfAWpzWCo?type=png)](https://mermaid.live/edit#pako:eNrNVEFL3EAU_iuPAWEFPdRjDh52yx4KPVkQSi7TZNTQTbLOJkIRYcEobjd0K-xitjWiKKuHLay6C3vwF2Ve_kMnCVFD09JDS5tAmDfve--b-V74dolm64wopMW2XWZp7KVBNzk1VQvkQ13HtlzzHeNZ3KTcMTSjSS0HakBbUGsYzHJ-TNaTZJ3bcrnG-E5ZfTWBVKn2nll6AZR9FxYAvdvofgb40MZwih-v4IUCr9bfQHTXxlGYp-OvHohOmsf9UG4Cfunj3besTW15dbWulAKgkjSLe-N4cLOYoesZ-hlJJZqNRe8A8Hwg7qeAZ0cY-s_QVeUX5NXlUvahJy79vIVE1JTHq4bHojuDSnw8x-4p4MAXowfJ7eHhhSRN3p9ps5IdG8_GYnIazTu_owv8QWFODqUwYHMQ1768XlGi4snKJML9oxQlJkE8DAqksvD_HEY-iu5V7N88jaJkEHjyWfQ8KJPs7_ym_2IaKediUUoxGot-X5x38CDIC-JBEM0nEH8KEr2u2-JCihtORW-YFpMlYjJuUkOXrrSb7KjE2WImU4kilzrboG7DUYlq7Ulo4lBrHyyNKA532RLhtru5RZQN2mjJyG3q1Mkt7XFX2s9b236KmW44Nn-d-WBqh3vfAWpzWCo)")
     @ApiResponse(responseCode = "204", description = "토큰이 성공적으로 갱신되었으나, 응답 본문은 없습니다.")
