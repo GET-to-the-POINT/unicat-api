@@ -21,7 +21,7 @@ public class PasswordController {
     public void verifyCurrentPassword(
             @AuthenticationPrincipal Jwt jwt,
             @NotEmpty @RequestParam String currentPassword) {
-        String email = jwt.getClaimAsString("name");
+        String email = jwt.getClaimAsString("email");
         passwordService.verifyCurrentPassword(email, currentPassword);
     }
 

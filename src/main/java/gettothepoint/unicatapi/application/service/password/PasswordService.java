@@ -4,9 +4,11 @@ import gettothepoint.unicatapi.application.service.MemberService;
 import gettothepoint.unicatapi.application.service.email.EmailService;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -29,8 +31,12 @@ public class PasswordService {
         memberService.updatePassword(email, newPassword);
     }
 
-    public boolean verifyCurrentPassword(String email, String currentPassword) {
+    public void verifyCurrentPassword(String email, String currentPassword) {
         Member member = memberService.findByEmail(email);
-        return passwordEncoder.matches(currentPassword, member.getPassword());
+        boolean isSame = passwordEncoder.matches(currentPassword, member.getPassword());
+
+        if (!isSame) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "비밀번호가 일치하지 않습니다.");
+        }
     }
 }
