@@ -42,9 +42,6 @@ class PasswordControllerIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private final String testEmail = "test@example.com";
-    private final String VALID_PASSWORD = "ValidPass123!";
-
     private String jwtToken;
 
     @BeforeEach
@@ -53,14 +50,13 @@ class PasswordControllerIntegrationTest {
         assertThat(jwtToken).isNotNull();
     }
 
-    /**
-     * 회원가입 후 응답 쿠키에서 JWT 토큰을 추출하는 메서드입니다.
-     */
     private String signUp() throws Exception {
+        String testEmail = "test@example.com";
+        String testPassword = "ValidPass123!";
         SignUpDto signUpRequest = SignUpDto.builder()
                 .email(testEmail)
-                .password(VALID_PASSWORD)
-                .confirmPassword(VALID_PASSWORD)
+                .password(testPassword)
+                .confirmPassword(testPassword)
                 .build();
 
         MvcResult result = mockMvc.perform(post("/sign-up")
