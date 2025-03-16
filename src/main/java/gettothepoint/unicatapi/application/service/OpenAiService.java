@@ -1,5 +1,6 @@
 package gettothepoint.unicatapi.application.service;
 
+import gettothepoint.unicatapi.common.propertie.AppProperties;
 import gettothepoint.unicatapi.domain.dto.project.ScriptRequest;
 import gettothepoint.unicatapi.domain.dto.project.ScriptResponse;
 import gettothepoint.unicatapi.domain.repository.ProjectRepository;
@@ -21,12 +22,14 @@ public class OpenAiService {
     private final ChatClient chatClient;
     private final SectionRepository sectionRepository;
     private final ProjectRepository projectRepository;
+    private final AppProperties appProperties;
 
     @Autowired
-    public OpenAiService(ChatClient.Builder chatClientBuilder, SectionRepository sectionRepository, ProjectRepository projectRepository) {
+    public OpenAiService(ChatClient.Builder chatClientBuilder, SectionRepository sectionRepository, ProjectRepository projectRepository, AppProperties appProperties) {
         this.chatClient = chatClientBuilder.build();
         this.sectionRepository = sectionRepository;
         this.projectRepository = projectRepository;
+        this.appProperties = appProperties;
     }
 
     public ScriptResponse createScript(Long id, Long sectionId, ScriptRequest request) {
@@ -46,14 +49,14 @@ public class OpenAiService {
 
     private ScriptResponse generateAI(String tone, ScriptRequest request) {
         String promptText = String.format(
-                "다음 스크립트를 읽고, '%s'에 맞춰 문장을 자연스럽게 다듬고 필요한 보충 내용을 추가해줘.%n%n원본 스크립트:%n%s",
+                appProperties.openAI().prompt(),
                 tone,
                 request.script()
         );
 
         OpenAiChatOptions options = OpenAiChatOptions.builder()
-                .model("gpt-4o-mini")
-                .temperature(0.7)
+                .model(appProperties.openAI().model())
+                .temperature(appProperties.openAI().temperature())
                 .build();
 
         Prompt prompt = new Prompt(promptText, options);
@@ -64,6 +67,6 @@ public class OpenAiService {
                 .entity(new ParameterizedTypeReference<>() {
                 });
 
-        return new ScriptResponse(Objects.requireNonNull(response).newscript());
+        return new ScriptResponse(Objects.requireNonNull(response).script());
     }
 }

@@ -69,9 +69,9 @@ public class ProjectController {
         return sectionService.updateSectionSortOrder(sectionId, newOrder);
     }
 
-    @PostMapping("/{id}/sections/{sectionId}/script")
+    @PostMapping("/{projectId}/sections/{sectionId}/script")
     @ResponseStatus(HttpStatus.OK)
-    public ScriptResponse refineScript(@PathVariable Long id, @PathVariable Long sectionId, @RequestBody @Valid ScriptRequest scriptRequest) {
-        return openAiService.createScript(id, sectionId, scriptRequest);
+    public ScriptResponse refineScript(@PathVariable Long projectId, @PathVariable Long sectionId, @RequestBody @Valid ScriptRequest scriptRequest) {
+        return openAiService.createScript(projectId, sectionId, scriptRequest);
     }
 }
