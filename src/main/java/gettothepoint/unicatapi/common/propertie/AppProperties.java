@@ -4,7 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.core.io.Resource;
 
 @ConfigurationProperties(prefix = "app")
-public record AppProperties(String name, Jwt jwt, Toss toss, Api api, Youtube youtube, Supabase supabase, Cors cors, Email email, TTS tts) {
+public record AppProperties(String name, Jwt jwt, Toss toss, Api api, Youtube youtube, Supabase supabase, Cors cors, Email email, TTS tts, OpenAI openAI) {
 
     public record Jwt(Resource privateKey, Resource publicKey, String keyId, Cookie cookie) {
         public record Cookie(String name, String domain, String path, boolean secure, boolean httpOnly, String sameSite, int maxAge) {
@@ -26,6 +26,9 @@ public record AppProperties(String name, Jwt jwt, Toss toss, Api api, Youtube yo
     public record Supabase(String url, String key, Storage storage) {
         public record Storage(String bucket) {
         }
+    }
+
+    public record OpenAI(String prompt, String model, double temperature) {
     }
 
     public record Cors(String[] allowedOrigins, String[] allowedMethods, String[] allowedHeaders, boolean allowCredentials, long maxAge) {

@@ -38,6 +38,10 @@ spring:
     multipart:
       max-file-size: 50MB
       max-request-size: 50MB
+  ai:
+    openai:
+      api-key: ${APP_OPENAI_API_KEY}
+
 
 springdoc:
   swagger-ui:
@@ -83,6 +87,10 @@ app:
   tts:
     file-path: "/Users/wooyeon/Desktop/"
     file-extension: ".mp3"
+  openai:
+    prompt: ${AI_PROMPT:"다음 스크립트를 읽고, '%s'에 맞춰 문장을 자연스럽게 다듬고 필요한 보충 내용을 추가해줘.%n%n원본 스크립트:%n%s"}
+    model: ${AI_MODEL:gpt-4o-mini}
+    temperature: ${AI_TEMPERATURE:0.7}
 
 server:
   port: 443

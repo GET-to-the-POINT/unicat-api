@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +24,11 @@ public class Project extends BaseEntity {
     private String subtitle;
     private String thumbnailUrl;
     private String videoUrl;
+
+    @Setter
+    private String scriptTone;
+
+    private String imageStyle;
 
     @ManyToOne
     @JoinColumn
