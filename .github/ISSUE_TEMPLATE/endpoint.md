@@ -1,3 +1,11 @@
+---
+name: API Endpoint 요청
+about: 새로운 API Endpoint 요청 또는 수정사항을 제안합니다.
+title: "[API]: "
+labels: api, backend
+assignees: ''
+---
+
 # [이슈의 핵심 문제를 간단명료하게 제목으로 작성하세요.]
 
 - [이슈에 대해 프론트엔드 개발자 및 신입 개발자가 이해할 수 있도록 간략하게 설명합니다. 프롬프트 실행 시 이 힌트는 삭제됩니다.]
