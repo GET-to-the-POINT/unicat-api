@@ -18,6 +18,7 @@ import gettothepoint.unicatapi.domain.dto.sign.SignUpDto;
 import gettothepoint.unicatapi.application.service.AuthService;
 
 @RestController
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 @Tag(name = "Sign API", description = "회원가입, 사인인, 사인아웃 관련 API")
 public class SignController {
