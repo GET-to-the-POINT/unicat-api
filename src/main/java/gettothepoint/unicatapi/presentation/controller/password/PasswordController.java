@@ -1,10 +1,12 @@
 package gettothepoint.unicatapi.presentation.controller.password;
 
 import gettothepoint.unicatapi.application.service.MemberService;
+import gettothepoint.unicatapi.application.service.password.PasswordService;
 import gettothepoint.unicatapi.common.util.JwtUtil;
 import gettothepoint.unicatapi.domain.dto.password.AnonymousChangePasswordRequest;
 import gettothepoint.unicatapi.domain.dto.password.AuthorizedChangePasswordRequest;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,6 +20,15 @@ public class PasswordController {
 
     private final MemberService memberService;
     private final JwtUtil jwtUtil;
+    private final PasswordService passwordService;
+
+    @PostMapping("/me/password/verify")
+    public void verifyCurrentPassword(
+            @AuthenticationPrincipal Jwt jwt,
+            @NotEmpty @RequestParam String currentPassword) {
+        String email = jwt.getClaimAsString("email");
+        passwordService.verifyCurrentPassword(email, currentPassword);
+    }
 
     @PutMapping("/me/password/reset")
     @ResponseStatus(HttpStatus.OK)
