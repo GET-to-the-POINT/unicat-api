@@ -13,7 +13,6 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -69,18 +68,4 @@ public class AuthService {
         return token;
     }
 
-    @Transactional
-    public void resendVerificationEmailFromExpiredToken(String expiredToken) {
-        String email = jwtUtil.getEmailFromExpiredToken(expiredToken);
-
-        Member member = memberRepository.findByEmail(email)
-                .filter(m -> !m.isVerified())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "인증할 수 없는 이메일입니다."));
-
-        if (member.isVerified()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 인증된 이메일입니다.");
-        }
-
-        emailService.sendVerificationEmail(member);
-    }
 }
