@@ -41,10 +41,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/", "/error").permitAll()
                         .requestMatchers("/v3/api-docs", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/.well-known/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/auth/.well-known/**", "/auth/oauth-links").permitAll()
                         .requestMatchers(HttpMethod.POST, "/sign-in", "/sign-up").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/sign-out").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/oauth-links").permitAll()
                         .requestMatchers("/verification/email", "/verification/email/resend").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/members/anonymous/password/reset").permitAll()
                         .anyRequest().authenticated()
