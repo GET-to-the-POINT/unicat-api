@@ -76,11 +76,12 @@ class PasswordControllerIntegrationTest {
         @DisplayName("정상 재설정 요청 - 200 OK")
         void resetPasswordForLoggedInUser() throws Exception {
             AuthorizedChangePasswordRequest request = AuthorizedChangePasswordRequest.builder()
+                    .currentPassword("ValidPass123!")
                     .newPassword("NewSecur123!")
                     .confirmNewPassword("NewSecur123!")
                     .build();
 
-            mockMvc.perform(put("/members/me/password/reset")
+            mockMvc.perform(put("/members/me/password")
                             .contentType(MediaType.APPLICATION_JSON)
                             .header("Authorization", "Bearer " + jwtToken)
                             .content(objectMapper.writeValueAsString(request)))
@@ -88,14 +89,31 @@ class PasswordControllerIntegrationTest {
         }
 
         @Test
+        @DisplayName("현재 비밀번호 불일치로 인한 재설정 실패 - 400 BadRequest")
+        void resetPasswordForLoggedInUser_InvalidCurrentPassword() throws Exception {
+            AuthorizedChangePasswordRequest request = AuthorizedChangePasswordRequest.builder()
+                    .currentPassword("InvalidPass123!")
+                    .newPassword("NewSecur123!")
+                    .confirmNewPassword("NewSecur123!")
+                    .build();
+
+            mockMvc.perform(put("/members/me/password")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .header("Authorization", "Bearer " + jwtToken)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
         @DisplayName("비밀번호 확인 불일치로 인한 재설정 실패 - 400 BadRequest")
         void resetPasswordForLoggedInUser_PasswordMismatch() throws Exception {
             AuthorizedChangePasswordRequest request = AuthorizedChangePasswordRequest.builder()
+                    .currentPassword("ValidPass123!")
                     .newPassword("NewPass123!")
                     .confirmNewPassword("Mismatch123!")
                     .build();
 
-            mockMvc.perform(put("/members/me/password/reset")
+            mockMvc.perform(put("/members/me/password")
                             .contentType(MediaType.APPLICATION_JSON)
                             .header("Authorization", "Bearer " + jwtToken)
                             .content(objectMapper.writeValueAsString(request)))
@@ -117,7 +135,7 @@ class PasswordControllerIntegrationTest {
                     .build();
 
             // 토큰을 쿼리 파라미터로도 전달하는 시나리오
-            mockMvc.perform(put("/members/anonymous/password/reset")
+            mockMvc.perform(put("/members/anonymous/password")
                             .param("token", jwtToken)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
@@ -125,7 +143,7 @@ class PasswordControllerIntegrationTest {
         }
 
         @Test
-        @DisplayName("잘못된 토큰으로 인한 재설정 실패 - 400 BadRequest")
+        @DisplayName("잘못된 토큰으로 인한 재설정 실패 - 401 Unauthorized")
         void resetPasswordForNonLoggedInUser_InvalidToken() throws Exception {
             AnonymousChangePasswordRequest request = AnonymousChangePasswordRequest.builder()
                     .token("invalid-token")
@@ -133,7 +151,7 @@ class PasswordControllerIntegrationTest {
                     .confirmNewPassword("NewPass123!")
                     .build();
 
-            mockMvc.perform(put("/members/anonymous/password/reset")
+            mockMvc.perform(put("/members/anonymous/password")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isUnauthorized());
@@ -148,7 +166,7 @@ class PasswordControllerIntegrationTest {
                     .confirmNewPassword("Mismatch123!")
                     .build();
 
-            mockMvc.perform(put("/members/anonymous/password/reset")
+            mockMvc.perform(put("/members/anonymous/password")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());

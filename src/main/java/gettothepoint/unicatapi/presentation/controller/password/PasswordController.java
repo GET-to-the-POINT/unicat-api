@@ -22,15 +22,7 @@ public class PasswordController {
     private final JwtUtil jwtUtil;
     private final PasswordService passwordService;
 
-    @PostMapping("/me/password/verify")
-    public void verifyCurrentPassword(
-            @AuthenticationPrincipal Jwt jwt,
-            @NotEmpty @RequestParam String currentPassword) {
-        String email = jwt.getClaimAsString("email");
-        passwordService.verifyCurrentPassword(email, currentPassword);
-    }
-
-    @PutMapping("/me/password/reset")
+    @PutMapping("/me/password")
     @ResponseStatus(HttpStatus.OK)
     public void resetPasswordForLoggedInUser(
             @AuthenticationPrincipal Jwt jwt,
@@ -39,7 +31,7 @@ public class PasswordController {
         memberService.updatePassword(email, request.newPassword());
     }
 
-    @PutMapping("/anonymous/password/reset")
+    @PutMapping("/anonymous/password")
     @ResponseStatus(HttpStatus.OK)
     public void resetPasswordForNonLoggedInUser(
             @Valid @RequestBody AnonymousChangePasswordRequest request) {

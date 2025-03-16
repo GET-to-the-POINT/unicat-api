@@ -45,7 +45,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/sign-in", "/sign-up").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/sign-out").permitAll()
                         .requestMatchers("/verification/email", "/verification/email/resend").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/members/anonymous/password/reset").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/members/anonymous/password").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2

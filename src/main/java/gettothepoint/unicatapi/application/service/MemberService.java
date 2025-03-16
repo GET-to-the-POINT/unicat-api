@@ -72,6 +72,12 @@ public class MemberService {
         member.verified();
         memberRepository.save(member);
     }
+
+    public boolean validCurrentPassword(String email, String currentPassword) {
+        Member member = findByEmail(email);
+        return passwordEncoder.matches(currentPassword, member.getPassword());
+    }
+
     public void updatePassword(String email, String newPassword) {
         Member member = findByEmail(email);
         member.setPassword(passwordEncoder.encode(newPassword));
