@@ -42,7 +42,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/error").permitAll()
                         .requestMatchers("/v3/api-docs", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers(HttpMethod.GET, "/auth/.well-known/**", "/auth/oauth-links").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/sign-in", "/sign-up").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/sign-in", "/auth/sign-up").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/sign-out").permitAll()
                         .requestMatchers("/verification/email", "/verification/email/resend").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/members/anonymous/password").permitAll()
