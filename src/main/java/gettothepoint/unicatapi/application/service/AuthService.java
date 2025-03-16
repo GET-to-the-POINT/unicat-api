@@ -35,7 +35,7 @@ public class AuthService {
 
     public void signIn(SignInDto signInDto, HttpServletResponse response) {
         Member member = validateCredentials(signInDto.email(), signInDto.password());
-        String token = generateAndAddJwtToken(response, member);
+        generateAndAddJwtToken(response, member);
     }
 
     public void signOut(HttpServletResponse response) {
@@ -43,7 +43,7 @@ public class AuthService {
     }
 
     private void validateEmail(String email) {
-        if (memberRepository.existsByEmail(email)) {
+        if (Boolean.TRUE.equals(memberRepository.existsByEmail(email))) {
             String errorMessage = messageSource.getMessage("error.email.in.use", null, "", LocaleContextHolder.getLocale());
             throw new ResponseStatusException(HttpStatus.CONFLICT, errorMessage);
         }
@@ -62,10 +62,9 @@ public class AuthService {
         return member;
     }
 
-    private String generateAndAddJwtToken(HttpServletResponse response, Member member) {
+    private void generateAndAddJwtToken(HttpServletResponse response, Member member) {
         String token = jwtUtil.generateJwtToken(member.getId(), member.getEmail());
         jwtUtil.addJwtCookie(response, token);
-        return token;
     }
 
 }
