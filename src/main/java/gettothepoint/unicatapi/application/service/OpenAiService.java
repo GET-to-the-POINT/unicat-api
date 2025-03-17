@@ -147,7 +147,7 @@ public class OpenAiService {
         Section section = sectionRepository.findById(sectionId)
                 .orElseThrow(() -> new EntityNotFoundException(SECTION_NOT_FOUND_MSG + sectionId));
 
-        section.setUploadImageUrl(imageUrl);
+        section.setImageUrl(imageUrl);
         section.setAlt(alt);
         sectionRepository.save(section);
     }
