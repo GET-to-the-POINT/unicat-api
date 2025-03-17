@@ -66,8 +66,8 @@ public class SectionService {
 
         String url = fileStorageService.uploadFile(file);
 
-        section.setUploadImageUrl(url);
         section.setAlt(uploadResourceRequest.alt());
+        section.setImageUrl(storageUpload.url());
         sectionRepository.save(section);
 
         return new ImageResponse(url, uploadResourceRequest.alt());

@@ -40,9 +40,9 @@ public class YoutubeUploadService {
                     return new ResponseStatusException(HttpStatus.NOT_FOUND, "Video not found for ID: " + projectId);
                 });
 
-        File videoFile = new File(project.getVideoUrl());
+        File videoFile = new File(project.getArtifactUrl());
         if (!videoFile.exists() || !videoFile.isFile()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Video file not found at path: " + project.getVideoUrl());
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Video file not found at path: " + project.getArtifactUrl());
         }
 
         uploadProgressService.updateProgress(projectId, 0.0);
@@ -61,7 +61,7 @@ public class YoutubeUploadService {
                 status.setPrivacyStatus(visibility);
                 youtubeVideo.setStatus(status);
 
-                FileContent mediaContent = new FileContent("video/*", new File(project.getVideoUrl()));
+                FileContent mediaContent = new FileContent("video/*", new File(project.getArtifactUrl()));
                 YouTube.Videos.Insert request = youtubeService.videos()
                         .insert(List.of("snippet", "status"), youtubeVideo, mediaContent);
 
