@@ -7,6 +7,7 @@ import gettothepoint.unicatapi.domain.dto.project.CreateImageRequest;
 import gettothepoint.unicatapi.domain.dto.project.ImageResponse;
 import gettothepoint.unicatapi.domain.dto.project.ScriptRequest;
 import gettothepoint.unicatapi.domain.dto.project.ScriptResponse;
+import gettothepoint.unicatapi.domain.entity.dashboard.Section;
 import gettothepoint.unicatapi.domain.repository.ProjectRepository;
 import gettothepoint.unicatapi.domain.repository.SectionRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -40,6 +41,7 @@ public class OpenAiService {
     private final RestTemplate restTemplate;
     private final SupabaseStorageService supabaseStorageService;
     private final OpenAiImageModel openAiImageModel;
+    private static final String SECTION_NOT_FOUND_MSG = "Section not found with id: ";
 
     @Autowired
     public OpenAiService(ChatClient.Builder chatClientBuilder, SectionRepository sectionRepository, ProjectRepository projectRepository, AppProperties appProperties, RestTemplate restTemplate, SupabaseStorageService supabaseStorageService, OpenAiImageModel openAiImageModel) {
@@ -55,7 +57,7 @@ public class OpenAiService {
     public ScriptResponse createScript(Long id, Long sectionId, ScriptRequest request) {
 
         sectionRepository.findById(sectionId)
-                .orElseThrow(() -> new EntityNotFoundException("Section not found with id: " + sectionId));
+                .orElseThrow(() -> new EntityNotFoundException(SECTION_NOT_FOUND_MSG + sectionId));
 
         String tone = projectRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + id))
@@ -93,7 +95,7 @@ public class OpenAiService {
     public ImageResponse createImage(Long projectId, Long sectionId, CreateImageRequest createImageRequest) {
 
         sectionRepository.findById(sectionId)
-                .orElseThrow(() -> new EntityNotFoundException("Section not found with id: " + sectionId));
+                .orElseThrow(() -> new EntityNotFoundException(SECTION_NOT_FOUND_MSG + sectionId));
 
         String style = projectRepository.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + projectId))
@@ -101,8 +103,10 @@ public class OpenAiService {
 
         String imageStyle = (style == null || style.isBlank()) ? "default" : style;
 
-        return generateImageAI(imageStyle, createImageRequest);
+        ImageResponse imageResponse = generateImageAI(imageStyle, createImageRequest);
 
+        saveImageToSection(sectionId, imageResponse.imageUrl(), imageResponse.alt());
+        return imageResponse;
     }
 
     private ImageResponse generateImageAI(String imageStyle, CreateImageRequest request) {
@@ -125,10 +129,10 @@ public class OpenAiService {
         String alt = String.format("'%s' 내용을 기반으로 AI가 생성한 이미지", request.script());
         String imageUrl = image.getUrl();
 
-        return new ImageResponse(processAndSaveImage(imageUrl), alt);
+        return new ImageResponse(processAndUploadImage(imageUrl), alt);
     }
 
-    private String processAndSaveImage(String imageUrl) {
+    private String processAndUploadImage(String imageUrl) {
         URI uri = UriComponentsBuilder.fromUriString(imageUrl).build(true).toUri();
         byte[] imageBytes = restTemplate.getForObject(uri, byte[].class);
         if (imageBytes == null) {
@@ -137,5 +141,14 @@ public class OpenAiService {
 
         MultipartFile multipartFile = new MultipartFileUtil(imageBytes, "download", "image/jpeg");
         return supabaseStorageService.uploadFile(multipartFile);
+    }
+
+    private void saveImageToSection(Long sectionId, String imageUrl, String alt) {
+        Section section = sectionRepository.findById(sectionId)
+                .orElseThrow(() -> new EntityNotFoundException(SECTION_NOT_FOUND_MSG + sectionId));
+
+        section.setUploadImageUrl(imageUrl);
+        section.setAlt(alt);
+        sectionRepository.save(section);
     }
 }
