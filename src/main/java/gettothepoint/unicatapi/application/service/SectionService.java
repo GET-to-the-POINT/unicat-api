@@ -3,8 +3,9 @@ package gettothepoint.unicatapi.application.service;
 import gettothepoint.unicatapi.application.service.storage.FileStorageService;
 import gettothepoint.unicatapi.common.propertie.AppProperties;
 import gettothepoint.unicatapi.common.util.MultipartFileUtil;
+import gettothepoint.unicatapi.domain.dto.project.ImageResponse;
 import gettothepoint.unicatapi.domain.dto.project.SectionRequest;
-import gettothepoint.unicatapi.domain.dto.storage.StorageUpload;
+import gettothepoint.unicatapi.domain.dto.project.UploadImageRequest;
 import gettothepoint.unicatapi.domain.entity.dashboard.Project;
 import gettothepoint.unicatapi.domain.entity.dashboard.Section;
 import gettothepoint.unicatapi.domain.repository.ProjectRepository;
@@ -54,17 +55,22 @@ public class SectionService {
         return section.getId();
     }
 
-    public StorageUpload uploadImage(Long sectionId, MultipartFile file) {
-
-        StorageUpload storageUpload = fileStorageService.uploadFile(file);
+    public ImageResponse uploadImage(Long projectId, Long sectionId, UploadImageRequest uploadImageRequest) {
+        projectRepository.findById(projectId)
+                .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + projectId));
 
         Section section = sectionRepository.findById(sectionId)
                 .orElseThrow(() -> new EntityNotFoundException(SECTION_NOT_FOUND_MSG + sectionId));
 
-        section.setUploadImageUrl(storageUpload.url());
+        MultipartFile file = uploadImageRequest.image();
+
+        String url = fileStorageService.uploadFile(file);
+
+        section.setUploadImageUrl(url);
+        section.setAlt(uploadImageRequest.alt());
         sectionRepository.save(section);
 
-        return storageUpload;
+        return new ImageResponse(url, uploadImageRequest.alt());
     }
 
     public void uploadScript(Long sectionId, String script) {
@@ -87,8 +93,7 @@ public class SectionService {
             try {
                 textToSpeechService.createAndSaveTTSFile(script, voiceName, filePath);
                 File file = new File(filePath);
-                StorageUpload storageUpload = uploadTTSFile(file);
-                section.setTtsUrl(storageUpload.url());
+                section.setTtsUrl(uploadTTSFile(file));
                 sectionRepository.save(section);
             } catch (IOException e) {
                 log.error("Error saving TTS file for section {}: {}", section.getId(), e.getMessage(), e);
@@ -98,7 +103,7 @@ public class SectionService {
         });
     }
 
-    public StorageUpload uploadTTSFile(File file) {
+    public String uploadTTSFile(File file) {
         MultipartFileUtil multipartFile = new MultipartFileUtil(file, file.getName(), "audio/mpeg");
         return fileStorageService.uploadFile(multipartFile);
     }

@@ -4,14 +4,13 @@ import gettothepoint.unicatapi.application.service.OpenAiService;
 import gettothepoint.unicatapi.application.service.ProjectService;
 import gettothepoint.unicatapi.application.service.SectionService;
 import gettothepoint.unicatapi.domain.dto.project.*;
-import gettothepoint.unicatapi.domain.dto.storage.StorageUpload;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -44,10 +43,16 @@ public class ProjectController {
        return sectionService.createSection(projectId);
     }
 
-    @PostMapping(value="/{sectionId}/image", consumes = "multipart/form-data")
-    public StorageUpload uploadImage(@PathVariable Long sectionId, @RequestParam("file") MultipartFile file) {
-        return sectionService.uploadImage(sectionId, file);
+    @PostMapping(value="{projectId}/sections/{sectionId}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ImageResponse uploadImage(@PathVariable Long projectId, @PathVariable Long sectionId, @ModelAttribute UploadImageRequest uploadImageRequest) {
+        return sectionService.uploadImage(projectId, sectionId, uploadImageRequest);
     }
+
+    @PostMapping(value="{projectId}/sections/{sectionId}/image", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ImageResponse createImage(@PathVariable Long projectId, @PathVariable Long sectionId, @RequestBody CreateImageRequest createImageRequest) {
+        return openAiService.createImage(projectId, sectionId, createImageRequest);
+    }
+
 
     @PostMapping("/{sectionId}/script")
     public void uploadScript(@PathVariable Long sectionId, @RequestBody String script) {

@@ -3,7 +3,6 @@ package gettothepoint.unicatapi.presentation.controller;
 import gettothepoint.unicatapi.application.service.storage.FileStorageService;
 import gettothepoint.unicatapi.application.service.storage.SampleVoiceService;
 import gettothepoint.unicatapi.domain.dto.storage.SampleVoice;
-import gettothepoint.unicatapi.domain.dto.storage.StorageUpload;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,7 +16,7 @@ public class StorageController {
     private final SampleVoiceService sampleVoiceService;
 
     @PostMapping(consumes = "multipart/form-data")
-    public StorageUpload uploadFile(@RequestParam("file") MultipartFile file) {
+    public String uploadFile(@RequestParam("file") MultipartFile file) {
         return fileStorageService.uploadFile(file);
     }
 
