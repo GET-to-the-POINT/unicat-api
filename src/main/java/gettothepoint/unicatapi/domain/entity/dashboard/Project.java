@@ -23,7 +23,7 @@ public class Project extends BaseEntity {
     private String title;
     private String subtitle;
     private String thumbnailUrl;
-    private String videoUrl;
+    private String artifactUrl;
 
     @Setter
     private String scriptTone;
