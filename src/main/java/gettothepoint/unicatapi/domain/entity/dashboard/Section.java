@@ -20,6 +20,9 @@ public class Section extends BaseEntity {
     private String uploadImageUrl;
 
     @Setter
+    private String alt;
+
+    @Setter
     @Column(columnDefinition = "TEXT")
     private String script;
 

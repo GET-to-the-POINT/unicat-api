@@ -1,7 +1,6 @@
 package gettothepoint.unicatapi.application.service.storage;
 
 import gettothepoint.unicatapi.common.propertie.AppProperties;
-import gettothepoint.unicatapi.domain.dto.storage.StorageUpload;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
@@ -30,7 +29,7 @@ public class SupabaseStorageService implements FileStorageService {
     private final MessageSource messageSource;
 
     @Override
-    public StorageUpload uploadFile(MultipartFile file) {
+    public String uploadFile(MultipartFile file) {
         String uniqueFileName = generateUniqueFileName(file);
         String supabaseKey = appProperties.supabase().key();
         String bucket = getBucketName(file.getContentType());
@@ -48,17 +47,16 @@ public class SupabaseStorageService implements FileStorageService {
 
             HttpEntity<byte[]> requestEntity = new HttpEntity<>(fileBytes, headers);
 
-            try {
-                restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
-            } catch (RestClientException e) {
-                log.error(e.getMessage());
-                String errorMessage = messageSource.getMessage("error.unknown", null, "", LocaleContextHolder.getLocale());
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, errorMessage);
-            }
+            restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
+            restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
 
-            return new StorageUpload(url, sanitizeFileName(file.getOriginalFilename()));
+            return url;
         } catch (IOException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to upload file", e);
+        } catch (RestClientException e) {
+            log.error(e.getMessage());
+            String errorMessage = messageSource.getMessage("error.unknown", null, "", LocaleContextHolder.getLocale());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, errorMessage);
         }
     }
 

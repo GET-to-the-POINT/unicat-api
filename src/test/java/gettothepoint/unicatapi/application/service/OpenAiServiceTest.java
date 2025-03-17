@@ -1,5 +1,6 @@
 package gettothepoint.unicatapi.application.service;
 
+import gettothepoint.unicatapi.application.service.storage.SupabaseStorageService;
 import gettothepoint.unicatapi.common.propertie.AppProperties;
 import gettothepoint.unicatapi.domain.dto.project.ScriptRequest;
 import gettothepoint.unicatapi.domain.dto.project.ScriptResponse;
@@ -14,7 +15,9 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.openai.OpenAiImageModel;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Optional;
 
@@ -48,16 +51,20 @@ class OpenAiServiceTest {
     private AppProperties appProperties;
 
     @Mock
-    private AppProperties.OpenAI openAI;
+    private AppProperties.OpenAIScript openAI;
 
     private OpenAiService openAiService;
+
+    private RestTemplate restTemplate;
+    private SupabaseStorageService supabaseStorageService;
+    private OpenAiImageModel openAiImageModel;
 
     @BeforeEach
     void setUp() {
         when(chatClientBuilder.build()).thenReturn(chatClient);
-        when(appProperties.openAI()).thenReturn(openAI);
+        when(appProperties.openAIScript()).thenReturn(openAI);
 
-        openAiService = new OpenAiService(chatClientBuilder, sectionRepository, projectRepository, appProperties);
+        openAiService = new OpenAiService(chatClientBuilder, sectionRepository, projectRepository, appProperties, restTemplate, supabaseStorageService, openAiImageModel);
     }
 
     @Test
