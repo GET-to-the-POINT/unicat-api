@@ -3,23 +3,21 @@ package gettothepoint.unicatapi.application.service;
 import gettothepoint.unicatapi.application.service.storage.SupabaseStorageService;
 import gettothepoint.unicatapi.common.propertie.AppProperties;
 import gettothepoint.unicatapi.common.util.MultipartFileUtil;
-import gettothepoint.unicatapi.domain.dto.project.CreateImageRequest;
-import gettothepoint.unicatapi.domain.dto.project.ImageResponse;
-import gettothepoint.unicatapi.domain.dto.project.ScriptRequest;
-import gettothepoint.unicatapi.domain.dto.project.ScriptResponse;
+import gettothepoint.unicatapi.domain.dto.project.*;
 import gettothepoint.unicatapi.domain.entity.dashboard.Section;
 import gettothepoint.unicatapi.domain.repository.ProjectRepository;
 import gettothepoint.unicatapi.domain.repository.SectionRepository;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.ai.chat.client.ChatClient;
+import lombok.RequiredArgsConstructor;
+import org.springframework.ai.chat.messages.AssistantMessage;
+import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.image.Image;
 import org.springframework.ai.image.ImagePrompt;
+import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.OpenAiImageModel;
 import org.springframework.ai.openai.OpenAiImageOptions;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -28,13 +26,11 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.util.Objects;
 
-
+@RequiredArgsConstructor
 @Service
 public class OpenAiService {
 
-    private final ChatClient chatClient;
     private final SectionRepository sectionRepository;
     private final ProjectRepository projectRepository;
     private final AppProperties appProperties;
@@ -42,21 +38,11 @@ public class OpenAiService {
     private final SupabaseStorageService supabaseStorageService;
     private final OpenAiImageModel openAiImageModel;
     private static final String SECTION_NOT_FOUND_MSG = "Section not found with id: ";
+    private final OpenAiChatModel openAiChatModel;
 
-    @Autowired
-    public OpenAiService(ChatClient.Builder chatClientBuilder, SectionRepository sectionRepository, ProjectRepository projectRepository, AppProperties appProperties, RestTemplate restTemplate, SupabaseStorageService supabaseStorageService, OpenAiImageModel openAiImageModel) {
-        this.chatClient = chatClientBuilder.build();
-        this.sectionRepository = sectionRepository;
-        this.projectRepository = projectRepository;
-        this.appProperties = appProperties;
-        this.restTemplate = restTemplate;
-        this.supabaseStorageService = supabaseStorageService;
-        this.openAiImageModel = openAiImageModel;
-    }
+    public CreateResourceResponse createScript(Long id, Long sectionId, PromptRequest request) {
 
-    public ScriptResponse createScript(Long id, Long sectionId, ScriptRequest request) {
-
-        sectionRepository.findById(sectionId)
+        Section section = sectionRepository.findById(sectionId)
                 .orElseThrow(() -> new EntityNotFoundException(SECTION_NOT_FOUND_MSG + sectionId));
 
         String tone = projectRepository.findById(id)
@@ -65,15 +51,19 @@ public class OpenAiService {
 
         String scriptTone = (tone == null || tone.isBlank()) ? "default" : tone;
 
-        return generateScriptAI(scriptTone, request);
+        CreateResourceResponse scriptResponse = generateScriptAI(scriptTone, request);
+        section.setScript(scriptResponse.script());
+        sectionRepository.save(section);
+
+        return scriptResponse;
 
     }
 
-    private ScriptResponse generateScriptAI(String tone, ScriptRequest request) {
+    private CreateResourceResponse generateScriptAI(String tone, PromptRequest request) {
         String promptText = String.format(
                 appProperties.openAIScript().prompt(),
                 tone,
-                request.script()
+                request.prompt()
         );
 
         OpenAiChatOptions options = OpenAiChatOptions.builder()
@@ -82,17 +72,13 @@ public class OpenAiService {
                 .build();
 
         Prompt prompt = new Prompt(promptText, options);
+        ChatResponse response = openAiChatModel.call(prompt);
+        AssistantMessage assistantMessage = response.getResult().getOutput();
 
-        ScriptResponse response = chatClient.prompt()
-                .user(prompt.getContents())
-                .call()
-                .entity(new ParameterizedTypeReference<>() {
-                });
-
-        return new ScriptResponse(Objects.requireNonNull(response).script());
+        return new CreateResourceResponse(null, null, assistantMessage.getText());
     }
 
-    public ImageResponse createImage(Long projectId, Long sectionId, CreateImageRequest createImageRequest) {
+    public CreateResourceResponse createImage(Long projectId, Long sectionId, PromptRequest scriptRequest) {
 
         sectionRepository.findById(sectionId)
                 .orElseThrow(() -> new EntityNotFoundException(SECTION_NOT_FOUND_MSG + sectionId));
@@ -103,17 +89,17 @@ public class OpenAiService {
 
         String imageStyle = (style == null || style.isBlank()) ? "default" : style;
 
-        ImageResponse imageResponse = generateImageAI(imageStyle, createImageRequest);
+        CreateResourceResponse imageResponse = generateImageAI(imageStyle, scriptRequest);
 
         saveImageToSection(sectionId, imageResponse.imageUrl(), imageResponse.alt());
         return imageResponse;
     }
 
-    private ImageResponse generateImageAI(String imageStyle, CreateImageRequest request) {
+    private CreateResourceResponse generateImageAI(String imageStyle, PromptRequest request) {
         String promptText = String.format(
                 appProperties.openAIImage().prompt(),
                 imageStyle,
-                request.script()
+                request.prompt()
         );
 
         OpenAiImageOptions options = OpenAiImageOptions.builder()
@@ -126,10 +112,10 @@ public class OpenAiService {
 
         Image image = response.getResult().getOutput();
 
-        String alt = String.format("'%s' 내용을 기반으로 AI가 생성한 이미지", request.script());
+        String alt = String.format("'%s' 내용을 기반으로 AI가 생성한 이미지", request.prompt());
         String imageUrl = image.getUrl();
 
-        return new ImageResponse(processAndUploadImage(imageUrl), alt);
+        return new CreateResourceResponse(processAndUploadImage(imageUrl), alt, null);
     }
 
     private String processAndUploadImage(String imageUrl) {
@@ -150,5 +136,18 @@ public class OpenAiService {
         section.setUploadImageUrl(imageUrl);
         section.setAlt(alt);
         sectionRepository.save(section);
+    }
+
+    public CreateResourceResponse createContent(Long projectId, Long sectionId, String type, PromptRequest promptRequest) {
+
+        if ("image".equalsIgnoreCase(type)) {
+           return createImage(projectId, sectionId, promptRequest);
+        } else if ("script".equalsIgnoreCase(type)) {
+            return createScript(projectId, sectionId, promptRequest);
+        } else {
+            CreateResourceResponse imageResponse = createImage(projectId, sectionId, promptRequest);
+            CreateResourceResponse scriptResponse = createScript(projectId, sectionId, promptRequest);
+            return new CreateResourceResponse(imageResponse.imageUrl(), imageResponse.alt(), scriptResponse.script());
+        }
     }
 }

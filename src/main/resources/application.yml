@@ -98,7 +98,7 @@ app:
     model: ${SCRIPT_AI_MODEL:gpt-4o-mini}
     temperature: ${SCRIPT_AI_TEMPERATURE:0.7}
   openai-image:
-    prompt: ${IMAGE_AI_PROMPT:"다음 스크립트를 읽고, '%s'풍으로 스크립트에 어울리는 이미지를 만들어줘.%n%n스크립트:%n%s"}
+    prompt: ${IMAGE_AI_PROMPT:"Read the following script and create an image that suits the script in the style of ‘%s’. %n%nScript:%n%s"}
     model: ${IMAGE_AI_MODEL:dall-e-2}
     quality: ${IMAGE_AI_QUALITY:standard}
 

@@ -48,7 +48,6 @@ public class SupabaseStorageService implements FileStorageService {
             HttpEntity<byte[]> requestEntity = new HttpEntity<>(fileBytes, headers);
 
             restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
-            restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
 
             return url;
         } catch (IOException e) {

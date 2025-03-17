@@ -5,7 +5,7 @@ import gettothepoint.unicatapi.common.propertie.AppProperties;
 import gettothepoint.unicatapi.common.util.MultipartFileUtil;
 import gettothepoint.unicatapi.domain.dto.project.ImageResponse;
 import gettothepoint.unicatapi.domain.dto.project.SectionRequest;
-import gettothepoint.unicatapi.domain.dto.project.UploadImageRequest;
+import gettothepoint.unicatapi.domain.dto.project.UploadResourceRequest;
 import gettothepoint.unicatapi.domain.entity.dashboard.Project;
 import gettothepoint.unicatapi.domain.entity.dashboard.Section;
 import gettothepoint.unicatapi.domain.repository.ProjectRepository;
@@ -55,22 +55,22 @@ public class SectionService {
         return section.getId();
     }
 
-    public ImageResponse uploadImage(Long projectId, Long sectionId, UploadImageRequest uploadImageRequest) {
+    public ImageResponse uploadImage(Long projectId, Long sectionId, UploadResourceRequest uploadResourceRequest) {
         projectRepository.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + projectId));
 
         Section section = sectionRepository.findById(sectionId)
                 .orElseThrow(() -> new EntityNotFoundException(SECTION_NOT_FOUND_MSG + sectionId));
 
-        MultipartFile file = uploadImageRequest.image();
+        MultipartFile file = uploadResourceRequest.image();
 
         String url = fileStorageService.uploadFile(file);
 
         section.setUploadImageUrl(url);
-        section.setAlt(uploadImageRequest.alt());
+        section.setAlt(uploadResourceRequest.alt());
         sectionRepository.save(section);
 
-        return new ImageResponse(url, uploadImageRequest.alt());
+        return new ImageResponse(url, uploadResourceRequest.alt());
     }
 
     public void uploadScript(Long sectionId, String script) {
@@ -136,5 +136,4 @@ public class SectionService {
 
         return section.getSortOrder();
     }
-
 }
