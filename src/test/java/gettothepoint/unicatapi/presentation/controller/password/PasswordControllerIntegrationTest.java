@@ -220,5 +220,19 @@ class PasswordControllerIntegrationTest {
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());
         }
+
+        @Test
+        @DisplayName("email + Url 검증 실패 - 400 bad request")
+        void resetSendUrlAndEmailError() throws Exception {
+            PasswordResetEmailRequest request = PasswordResetEmailRequest.builder()
+                    .email("so728")
+                    .url("test")
+                    .build();
+
+            mockMvc.perform(post("/members/anonymous/password")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(status().isBadRequest());
+        }
     }
 }
