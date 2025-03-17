@@ -4,13 +4,9 @@ spring:
       on-profile: prod
   datasource:
     hikari:
-      maximum-pool-size: 5  # 최대 연결 수 제한 (Supabase 한계 고려)
-      minimum-idle: 2        # 최소 유지할 연결 수
-      idle-timeout: 30000    # (30초) 유휴 연결 유지 시간
-      max-lifetime: 1800000  # (30분) 하나의 연결이 살아있는 최대 시간
-      connection-timeout: 5000  # (5초) 연결 시도 타임아웃
-
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    open-in-view: false
+      auto-commit: true  # 트랜잭션이 끝나면 자동으로 커밋
+      maximum-pool-size: 5  # 최대 5개 커넥션 제한 (세션 부족 방지)
+      minimum-idle: 0  # 최소한의 유휴 커넥션 유지 (세션 낭비 방지)
+      idle-timeout: 10000  # 10초 후 유휴 커넥션 반납 (짧게 설정)
+      max-lifetime: 30000  # 30초 후 커넥션 재생성 (짧게 설정하여 빠른 반납 유도)
+      connection-timeout: 2000  # 2초 동안 커넥션 대기 후 실패
