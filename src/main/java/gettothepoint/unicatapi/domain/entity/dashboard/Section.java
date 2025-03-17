@@ -17,7 +17,7 @@ public class Section extends BaseEntity {
     private Long id;
 
     @Setter
-    private String uploadImageUrl;
+    private String imageUrl;
 
     @Setter
     @Column(columnDefinition = "TEXT")

@@ -14,7 +14,7 @@ public record ProjectResponse (
 ) {
     public record ProjectDTO(String title, String subtitle, String imageUrl,String projectUrl) {
         public static ProjectDTO fromEntity(Project project) {
-            return new ProjectDTO(project.getTitle(), project.getSubtitle(), project.getThumbnailUrl(), project.getVideoUrl());
+            return new ProjectDTO(project.getTitle(), project.getSubtitle(), project.getThumbnailUrl(), project.getArtifactUrl());
         }
     }
 

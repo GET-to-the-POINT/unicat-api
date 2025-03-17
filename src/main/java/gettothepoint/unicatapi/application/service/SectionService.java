@@ -61,7 +61,7 @@ public class SectionService {
         Section section = sectionRepository.findById(sectionId)
                 .orElseThrow(() -> new EntityNotFoundException(SECTION_NOT_FOUND_MSG + sectionId));
 
-        section.setUploadImageUrl(storageUpload.url());
+        section.setImageUrl(storageUpload.url());
         sectionRepository.save(section);
 
         return storageUpload;
