@@ -24,7 +24,7 @@ import gettothepoint.unicatapi.common.util.JwtUtil;
 @AutoConfigureMockMvc
 @Transactional
 @Import(TestDummyTextToSpeechConfiguration.class)
-class AuthControllerIntegrationTest {
+class ETCControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;

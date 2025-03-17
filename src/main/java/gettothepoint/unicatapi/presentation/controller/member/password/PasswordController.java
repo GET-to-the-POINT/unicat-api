@@ -1,4 +1,4 @@
-package gettothepoint.unicatapi.presentation.controller.password;
+package gettothepoint.unicatapi.presentation.controller.member.password;
 
 import gettothepoint.unicatapi.application.service.MemberService;
 import gettothepoint.unicatapi.application.service.password.PasswordService;
@@ -6,6 +6,7 @@ import gettothepoint.unicatapi.common.util.JwtUtil;
 import gettothepoint.unicatapi.domain.dto.password.AnonymousChangePasswordRequest;
 import gettothepoint.unicatapi.domain.dto.password.AuthorizedChangePasswordRequest;
 import gettothepoint.unicatapi.domain.dto.password.PasswordResetEmailRequest;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/members")
+@Tag(name = "Member - Password API", description = "비밀번호 관련 API")
 public class PasswordController {
 
     private final MemberService memberService;

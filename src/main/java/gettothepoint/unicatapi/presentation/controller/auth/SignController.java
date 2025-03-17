@@ -20,7 +20,7 @@ import gettothepoint.unicatapi.application.service.AuthService;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-@Tag(name = "Sign API", description = "회원가입, 사인인, 사인아웃 관련 API")
+@Tag(name = "Auth - Sign API", description = "멤버 관련 api")
 public class SignController {
 
     private final AuthService authService;
