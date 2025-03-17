@@ -3,6 +3,7 @@ package gettothepoint.unicatapi.presentation.controller.password;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gettothepoint.unicatapi.domain.dto.password.AnonymousChangePasswordRequest;
 import gettothepoint.unicatapi.domain.dto.password.AuthorizedChangePasswordRequest;
+import gettothepoint.unicatapi.domain.dto.password.PasswordResetEmailRequest;
 import gettothepoint.unicatapi.domain.dto.sign.SignUpDto;
 import gettothepoint.unicatapi.test.config.TestDummyEmailServiceConfiguration;
 import gettothepoint.unicatapi.test.config.TestDummyTextToSpeechConfiguration;
@@ -44,6 +45,8 @@ class PasswordControllerIntegrationTest {
 
     private String jwtToken;
 
+    private final  String testEmail = "test@example.com";
+
     @BeforeEach
     void setUp() throws Exception {
         jwtToken = signUp();
@@ -51,7 +54,6 @@ class PasswordControllerIntegrationTest {
     }
 
     private String signUp() throws Exception {
-        String testEmail = "test@example.com";
         String testPassword = "ValidPass123!";
         SignUpDto signUpRequest = SignUpDto.builder()
                 .email(testEmail)
@@ -59,7 +61,7 @@ class PasswordControllerIntegrationTest {
                 .confirmPassword(testPassword)
                 .build();
 
-        MvcResult result = mockMvc.perform(post("/sign-up")
+        MvcResult result = mockMvc.perform(post("/auth/sign-up")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signUpRequest)))
                 .andExpect(status().isCreated())
@@ -167,6 +169,53 @@ class PasswordControllerIntegrationTest {
                     .build();
 
             mockMvc.perform(put("/members/anonymous/password")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(status().isBadRequest());
+        }
+    }
+
+    @Nested
+    @DisplayName("비밀번호 초기화 메일 발송")
+    class AnonymousPasswordResetSendEmailTests {
+
+        @Test
+        @DisplayName("정상 재설정 요청 - 200 OK")
+        void resetSendEmail() throws Exception {
+            PasswordResetEmailRequest request = PasswordResetEmailRequest.builder()
+                    .email(testEmail)
+                    .url("https://www.naver.com")
+                    .build();
+
+            mockMvc.perform(post("/members/anonymous/password")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(status().isAccepted());
+        }
+
+        @Test
+        @DisplayName("이메일 검증 실패 - 400 bad request")
+        void resetSendEmailError() throws Exception {
+            PasswordResetEmailRequest request = PasswordResetEmailRequest.builder()
+                    .email("fasdfasfd")
+                    .url("https://www.naver.com")
+                    .build();
+
+            mockMvc.perform(post("/members/anonymous/password")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @DisplayName("Url 검증 실패 - 400 bad request")
+        void resetSendUrlError() throws Exception {
+            PasswordResetEmailRequest request = PasswordResetEmailRequest.builder()
+                    .email(testEmail)
+                    .url("test")
+                    .build();
+
+            mockMvc.perform(post("/members/anonymous/password")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest());

@@ -26,8 +26,7 @@ public class EmailService {
     private final AppProperties appProperties;
     private final JwtUtil jwtUtil;
 
-
-    public void sendEmail(String recipient, String subject, String content) {
+    public void send(String recipient, String subject, String content) {
         try {
             MimeMessage message = emailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
@@ -43,7 +42,6 @@ public class EmailService {
         }
     }
 
-
     public void sendVerificationEmail(Member member) {
         String verificationLink = String.format("%s/verification/email?token=%s",
                 UrlUtil.buildBaseUrl(appProperties.api()),
@@ -52,18 +50,7 @@ public class EmailService {
         String content = "<h1>이메일 인증</h1><p>아래 링크를 클릭하여 이메일을 인증하세요.</p>" +
                 "<a href=\"" + verificationLink + "\">이메일 인증하기</a>";
 
-        sendEmail(member.getEmail(), "회원가입 인증", content);
+        send(member.getEmail(), "회원가입 인증", content);
     }
 
-
-    public void sendPasswordResetEmail(String email, Long memberId) {
-        String resetLink = String.format("%s/reset-password?token=%s",
-                UrlUtil.buildBaseUrl(appProperties.api()),
-                URLEncoder.encode(jwtUtil.generateJwtToken(memberId, email), StandardCharsets.UTF_8));
-
-        String content = "<h1>비밀번호 재설정</h1><p>아래 링크를 클릭하여 비밀번호를 재설정하세요.</p>" +
-                "<a href=\"" + resetLink + "\">비밀번호 재설정</a>";
-
-        sendEmail(email, "비밀번호 재설정", content);
-    }
 }

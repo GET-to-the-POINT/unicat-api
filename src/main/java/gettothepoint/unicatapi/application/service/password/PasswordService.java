@@ -2,41 +2,34 @@ package gettothepoint.unicatapi.application.service.password;
 
 import gettothepoint.unicatapi.application.service.MemberService;
 import gettothepoint.unicatapi.application.service.email.EmailService;
+import gettothepoint.unicatapi.common.util.JwtUtil;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PasswordService {
 
     private final MemberService memberService;
     private final EmailService emailService;
-    private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
-    public void sendPasswordResetEmail(String email) {
-        Member member = memberService.findByEmail(email);
-        emailService.sendPasswordResetEmail(email, member.getId());
-    }
+    public void sendResetEmail(String email, String url) {
+        try {
+            Member member = memberService.findByEmail(email);
+            String token = jwtUtil.generateJwtToken(member.getId(), email);
+            String href = String.format("%stoken=%s", url, token);
 
-    @Transactional
-    public void resetPassword(String email, String newPassword, String newPasswordConfirmation) {
-        if (!newPassword.equals(newPasswordConfirmation)) {
-            throw new IllegalArgumentException("새 비밀번호와 확인이 일치하지 않습니다.");
-        }
-        memberService.updatePassword(email, newPassword);
-    }
+            String content = "<h1>비밀번호 재설정</h1><p>아래 링크를 클릭하여 비밀번호를 재설정하세요.</p>" +
+                    "<a href=\"" + href + "\">비밀번호 재설정</a>";
 
-    public void verifyCurrentPassword(String email, String currentPassword) {
-        Member member = memberService.findByEmail(email);
-        boolean isSame = passwordEncoder.matches(currentPassword, member.getPassword());
-
-        if (!isSame) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "비밀번호가 일치하지 않습니다.");
+            emailService.send(email, "비밀번호 재설정", content);
+        } catch (ResponseStatusException e) {
+            log.info("사용자가 없는 이메일로 발송 요청");
         }
     }
 }
