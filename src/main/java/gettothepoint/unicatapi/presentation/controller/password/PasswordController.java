@@ -5,8 +5,8 @@ import gettothepoint.unicatapi.application.service.password.PasswordService;
 import gettothepoint.unicatapi.common.util.JwtUtil;
 import gettothepoint.unicatapi.domain.dto.password.AnonymousChangePasswordRequest;
 import gettothepoint.unicatapi.domain.dto.password.AuthorizedChangePasswordRequest;
+import gettothepoint.unicatapi.domain.dto.password.PasswordResetEmailRequest;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,7 +23,6 @@ public class PasswordController {
     private final PasswordService passwordService;
 
     @PutMapping("/me/password")
-    @ResponseStatus(HttpStatus.OK)
     public void resetPasswordForLoggedInUser(
             @AuthenticationPrincipal Jwt jwt,
             @Valid @RequestBody AuthorizedChangePasswordRequest request) {
@@ -32,11 +31,16 @@ public class PasswordController {
     }
 
     @PutMapping("/anonymous/password")
-    @ResponseStatus(HttpStatus.OK)
     public void resetPasswordForNonLoggedInUser(
             @Valid @RequestBody AnonymousChangePasswordRequest request) {
         String email = jwtUtil.getEmailFromToken(request.token());
         memberService.updatePassword(email, request.newPassword());
+    }
+
+    @PostMapping("/anonymous/password")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void sendPasswordResetEmail(@Valid @RequestBody PasswordResetEmailRequest request) {
+        passwordService.sendResetEmail(request.email(), request.url());
     }
 }
 
