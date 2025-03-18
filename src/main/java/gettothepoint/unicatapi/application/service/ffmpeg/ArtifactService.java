@@ -22,9 +22,10 @@ public class ArtifactService {
                 .orElseThrow(() -> new IllegalArgumentException("프로젝트를 찾을 수 없습니다: " + projectId));
 
         if (project.getArtifactUrl() != null && !project.getArtifactUrl().isEmpty()) {
-
             if ("youtube".equalsIgnoreCase(type)) {
-                return youtubeUploadService.uploadVideoToYoutube(project.getArtifactUrl(), projectId, accessToken).join();
+
+                return "기존 아티팩트가 유튜브에 업로드되었습니다: " +
+                        youtubeUploadService.uploadVideoToYoutube(project.getArtifactUrl(), projectId, accessToken).join();
             }
             return "기존 아티팩트가 이미 존재합니다: " + project.getArtifactUrl();
         }
@@ -32,7 +33,11 @@ public class ArtifactService {
         String artifactUrl = mergeService.createArtifactVideo(projectId);
         project.setArtifactUrl(artifactUrl);
         projectRepository.save(project);
+
+        if ("youtube".equalsIgnoreCase(type)) {
+            return "아티팩트가 생성되고 유튜브에 업로드되었습니다: " +
+                    youtubeUploadService.uploadVideoToYoutube(artifactUrl, projectId, accessToken).join();
+        }
         return "아티팩트가 성공적으로 생성되었습니다: " + artifactUrl;
     }
-
 }
