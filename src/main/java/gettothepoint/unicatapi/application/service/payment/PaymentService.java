@@ -2,6 +2,7 @@ package gettothepoint.unicatapi.application.service.payment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gettothepoint.unicatapi.common.util.PaymentUtil;
+import gettothepoint.unicatapi.domain.dto.payment.PaymentHistoryResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -88,7 +89,7 @@ public class PaymentService {
             String responseBody = responseEntity.getBody();
             return objectMapper.readValue(responseBody, TossPaymentResponse.class);
         } catch (IOException e) {
-            throw new RuntimeException("Toss API 호출 중 오류 발생: " + e.getMessage(), e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error occurred while calling Toss API: ", e);
         }
     }
 
@@ -111,7 +112,11 @@ public class PaymentService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "paymentId not found"));
     }
 
-    public List<Payment> findByMemberEmail(String email) {
-        return paymentRepository.findByOrder_Member_Email(email);
+    public List<PaymentHistoryResponse> findByMemberEmail(String email) {
+        List<Payment> payments = paymentRepository.findByOrder_Member_Email(email);
+        return payments.stream()
+                .map(PaymentHistoryResponse::fromEntity)
+                .toList();
     }
 }
+
