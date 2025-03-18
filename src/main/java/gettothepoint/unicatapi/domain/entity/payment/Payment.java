@@ -40,6 +40,10 @@ public class Payment extends BaseEntity {
     @JoinColumn
     private Order order;
 
+    @ManyToOne
+    @JoinColumn
+    private Billing billing;
+
     private LocalDateTime approvedAt;
     private LocalDateTime canceledAt;
     private String cancelReason;

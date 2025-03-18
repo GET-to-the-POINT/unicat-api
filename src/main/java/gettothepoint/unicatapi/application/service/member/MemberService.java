@@ -83,6 +83,18 @@ public class MemberService {
         member.setPassword(passwordEncoder.encode(newPassword));
         memberRepository.save(member);
     }
+
+    public Member getOrCreateCustomerKey(String email) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "멤버를 찾을 수 없습니다."));
+
+        if (member.getCustomerKey() == null) {
+            member.generateCustomerKey();
+            memberRepository.save(member);
+        }
+
+        return member;
+    }
 }
 
 

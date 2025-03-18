@@ -20,7 +20,7 @@ import java.util.UUID;
 public class Order extends BaseEntity {
     @Id
     @Column(updatable = false, nullable = false)
-    private final String id = UUID.randomUUID().toString();
+    private  String id = UUID.randomUUID().toString();
 
     private String orderName;
     private Long amount;
@@ -46,7 +46,8 @@ public class Order extends BaseEntity {
     private Payment payment;
 
     @Builder
-    public Order(String orderName, Long amount, Member member, PayType payMethod, TossPaymentStatus status, Subscription subscription) {
+    public Order(String id,String orderName, Long amount, Member member, PayType payMethod, TossPaymentStatus status, Subscription subscription) {
+        this.id = id;
         this.orderName = orderName;
         this.amount = amount;
         this.member = member;
