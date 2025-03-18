@@ -44,7 +44,7 @@ class SignControllerTest {
         void testSignUpWithValidData() throws Exception {
             SignUpDto signUpDto = SignUpDto.builder().email("test@example.com").password("Password1@").confirmPassword("Password1@").build();
             doNothing().when(authService).signUp(any(SignUpDto.class), any(HttpServletResponse.class));
-            mockMvc.perform(post("/sign-up")
+            mockMvc.perform(post("/auth/sign-up")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(signUpDto)))
                     .andExpect(status().isCreated());
@@ -55,7 +55,7 @@ class SignControllerTest {
             SignUpDto signUpDto = SignUpDto.builder().build();
             doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email and password are required"))
                     .when(authService).signUp(any(SignUpDto.class), any(HttpServletResponse.class));
-            mockMvc.perform(post("/sign-up")
+            mockMvc.perform(post("/auth/sign-up")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(signUpDto)))
                     .andExpect(status().isBadRequest());
@@ -66,7 +66,7 @@ class SignControllerTest {
             SignUpDto signUpDto = SignUpDto.builder().password("password").confirmPassword("password").build();
             doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is required"))
                     .when(authService).signUp(any(SignUpDto.class), any(HttpServletResponse.class));
-            mockMvc.perform(post("/sign-up")
+            mockMvc.perform(post("/auth/sign-up")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(signUpDto)))
                     .andExpect(status().isBadRequest());
@@ -77,7 +77,7 @@ class SignControllerTest {
             SignUpDto signUpDto = SignUpDto.builder().email("test@example.com").confirmPassword("password").build();
             doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password is required"))
                     .when(authService).signUp(any(SignUpDto.class), any(HttpServletResponse.class));
-            mockMvc.perform(post("/sign-up")
+            mockMvc.perform(post("/auth/sign-up")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(signUpDto)))
                     .andExpect(status().isBadRequest());
@@ -88,7 +88,7 @@ class SignControllerTest {
             SignUpDto signUpDto = SignUpDto.builder().email("duplicate@example.com").password("Password1@").confirmPassword("Password1@").build();
             doThrow(new ResponseStatusException(HttpStatus.CONFLICT, "Email is already in use"))
                     .when(authService).signUp(any(SignUpDto.class), any(HttpServletResponse.class));
-            mockMvc.perform(post("/sign-up")
+            mockMvc.perform(post("/auth/sign-up")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(signUpDto)))
                     .andExpect(status().isConflict());
@@ -99,7 +99,7 @@ class SignControllerTest {
             SignUpDto signUpDto = SignUpDto.builder().email("test@example.com").password("password").confirmPassword("differentPassword").build();
             doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Passwords do not match"))
                     .when(authService).signUp(any(SignUpDto.class), any(HttpServletResponse.class));
-            mockMvc.perform(post("/sign-up")
+            mockMvc.perform(post("/auth/sign-up")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(signUpDto)))
                     .andExpect(status().isBadRequest());
@@ -114,7 +114,7 @@ class SignControllerTest {
         void testSignInWithValidData() throws Exception {
             SignInDto signInDto = SignInDto.builder().email("test@example.com").password("password").build();
             doNothing().when(authService).signIn(any(SignInDto.class), any(HttpServletResponse.class));
-            mockMvc.perform(post("/sign-in")
+            mockMvc.perform(post("/auth/sign-in")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(signInDto)))
                     .andExpect(status().isOk());
@@ -125,7 +125,7 @@ class SignControllerTest {
             SignInDto signInDto = SignInDto.builder().password("password").build();
             doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is required"))
                     .when(authService).signIn(any(SignInDto.class), any(HttpServletResponse.class));
-            mockMvc.perform(post("/sign-in")
+            mockMvc.perform(post("/auth/sign-in")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(signInDto)))
                     .andExpect(status().isBadRequest());
@@ -136,7 +136,7 @@ class SignControllerTest {
             SignInDto signInDto = SignInDto.builder().email("test@example.com").build();
             doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password is required"))
                     .when(authService).signIn(any(SignInDto.class), any(HttpServletResponse.class));
-            mockMvc.perform(post("/sign-in")
+            mockMvc.perform(post("/auth/sign-in")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(signInDto)))
                     .andExpect(status().isBadRequest());
@@ -147,7 +147,7 @@ class SignControllerTest {
             SignInDto signInDto = SignInDto.builder().email("test@example.com").password("wrongpassword").build();
             doThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password"))
                     .when(authService).signIn(any(SignInDto.class), any(HttpServletResponse.class));
-            mockMvc.perform(post("/sign-in")
+            mockMvc.perform(post("/auth/sign-in")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(signInDto)))
                     .andExpect(status().isUnauthorized());

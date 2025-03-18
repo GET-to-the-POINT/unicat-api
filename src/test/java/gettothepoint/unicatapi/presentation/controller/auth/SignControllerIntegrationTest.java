@@ -48,7 +48,7 @@ class SignControllerIntegrationTest {
         void signUpWithValidData() throws Exception {
             SignUpDto request = new SignUpDto(TEST_EMAIL, VALID_PASSWORD, VALID_PASSWORD);
 
-            mockMvc.perform(post("/sign-up")
+            mockMvc.perform(post("/auth/sign-up")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isCreated())
@@ -60,13 +60,13 @@ class SignControllerIntegrationTest {
         void signUpWithDuplicateEmail() throws Exception {
             // 첫 번째 회원가입 요청
             SignUpDto initialRequest = new SignUpDto(TEST_EMAIL, VALID_PASSWORD, VALID_PASSWORD);
-            mockMvc.perform(post("/sign-up")
+            mockMvc.perform(post("/auth/sign-up")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(initialRequest)));
 
             // 중복 이메일 요청
             SignUpDto duplicateRequest = new SignUpDto(TEST_EMAIL, "DifferentPass123!", "DifferentPass123!");
-            mockMvc.perform(post("/sign-up")
+            mockMvc.perform(post("/auth/sign-up")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(duplicateRequest)))
                     .andExpect(status().isBadRequest()); // 실제 동작은 400 BadRequest
@@ -77,7 +77,7 @@ class SignControllerIntegrationTest {
         void signUpWithInvalidData() throws Exception {
             SignUpDto invalidRequest = new SignUpDto("invalid-email", "short", "mismatch");
 
-            mockMvc.perform(post("/sign-up")
+            mockMvc.perform(post("/auth/sign-up")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(invalidRequest)))
                     .andExpect(status().isBadRequest());
@@ -95,7 +95,7 @@ class SignControllerIntegrationTest {
         void setUp() throws Exception {
             // 테스트 사용자 생성
             SignUpDto signUpRequest = new SignUpDto(TEST_EMAIL, VALID_PASSWORD, VALID_PASSWORD);
-            mockMvc.perform(post("/sign-up")
+            mockMvc.perform(post("/auth/sign-up")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(signUpRequest)));
         }
@@ -105,7 +105,7 @@ class SignControllerIntegrationTest {
         void signInWithValidCredentials() throws Exception {
             SignInDto request = new SignInDto(TEST_EMAIL, VALID_PASSWORD);
 
-            mockMvc.perform(post("/sign-in")
+            mockMvc.perform(post("/auth/sign-in")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
@@ -117,7 +117,7 @@ class SignControllerIntegrationTest {
         void signInWithWrongPassword() throws Exception {
             SignInDto request = new SignInDto(TEST_EMAIL, "wrong-password");
 
-            MvcResult result = mockMvc.perform(post("/sign-in")
+            MvcResult result = mockMvc.perform(post("/auth/sign-in")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isUnauthorized())
@@ -149,13 +149,13 @@ class SignControllerIntegrationTest {
             SignUpDto signUpRequest = new SignUpDto("encrypt@example.com", rawPassword, rawPassword);
 
             // 회원가입 요청
-            mockMvc.perform(post("/sign-up")
+            mockMvc.perform(post("/auth/sign-up")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(signUpRequest)));
 
             // 로그인 요청
             SignInDto signInRequest = new SignInDto("encrypt@example.com", rawPassword);
-            mockMvc.perform(post("/sign-in")
+            mockMvc.perform(post("/auth/sign-in")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(signInRequest)))
                     .andExpect(status().isOk()); // 원본 비밀번호로 로그인 성공
