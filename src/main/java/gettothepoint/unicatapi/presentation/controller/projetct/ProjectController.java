@@ -74,4 +74,9 @@ public class ProjectController {
     public ScriptResponse refineScript(@PathVariable Long projectId, @PathVariable Long sectionId, @RequestBody @Valid ScriptRequest scriptRequest) {
         return openAiService.createScript(projectId, sectionId, scriptRequest);
     }
+
+    @GetMapping("/{projectId}")
+    public ProjectDto getProject(@PathVariable Long projectId) {
+        return projectService.getProject(projectId);
+    }
 }
