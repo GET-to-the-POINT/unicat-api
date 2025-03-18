@@ -67,7 +67,6 @@ dependencies {
 
 	// ===== Youtube  =====
 	implementation 'com.google.api-client:google-api-client:2.7.2'
-	implementation 'com.google.http-client:google-http-client-jackson2:1.46.3'
 	implementation 'com.google.apis:google-api-services-youtube:v3-rev20250224-2.0.0'
 	implementation 'com.google.apis:google-api-services-youtubeAnalytics:v2-rev20230704-2.0.0'
 	implementation 'com.google.auth:google-auth-library-oauth2-http:1.33.1'
