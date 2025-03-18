@@ -5,11 +5,6 @@ import gettothepoint.unicatapi.common.propertie.AppProperties;
 import gettothepoint.unicatapi.common.util.MultipartFileUtil;
 import gettothepoint.unicatapi.domain.dto.project.*;
 import gettothepoint.unicatapi.domain.entity.dashboard.Section;
-import gettothepoint.unicatapi.common.util.MultipartFileUtil;
-import gettothepoint.unicatapi.domain.dto.project.CreateImageRequest;
-import gettothepoint.unicatapi.domain.dto.project.ImageResponse;
-import gettothepoint.unicatapi.domain.dto.project.ScriptRequest;
-import gettothepoint.unicatapi.domain.dto.project.ScriptResponse;
 import gettothepoint.unicatapi.domain.repository.ProjectRepository;
 import gettothepoint.unicatapi.domain.repository.SectionRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -20,16 +15,9 @@ import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.image.Image;
 import org.springframework.ai.image.ImagePrompt;
 import org.springframework.ai.openai.OpenAiChatModel;
-import org.springframework.ai.image.Image;
-import org.springframework.ai.image.ImagePrompt;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.OpenAiImageModel;
 import org.springframework.ai.openai.OpenAiImageOptions;
-import org.springframework.http.HttpStatus;
-import org.springframework.ai.openai.OpenAiImageModel;
-import org.springframework.ai.openai.OpenAiImageOptions;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -38,8 +26,6 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.net.URI;
-import java.util.Objects;
 
 @RequiredArgsConstructor
 @Service
