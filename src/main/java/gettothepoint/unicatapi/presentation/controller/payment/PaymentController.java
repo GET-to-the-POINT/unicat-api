@@ -1,6 +1,5 @@
 package gettothepoint.unicatapi.presentation.controller.payment;
 import gettothepoint.unicatapi.domain.dto.payment.*;
-import gettothepoint.unicatapi.domain.entity.payment.Payment;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,7 +15,6 @@ import gettothepoint.unicatapi.application.service.payment.PaymentCancelService;
 import gettothepoint.unicatapi.application.service.payment.PaymentService;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Tag(name = "Payment API", description = "결제 관련 API")
 @RestController
@@ -31,17 +29,15 @@ public class PaymentController {
         description = "인증된 사용자의 구매 이력을 조회합니다.",
         responses = {
             @ApiResponse(responseCode = "200", description = "구매 이력 조회 성공",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = PaymentHistoryDto.class))),
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = PaymentHistoryResponse.class))),
             @ApiResponse(responseCode = "401", description = "권한 없음")
         }
     )
+
     @GetMapping("/history")
-    public List<PaymentHistoryDto> paymentsHistory(@AuthenticationPrincipal Jwt jwt) {
+    public List<PaymentHistoryResponse> paymentsHistory(@AuthenticationPrincipal Jwt jwt) {
         String email = jwt.getClaim("email");
-        List<Payment> payments = paymentService.findByMemberEmail(email);
-        return payments.stream()//payment 엔티티  paymentHistoryDto 리스트로 변환
-                .map(PaymentHistoryDto::fromEntity)
-                .collect(Collectors.toList());
+        return paymentService.findByMemberEmail(email);
     }
 
     @Operation(
