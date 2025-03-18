@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import gettothepoint.unicatapi.application.service.OpenAiService;
 import gettothepoint.unicatapi.application.service.ProjectService;
 import gettothepoint.unicatapi.application.service.SectionService;
-import gettothepoint.unicatapi.domain.dto.project.ScriptRequest;
-import gettothepoint.unicatapi.domain.dto.project.ScriptResponse;
+import gettothepoint.unicatapi.domain.dto.project.CreateResourceResponse;
+import gettothepoint.unicatapi.domain.dto.project.PromptRequest;
 import gettothepoint.unicatapi.presentation.controller.projetct.ProjectController;
 import gettothepoint.unicatapi.test.config.TestDummyTextToSpeechConfiguration;
 import gettothepoint.unicatapi.test.config.TestSecurityConfig;
@@ -63,8 +63,8 @@ public class ProjectControllerTest {
         void testCreateScriptWithOKRequest() throws Exception {
             Long projectId = 1L;
             Long sectionId = 2L;
-            ScriptRequest scriptRequest = new ScriptRequest("원본 스크립트 내용입니다. 20자 이상이에요.");
-            ScriptResponse expectedResponse = new ScriptResponse("보정된 스크립트 내용");
+            PromptRequest scriptRequest = new PromptRequest("원본 스크립트 내용입니다. 20자 이상이에요.");
+            CreateResourceResponse expectedResponse = new CreateResourceResponse(null,null,"보정된 스크립트 내용");
 
             doReturn(expectedResponse).when(openAiService).createScript(projectId, sectionId, scriptRequest);
 
@@ -80,8 +80,8 @@ public class ProjectControllerTest {
         void testcreateScriptWithBadRequest() throws Exception {
             Long projectId = 1L;
             Long sectionId = 2L;
-            ScriptRequest scriptRequest = new ScriptRequest("원본 스크립트");
-            ScriptResponse expectedResponse = new ScriptResponse("보정된 스크립트 내용");
+            PromptRequest scriptRequest = new PromptRequest("원본 스크립트");
+            CreateResourceResponse expectedResponse = new CreateResourceResponse(null,null,"보정된 스크립트 내용");
 
             doReturn(expectedResponse).when(openAiService).createScript(projectId, sectionId, scriptRequest);
 

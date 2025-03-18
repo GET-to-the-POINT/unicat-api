@@ -4,14 +4,13 @@ import gettothepoint.unicatapi.application.service.OpenAiService;
 import gettothepoint.unicatapi.application.service.ProjectService;
 import gettothepoint.unicatapi.application.service.SectionService;
 import gettothepoint.unicatapi.domain.dto.project.*;
-import gettothepoint.unicatapi.domain.dto.storage.StorageUpload;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -44,13 +43,13 @@ public class ProjectController {
        return sectionService.createSection(projectId);
     }
 
-    @PostMapping(value="/{sectionId}/image", consumes = "multipart/form-data")
-    public StorageUpload uploadImage(@PathVariable Long sectionId, @RequestParam("file") MultipartFile file) {
-        return sectionService.uploadImage(sectionId, file);
+    @PostMapping(value="/{projectId}/sections/{sectionId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ImageResponse uploadImage(@PathVariable Long projectId, @PathVariable Long sectionId, @Valid @ModelAttribute UploadResourceRequest uploadResourceRequest) {
+        return sectionService.uploadImage(projectId, sectionId, uploadResourceRequest);
     }
 
-    @PostMapping("/{sectionId}/script")
-    public void uploadScript(@PathVariable Long sectionId, @RequestBody String script) {
+    @PostMapping("/{projectId}/sections/{sectionId}/script")
+    public void uploadScript(@PathVariable Long projectId, @PathVariable Long sectionId, @RequestBody String script) {
         sectionService.uploadScript(sectionId, script);
     }
 
@@ -69,9 +68,10 @@ public class ProjectController {
         return sectionService.updateSectionSortOrder(sectionId, newOrder);
     }
 
-    @PostMapping("/{projectId}/sections/{sectionId}/script")
-    @ResponseStatus(HttpStatus.OK)
-    public ScriptResponse refineScript(@PathVariable Long projectId, @PathVariable Long sectionId, @RequestBody @Valid ScriptRequest scriptRequest) {
-        return openAiService.createScript(projectId, sectionId, scriptRequest);
+    @PreAuthorize("@projectService.verifyProjectOwner(#projectId, jwt.getSubject())")
+    @PostMapping(value="/{projectId}/sections/{sectionId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public CreateResourceResponse createImageAndScript(@AuthenticationPrincipal Jwt jwt, @PathVariable Long projectId, @PathVariable Long sectionId,
+                                                       @RequestParam(required = false) String type, @Valid @RequestBody PromptRequest scriptRequest) {
+        return openAiService.createContent(projectId, sectionId, type, scriptRequest);
     }
 }

@@ -4,19 +4,33 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 public class MultipartFileUtil implements MultipartFile {
 
-    private final File file;
+
     private final String name;
     private final String contentType;
+    private final File file;
+    private final byte[] data;
+
+    public MultipartFileUtil(@NonNull File file, @NonNull String name, String contentType) {
+        this.file = file;
+        this.name = name;
+        this.contentType = contentType;
+        this.data = null;
+    }
+
+    public MultipartFileUtil(@NonNull byte[] data, @NonNull String name, String contentType) {
+        this.data = data;
+        this.name = name;
+        this.contentType = contentType;
+        this.file = null;
+    }
 
     @Override
     @NonNull
@@ -26,7 +40,7 @@ public class MultipartFileUtil implements MultipartFile {
 
     @Override
     public String getOriginalFilename() {
-        return file.getName();
+        return file != null ? file.getName() : this.name;
     }
 
     @Override
@@ -36,28 +50,32 @@ public class MultipartFileUtil implements MultipartFile {
 
     @Override
     public boolean isEmpty() {
-        return file.length() == 0;
+        return (data != null ? data.length == 0 : Objects.requireNonNull(file).length() == 0);
     }
 
     @Override
     public long getSize() {
-        return file.length();
+        return (data != null) ? data.length : Objects.requireNonNull(file).length();
     }
 
     @Override
     @NonNull
     public byte[] getBytes() throws IOException {
-        return Files.readAllBytes(file.toPath());
+        return (data != null) ? data : Files.readAllBytes(Objects.requireNonNull(file).toPath());
     }
 
     @Override
     @NonNull
     public InputStream getInputStream() throws IOException {
-        return new FileInputStream(file);
+        return (data != null) ? new ByteArrayInputStream(data) : new FileInputStream(Objects.requireNonNull(file));
     }
 
     @Override
-    public void transferTo(File dest) throws IOException, IllegalStateException {
-        Files.copy(file.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
+    public void transferTo(@NonNull File dest) throws IOException, IllegalStateException {
+        if (data != null) {
+            Files.write(dest.toPath(), data);
+        } else {
+            Files.copy(Objects.requireNonNull(file).toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        }
     }
 }
