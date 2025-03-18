@@ -1,5 +1,6 @@
 package gettothepoint.unicatapi.application.service;
 
+import gettothepoint.unicatapi.domain.dto.project.ProjectDto;
 import gettothepoint.unicatapi.domain.dto.project.ProjectResponse;
 import gettothepoint.unicatapi.domain.dto.project.SectionRequest;
 import gettothepoint.unicatapi.domain.dto.project.SectionResponse;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -70,4 +72,22 @@ public class ProjectService {
         sectionService.createTextToSpeech(sectionRequests);
     }
 
+    public void verifyProjectOwner(Long projectId, Long memberId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + projectId));
+
+        if (!project.getMember().getId().equals(memberId)) {
+            throw new AccessDeniedException("접근 권한이 없습니다.");
+        }
+    }
+
+    public ProjectDto getProject(Long projectId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "요청한 프로젝트를 찾을 수 없습니다."));
+        List<SectionResponse> sections = sectionRepository.findAllByProject(project).stream()
+                .map(SectionResponse::fromEntity)
+                .toList();
+
+        return ProjectDto.fromEntity(project, sections);
+    }
 }
