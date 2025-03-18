@@ -1,18 +1,23 @@
-package gettothepoint.unicatapi.presentation.controller.projetct;
+package gettothepoint.unicatapi.presentation.controller.project;
 
+import com.google.api.services.youtubeAnalytics.v2.model.QueryResponse;
 import gettothepoint.unicatapi.application.service.OpenAiService;
 import gettothepoint.unicatapi.application.service.ProjectService;
 import gettothepoint.unicatapi.application.service.SectionService;
+import gettothepoint.unicatapi.application.service.youtube.YouTubeAnalyticsProxyService;
 import gettothepoint.unicatapi.domain.dto.project.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/projects")
@@ -22,6 +27,14 @@ public class ProjectController {
     private final ProjectService projectService;
     private final SectionService sectionService;
     private final OpenAiService openAiService;
+    private final YouTubeAnalyticsProxyService youtubeAnalyticsProxyService;
+
+    @GetMapping("/youtube-analytics")
+    @PreAuthorize("isAuthenticated()")
+    public QueryResponse getYouTubeAnalytics(@RegisteredOAuth2AuthorizedClient("google") OAuth2AuthorizedClient authorizedClient, @RequestParam Map<String, String> queryParams) {
+        Long memberId = Long.valueOf(authorizedClient.getPrincipalName());
+        return youtubeAnalyticsProxyService.getYouTubeAnalyticsData(authorizedClient.getAccessToken(), queryParams, memberId);
+    }
 
     @GetMapping() // 프로젝트 조회 API
     public ProjectResponse getProjects(
