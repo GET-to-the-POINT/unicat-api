@@ -31,7 +31,7 @@ public class ProjectController {
     private final OpenAiService openAiService;
     private final YouTubeAnalyticsProxyService youtubeAnalyticsProxyService;
 
-    @GetMapping("/analytics")
+    @GetMapping("/youtube-analytics")
     @PreAuthorize("isAuthenticated()")
     public QueryResponse getYouTubeAnalytics(@RegisteredOAuth2AuthorizedClient("google") OAuth2AuthorizedClient authorizedClient, @RequestParam Map<String, String> queryParams) {
         Long memberId = Long.valueOf(authorizedClient.getPrincipalName());
