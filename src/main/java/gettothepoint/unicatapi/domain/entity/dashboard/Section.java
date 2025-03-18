@@ -32,6 +32,9 @@ public class Section extends BaseEntity {
     @Setter
     private String ttsUrl;
 
+    @Setter
+    private String videoUrl;
+
     @ManyToOne
     @JoinColumn
     private Project project;

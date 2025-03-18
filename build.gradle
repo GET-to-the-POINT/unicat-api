@@ -81,4 +81,5 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+	jvmArgs += "-javaagent:/path/to/mockito-agent.jar"
 }

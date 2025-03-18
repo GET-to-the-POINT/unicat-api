@@ -14,7 +14,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -99,4 +101,21 @@ public class SupabaseStorageService implements FileStorageService {
 
         return fileName.replaceAll("[^a-zA-Z0-9._-]", "_");
     }
+
+    public File downloadFile(String fileUrl) throws IOException {
+        ResponseEntity<byte[]> response = restTemplate.exchange(
+                fileUrl,
+                HttpMethod.GET,
+                new HttpEntity<>(new HttpHeaders()),
+                byte[].class
+        );
+        if (response.getStatusCode() != HttpStatus.OK) {
+            throw new IOException("Supabase에서 파일 다운로드 실패: " + fileUrl);
+        }
+        File tempFile = File.createTempFile("supabase_video_", ".mp4");
+        Files.write(tempFile.toPath(), Objects.requireNonNull(response.getBody()));
+        log.info("✅ Supabase에서 다운로드 완료: {}", tempFile.getAbsolutePath());
+        return tempFile;
+    }
+
 }

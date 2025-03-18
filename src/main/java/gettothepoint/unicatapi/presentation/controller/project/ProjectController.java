@@ -4,15 +4,19 @@ import com.google.api.services.youtubeAnalytics.v2.model.QueryResponse;
 import gettothepoint.unicatapi.application.service.OpenAiService;
 import gettothepoint.unicatapi.application.service.ProjectService;
 import gettothepoint.unicatapi.application.service.SectionService;
+import gettothepoint.unicatapi.application.service.ffmpeg.ArtifactService;
 import gettothepoint.unicatapi.application.service.youtube.YouTubeAnalyticsProxyService;
 import gettothepoint.unicatapi.domain.dto.project.*;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,6 +32,7 @@ public class ProjectController {
     private final SectionService sectionService;
     private final OpenAiService openAiService;
     private final YouTubeAnalyticsProxyService youtubeAnalyticsProxyService;
+    private final ArtifactService artifactService;
 
     @GetMapping("/youtube-analytics")
     @PreAuthorize("isAuthenticated()")
@@ -71,10 +76,10 @@ public class ProjectController {
         return projectService.getAllSections(projectId);
     }
 
-    @PostMapping("/{projectId}")
-    public void createVideo(@PathVariable Long projectId, @RequestBody List<SectionRequest> sectionRequests) {
-        projectService.createVideo(sectionRequests);
-    }
+//    @PostMapping("/{projectId}")
+//    public void createVideo(@PathVariable Long projectId, @RequestBody List<SectionRequest> sectionRequests) {
+//        projectService.createVideo(sectionRequests);
+//    }
 
     @PostMapping("/{sectionId}/order")
     public Long updateSectionOrder(@PathVariable Long sectionId, @RequestBody int newOrder) {
@@ -86,6 +91,22 @@ public class ProjectController {
     public CreateResourceResponse createImageAndScript(@AuthenticationPrincipal Jwt jwt, @PathVariable Long projectId, @PathVariable Long sectionId,
                                                        @RequestParam(required = false) String type, @Valid @RequestBody PromptRequest scriptRequest) {
         return openAiService.createContent(projectId, sectionId, type, scriptRequest);
+    }
+
+
+    @PostMapping("/{projectId}")
+    public ResponseEntity<String> createArtifact(@PathVariable("projectId") Long projectId,
+                                                 @RequestParam(name = "type", required = false, defaultValue = "artifact") String type,
+                                                 @Parameter(hidden = true)
+                                                 @RegisteredOAuth2AuthorizedClient("google") OAuth2AuthorizedClient authorizedClient) {
+        try {
+            OAuth2AccessToken accessToken = authorizedClient.getAccessToken();
+            String result = artifactService.handleArtifactRequest(projectId, type, accessToken);
+            return ResponseEntity.accepted().body(result);
+
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("아티팩트 생성 실패: " + e.getMessage());
+        }
     }
 
     @GetMapping("/{projectId}")
