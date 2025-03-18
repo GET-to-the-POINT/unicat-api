@@ -1,6 +1,6 @@
-package gettothepoint.unicatapi.application.service.password;
+package gettothepoint.unicatapi.application.service.member.password;
 
-import gettothepoint.unicatapi.application.service.MemberService;
+import gettothepoint.unicatapi.application.service.member.MemberService;
 import gettothepoint.unicatapi.application.service.email.EmailService;
 import gettothepoint.unicatapi.common.util.JwtUtil;
 import gettothepoint.unicatapi.domain.entity.member.Member;

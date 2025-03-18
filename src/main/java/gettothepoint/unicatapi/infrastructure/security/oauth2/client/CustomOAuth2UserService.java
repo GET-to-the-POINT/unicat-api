@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.infrastructure.security.oauth2.client;
 
-import gettothepoint.unicatapi.application.service.MemberService;
+import gettothepoint.unicatapi.application.service.member.MemberService;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.infrastructure.security.oauth2.client.user.OAuth2UserInfo;
 import lombok.RequiredArgsConstructor;

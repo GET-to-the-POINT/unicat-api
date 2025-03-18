@@ -1,4 +1,4 @@
-package gettothepoint.unicatapi.application.service;
+package gettothepoint.unicatapi.application.service.member;
 
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.entity.member.OAuthLink;

@@ -1,6 +1,7 @@
 package gettothepoint.unicatapi.application.service;
 
 import gettothepoint.unicatapi.application.service.email.EmailService;
+import gettothepoint.unicatapi.application.service.member.MemberService;
 import gettothepoint.unicatapi.common.util.JwtUtil;
 import gettothepoint.unicatapi.domain.dto.sign.SignInDto;
 import gettothepoint.unicatapi.domain.dto.sign.SignUpDto;
