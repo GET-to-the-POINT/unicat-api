@@ -1,5 +1,6 @@
 package gettothepoint.unicatapi.application.service.payment;
 
+import gettothepoint.unicatapi.domain.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -15,10 +16,13 @@ import gettothepoint.unicatapi.domain.constant.payment.TossPaymentStatus;
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final MemberRepository memberRepository;
 
-    public Order create(OrderRequest orderRequest, Member member) {
+    public void createOrder(OrderRequest orderRequest, Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Member not found"));
         Order order = buildOrder(orderRequest, member);
-        return orderRepository.save(order);
+        orderRepository.save(order);
     }
 
     private Order buildOrder(OrderRequest orderRequest, Member member) {
