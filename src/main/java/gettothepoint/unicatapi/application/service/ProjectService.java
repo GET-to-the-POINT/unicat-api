@@ -72,15 +72,6 @@ public class ProjectService {
         sectionService.createTextToSpeech(sectionRequests);
     }
 
-    public ProjectDto getProject(Long projectId) {
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "요청한 프로젝트를 찾을 수 없습니다."));
-        List<SectionResponse> sections = sectionRepository.findAllByProject(project).stream()
-                .map(SectionResponse::fromEntity)
-                .toList();
-
-        return ProjectDto.fromEntity(project, sections);
-    }
     public void verifyProjectOwner(Long projectId, Long memberId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + projectId));
@@ -90,4 +81,13 @@ public class ProjectService {
         }
     }
 
+    public ProjectDto getProject(Long projectId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "요청한 프로젝트를 찾을 수 없습니다."));
+        List<SectionResponse> sections = sectionRepository.findAllByProject(project).stream()
+                .map(SectionResponse::fromEntity)
+                .toList();
+
+        return ProjectDto.fromEntity(project, sections);
+    }
 }
