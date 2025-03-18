@@ -12,9 +12,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.OAuth2Token;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,9 +33,8 @@ public class ProjectController {
 
     @GetMapping("/analytics")
     @PreAuthorize("isAuthenticated()")
-    public QueryResponse getYouTubeAnalytics(JwtAuthenticationToken authentication, @RequestParam Map<String, String> queryParams) {
-        OAuth2Token accessToken = authentication.getToken();
-        return youtubeAnalyticsProxyService.getYouTubeAnalyticsData(accessToken, queryParams);
+    public QueryResponse getYouTubeAnalytics(@RegisteredOAuth2AuthorizedClient("google") OAuth2AuthorizedClient authorizedClient, @RequestParam Map<String, String> queryParams) {
+        return youtubeAnalyticsProxyService.getYouTubeAnalyticsData(authorizedClient.getAccessToken(), queryParams);
     }
 
     @GetMapping() // 프로젝트 조회 API

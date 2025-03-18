@@ -65,10 +65,10 @@ dependencies {
 	testImplementation 'com.h2database:h2'
 
 	// ===== Youtube  =====
-	implementation 'com.google.api-client:google-api-client:2.7.0'
+	implementation 'com.google.api-client:google-api-client:2.7.2'
 	implementation 'com.google.http-client:google-http-client-jackson2:1.39.2'
 	implementation 'com.google.apis:google-api-services-youtube:v3-rev20230816-2.0.0'
-	implementation 'com.google.apis:google-api-services-youtubeAnalytics:v2-rev272-1.25.0'
+	implementation 'com.google.apis:google-api-services-youtubeAnalytics:v2-rev20230704-2.0.0'
 	implementation 'com.google.auth:google-auth-library-oauth2-http:1.33.1'
 
 	// ===== TTS =====
