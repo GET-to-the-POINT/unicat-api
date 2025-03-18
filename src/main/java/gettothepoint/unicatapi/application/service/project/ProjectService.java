@@ -1,4 +1,4 @@
-package gettothepoint.unicatapi.application.service;
+package gettothepoint.unicatapi.application.service.project;
 
 import gettothepoint.unicatapi.domain.dto.project.ProjectDto;
 import gettothepoint.unicatapi.domain.dto.project.ProjectResponse;

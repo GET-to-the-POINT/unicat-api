@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.common.validation.email;
 
 
-import gettothepoint.unicatapi.application.service.MemberService;
+import gettothepoint.unicatapi.application.service.member.MemberService;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.beans.factory.annotation.Autowired;

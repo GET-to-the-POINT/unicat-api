@@ -2,8 +2,8 @@ package gettothepoint.unicatapi.presentation.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gettothepoint.unicatapi.application.service.OpenAiService;
-import gettothepoint.unicatapi.application.service.ProjectService;
-import gettothepoint.unicatapi.application.service.SectionService;
+import gettothepoint.unicatapi.application.service.project.ProjectService;
+import gettothepoint.unicatapi.application.service.project.SectionService;
 import gettothepoint.unicatapi.domain.dto.project.CreateResourceResponse;
 import gettothepoint.unicatapi.domain.dto.project.PromptRequest;
 import gettothepoint.unicatapi.domain.dto.project.ProjectDto;
