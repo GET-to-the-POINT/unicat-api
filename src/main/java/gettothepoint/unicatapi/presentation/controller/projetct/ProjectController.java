@@ -1,19 +1,25 @@
 package gettothepoint.unicatapi.presentation.controller.projetct;
 
+import com.google.api.services.youtubeAnalytics.v2.model.QueryResponse;
 import gettothepoint.unicatapi.application.service.OpenAiService;
 import gettothepoint.unicatapi.application.service.ProjectService;
 import gettothepoint.unicatapi.application.service.SectionService;
+import gettothepoint.unicatapi.application.service.youtube.YouTubeAnalyticsProxyService;
 import gettothepoint.unicatapi.domain.dto.project.*;
 import gettothepoint.unicatapi.domain.dto.storage.StorageUpload;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/projects")
@@ -23,13 +29,17 @@ public class ProjectController {
     private final ProjectService projectService;
     private final SectionService sectionService;
     private final OpenAiService openAiService;
+    private final YouTubeAnalyticsProxyService youtubeAnalyticsProxyService;
+
+    @GetMapping("/analytics")
+    @PreAuthorize("isAuthenticated()")
+    public QueryResponse getYouTubeAnalytics(JwtAuthenticationToken authentication, @RequestParam Map<String, String> queryParams) {
+        OAuth2Token accessToken = authentication.getToken();
+        return youtubeAnalyticsProxyService.getYouTubeAnalyticsData(accessToken, queryParams);
+    }
 
     @GetMapping() // 프로젝트 조회 API
-    public ProjectResponse getProjects(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt,desc") String sort
-    ) {
+    public ProjectResponse getProjects(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, @RequestParam(defaultValue = "createdAt,desc") String sort) {
         return projectService.getProjects(page, size, sort);
     }
 
