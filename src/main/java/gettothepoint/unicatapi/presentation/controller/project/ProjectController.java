@@ -1,4 +1,4 @@
-package gettothepoint.unicatapi.presentation.controller.projetct;
+package gettothepoint.unicatapi.presentation.controller.project;
 
 import com.google.api.services.youtubeAnalytics.v2.model.QueryResponse;
 import gettothepoint.unicatapi.application.service.OpenAiService;
