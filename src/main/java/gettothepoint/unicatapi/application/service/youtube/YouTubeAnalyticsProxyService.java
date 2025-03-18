@@ -58,9 +58,10 @@ public class YouTubeAnalyticsProxyService {
 
             List<Project> projectList = projectRepository.findProjectsWithUploadVideoByMemberId(memberId);
 
-            if (projectList.isEmpty()) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Uploaded video is not found. Please upload a video first.");
-            }
+            // TODO, 데미 데이터를 너힉 전까지 프로덕트 반영 금지
+//            if (projectList.isEmpty()) {
+//                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Uploaded video is not found. Please upload a video first.");
+//            }
 
             String projectIdFilter = projectList.stream()
                     .map(project -> project.getUploadVideo().getId().toString())
