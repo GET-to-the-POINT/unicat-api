@@ -9,6 +9,8 @@ import gettothepoint.unicatapi.domain.dto.project.PromptRequest;
 import gettothepoint.unicatapi.domain.dto.project.ProjectDto;
 import gettothepoint.unicatapi.domain.dto.project.ScriptRequest;
 import gettothepoint.unicatapi.domain.dto.project.ScriptResponse;
+import gettothepoint.unicatapi.domain.dto.project.CreateResourceResponse;
+import gettothepoint.unicatapi.domain.dto.project.PromptRequest;
 import gettothepoint.unicatapi.presentation.controller.projetct.ProjectController;
 import gettothepoint.unicatapi.test.config.TestDummyTextToSpeechConfiguration;
 import gettothepoint.unicatapi.test.config.TestSecurityConfig;
