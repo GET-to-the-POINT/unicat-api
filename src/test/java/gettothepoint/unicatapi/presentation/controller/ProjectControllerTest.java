@@ -6,6 +6,11 @@ import gettothepoint.unicatapi.application.service.ProjectService;
 import gettothepoint.unicatapi.application.service.SectionService;
 import gettothepoint.unicatapi.domain.dto.project.CreateResourceResponse;
 import gettothepoint.unicatapi.domain.dto.project.PromptRequest;
+import gettothepoint.unicatapi.domain.dto.project.ProjectDto;
+import gettothepoint.unicatapi.domain.dto.project.ScriptRequest;
+import gettothepoint.unicatapi.domain.dto.project.ScriptResponse;
+import gettothepoint.unicatapi.domain.dto.project.CreateResourceResponse;
+import gettothepoint.unicatapi.domain.dto.project.PromptRequest;
 import gettothepoint.unicatapi.presentation.controller.projetct.ProjectController;
 import gettothepoint.unicatapi.test.config.TestDummyTextToSpeechConfiguration;
 import gettothepoint.unicatapi.test.config.TestSecurityConfig;
@@ -18,11 +23,18 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -39,6 +51,9 @@ public class ProjectControllerTest {
     @Autowired
     private OpenAiService openAiService;
 
+    @Autowired
+    private ProjectService projectService; // ✅ 추가
+
     @TestConfiguration
     static class TestConfig {
 
@@ -48,10 +63,14 @@ public class ProjectControllerTest {
         }
 
         @Bean
-        public SectionService sectionService() {return Mockito.mock(SectionService.class);}
+        public SectionService sectionService() {
+            return Mockito.mock(SectionService.class);
+        }
 
         @Bean
-        public OpenAiService openAiService() {return Mockito.mock(OpenAiService.class);}
+        public OpenAiService openAiService() {
+            return Mockito.mock(OpenAiService.class);
+        }
     }
 
     @Nested
@@ -90,7 +109,64 @@ public class ProjectControllerTest {
                             .content(objectMapper.writeValueAsString(scriptRequest)))
                     .andExpect(status().isBadRequest());
         }
-
     }
 
+    @Nested
+    @DisplayName("📌 프로젝트 단일 조회 테스트")
+    class GetProjectTests {
+
+        @Test
+        @DisplayName("✅ 유효한 프로젝트 ID일 경우 OK와 예상 응답 반환")
+        void testGetProjectWithValidId() throws Exception {
+            // Given
+            Long projectId = 1L;
+            ProjectDto expectedResponse = new ProjectDto(
+                    projectId,
+                    "테스트 프로젝트",
+                    "테스트 부제목",
+                    "https://example.com/image.png",
+                    "https://example.com/video.mp4",
+                    "설정된 톤",
+                    "설정된 이미지 스타일",
+                    List.of()
+            );
+            System.out.println("✅ expectedResponse: " + expectedResponse);
+            // ✅ Mock 설정 확인
+            doReturn(expectedResponse).when(projectService).getProject(projectId);
+
+            // ✅ 컨트롤러와 같은 URL 요청
+            mockMvc.perform(get("/projects/" + projectId)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(content().json(objectMapper.writeValueAsString(expectedResponse)));
+        }
+
+        @Test
+        @DisplayName("🚨 존재하지 않는 프로젝트 ID일 경우 NotFound 반환")
+        void testGetProjectWithInvalidId() throws Exception {
+            // Given
+            Long invalidProjectId = 999L;
+
+            // Mock 설정: 존재하지 않는 프로젝트 ID 요청 시 예외 발생
+            doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "요청한 프로젝트를 찾을 수 없습니다."))
+                    .when(projectService).getProject(invalidProjectId);
+
+            // When & Then
+            mockMvc.perform(get("/project/" + invalidProjectId)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isNotFound());
+        }
+        @Test
+        @DisplayName("🚨 요청이 유효하지 않을 경우 400 Bad Request 반환")
+        void testGetProjectWithInvalidRequest() throws Exception {
+            // Given: projectId에 문자를 넣으면 잘못된 요청
+            String invalidProjectId = "invalid";
+
+            // When & Then
+            mockMvc.perform(get("/projects/" + invalidProjectId)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andDo(print()) // ✅ 요청 & 응답 확인
+                    .andExpect(status().isBadRequest()); // ✅ HTTP 400 확인
+        }
+    }
 }

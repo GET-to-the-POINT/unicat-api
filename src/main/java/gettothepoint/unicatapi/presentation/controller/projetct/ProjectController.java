@@ -74,4 +74,9 @@ public class ProjectController {
                                                        @RequestParam(required = false) String type, @Valid @RequestBody PromptRequest scriptRequest) {
         return openAiService.createContent(projectId, sectionId, type, scriptRequest);
     }
+
+    @GetMapping("/{projectId}")
+    public ProjectDto getProject(@PathVariable Long projectId) {
+        return projectService.getProject(projectId);
+    }
 }

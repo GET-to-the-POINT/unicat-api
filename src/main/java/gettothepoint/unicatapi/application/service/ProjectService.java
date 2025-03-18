@@ -1,5 +1,6 @@
 package gettothepoint.unicatapi.application.service;
 
+import gettothepoint.unicatapi.domain.dto.project.ProjectDto;
 import gettothepoint.unicatapi.domain.dto.project.ProjectResponse;
 import gettothepoint.unicatapi.domain.dto.project.SectionRequest;
 import gettothepoint.unicatapi.domain.dto.project.SectionResponse;
@@ -80,4 +81,13 @@ public class ProjectService {
         }
     }
 
+    public ProjectDto getProject(Long projectId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "요청한 프로젝트를 찾을 수 없습니다."));
+        List<SectionResponse> sections = sectionRepository.findAllByProject(project).stream()
+                .map(SectionResponse::fromEntity)
+                .toList();
+
+        return ProjectDto.fromEntity(project, sections);
+    }
 }
