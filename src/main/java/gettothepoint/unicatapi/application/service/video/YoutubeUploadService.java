@@ -143,12 +143,11 @@ public class YoutubeUploadService {
 
             projectRepository.save(project);
 
-            UploadVideo uploadVideo = UploadVideo.builder()
+            uploadVideoRepository.save(UploadVideo.builder()
                     .linkId(uploadedVideo.getId())
                     .project(project)
-                    .build();
-
-            uploadVideoRepository.save(uploadVideo);
+                    .build()
+            );
 
             return CompletableFuture.completedFuture(youtubeUrl);
         } catch (Exception e) {
