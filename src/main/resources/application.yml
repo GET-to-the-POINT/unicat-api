@@ -45,8 +45,6 @@ spring:
   ai:
     openai:
       api-key: ${APP_OPENAI_API_KEY}
-      image:
-        enabled: true
 
 
 springdoc:
