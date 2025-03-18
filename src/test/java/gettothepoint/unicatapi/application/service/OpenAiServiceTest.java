@@ -1,8 +1,8 @@
 package gettothepoint.unicatapi.application.service;
 
 import gettothepoint.unicatapi.common.propertie.AppProperties;
-import gettothepoint.unicatapi.domain.dto.project.ScriptRequest;
-import gettothepoint.unicatapi.domain.dto.project.ScriptResponse;
+import gettothepoint.unicatapi.domain.dto.project.CreateResourceResponse;
+import gettothepoint.unicatapi.domain.dto.project.PromptRequest;
 import gettothepoint.unicatapi.domain.entity.dashboard.Project;
 import gettothepoint.unicatapi.domain.entity.dashboard.Section;
 import gettothepoint.unicatapi.domain.repository.ProjectRepository;
@@ -48,23 +48,23 @@ class OpenAiServiceTest {
     private AppProperties appProperties;
 
     @Mock
-    private AppProperties.OpenAI openAI;
+    private AppProperties.OpenAIScript openAI;
 
+    @Mock
     private OpenAiService openAiService;
 
     @BeforeEach
     void setUp() {
         when(chatClientBuilder.build()).thenReturn(chatClient);
-        when(appProperties.openAI()).thenReturn(openAI);
+        when(appProperties.openAIScript()).thenReturn(openAI);
 
-        openAiService = new OpenAiService(chatClientBuilder, sectionRepository, projectRepository, appProperties);
     }
 
     @Test
     void testCreateScriptSuccess() {
         Long projectId = 1L;
         Long sectionId = 2L;
-        ScriptRequest scriptRequest = new ScriptRequest("원본 스크립트 내용");
+        PromptRequest scriptRequest = new PromptRequest("원본 스크립트 내용");
 
         Section section = new Section();
         when(sectionRepository.findById(sectionId)).thenReturn(Optional.of(section));
@@ -77,17 +77,17 @@ class OpenAiServiceTest {
         when(openAI.model()).thenReturn("gpt-4o-mini");
         when(openAI.temperature()).thenReturn(0.7);
 
-        String expectedPrompt = String.format("Tone: %s, Script: %s", "friendly", scriptRequest.script());
+        String expectedPrompt = String.format("Tone: %s, Script: %s", "friendly", scriptRequest.prompt());
 
         when(chatClient.prompt()).thenReturn(chatClientRequestSpec);
         when(chatClientRequestSpec.user(expectedPrompt)).thenReturn(chatClientRequestSpec);
 
         when(chatClientRequestSpec.call()).thenReturn(callResponseSpec);
-        ScriptResponse dummyResponse = new ScriptResponse("보정된 스크립트 내용");
-        when(callResponseSpec.entity(ArgumentMatchers.<ParameterizedTypeReference<ScriptResponse>>any()))
+        CreateResourceResponse dummyResponse = new CreateResourceResponse(null, null,"보정된 스크립트 내용");
+        when(callResponseSpec.entity(ArgumentMatchers.<ParameterizedTypeReference<CreateResourceResponse>>any()))
                 .thenReturn(dummyResponse);
 
-        ScriptResponse response = openAiService.createScript(projectId, sectionId, scriptRequest);
+        CreateResourceResponse response = openAiService.createScript(projectId, sectionId, scriptRequest);
         assertNotNull(response);
         assertEquals("보정된 스크립트 내용", response.script());
 

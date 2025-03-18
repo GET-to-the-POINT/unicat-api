@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class PaymentHistoryDto {
+public class PaymentHistoryResponse {
     private String paymentKey;
     private String orderId;
     private String orderName;
@@ -16,8 +16,8 @@ public class PaymentHistoryDto {
     private String status;
     private LocalDateTime approvedAt;
 
-    public static PaymentHistoryDto fromEntity(Payment payment) {
-        return PaymentHistoryDto.builder()
+    public static PaymentHistoryResponse fromEntity(Payment payment) {
+        return PaymentHistoryResponse.builder()
                 .paymentKey(payment.getPaymentKey())
                 .orderId(payment.getOrder().getId())
                 .orderName(payment.getOrder().getOrderName())
