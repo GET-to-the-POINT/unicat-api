@@ -34,7 +34,8 @@ public class ProjectController {
     @GetMapping("/analytics")
     @PreAuthorize("isAuthenticated()")
     public QueryResponse getYouTubeAnalytics(@RegisteredOAuth2AuthorizedClient("google") OAuth2AuthorizedClient authorizedClient, @RequestParam Map<String, String> queryParams) {
-        return youtubeAnalyticsProxyService.getYouTubeAnalyticsData(authorizedClient.getAccessToken(), queryParams);
+        Long memberId = Long.valueOf(authorizedClient.getPrincipalName());
+        return youtubeAnalyticsProxyService.getYouTubeAnalyticsData(authorizedClient.getAccessToken(), queryParams, memberId);
     }
 
     @GetMapping() // 프로젝트 조회 API
