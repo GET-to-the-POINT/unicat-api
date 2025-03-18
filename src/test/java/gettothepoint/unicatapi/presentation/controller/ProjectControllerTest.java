@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import gettothepoint.unicatapi.application.service.OpenAiService;
 import gettothepoint.unicatapi.application.service.ProjectService;
 import gettothepoint.unicatapi.application.service.SectionService;
+import gettothepoint.unicatapi.domain.dto.project.CreateResourceResponse;
+import gettothepoint.unicatapi.domain.dto.project.PromptRequest;
 import gettothepoint.unicatapi.domain.dto.project.ProjectDto;
 import gettothepoint.unicatapi.domain.dto.project.ScriptRequest;
 import gettothepoint.unicatapi.domain.dto.project.ScriptResponse;
@@ -70,21 +72,19 @@ public class ProjectControllerTest {
     }
 
     @Nested
-    @DisplayName("📌 스크립트 생성 테스트")
+    @DisplayName("스크립트 생성 테스트")
     class RefineScriptTests {
 
         @Test
-        @DisplayName("✅ 유효한 요청일 경우 OK와 예상 응답 반환")
+        @DisplayName("유효한 요청일 경우 OK와 예상 응답 반환")
         void testCreateScriptWithOKRequest() throws Exception {
-            // Given
             Long projectId = 1L;
             Long sectionId = 2L;
-            ScriptRequest scriptRequest = new ScriptRequest("원본 스크립트 내용입니다. 20자 이상이에요.");
-            ScriptResponse expectedResponse = new ScriptResponse("보정된 스크립트 내용");
+            PromptRequest scriptRequest = new PromptRequest("원본 스크립트 내용입니다. 20자 이상이에요.");
+            CreateResourceResponse expectedResponse = new CreateResourceResponse(null,null,"보정된 스크립트 내용");
 
             doReturn(expectedResponse).when(openAiService).createScript(projectId, sectionId, scriptRequest);
 
-            // When & Then
             mockMvc.perform(post("/projects/" + projectId + "/sections/" + sectionId + "/script")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(scriptRequest)))
@@ -93,14 +93,15 @@ public class ProjectControllerTest {
         }
 
         @Test
-        @DisplayName("🚨 20자 미만일 경우 BadRequest 반환")
-        void testCreateScriptWithBadRequest() throws Exception {
-            // Given
-            long projectId = 1L;
-            long sectionId = 2L;
-            ScriptRequest scriptRequest = new ScriptRequest("원본 스크립트"); // 20자 미만
+        @DisplayName("20자 미만일 경우 BadRequest 반환")
+        void testcreateScriptWithBadRequest() throws Exception {
+            Long projectId = 1L;
+            Long sectionId = 2L;
+            PromptRequest scriptRequest = new PromptRequest("원본 스크립트");
+            CreateResourceResponse expectedResponse = new CreateResourceResponse(null,null,"보정된 스크립트 내용");
 
-            // When & Then
+            doReturn(expectedResponse).when(openAiService).createScript(projectId, sectionId, scriptRequest);
+
             mockMvc.perform(post("/projects/" + projectId + "/sections/" + sectionId + "/script")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(scriptRequest)))
