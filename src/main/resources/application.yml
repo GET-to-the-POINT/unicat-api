@@ -44,7 +44,7 @@ spring:
       max-request-size: 50MB
   ai:
     openai:
-      api-key: ${APP_OPENAI_API_KEY}
+      api-key: ${SPRING_AI_OPENAI_API_KEY}
 
 
 springdoc:
