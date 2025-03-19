@@ -43,9 +43,7 @@ public class ArtifactService {
                 .map(Section::getVideoUrl)
                 .toList();  // Java 16+
 
-        String outputFile = "/Users/yurim/project/unicat-api/" + projectId + "_artifact.mp4";
-
-        mergeService.videos(videoPaths, outputFile);
+        String outputFile = mergeService.videos(videoPaths);
 
         File mergedFile = new File(outputFile);
 
