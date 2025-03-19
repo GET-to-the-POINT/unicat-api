@@ -34,48 +34,48 @@ public class YoutubeUploadService {
 
     @Async
     public void uploadVideoToYoutube(Project project, OAuth2AccessToken accessToken) {
-        try {
-            File videoFile = supabaseStorageService.downloadFile(project.getArtifactUrl());
-            YouTube youtubeService = youtubeoAuth2Service.getYouTubeService(accessToken);
-            Video youtubeVideo = new Video();
-
-            VideoSnippet snippet = new VideoSnippet();
-            snippet.setTitle("프로젝트 " + project.getId() + "의 영상");
-            snippet.setDescription("생성되었습니다.");
-            youtubeVideo.setSnippet(snippet);
-
-            VideoStatus status = new VideoStatus();
-            status.setPrivacyStatus("public");
-            youtubeVideo.setStatus(status);
-
-            FileContent mediaContent = new FileContent("video/*", videoFile);
-            YouTube.Videos.Insert request = youtubeService.videos()
-                    .insert(List.of("snippet", "status"), youtubeVideo, mediaContent);
-
-            request.getMediaHttpUploader().setProgressListener(uploaderProgress -> {
-                double progress = uploaderProgress.getProgress() * 100;
-                uploadProgressService.updateProgress(project.getId(), progress);
-            });
-
-            Video uploadedVideo = request.execute();
-            String youtubeUrl = "https://www.youtube.com/watch?v=" + uploadedVideo.getId();
-
-            projectRepository.save(project);
-
-            uploadVideoRepository.save(UploadVideo.builder()
-                    .linkId(uploadedVideo.getId())
-                    .project(project)
-                    .build()
-            );
-
-            project.assignUploadVideo(uploadVideo);
-            projectRepository.save(project);
-
-            CompletableFuture.completedFuture(youtubeUrl);
-        } catch (Exception e) {
-            log.error(" 유튜브 업로드 실패 - 프로젝트 ID: {}, 에러: {}", project.getId(), e.getMessage(), e);
-            uploadProgressService.markFailed(project.getId());
-            CompletableFuture.failedFuture(e);
-        }
+//        try {
+//            File videoFile = supabaseStorageService.downloadFile(project.getArtifactUrl());
+//            YouTube youtubeService = youtubeoAuth2Service.getYouTubeService(accessToken);
+//            Video youtubeVideo = new Video();
+//
+//            VideoSnippet snippet = new VideoSnippet();
+//            snippet.setTitle("프로젝트 " + project.getId() + "의 영상");
+//            snippet.setDescription("생성되었습니다.");
+//            youtubeVideo.setSnippet(snippet);
+//
+//            VideoStatus status = new VideoStatus();
+//            status.setPrivacyStatus("public");
+//            youtubeVideo.setStatus(status);
+//
+//            FileContent mediaContent = new FileContent("video/*", videoFile);
+//            YouTube.Videos.Insert request = youtubeService.videos()
+//                    .insert(List.of("snippet", "status"), youtubeVideo, mediaContent);
+//
+//            request.getMediaHttpUploader().setProgressListener(uploaderProgress -> {
+//                double progress = uploaderProgress.getProgress() * 100;
+//                uploadProgressService.updateProgress(project.getId(), progress);
+//            });
+//
+//            Video uploadedVideo = request.execute();
+//            String youtubeUrl = "https://www.youtube.com/watch?v=" + uploadedVideo.getId();
+//
+//            projectRepository.save(project);
+//
+//            uploadVideoRepository.save(UploadVideo.builder()
+//                    .linkId(uploadedVideo.getId())
+//                    .project(project)
+//                    .build()
+//            );
+//
+//            project.assignUploadVideo(uploadVideo);
+//            projectRepository.save(project);
+//
+//            CompletableFuture.completedFuture(youtubeUrl);
+//        } catch (Exception e) {
+//            log.error(" 유튜브 업로드 실패 - 프로젝트 ID: {}, 에러: {}", project.getId(), e.getMessage(), e);
+//            uploadProgressService.markFailed(project.getId());
+//            CompletableFuture.failedFuture(e);
+//        }
     }
 }

@@ -1,18 +1,16 @@
 package gettothepoint.unicatapi.application.service.ffmpeg;
 
-import gettothepoint.unicatapi.application.service.storage.SupabaseStorageService;
-import gettothepoint.unicatapi.common.util.MultipartFileUtil;
-import gettothepoint.unicatapi.domain.entity.dashboard.Section;
-import gettothepoint.unicatapi.domain.repository.SectionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.*;
-import java.nio.file.Files;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -20,118 +18,165 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MergeService {
 
-    private final SectionRepository sectionRepository;
-    private final SupabaseStorageService supabaseStorageService;
+    private static String dynamicFfmpegPath() {
+        return System.getProperty("FFMPEG_PATH");
+    }
 
-    private static final String FFMPEG_PATH = System.getProperty("FFMPEG_PATH", "/opt/homebrew/bin/ffmpeg");
-
-    public void videos(List<String> inputFiles, String outputFile) {
+    public String videos(List<String> targetFiles) {
         validateFfmpegPath();
+        validateVideoFile(targetFiles);
 
-        File outputDir = new File(outputFile).getParentFile();
-        File tempFileList = new File(outputDir, "file_list.txt");
-        writeConcatFileList(tempFileList, inputFiles);
+        String homeDir = System.getProperty("user.home");
+        String outputDirPath;
 
-        ProcessBuilder builder = new ProcessBuilder(
-                FFMPEG_PATH,
-                "-f", "concat",
-                "-safe", "0",
-                "-i", tempFileList.getAbsolutePath(),
-                "-vf", "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2",
+        if (System.getProperty("os.name").toLowerCase().contains("win")) {
+            outputDirPath = homeDir + "\\unicat_day";
+        } else {
+            outputDirPath = homeDir + "/.unicat.day";
+        }
+
+        File outputDir = new File(outputDirPath);
+        if (!outputDir.exists() && !outputDir.mkdirs()) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "출력 디렉토리 생성 실패: " + outputDir.getAbsolutePath());
+        }
+
+        String outputFile = outputDirPath + "/" + java.util.UUID.randomUUID() + ".mp4"; // macOS/Linux
+        if (System.getProperty("os.name").toLowerCase().contains("win")) {
+            outputFile = outputDirPath + "\\" + java.util.UUID.randomUUID() + ".mp4"; // Windows
+        }
+        if (!outputDir.exists() && !outputDir.mkdirs()) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "출력 디렉토리 생성 실패: " + outputDir.getAbsolutePath());
+        }
+
+        List<String> command = new ArrayList<>();
+        command.add(dynamicFfmpegPath());
+
+        for (String file : targetFiles) {
+            command.add("-i");
+            command.add(file);
+        }
+
+        StringBuilder filterComplex = new StringBuilder();
+        for (int i = 0; i < targetFiles.size(); i++) {
+            filterComplex.append("[").append(i).append(":v:0]");
+        }
+        filterComplex.append("concat=n=").append(targetFiles.size()).append(":v=1:a=0[outv]");
+
+        command.addAll(List.of(
+                "-filter_complex", filterComplex.toString(),
+                "-map", "[outv]",
                 "-c:v", "libx264",
                 "-c:a", "aac",
                 "-strict", "experimental",
                 outputFile
-        );
+        ));
+
+        ProcessBuilder builder = new ProcessBuilder(command);
         executeFfmpegCommand(builder);
 
-        if (!tempFileList.delete()) {
-            log.warn("임시 파일 삭제 실패: {}", tempFileList.getAbsolutePath());
-        }
-        log.info("동영상 병합 성공! 저장 위치: {}", outputFile);
+        return outputFile;
     }
 
-
-    public void imageAndAudio(String imagePath, String audioPath, String outputFile) {
+    public String audioAndVideo(String audioFilePath, String imageFilePath) {
         validateFfmpegPath();
-
+        validateAudioFile(audioFilePath);
+        validateImageFile(imageFilePath);
+        String outputFile = "/tmp/" + java.util.UUID.randomUUID() + ".mp4"; // macOS/Linux
+        if (System.getProperty("os.name").toLowerCase().contains("win")) {
+            outputFile = "/tmp/" + java.util.UUID.randomUUID() + ".mp4"; // Windows
+        }
         ProcessBuilder builder = new ProcessBuilder(
-                FFMPEG_PATH,
-                "-loop", "1",
-                "-i", imagePath,
-                "-i", audioPath,
-                "-vf", "scale=1080:1350:force_original_aspect_ratio=increase,crop=1080:1350,pad=1080:1920:(ow-iw)/2:(oh-ih)/2",
-                "-c:v", "libx264",
-                "-tune", "stillimage",
+                dynamicFfmpegPath(),
+                "-i", audioFilePath,
+                "-i", imageFilePath,
+                "-c:v", "copy",
                 "-c:a", "aac",
-                "-b:a", "192k",
-                "-movflags", "+faststart",
+                "-strict", "experimental",
                 "-shortest",
                 outputFile
         );
+
         executeFfmpegCommand(builder);
 
-        log.info("이미지와 오디오 병합 영상 생성 성공: {}", outputFile);
+        return outputFile;
     }
 
-
-    public void createSectionVideos(Long projectId) throws IOException {
-        List<Section> sections = sectionRepository.findAllByProjectIdOrderBySortOrderAsc(projectId);
-
-        if (sections.isEmpty()) {
-            throw new IllegalArgumentException("해당 프로젝트의 섹션을 찾을 수 없습니다: " + projectId);
-        }
-
-        for (Section section : sections) {
-            File imageFile = supabaseStorageService.downloadFile(section.getImageUrl());
-            File audioFile = supabaseStorageService.downloadFile(section.getTtsUrl());
-
-            String outputFile = "/tmp/" + projectId + "_section_" + section.getId() + ".mp4";
-            imageAndAudio(imageFile.getAbsolutePath(), audioFile.getAbsolutePath(), outputFile);
-
-            File mergedFile = new File(outputFile);
-            MultipartFile multipartFile = new MultipartFileUtil(mergedFile, "section_video", "video/mp4");
-
-            // Supabase에 업로드
-            String supabaseVideoUrl;
-            try {
-                supabaseVideoUrl = supabaseStorageService.uploadFile(multipartFile);
-            } catch (Exception e) {
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                        "Supabase에 비디오 업로드 실패: " + e.getMessage(), e);
-            }
-
-            section.setVideoUrl(supabaseVideoUrl);
-            sectionRepository.save(section);
-
-            // 로컬 파일 정리
-            try {
-                Files.delete(imageFile.toPath());
-            } catch (IOException e) {
-                log.warn("이미지 파일 삭제 실패: {}", imageFile.getAbsolutePath(), e);
-            }
-
-            try {
-                Files.delete(audioFile.toPath());
-            } catch (IOException e) {
-                log.warn("오디오 파일 삭제 실패: {}", audioFile.getAbsolutePath(), e);
-            }
-
-            try {
-                Files.delete(mergedFile.toPath());
-            } catch (IOException e) {
-                log.warn("비디오 파일 삭제 실패: {}", mergedFile.getAbsolutePath(), e);
-            }
-
-            log.info("✅ 섹션 {}의 비디오가 생성 및 저장되었습니다: {}", section.getId(), supabaseVideoUrl);
-        }
-    }
+//    public void createSectionVideos(Long projectId) throws IOException {
+//        List<Section> sections = sectionRepository.findAllByProjectIdOrderBySortOrderAsc(projectId);
+//
+//        if (sections.isEmpty()) {
+//            throw new IllegalArgumentException("해당 프로젝트의 섹션을 찾을 수 없습니다: " + projectId);
+//        }
+//
+//        for (Section section : sections) {
+//            File imageFile = supabaseStorageService.downloadFile(section.getImageUrl());
+//            File audioFile = supabaseStorageService.downloadFile(section.getTtsUrl());
+//
+//            String outputFile = "/tmp/" + projectId + "_section_" + section.getId() + ".mp4";
+//            imageAndAudio(imageFile.getAbsolutePath(), audioFile.getAbsolutePath(), outputFile);
+//
+//            File mergedFile = new File(outputFile);
+//            MultipartFile multipartFile = new MultipartFileUtil(mergedFile, "section_video", "video/mp4");
+//
+//            // Supabase에 업로드
+//            String supabaseVideoUrl;
+//            try {
+//                supabaseVideoUrl = supabaseStorageService.uploadFile(multipartFile);
+//            } catch (Exception e) {
+//                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+//                        "Supabase에 비디오 업로드 실패: " + e.getMessage(), e);
+//            }
+//
+//            section.setVideoUrl(supabaseVideoUrl);
+//            sectionRepository.save(section);
+//
+//            // 로컬 파일 정리
+//            try {
+//                Files.delete(imageFile.toPath());
+//            } catch (IOException e) {
+//                log.warn("이미지 파일 삭제 실패: {}", imageFile.getAbsolutePath(), e);
+//            }
+//
+//            try {
+//                Files.delete(audioFile.toPath());
+//            } catch (IOException e) {
+//                log.warn("오디오 파일 삭제 실패: {}", audioFile.getAbsolutePath(), e);
+//            }
+//
+//            try {
+//                Files.delete(mergedFile.toPath());
+//            } catch (IOException e) {
+//                log.warn("비디오 파일 삭제 실패: {}", mergedFile.getAbsolutePath(), e);
+//            }
+//
+//            log.info("✅ 섹션 {}의 비디오가 생성 및 저장되었습니다: {}", section.getId(), supabaseVideoUrl);
+//        }
+//    }
 
     private void validateFfmpegPath() {
-        if (FFMPEG_PATH == null || FFMPEG_PATH.isBlank()) {
+        String ffmpegPath = dynamicFfmpegPath();
+        if (dynamicFfmpegPath() == null || dynamicFfmpegPath().isBlank()) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                     "FFMPEG_PATH 환경 변수가 설정되지 않았습니다. FFmpeg 경로를 확인하세요.");
         }
+        File ffmpegFile = new File(dynamicFfmpegPath());
+
+        if (!ffmpegFile.exists()) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "FFmpeg 파일이 존재하지 않습니다. FFmpeg 경로를 확인하세요: " + dynamicFfmpegPath());
+        }
+
+        if (!ffmpegFile.isFile()) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "FFMPEG_PATH가 올바른 파일이 아닙니다. FFmpeg 경로를 확인하세요: " + dynamicFfmpegPath());
+        }
+
+        if (!ffmpegFile.canExecute()) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "FFmpeg 파일에 실행 권한이 없습니다. 권한을 확인하세요: " + dynamicFfmpegPath());
+        }
+
     }
     
     void executeFfmpegCommand(ProcessBuilder builder) {
@@ -160,14 +205,64 @@ public class MergeService {
         }
     }
 
-    private void writeConcatFileList(File tempFileList, List<String> inputFiles) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempFileList))) {
-            for (String file : inputFiles) {
-                writer.write("file '" + file + "'\n");
-            }
-        } catch (IOException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "출력 디렉토리 생성 실패: " + tempFileList.getParentFile().getAbsolutePath());
+    private void validateAudioFile(String filePath) {
+        if (filePath == null || filePath.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Audio file path cannot be null or empty");
+        }
+        File audioFile = new File(filePath);
+        if (!audioFile.exists() || !audioFile.isFile()) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Audio file does not exist or is not a valid file: " + filePath);
+        }
+        String lowerAudio = filePath.toLowerCase();
+        if (!(lowerAudio.endsWith(".mp3") || lowerAudio.endsWith(".aac")
+                || lowerAudio.endsWith(".wav") || lowerAudio.endsWith(".flac"))) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "지원되지 않는 오디오 파일 형식입니다: " + filePath);
         }
     }
+
+
+    public void validateImageFile(String filePath) {
+        if (filePath == null || filePath.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Image file path cannot be null or empty");
+        }
+        File imageFile = new File(filePath);
+        if (!imageFile.exists() || !imageFile.isFile()) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Image file does not exist or is not a valid file: " + filePath);
+        }
+        String lowerImage = filePath.toLowerCase();
+        if (!(lowerImage.endsWith(".jpg") || lowerImage.endsWith(".jpeg")
+                || lowerImage.endsWith(".png") || lowerImage.endsWith(".bmp"))) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "지원되지 않는 이미지 파일 형식입니다: " + filePath);
+        }
+    }
+
+    private void validateVideoFile(String filePath) {
+        if (filePath == null || filePath.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Video file path cannot be null or empty");
+        }
+        File videoFile = new File(filePath);
+        if (!videoFile.exists() || !videoFile.isFile()) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Video file does not exist or is not a valid file: " + filePath);
+        }
+        String lowerVideo = filePath.toLowerCase();
+        if (!(lowerVideo.endsWith(".mp4") || lowerVideo.endsWith(".mov")
+                || lowerVideo.endsWith(".mkv") || lowerVideo.endsWith(".avi")
+                || lowerVideo.endsWith(".flv"))) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "지원되지 않는 비디오 파일 형식입니다: " + filePath);
+        }
+
+    }
+
+    public void validateVideoFile(List<String> filePaths) {
+        if (filePaths == null || filePaths.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Video file paths cannot be null or empty");
+        }
+        for (String filePath : filePaths) {
+            validateVideoFile(filePath);
+        }
+    }
+
 }
