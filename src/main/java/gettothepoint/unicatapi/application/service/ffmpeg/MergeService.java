@@ -1,77 +1,37 @@
 package gettothepoint.unicatapi.application.service.ffmpeg;
 
 import gettothepoint.unicatapi.application.service.storage.SupabaseStorageService;
-import gettothepoint.unicatapi.application.service.video.VideoException;
 import gettothepoint.unicatapi.common.util.MultipartFileUtil;
-import gettothepoint.unicatapi.domain.entity.dashboard.Project;
 import gettothepoint.unicatapi.domain.entity.dashboard.Section;
-import gettothepoint.unicatapi.domain.repository.ProjectRepository;
 import gettothepoint.unicatapi.domain.repository.SectionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class MergeService {
 
-    private static final String FFMPEG_PATH = System.getProperty("FFMPEG_PATH", "/opt/homebrew/bin/ffmpeg");
     private final SectionRepository sectionRepository;
-    private final SupabaseStorageService storageService;
-    private final ProjectRepository projectRepository;
+    private final SupabaseStorageService supabaseStorageService;
 
+    private static final String FFMPEG_PATH = System.getProperty("FFMPEG_PATH", "/opt/homebrew/bin/ffmpeg");
 
-    public String createArtifactVideo(Long projectId) throws IOException, InterruptedException {
-        List<Section> sections = sectionRepository.findAllByProjectIdOrderBySortOrderAsc(projectId);
-        if (sections.isEmpty()) {
-            throw new IllegalArgumentException("해당 프로젝트에 포함된 섹션이 없습니다: " + projectId);
-        }
-
-        List<String> videoPaths = sections.stream()
-                .map(Section::getVideoUrl)
-                .collect(Collectors.toList());
-
-        String outputFile = "/Users/yurim/project/unicat-api/" + projectId + "_artifact.mp4";
-
-        mergeVideos(videoPaths, outputFile);
-
-        String supabaseUrl = uploadMergedVideoToSupabase(new File(outputFile));
-
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new IllegalArgumentException("프로젝트를 찾을 수 없습니다: " + projectId));
-
-        project.setArtifactUrl(supabaseUrl);
-        projectRepository.save(project);
-
-        return supabaseUrl;
-    }
-
-
-    private void mergeVideos(List<String> inputFiles, String outputFile) throws IOException, InterruptedException {
-        if (FFMPEG_PATH == null || FFMPEG_PATH.isEmpty()) {
-            throw new IllegalStateException("FFMPEG_PATH 환경 변수가 설정되지 않았습니다. FFmpeg 경로를 확인하세요.");
-        }
+    public void videos(List<String> inputFiles, String outputFile) {
+        validateFfmpegPath();
 
         File outputDir = new File(outputFile).getParentFile();
-        if (outputDir != null && !outputDir.exists() && !outputDir.mkdirs()) {
-            throw new IOException(" 출력 디렉토리 생성 실패: " + outputDir.getAbsolutePath());
-        }
-
-        // 2️⃣ FFmpeg에 사용할 파일 목록 작성 (file_list.txt)
         File tempFileList = new File(outputDir, "file_list.txt");
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempFileList))) {
-            for (String file : inputFiles) {
-                writer.write("file '" + file + "'\n");
-            }
-        }
+        writeConcatFileList(tempFileList, inputFiles);
 
-        // 3️⃣ FFmpeg 명령어 실행 (concat 방식으로 병합)
         ProcessBuilder builder = new ProcessBuilder(
                 FFMPEG_PATH,
                 "-f", "concat",
@@ -83,38 +43,131 @@ public class MergeService {
                 "-strict", "experimental",
                 outputFile
         );
-        builder.redirectErrorStream(true);
+        executeFfmpegCommand(builder);
 
-        Process process = builder.start();
+        if (!tempFileList.delete()) {
+            log.warn("임시 파일 삭제 실패: {}", tempFileList.getAbsolutePath());
+        }
+        log.info("동영상 병합 성공! 저장 위치: {}", outputFile);
+    }
 
-        // 4️⃣ FFmpeg 실행 로그 출력
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                log.info(line);
+
+    public void imageAndAudio(String imagePath, String audioPath, String outputFile) {
+        validateFfmpegPath();
+
+        ProcessBuilder builder = new ProcessBuilder(
+                FFMPEG_PATH,
+                "-loop", "1",
+                "-i", imagePath,
+                "-i", audioPath,
+                "-vf", "scale=1080:1350:force_original_aspect_ratio=increase,crop=1080:1350,pad=1080:1920:(ow-iw)/2:(oh-ih)/2",
+                "-c:v", "libx264",
+                "-tune", "stillimage",
+                "-c:a", "aac",
+                "-b:a", "192k",
+                "-movflags", "+faststart",
+                "-shortest",
+                outputFile
+        );
+        executeFfmpegCommand(builder);
+
+        log.info("이미지와 오디오 병합 영상 생성 성공: {}", outputFile);
+    }
+
+
+    public void createSectionVideos(Long projectId) throws IOException {
+        List<Section> sections = sectionRepository.findAllByProjectIdOrderBySortOrderAsc(projectId);
+
+        if (sections.isEmpty()) {
+            throw new IllegalArgumentException("해당 프로젝트의 섹션을 찾을 수 없습니다: " + projectId);
+        }
+
+        for (Section section : sections) {
+            File imageFile = supabaseStorageService.downloadFile(section.getImageUrl());
+            File audioFile = supabaseStorageService.downloadFile(section.getTtsUrl());
+
+            String outputFile = "/tmp/" + projectId + "_section_" + section.getId() + ".mp4";
+            imageAndAudio(imageFile.getAbsolutePath(), audioFile.getAbsolutePath(), outputFile);
+
+            File mergedFile = new File(outputFile);
+            MultipartFile multipartFile = new MultipartFileUtil(mergedFile, "section_video", "video/mp4");
+
+            // Supabase에 업로드
+            String supabaseVideoUrl;
+            try {
+                supabaseVideoUrl = supabaseStorageService.uploadFile(multipartFile);
+            } catch (Exception e) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                        "Supabase에 비디오 업로드 실패: " + e.getMessage(), e);
             }
-        }
 
-        // 5️⃣ FFmpeg 종료 코드 확인
-        int exitCode = process.waitFor();
-        if (exitCode != 0) {
-            throw new VideoException("FFmpeg 실행 중 오류 발생. 종료 코드: " + exitCode);
-        }
+            section.setVideoUrl(supabaseVideoUrl);
+            sectionRepository.save(section);
 
-        // 6️⃣ 임시 파일 삭제
-        if (tempFileList.delete()) {
-            log.info("임시 파일 삭제 완료: " + tempFileList.getAbsolutePath());
-        } else {
-            log.warn("임시 파일 삭제 실패: " + tempFileList.getAbsolutePath());
-        }
+            // 로컬 파일 정리
+            try {
+                Files.delete(imageFile.toPath());
+            } catch (IOException e) {
+                log.warn("이미지 파일 삭제 실패: {}", imageFile.getAbsolutePath(), e);
+            }
 
-        log.info(" 동영상 병합 성공! 저장 위치: " + outputFile);
+            try {
+                Files.delete(audioFile.toPath());
+            } catch (IOException e) {
+                log.warn("오디오 파일 삭제 실패: {}", audioFile.getAbsolutePath(), e);
+            }
+
+            try {
+                Files.delete(mergedFile.toPath());
+            } catch (IOException e) {
+                log.warn("비디오 파일 삭제 실패: {}", mergedFile.getAbsolutePath(), e);
+            }
+
+            log.info("✅ 섹션 {}의 비디오가 생성 및 저장되었습니다: {}", section.getId(), supabaseVideoUrl);
+        }
     }
 
+    private void validateFfmpegPath() {
+        if (FFMPEG_PATH == null || FFMPEG_PATH.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "FFMPEG_PATH 환경 변수가 설정되지 않았습니다. FFmpeg 경로를 확인하세요.");
+        }
+    }
+    
+    void executeFfmpegCommand(ProcessBuilder builder) {
+        builder.redirectErrorStream(true);
+        try {
+            Process process = builder.start();
 
-    private String uploadMergedVideoToSupabase(File mergedFile) {
-        MultipartFile multipartFile = new MultipartFileUtil(mergedFile, "artifact_video", "video/mp4");
-        return storageService.uploadFile(multipartFile);
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream()))
+            ) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    log.info(line);
+                }
+            }
+
+            int exitCode = process.waitFor();
+            if (exitCode != 0) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                        "FFmpeg 실행 중 오류 발생. 종료 코드: " + exitCode);
+            }
+        } catch (IOException | InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "FFmpeg 실행 중 예외 발생", e);
+        }
     }
 
+    private void writeConcatFileList(File tempFileList, List<String> inputFiles) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempFileList))) {
+            for (String file : inputFiles) {
+                writer.write("file '" + file + "'\n");
+            }
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "출력 디렉토리 생성 실패: " + tempFileList.getParentFile().getAbsolutePath());
+        }
+    }
 }
