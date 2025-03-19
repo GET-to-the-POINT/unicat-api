@@ -18,7 +18,7 @@
 	tossPayments
 			.requestBillingAuth("카드", {
 				// 결제 정보 파라미터
-				customerKey: customerKey, // 서버에서 받은 값 사용
+				customerKey: customerKey,
 				successUrl: window.location.origin + "/issue",
 				failUrl:window.location.origin + "/fail",
 			})

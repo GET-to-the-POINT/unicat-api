@@ -1,8 +1,6 @@
 package gettothepoint.unicatapi.application.service.payment;
 
 import gettothepoint.unicatapi.common.propertie.AppProperties;
-import gettothepoint.unicatapi.domain.dto.payment.OrderRequest;
-import gettothepoint.unicatapi.domain.dto.payment.PaymentApprovalRequest;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.entity.payment.Billing;
 import gettothepoint.unicatapi.domain.entity.payment.Order;
@@ -17,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Base64;
 import java.util.Map;
 import java.util.Optional;
@@ -32,7 +30,6 @@ public class BillingService {
     private final AppProperties appProperties;
     private final MemberRepository memberRepository;
     private final BillingRepository billingRepository;
-    private final PaymentService paymentService;
     private final OrderService orderService;
 
     private Map<String, Object> requestBillingKey(String authKey, String customerKey) {
@@ -57,9 +54,10 @@ public class BillingService {
      * OrderRequest 등 추가 정보 없이 authKey, customerKey만 사용합니다.
      */
     @Transactional
-    public String SaveBillingKey(String authKey, String customerKey, String email) {
+    public String saveBillingKey(String authKey, String customerKey, String email) {
         Member member = findMemberByEmail(email);
         Optional<Billing> existingBilling = billingRepository.findByMember(member);
+
         if (existingBilling.isPresent()) {
             return existingBilling.get().getBillingKey();
         }
@@ -73,15 +71,20 @@ public class BillingService {
         String cardNumber = (String) billingResponse.get("cardNumber");
         String method = (String) billingResponse.get("method");
 
+        // ✅ 최신 Order 가져오기 (회원의 마지막 주문)
+        Optional<Order> optionalOrder = orderService.findLatestOrderByMember(member);
+        Order order = optionalOrder.orElse(null); // 주문이 없을 경우 null 처리
+
+        // ✅ Billing 객체 생성
         Billing billing = Billing.builder()
                 .member(member)
                 .billingKey(billingKey)
                 .cardCompany(cardCompany)
                 .cardNumber(cardNumber)
                 .method(method)
-                // 주문 관련 정보가 없으므로 기본값 처리
-                .amount(0L)
-                .lastPaymentDate(LocalDateTime.now())
+                .amount(order != null ? order.getAmount() : 0L) // ✅ 주문이 없으면 기본값 0L
+                .lastPaymentDate(LocalDate.now())
+                .order(order)
                 .build();
 
         billingRepository.save(billing);
@@ -111,25 +114,5 @@ public class BillingService {
                 "customerKey", customerKey
         );
         return new HttpEntity<>(requestBody, headers);
-    }
-    @Transactional
-    public void autoPayment(String email, String billingKey, OrderRequest orderRequest) {
-        // 1. 회원 조회
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "멤버를 찾을 수 없습니다."));
-
-        // 2. 가주문 생성
-        Order order = orderService.createOrder(orderRequest, member.getId());
-
-        // 3. PaymentApprovalRequest 생성 (주문 정보와 회원 정보 기반)
-        PaymentApprovalRequest approvalRequest = new PaymentApprovalRequest();
-        approvalRequest.setAmount(orderRequest.getAmount());
-        approvalRequest.setCustomerKey(member.getCustomerKey());
-        approvalRequest.setOrderId(order.getId());
-        approvalRequest.setOrderName(orderRequest.getOrderName());
-
-        // 4. 자동 결제 승인 요청
-        paymentService.approveAutoPayment(billingKey, approvalRequest);
-
     }
 }

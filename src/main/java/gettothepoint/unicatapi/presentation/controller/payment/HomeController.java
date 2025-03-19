@@ -1,8 +1,8 @@
 package gettothepoint.unicatapi.presentation.controller.payment;
 
-import gettothepoint.unicatapi.application.service.MemberService;
+
+import gettothepoint.unicatapi.application.service.member.MemberService;
 import gettothepoint.unicatapi.domain.entity.member.Member;
-import gettothepoint.unicatapi.domain.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;

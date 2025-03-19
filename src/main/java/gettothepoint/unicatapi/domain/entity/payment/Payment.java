@@ -11,6 +11,8 @@ import gettothepoint.unicatapi.domain.constant.payment.PayType;
 import gettothepoint.unicatapi.domain.constant.payment.TossPaymentStatus;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.util.Map;
 
 @NoArgsConstructor
 @Getter
@@ -58,6 +60,18 @@ public class Payment extends BaseEntity {
         this.payType = payType;
         this.productName = productName;
         this.approvedAt = approvedAt;
+    }
+
+    public static Payment fromMap(Map<String, Object> map, Order order) {
+        return Payment.builder()
+                .order(order)
+                .paymentKey((String) map.get("paymentKey"))
+                .amount(((Number) map.get("totalAmount")).longValue())
+                .tossPaymentStatus(TossPaymentStatus.fromTossStatus((String) map.get("status")))
+                .payType(PayType.fromKoreanName((String) map.get("method")))
+                .productName((String) map.get("orderName"))
+                .approvedAt(OffsetDateTime.parse((String) map.get("approvedAt")).toLocalDateTime())
+                .build();
     }
 
     public void setCancel(CancelPaymentResponse cancelPaymentResponse) {

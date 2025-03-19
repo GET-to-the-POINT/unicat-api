@@ -5,19 +5,23 @@ import gettothepoint.unicatapi.common.propertie.AppProperties;
 import gettothepoint.unicatapi.common.util.CharacterUtil;
 import gettothepoint.unicatapi.common.util.PaymentUtil;
 import gettothepoint.unicatapi.domain.constant.payment.PayType;
+import gettothepoint.unicatapi.domain.constant.payment.SubscriptionStatus;
 import gettothepoint.unicatapi.domain.constant.payment.TossPaymentStatus;
 import gettothepoint.unicatapi.domain.dto.payment.PaymentApprovalRequest;
 import gettothepoint.unicatapi.domain.dto.payment.PaymentHistoryResponse;
+import gettothepoint.unicatapi.domain.dto.payment.PaymentResponse;
 import gettothepoint.unicatapi.domain.dto.payment.TossPaymentResponse;
 import gettothepoint.unicatapi.domain.entity.member.Member;
+import gettothepoint.unicatapi.domain.entity.payment.Billing;
 import gettothepoint.unicatapi.domain.entity.payment.Order;
 import gettothepoint.unicatapi.domain.entity.payment.Payment;
-import gettothepoint.unicatapi.domain.repository.MemberRepository;
-import gettothepoint.unicatapi.domain.repository.PaymentRepository;
+import gettothepoint.unicatapi.domain.entity.payment.Subscription;
+import gettothepoint.unicatapi.domain.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -40,16 +44,18 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final AppProperties appProperties;
     private final PaymentUtil paymentUtil;
-    private final MemberRepository memberRepository;
+    private final OrderRepository orderRepository;
+    private final SubscriptionRepository subscriptionRepository;
+    private final BillingRepository billingRepository;
 
 
-    public TossPaymentResponse confirmAndFinalizePayment(String orderId, Long amount, String paymentKey) {
-        TossPaymentResponse tossResponse = confirmPaymentExternal(paymentKey, orderId, amount);
-        processPayment(orderId, paymentKey, amount, tossResponse);
-        processSubscription(orderId);
-        processOrder(orderId, tossResponse);
-        return tossResponse;
-    }
+//    public TossPaymentResponse confirmAndFinalizePayment(String orderId, Long amount, String paymentKey) {
+//        TossPaymentResponse tossResponse = confirmPaymentExternal(paymentKey, orderId, amount);
+//        processPayment(orderId, paymentKey, amount, tossResponse);
+//        processSubscription(orderId);
+//        processOrder(orderId, tossResponse);
+//        return tossResponse;
+//    }
 
     private void processSubscription(String orderId) {
         Order order = orderService.findById(orderId);
@@ -57,9 +63,8 @@ public class PaymentService {
         subscriptionService.createSubscription(member, order);
     }
 
-    private void processOrder(String orderId, TossPaymentResponse tossResponse) {
-        TossPaymentStatus status = TossPaymentStatus.valueOf(tossResponse.getStatus());
-        orderService.updateOrder(orderId, status);
+    private void processOrder(String orderId) {
+        orderService.updateOrder(orderId);
     }
 
     private void processPayment(String orderId, String paymentKey, Long amount, TossPaymentResponse tossResponse) {
@@ -126,54 +131,45 @@ public class PaymentService {
                 .toList();
     }
 
-    public void approveAutoPayment(String billingKey, PaymentApprovalRequest approvalRequest) {
-        String url = "https://api.tosspayments.com/v1/billing/" + billingKey;
+    @Transactional
+    public Map<String, Object> approveAutoPayment(String billingKey, PaymentApprovalRequest req) {
+        Map<String, Object> responseBody = callTossBillingApi(billingKey, req);
 
-        String encodedSecretKey = Base64.getEncoder()
-                .encodeToString((appProperties.toss().secretKey() + ":").getBytes());
+        Order order = orderService.findById(req.getOrderId());
+        order.markDone();
+        orderRepository.save(order);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Basic " + encodedSecretKey);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HttpEntity<PaymentApprovalRequest> requestEntity = new HttpEntity<>(approvalRequest, headers);
-
-        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
-                url,
-                HttpMethod.POST,
-                requestEntity,
-                new ParameterizedTypeReference<>() {
-                }
-        );
-
-        Map<String, Object> responseBody = Optional.ofNullable(response.getBody())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "자동 결제 승인이 실패했습니다."));
-
-        String paymentKey = (String) responseBody.get("paymentKey");
-        String statusStr = (String) responseBody.get("status");
-
-        // 상태 문자열을 TossPaymentStatus 열거형으로 변환 (메서드는 직접 구현)
-        TossPaymentStatus tossStatus = TossPaymentStatus.fromTossStatus(statusStr);
-
-
-        LocalDateTime approvedAt = LocalDateTime.now();
-
-        Order order = orderService.findById(approvalRequest.getOrderId());
-
-
-        PayType payType = PayType.CARD; // 실제 결제 방식에 맞게 설정
-        String productName = approvalRequest.getOrderName(); // 또는 다른 값을 사용
-
-        // Payment 엔티티 생성 후 저장
-        Payment payment = Payment.builder()
+        paymentRepository.save(Payment.fromMap(responseBody, order));
+        subscriptionRepository.save(Subscription.builder()
+                .member(order.getMember())
                 .order(order)
-                .paymentKey(paymentKey)
-                .amount(approvalRequest.getAmount())
-                .tossPaymentStatus(tossStatus)
-                .payType(payType)
-                .productName(productName)
-                .approvedAt(approvedAt)
-                .build();
-        paymentRepository.save(payment);
+                .build());
+
+        Billing billing = billingRepository.findByBillingKey(billingKey)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Billing not found"));
+        billing.setSubscriptionStatus(SubscriptionStatus.ACTIVE);
+        billingRepository.save(billing);
+
+        return responseBody;
+    }
+
+    private Map<String, Object> callTossBillingApi(String billingKey, PaymentApprovalRequest req) {
+        String url = String.format("https://api.tosspayments.com/v1/billing/%s", billingKey);
+        HttpEntity<PaymentApprovalRequest> entity = new HttpEntity<>(req, buildHeaders());
+
+        return Optional.ofNullable(
+                restTemplate.exchange(url, HttpMethod.POST, entity, new ParameterizedTypeReference<Map<String, Object>>() {
+                        })
+                        .getBody()
+        ).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "자동 결제 승인 실패"));
+    }
+
+    private HttpHeaders buildHeaders() {
+        String encoded = Base64.getEncoder()
+                .encodeToString((appProperties.toss().secretKey() + ":").getBytes());
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(HttpHeaders.AUTHORIZATION, "Basic " + encoded);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return headers;
     }
 }

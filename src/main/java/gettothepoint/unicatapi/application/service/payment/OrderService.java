@@ -13,6 +13,7 @@ import gettothepoint.unicatapi.domain.entity.payment.Order;
 import gettothepoint.unicatapi.domain.repository.OrderRepository;
 import gettothepoint.unicatapi.domain.constant.payment.TossPaymentStatus;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -43,9 +44,13 @@ public class OrderService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
     }
 
-    public void updateOrder(String orderId, TossPaymentStatus status) {
+    public void updateOrder(String orderId) {
         Order order = findById(orderId);
-        order.setStatus(status);
+        order.markDone();
         orderRepository.save(order);
+    }
+
+    public Optional<Order> findLatestOrderByMember(Member member) {
+        return orderRepository.findTopByMemberOrderByCreatedAtDesc(member);
     }
 }

@@ -1,13 +1,13 @@
 package gettothepoint.unicatapi.domain.dto.payment;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter
+@Builder
 public class OrderResponse {
-    private Long memberId;
+    private Long amount;
+    private String customerKey;
     private String orderId;
+    private String orderName;
 }
