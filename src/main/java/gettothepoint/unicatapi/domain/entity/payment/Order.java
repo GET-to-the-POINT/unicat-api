@@ -19,6 +19,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Table(name = "purchase")
 public class Order extends BaseEntity {
+
     @Id
     @Column(updatable = false, nullable = false)
     private  String id = UUID.randomUUID().toString();
@@ -31,33 +32,21 @@ public class Order extends BaseEntity {
     @JsonIgnore
     private Member member;
 
-    @Enumerated(EnumType.STRING)
-    private PayType payMethod;
-
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private TossPaymentStatus status;
-
-    @OneToOne
-    private Subscription subscription;
 
     @OneToOne(mappedBy = "order")
     @JsonIgnore
     private Payment payment;
 
-
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
-    private List<Billing> billingList = new ArrayList<>();
-
     @Builder
-    public Order(String id,String orderName, Long amount, Member member, PayType payMethod, TossPaymentStatus status, Subscription subscription) {
+    public Order(String id,String orderName, Long amount, Member member, TossPaymentStatus status) {
         this.id = id;
         this.orderName = orderName;
         this.amount = amount;
         this.member = member;
-        this.payMethod = payMethod;
         this.status = status;
-        this.subscription = subscription;
     }
 
     public void cancelOrder() {

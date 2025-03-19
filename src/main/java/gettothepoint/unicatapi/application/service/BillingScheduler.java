@@ -39,19 +39,20 @@ public class BillingScheduler {
             log.info("⏳ 자동 결제 대상이 없습니다.");
             return;
         }
+
         for (Billing billing : billingList) {
             try {
                 // 1. 주문 요청 정보를 생성합니다.
-                OrderRequest orderRequest = new OrderRequest("구독 결제", billing.getAmount());
+                OrderRequest orderRequest = new OrderRequest("구독 결제", 1000L);
 
                 // 2. createOrder 메서드를 통해 새 주문(Order)을 생성합니다.
                 //    billing에 연결된 멤버의 id를 사용합니다.
                 Order newOrder = orderService.createOrder(orderRequest, billing.getMember().getId());
-                billing.setOrder(newOrder);
+
 
                 // 3. PaymentApprovalRequest에 새 주문 번호를 할당합니다.
                 PaymentApprovalRequest approvalRequest = new PaymentApprovalRequest();
-                approvalRequest.setAmount(orderRequest.getAmount());
+                approvalRequest.setAmount(orderRequest .getAmount());
                 approvalRequest.setCustomerKey(billing.getMember().getCustomerKey());
                 approvalRequest.setOrderId(newOrder.getId());
                 approvalRequest.setOrderName(orderRequest.getOrderName());
@@ -63,9 +64,9 @@ public class BillingScheduler {
                 billing.updateLastPaymentDate(LocalDate.now());
                 billingRepository.save(billing);
 
-                log.info("✅ {}님 자동 결제 성공 (금액: {})", billing.getMember().getEmail(), billing.getAmount());
+                log.info("{}님 자동 결제 성공", billing.getMember().getEmail());
             } catch (Exception e) {
-                log.error("❌ {}님 자동 결제 실패: {}", billing.getMember().getEmail(), e.getMessage());
+                log.error("{}님 자동 결제 실패: {}", billing.getMember().getEmail(), e.getMessage());
             }
         }
     }

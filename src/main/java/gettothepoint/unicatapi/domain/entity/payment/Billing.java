@@ -30,15 +30,9 @@ public class Billing {
 
     private LocalDate lastPaymentDate;
 
-    private Long amount;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", nullable = false)
-    private Order order;
 
     @PrePersist
     public void prePersist() {
@@ -49,15 +43,13 @@ public class Billing {
 
     @Builder
     public Billing(Member member, String billingKey, String cardCompany, String cardNumber,
-                   String method, LocalDate lastPaymentDate, Order order, Long amount) {
+                   String method, LocalDate lastPaymentDate) {
         this.member = member;
         this.billingKey = billingKey;
         this.cardCompany = cardCompany;
         this.cardNumber = cardNumber;
         this.method = method;
         this.lastPaymentDate = lastPaymentDate;
-        this.order = order;
-        this.amount = amount;
     }
 
     public void updateLastPaymentDate(LocalDate newDate) {
@@ -70,9 +62,5 @@ public class Billing {
 
     public void setSubscriptionStatus(SubscriptionStatus subscriptionStatus) {
         this.subscriptionStatus = subscriptionStatus;
-    }
-
-    public void setOrder(Order order) {
-        this.order = order;
     }
 }

@@ -17,8 +17,8 @@ public class PaymentResponse {
     private String orderId;
     private String orderName;
     private Long memberId;
-    private String SuccessUrl;
-    private String FailUrl;
+    private String successUrl;
+    private String failUrl;
     private String createdAt;
     private TossPaymentStatus tossPaymentStatus;
     private String paymentKey;

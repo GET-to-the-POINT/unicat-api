@@ -1,19 +1,17 @@
 package gettothepoint.unicatapi.application.service.payment;
 
-import gettothepoint.unicatapi.domain.dto.payment.PaymentApprovalRequest;
+import gettothepoint.unicatapi.domain.constant.payment.TossPaymentStatus;
+import gettothepoint.unicatapi.domain.dto.payment.OrderRequest;
+import gettothepoint.unicatapi.domain.entity.member.Member;
+import gettothepoint.unicatapi.domain.entity.payment.Order;
 import gettothepoint.unicatapi.domain.repository.MemberRepository;
+import gettothepoint.unicatapi.domain.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import gettothepoint.unicatapi.domain.dto.payment.OrderRequest;
-import gettothepoint.unicatapi.domain.entity.member.Member;
-import gettothepoint.unicatapi.domain.entity.payment.Order;
-import gettothepoint.unicatapi.domain.repository.OrderRepository;
-import gettothepoint.unicatapi.domain.constant.payment.TossPaymentStatus;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -44,13 +42,7 @@ public class OrderService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
     }
 
-    public void updateOrder(String orderId) {
-        Order order = findById(orderId);
-        order.markDone();
-        orderRepository.save(order);
-    }
-
-    public Optional<Order> findLatestOrderByMember(Member member) {
-        return orderRepository.findTopByMemberOrderByCreatedAtDesc(member);
+    public void findLatestOrderByMember(Member member) {
+        orderRepository.findTopByMemberOrderByCreatedAtDesc(member);
     }
 }
