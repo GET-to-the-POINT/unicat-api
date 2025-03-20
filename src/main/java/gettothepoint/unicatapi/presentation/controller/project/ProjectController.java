@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.presentation.controller.project;
 
 import com.google.api.services.youtubeAnalytics.v2.model.QueryResponse;
-import gettothepoint.unicatapi.application.service.ffmpeg.ArtifactService;
+import gettothepoint.unicatapi.application.service.media.ArtifactService;
 import gettothepoint.unicatapi.application.service.project.ProjectService;
 import gettothepoint.unicatapi.application.service.youtube.YouTubeAnalyticsProxyService;
 import gettothepoint.unicatapi.domain.dto.project.ProjectDto;
