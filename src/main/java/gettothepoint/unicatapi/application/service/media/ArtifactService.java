@@ -49,7 +49,7 @@ public class ArtifactService {
         Integer artifactHashCode = abstractStorageService.upload(artifactStream);
 
         project.setArtifactHashCode(artifactHashCode);
-//        project.setArtifactMimeType(); // TODO: 구현 필요
+        project.setArtifactMimeType("video/mp4"); // TODO: mime type을 어떻게 가져올지 고민 필요
         projectService.update(project);
 
         return project;
