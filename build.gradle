@@ -54,7 +54,6 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.assertj:assertj-core:4.0.0-M1'
 	testImplementation 'org.springframework.security:spring-security-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.12.1'
 	testImplementation 'com.h2database:h2'
 
 	// ===== Youtube  =====
@@ -64,12 +63,15 @@ dependencies {
 	implementation 'com.google.auth:google-auth-library-oauth2-http:1.33.1'
 
 	// ===== TTS =====
-	implementation 'com.google.cloud:google-cloud-texttospeech:2.60.0'
+	implementation 'com.google.cloud:google-cloud-texttospeech:2.61.0'
 
 	// ===== AI =====
 	implementation platform("org.springframework.ai:spring-ai-bom:1.0.0-M6")
 	implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter'
 	implementation 'org.springframework.ai:spring-ai-openai'
+
+	// ===== ETC =====
+	implementation 'org.apache.tika:tika-core:3.1.0'
 }
 
 tasks.named('test') {

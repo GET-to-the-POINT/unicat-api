@@ -83,6 +83,11 @@ public class MemberService {
         member.setPassword(passwordEncoder.encode(newPassword));
         memberRepository.save(member);
     }
+
+    public Member getOrElseThrow(Long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Member not found with id: " + memberId));
+    }
 }
 
 

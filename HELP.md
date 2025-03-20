@@ -16,6 +16,14 @@ cd /path/to/your/directory
 find . -type f -name "*.java" -exec cat {} + | tr -d '\n' | tr -d ' ' | pbcopy
 ```
 
+### 특정 디렉토리만 선택해서 클립보드로 복사
+
+현재 디렉토리에서 특정 디렉토리만 선택해서 하위 경로를 포함한 모든 파일을 클립보드로 복사합니다.
+
+```shell
+find /path/one /path/two -type f -name "*.java" -exec cat {} + | tr -d '\n' | tr -d ' ' | pbcopy
+```
+
 ### 특정 디렉토리는 제외하고 클립보드로 복사
 
 현제 디렉토리에서 특정 디렉토리는 제외하고 하위 경로를 포함한 모든 파일을 클립보드로 복사합니다.

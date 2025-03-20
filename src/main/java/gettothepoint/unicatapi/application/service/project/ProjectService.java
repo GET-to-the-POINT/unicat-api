@@ -1,20 +1,15 @@
 package gettothepoint.unicatapi.application.service.project;
 
-import gettothepoint.unicatapi.domain.dto.project.ProjectDto;
+import gettothepoint.unicatapi.application.service.media.ArtifactService;
+import gettothepoint.unicatapi.application.service.member.MemberService;
 import gettothepoint.unicatapi.domain.dto.project.ProjectResponse;
-import gettothepoint.unicatapi.domain.dto.project.SectionRequest;
-import gettothepoint.unicatapi.domain.dto.project.SectionResponse;
 import gettothepoint.unicatapi.domain.entity.dashboard.Project;
-import gettothepoint.unicatapi.domain.entity.dashboard.Section;
 import gettothepoint.unicatapi.domain.entity.member.Member;
-import gettothepoint.unicatapi.domain.repository.MemberRepository;
 import gettothepoint.unicatapi.domain.repository.ProjectRepository;
-import gettothepoint.unicatapi.domain.repository.SectionRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -27,67 +22,48 @@ import java.util.List;
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
-    private final MemberRepository memberRepository;
-    private final SectionService sectionService;
-    private final SectionRepository sectionRepository;
+    private final MemberService memberService;
 
-    public ProjectResponse getProjects(int page, int size, String sort) {
-        PageRequest pageable = PageRequest.of(page, size, parseSort(sort));
+    // 컬렉션 페이지네이션
+    public Page<ProjectResponse> getAll(Pageable pageable) {
         Page<Project> projectPage = projectRepository.findAll(pageable);
-
-        if (projectPage.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NO_CONTENT, "No projects found");
-        }
-
-        return ProjectResponse.fromPage(projectPage);
+        return projectPage.map(ProjectResponse::fromEntity);
     }
 
-    private Sort parseSort(String sort) {
-        String[] sortParams = sort.split(",");
-        if (sortParams.length == 2) {
-            return Sort.by(Sort.Direction.fromString(sortParams[1]), sortParams[0]);
-        }
-        return Sort.by(Sort.Direction.DESC, sortParams[0]);
+    // 컬렉션 전체
+    public List<ProjectResponse> getAll() {
+        List<Project> projects = projectRepository.findAll();
+        return projects.stream().map(ProjectResponse::fromEntity).toList();
     }
 
-    public Long createProject(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new EntityNotFoundException("Member not found with id: " + memberId));
-        Project project = Project.builder()
-                .member(member)
-                .build();
+    // 싱글
+    public ProjectResponse get(Long projectId) {
+        Project project = this.getOrElseThrow(projectId);
+        return ProjectResponse.fromEntity(project);
+    }
+
+    // 생성
+    public ProjectResponse create(Long memberId) {
+        Member member = memberService.getOrElseThrow(memberId);
+        Project project = Project.builder().member(member).build();
         projectRepository.save(project);
-
-        return project.getId();
-    }
-
-    public List<SectionResponse> getAllSections(Long projectId) {
-        List<Section> sections = sectionRepository.findAllByProjectIdOrderBySortOrderAsc(projectId);
-        return sections.stream()
-                .map(SectionResponse::fromEntity)
-                .toList();
-    }
-
-    public void createVideo(List<SectionRequest> sectionRequests) {
-        sectionService.createTextToSpeech(sectionRequests);
+        return ProjectResponse.fromEntity(project);
     }
 
     public void verifyProjectOwner(Long projectId, Long memberId) {
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + projectId));
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + projectId));
 
         if (!project.getMember().getId().equals(memberId)) {
             throw new AccessDeniedException("접근 권한이 없습니다.");
         }
     }
 
-    public ProjectDto getProject(Long projectId) {
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "요청한 프로젝트를 찾을 수 없습니다."));
-        List<SectionResponse> sections = sectionRepository.findAllByProject(project).stream()
-                .map(SectionResponse::fromEntity)
-                .toList();
-
-        return ProjectDto.fromEntity(project, sections);
+    public Project update(Project project) {
+        return projectRepository.save(project);
     }
+
+    public Project getOrElseThrow(Long projectId) {
+        return projectRepository.findById(projectId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "프로젝트를 찾을 수 없습니다."));
+    }
+
 }

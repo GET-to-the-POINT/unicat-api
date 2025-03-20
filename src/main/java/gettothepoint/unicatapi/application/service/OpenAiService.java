@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.application.service;
 
-import gettothepoint.unicatapi.application.service.storage.SupabaseStorageService;
+import gettothepoint.unicatapi.application.service.storage.StorageService;
 import gettothepoint.unicatapi.common.propertie.AppProperties;
 import gettothepoint.unicatapi.common.util.MultipartFileUtil;
 import gettothepoint.unicatapi.domain.dto.project.*;
@@ -35,7 +35,7 @@ public class OpenAiService {
     private final ProjectRepository projectRepository;
     private final AppProperties appProperties;
     private final RestTemplate restTemplate;
-    private final SupabaseStorageService supabaseStorageService;
+    private final StorageService storageService;
     private final OpenAiImageModel openAiImageModel;
     private static final String SECTION_NOT_FOUND_MSG = "Section not found with id: ";
     private final OpenAiChatModel openAiChatModel;
@@ -122,23 +122,23 @@ public class OpenAiService {
         URI uri = UriComponentsBuilder.fromUriString(imageUrl).build(true).toUri();
         byte[] imageBytes = restTemplate.getForObject(uri, byte[].class);
         if (imageBytes == null) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to download image from OpenAI");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to download multipartFile from OpenAI");
         }
 
         MultipartFile multipartFile = new MultipartFileUtil(imageBytes, "download", "image/jpeg");
-        return supabaseStorageService.uploadFile(multipartFile);
+        return storageService.upload(multipartFile);
     }
 
     private void saveImageToSection(Long sectionId, String imageUrl, String alt) {
         Section section = sectionRepository.findById(sectionId)
                 .orElseThrow(() -> new EntityNotFoundException(SECTION_NOT_FOUND_MSG + sectionId));
 
-        section.setImageUrl(imageUrl);
+        section.setResourceUrl(imageUrl);
         section.setAlt(alt);
         sectionRepository.save(section);
     }
 
-    public CreateResourceResponse createContent(Long projectId, Long sectionId, String type, PromptRequest promptRequest) {
+    public CreateResourceResponse createResource(Long projectId, Long sectionId, String type, PromptRequest promptRequest) {
 
         if ("image".equalsIgnoreCase(type)) {
            return createImage(projectId, sectionId, promptRequest);
