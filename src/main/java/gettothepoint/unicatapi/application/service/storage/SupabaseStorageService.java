@@ -38,6 +38,11 @@ public class SupabaseStorageService extends AbstractStorageService {
     }
 
     @Override
+    public Integer upload(InputStream inputStream) {
+        return 0;
+    }
+
+    @Override
     public String upload(MultipartFile file) {
         String uniqueFileName = generateUniqueFileName(file);
         String supabaseKey = appProperties.supabase().key();
@@ -66,31 +71,6 @@ public class SupabaseStorageService extends AbstractStorageService {
             String errorMessage = messageSource.getMessage("error.unknown", null, "", LocaleContextHolder.getLocale());
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, errorMessage);
         }
-    }
-
-    @Override
-    public Integer upload(InputStream inputStream) {
-        return 0;
-    }
-
-    @Override
-    public File downloadFile(Integer fileHash) {
-        return null;
-    }
-
-    @Override
-    protected InputStream donwload(Integer fileHash) {
-        return null;
-    }
-
-    @Override
-    public InputStream download(Integer fileHash) {
-        return null;
-    }
-
-    @Override
-    public List<InputStream> downloadInputStreams(List<Integer> fileHashes) {
-        return List.of();
     }
 
     private String getBucketName(String contentType) {
@@ -151,4 +131,8 @@ public class SupabaseStorageService extends AbstractStorageService {
     }
 
 
+    @Override
+    protected InputStream realDownload(Integer fileHash) {
+        return null;
+    }
 }

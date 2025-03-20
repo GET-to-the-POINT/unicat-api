@@ -12,7 +12,7 @@ public interface StorageService {
     Integer upload(File inputStream);
     Integer upload(InputStream inputStream);
 
-    File downloadFile(Integer fileHash);
-    InputStream download(Integer fileHash);
     List<InputStream> downloads(List<Integer> fileHashes);
+    InputStream download(Integer fileHash);
+    File downloadFile(Integer fileHash);
 }

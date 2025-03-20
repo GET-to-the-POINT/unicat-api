@@ -19,4 +19,17 @@ public class FileUtil {
         }
     }
 
+    public static File getOrCreateTemp(Integer fileHash) {
+        return getOrCreateTemp(fileHash, ".tmp");
+    }
+
+    public static File getOrCreateTemp(Integer fileHash, String extension) {
+        String tempDir = System.getProperty("java.io.tmpdir");
+
+        if (tempDir == null || tempDir.isBlank()) {
+            throw new RuntimeException("Temporary directory not found");
+        }
+
+        return new File(tempDir, "unicat_cache_" + fileHash + extension);
+    }
 }

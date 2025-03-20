@@ -1,5 +1,6 @@
 package gettothepoint.unicatapi.application.service.media;
 
+import gettothepoint.unicatapi.common.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -9,6 +10,8 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static gettothepoint.unicatapi.application.service.media.MediaValidationUtil.*;
 
@@ -72,13 +75,13 @@ public class MediaServiceImpl implements MediaService {
     }
 
     @Override
-    public File mergeImageAndSoundFromFile(File imageFile, File soundFile) {
+    public InputStream mergeImageAndSound(File imageFile, File soundFile) {
         validateImageFile(imageFile.getAbsolutePath());
         validateAudioFile(soundFile.getAbsolutePath());
         validateFfmpegPath();
 
-        String tempDir = System.getProperty("java.io.tmpdir");
-        String outputFilePath = tempDir + File.separator + java.util.UUID.randomUUID()+ ".mp4";
+        Integer fileHash = Objects.hash(imageFile, soundFile);
+        String outputFilePath = FileUtil.getOrCreateTemp(fileHash, ".mp4").getAbsolutePath();
 
         List<String> command = new ArrayList<>();
         command.add(dynamicFfmpegPath());
@@ -99,11 +102,16 @@ public class MediaServiceImpl implements MediaService {
         ProcessBuilder builder = new ProcessBuilder(command);
         executeFfmpegCommand(builder);
 
-        return new File(outputFilePath);
+        try {
+            return new FileInputStream(outputFilePath);
+        } catch (FileNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "결과 파일을 찾을 수 없습니다: " + outputFilePath, e);
+        }
     }
 
     @Override
-    public InputStream mergeImageAndSoundFromInputStream(InputStream imageStream, InputStream soundStream) {
+    public InputStream mergeImageAndSound(InputStream imageStream, InputStream soundStream) {
         return null;
     }
 
@@ -113,11 +121,11 @@ public class MediaServiceImpl implements MediaService {
 
         List<String> filePaths = files.stream()
                 .map(File::getAbsolutePath)
-                .toList();
+                .collect(Collectors.toList());
         validateVideosFile(filePaths);
 
-        String tempDir = System.getProperty("java.io.tmpdir");
-        String outputFilePath = tempDir + File.separator + java.util.UUID.randomUUID() + ".mp4";
+        Integer fileHash = Objects.hash(files);
+        String outputFilePath = FileUtil.getOrCreateTemp(fileHash, ".mp4").getAbsolutePath();
 
         List<String> command = new ArrayList<>();
         command.add(dynamicFfmpegPath());
