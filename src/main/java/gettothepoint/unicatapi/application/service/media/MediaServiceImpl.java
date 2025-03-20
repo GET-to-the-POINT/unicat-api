@@ -6,12 +6,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -24,7 +22,7 @@ public class MediaServiceImpl implements MediaService {
 
     public String videos(List<String> targetFiles) {
         validateFfmpegPath();
-        validateVideoFile(targetFiles);
+        validateVideosFile(targetFiles);
 
         String homeDir = System.getProperty("user.home");
         String outputDirPath;
@@ -256,7 +254,7 @@ public class MediaServiceImpl implements MediaService {
 
     }
 
-    public void validateVideoFile(List<String> filePaths) {
+    public void validateVideosFile(List<String> filePaths) {
         if (filePaths == null || filePaths.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Video file paths cannot be null or empty");
         }
@@ -265,4 +263,87 @@ public class MediaServiceImpl implements MediaService {
         }
     }
 
+    @Override
+    public File mergeImageAndSoundFromFile(File imageFile, File soundFile) {
+        validateImageFile(imageFile.getAbsolutePath());
+        validateAudioFile(soundFile.getAbsolutePath());
+        validateFfmpegPath();
+
+        String tempDir = System.getProperty("java.io.tmpdir");
+        String outputFilePath = tempDir + File.separator + java.util.UUID.randomUUID().toString() + ".mp4";
+
+        List<String> command = new ArrayList<>();
+        command.add(dynamicFfmpegPath());
+
+        command.addAll(List.of(
+                "-loop", "1",
+                "-i", imageFile.getAbsolutePath(),
+                "-i", soundFile.getAbsolutePath(),
+                "-c:v", "libx264",
+                "-tune", "stillimage",
+                "-c:a", "aac",
+                "-b:a", "192k",
+                "-pix_fmt", "yuv420p",
+                "-shortest",
+                outputFilePath
+        ));
+
+        ProcessBuilder builder = new ProcessBuilder(command);
+        executeFfmpegCommand(builder);
+
+        return new File(outputFilePath);
+    }
+
+    @Override
+    public InputStream mergeImageAndSoundFromInputStream(InputStream imageStream, InputStream soundStream) {
+        return null;
+    }
+
+    @Override
+    public File mergeVideosAndExtractVFRFromFiles(List<File> files) {
+        validateFfmpegPath();
+
+        List<String> filePaths = files.stream()
+                .map(File::getAbsolutePath)
+                .collect(Collectors.toList());
+        validateVideosFile(filePaths);
+
+        String tempDir = System.getProperty("java.io.tmpdir");
+        String outputFilePath = tempDir + File.separator + java.util.UUID.randomUUID() + ".mp4";
+
+        List<String> command = new ArrayList<>();
+        command.add(dynamicFfmpegPath());
+
+        for (File file : files) {
+            command.add("-i");
+            command.add(file.getAbsolutePath());
+        }
+
+        StringBuilder filterComplex = new StringBuilder();
+        for (int i = 0; i < files.size(); i++) {
+            filterComplex.append("[").append(i).append(":v:0]");
+        }
+        filterComplex.append("concat=n=").append(files.size()).append(":v=1:a=1[outv][outa]");
+
+        command.addAll(List.of(
+                "-filter_complex", filterComplex.toString(),
+                "-map", "[outv]",
+                "-vsync", "vfr",
+                "-c:v", "libx264",
+                "-c:a", "aac",
+                "-strict", "experimental",
+                outputFilePath
+        ));
+
+        ProcessBuilder builder = new ProcessBuilder(command);
+        executeFfmpegCommand(builder);
+
+        return new File(outputFilePath);
+    }
+
+
+    @Override
+    public InputStream mergeVideosAndExtractVFRFromInputStream(List<InputStream> files) {
+        return null;
+    }
 }
