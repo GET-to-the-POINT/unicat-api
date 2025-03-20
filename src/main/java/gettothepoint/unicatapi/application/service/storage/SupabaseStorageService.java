@@ -16,7 +16,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -24,14 +26,19 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Primary
-public class SupabaseStorageService implements FileStorageService {
+public class SupabaseStorageService extends AbstractStorageService {
 
     private final AppProperties appProperties;
     private final RestTemplate restTemplate;
     private final MessageSource messageSource;
 
     @Override
-    public String uploadFile(MultipartFile file) {
+    public Integer upload(File inputStream) {
+        return 0;
+    }
+
+    @Override
+    public String upload(MultipartFile file) {
         String uniqueFileName = generateUniqueFileName(file);
         String supabaseKey = appProperties.supabase().key();
         String bucket = getBucketName(file.getContentType());
@@ -59,6 +66,31 @@ public class SupabaseStorageService implements FileStorageService {
             String errorMessage = messageSource.getMessage("error.unknown", null, "", LocaleContextHolder.getLocale());
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, errorMessage);
         }
+    }
+
+    @Override
+    public Integer upload(InputStream inputStream) {
+        return 0;
+    }
+
+    @Override
+    public File downloadFile(Integer fileHash) {
+        return null;
+    }
+
+    @Override
+    protected InputStream donwload(Integer fileHash) {
+        return null;
+    }
+
+    @Override
+    public InputStream download(Integer fileHash) {
+        return null;
+    }
+
+    @Override
+    public List<InputStream> downloadInputStreams(List<Integer> fileHashes) {
+        return List.of();
     }
 
     private String getBucketName(String contentType) {

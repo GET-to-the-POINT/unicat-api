@@ -22,9 +22,14 @@ public class Project extends BaseEntity {
 
     private String title;
     private String subtitle;
+    private String description;
     private String thumbnailUrl;
     @Setter
     private String artifactUrl;
+    @Setter
+    private Integer artifactHashCode;
+    @Setter
+    private String artifactMimeType;
 
     @Setter
     private String scriptTone;

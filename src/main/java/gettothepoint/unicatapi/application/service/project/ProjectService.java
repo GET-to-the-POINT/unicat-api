@@ -90,4 +90,13 @@ public class ProjectService {
 
         return ProjectDto.fromEntity(project, sections);
     }
+
+    public void update(Project project) {
+        projectRepository.save(project);
+    }
+
+    public Project getOrElseThrow(Long projectId) {
+        // TODO: 구현 필요
+        return null;
+    }
 }

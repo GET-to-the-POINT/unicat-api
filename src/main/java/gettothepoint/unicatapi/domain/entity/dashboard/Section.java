@@ -36,6 +36,9 @@ public class Section extends BaseEntity {
     @Setter
     private String videoUrl;
 
+    private Integer videoHashCode;
+    private String videoMimeType;
+
     @ManyToOne
     @JoinColumn
     private Project project;
