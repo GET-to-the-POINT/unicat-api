@@ -96,6 +96,7 @@ public class MediaServiceImpl implements MediaService {
                 "-b:a", "192k",
                 "-pix_fmt", "yuv420p",
                 "-shortest",
+                "-y",
                 outputFilePath
         ));
 
@@ -139,7 +140,7 @@ public class MediaServiceImpl implements MediaService {
         for (int i = 0; i < files.size(); i++) {
             filterComplex.append("[").append(i).append(":v:0]");
         }
-        filterComplex.append("concat=n=").append(files.size()).append(":v=1:a=1[outv][outa]");
+        filterComplex.append("concat=n=").append(files.size()).append(":v=1:a=0[outv]");
 
         command.addAll(List.of(
                 "-filter_complex", filterComplex.toString(),
@@ -148,6 +149,7 @@ public class MediaServiceImpl implements MediaService {
                 "-c:v", "libx264",
                 "-c:a", "aac",
                 "-strict", "experimental",
+                "-y",
                 outputFilePath
         ));
 
