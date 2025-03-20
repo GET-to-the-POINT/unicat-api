@@ -3,6 +3,7 @@ package gettothepoint.unicatapi.application.service;
 import com.google.cloud.texttospeech.v1.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -19,14 +20,17 @@ public class TextToSpeechService {
     }
 
     public File create(String script, String voiceModel) {
+        String voiceName = voiceModel;
+        if (StringUtils.isEmpty(voiceModel)) {
+            voiceName = "ko-KR-Neural2-A";
+        }
         SynthesisInput input = SynthesisInput.newBuilder()
                 .setText(script)
                 .build();
 
         VoiceSelectionParams voice = VoiceSelectionParams.newBuilder()
                 .setLanguageCode("ko-KR")
-                // .setName(voiceModel) // TODO: 인자로 받게 다시 활성화 하기 voiceModel에 따라 다르게 설정
-                .setName("ko-KR-Wavenet-A")
+                 .setName(voiceName)
                 .build();
 
         AudioConfig audioConfig = AudioConfig.newBuilder()

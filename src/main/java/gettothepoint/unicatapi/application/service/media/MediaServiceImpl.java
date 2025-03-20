@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.BufferedReader;
@@ -111,11 +110,11 @@ public class MediaServiceImpl implements MediaService {
 
         StringBuilder filterComplex = new StringBuilder();
         for (int i = 0; i < files.size(); i++) {
-            filterComplex.append("[").append(i).append(":v:0]");
+            filterComplex.append("[").append(i).append(":v:0][").append(i).append(":a:0]");
         }
-        filterComplex.append("concat=n=").append(files.size()).append(":v=1:a=0[outv]");
+        filterComplex.append("concat=n=").append(files.size()).append(":v=1:a=1[outv][outa]");
 
-        command.addAll(List.of("-filter_complex", filterComplex.toString(), "-map", "[outv]", "-vsync", "vfr", "-c:v", "libx264", "-c:a", "aac", "-strict", "experimental", "-y", outputFilePath));
+        command.addAll(List.of("-filter_complex", filterComplex.toString(), "-map", "[outv]", "-map", "[outa]", "-vsync", "vfr", "-c:v", "libx264", "-c:a", "aac", "-strict", "experimental", "-y", outputFilePath));
 
         ProcessBuilder builder = new ProcessBuilder(command);
         executeFfmpegCommand(builder);

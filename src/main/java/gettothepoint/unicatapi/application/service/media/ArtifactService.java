@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
@@ -40,7 +39,7 @@ public class ArtifactService {
     @Transactional
     public void build(Long projectId, String type, OAuth2AccessToken accessToken) {
         Project project = buildAndUpdate(projectId);
-        if (StringUtils.isEmpty(type) && type == "youtube" && accessToken != null) {
+        if ("youtube".equals(type) && accessToken != null) {
             uploadSocial(project, type, accessToken);
         }
     }
