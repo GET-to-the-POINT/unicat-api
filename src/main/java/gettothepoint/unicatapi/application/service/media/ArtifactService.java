@@ -5,7 +5,7 @@ import gettothepoint.unicatapi.application.service.project.ProjectService;
 import gettothepoint.unicatapi.application.service.project.SectionService;
 import gettothepoint.unicatapi.application.service.storage.StorageService;
 import gettothepoint.unicatapi.application.service.video.YoutubeUploadService;
-import gettothepoint.unicatapi.domain.dto.UploadResult;
+import gettothepoint.unicatapi.domain.dto.storage.UploadResult;
 import gettothepoint.unicatapi.domain.dto.project.SectionResponse;
 import gettothepoint.unicatapi.domain.entity.dashboard.Project;
 import gettothepoint.unicatapi.domain.entity.dashboard.Section;
@@ -41,11 +41,6 @@ public class ArtifactService {
     }
 
     private Project buildAndUpdate(Long projectId) {
-        this.sectionBuild(projectId);
-        return this.projectBuild(projectId);
-    }
-
-    private Project projectBuild(Long projectId) {
         Project project = projectService.getOrElseThrow(projectId);
         List<SectionResponse> sections = sectionService.getAll(projectId);
 
@@ -53,11 +48,11 @@ public class ArtifactService {
         for (SectionResponse sectionResponse : sections) {
             sectionBuild(sectionResponse.id());
         }
-        List<Integer> sectionVideoHashCodes = sections.stream().map(SectionResponse::videoHashCode).toList();
+        List<String> sectionVideoHashCodes = sections.stream().map(SectionResponse::videoHashCode).toList();
         List<InputStream> sectionVideoStreams = storageService.downloads(sectionVideoHashCodes);
         InputStream artifactStream = mediaService.mergeVideosAndExtractVFRFromInputStream(sectionVideoStreams);
-        UploadResult artifactUploadResult = storageService.upload(artifactStream);
-        project.setArtifactHashCode(artifactUploadResult.hashCode());
+        UploadResult artifactUploadResult = storageService.upload(artifactStream, "video/mp4");
+        project.setArtifactHashCode(artifactUploadResult.fileHashCode());
         project.setArtifactMimeType(artifactUploadResult.mimeType());
         project.setArtifactUrl(artifactUploadResult.url());
         return projectService.update(project);
@@ -65,25 +60,25 @@ public class ArtifactService {
 
     private void sectionBuild(Long sectionId) {
         Section section = sectionService.getOrElseThrow(sectionId);
-        Integer resourceHashCode = section.getResourceHashCode(); // 리소스는 프로세스상 사용자가 선행하여 업로드한다.(인공지능생성도 선행되어서 진해오딘다)
+        String resourceHashCode = section.getResourceHashCode(); // 리소스는 프로세스상 사용자가 선행하여 업로드한다.(인공지능생성도 선행되어서 진해오딘다)
 
         // 오디오 생성
         if (section.getAudioHashCode() == null) {
             InputStream voiceStream = textToSpeechService.create(section.getScript(), section.getVoiceModel());
-            UploadResult uploadResult = storageService.upload(voiceStream);
+            UploadResult uploadResult = storageService.upload(voiceStream, "audio/mp3"); // TODO : mimeType
             section.setAudioUrl(uploadResult.url());
-            section.setAudioHashCode(uploadResult.hashCode());
+            section.setAudioHashCode(uploadResult.fileHashCode());
             section.setAudioMimeType(uploadResult.mimeType());
         }
-        Integer audioHashCode = section.getAudioHashCode();
+        String audioHashCode = section.getAudioHashCode();
 
         // 비디오 생성
         InputStream resourceStream = storageService.download(resourceHashCode);
         InputStream audioStream = storageService.download(audioHashCode);
         InputStream sectionVideo = mediaService.mergeImageAndSound(resourceStream, audioStream);
 
-        UploadResult uploadResult = storageService.upload(sectionVideo);
-        section.setVideoHashCode(uploadResult.hashCode());
+        UploadResult uploadResult = storageService.upload(sectionVideo, "video/mp4"); // TODO : mimeType 을 동적으로 적용하기
+        section.setVideoHashCode(uploadResult.fileHashCode());
         section.setVideoUrl(uploadResult.url());
         section.setVideoMimeType(uploadResult.mimeType());
         sectionService.update(section);

@@ -55,7 +55,8 @@ public class TextToSpeechService {
 
         VoiceSelectionParams voice = VoiceSelectionParams.newBuilder()
                 .setLanguageCode("ko-KR")
-                .setName(voiceModel)
+//                .setName(voiceModel)
+                .setName("ko-KR-Wavenet-A")
                 .build();
 
         AudioConfig audioConfig = AudioConfig.newBuilder()

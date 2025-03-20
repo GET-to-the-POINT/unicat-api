@@ -99,6 +99,9 @@ app:
     prompt: ${IMAGE_AI_PROMPT:"Read the following script and create an image that suits the script in the style of ‘%s’. %n%nScript:%n%s"}
     model: ${IMAGE_AI_MODEL:dall-e-2}
     quality: ${IMAGE_AI_QUALITY:standard}
+  media:
+    ffmpeg:
+      path: ${APP_MEDIA_FFMPEG_PATH:/opt/homebrew/bin/ffmpeg}
 
 server:
   port: 443

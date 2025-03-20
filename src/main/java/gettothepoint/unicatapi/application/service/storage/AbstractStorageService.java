@@ -12,27 +12,27 @@ import java.util.List;
 public abstract class AbstractStorageService implements StorageService {
 
     @Override
-    public List<InputStream> downloads(List<Integer> fileHashes) {
+    public List<InputStream> downloads(List<String> fileHashes) {
         return fileHashes.stream()
                 .map(this::download)
                 .toList();
     }
 
     @Override
-    public InputStream download(Integer fileHash) {
+    public InputStream download(String fileHash) {
         try {
-            return new FileInputStream(ensureCacheFile(fileHash));
+            return new FileInputStream(this.ensureCacheFile(fileHash));
         } catch (IOException e) {
             throw new RuntimeException("Error reading cached file for hash: " + fileHash, e);
         }
     }
 
     @Override
-    public File downloadFile(Integer fileHash) {
+    public File downloadFile(String fileHash) {
         return ensureCacheFile(fileHash);
     }
 
-    private File ensureCacheFile(Integer fileHash) {
+    private File ensureCacheFile(String fileHash) {
         File cacheFile = FileUtil.getOrCreateTemp(fileHash);
         if (!cacheFile.exists()) {
             InputStream downloadedStream = realDownload(fileHash);
@@ -49,5 +49,5 @@ public abstract class AbstractStorageService implements StorageService {
         return cacheFile;
     }
 
-    protected abstract InputStream realDownload(Integer fileHash);
+    protected abstract InputStream realDownload(String fileHash);
 }

@@ -27,7 +27,7 @@ public class Project extends BaseEntity {
     @Setter
     private String artifactUrl;
     @Setter
-    private Integer artifactHashCode;
+    private String artifactHashCode;
     @Setter
     private String artifactMimeType;
 

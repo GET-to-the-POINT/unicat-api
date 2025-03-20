@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.application.service;
 
-import gettothepoint.unicatapi.application.service.storage.SupabaseStorageService;
+import gettothepoint.unicatapi.application.service.storage.StorageService;
 import gettothepoint.unicatapi.common.propertie.AppProperties;
 import gettothepoint.unicatapi.common.util.MultipartFileUtil;
 import gettothepoint.unicatapi.domain.dto.project.*;
@@ -35,7 +35,7 @@ public class OpenAiService {
     private final ProjectRepository projectRepository;
     private final AppProperties appProperties;
     private final RestTemplate restTemplate;
-    private final SupabaseStorageService supabaseStorageService;
+    private final StorageService storageService;
     private final OpenAiImageModel openAiImageModel;
     private static final String SECTION_NOT_FOUND_MSG = "Section not found with id: ";
     private final OpenAiChatModel openAiChatModel;
@@ -126,7 +126,7 @@ public class OpenAiService {
         }
 
         MultipartFile multipartFile = new MultipartFileUtil(imageBytes, "download", "image/jpeg");
-        return supabaseStorageService.upload(multipartFile).url();
+        return storageService.upload(multipartFile, "image/jpeg").url();
     }
 
     private void saveImageToSection(Long sectionId, String imageUrl, String alt) {
