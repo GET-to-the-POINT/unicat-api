@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 @Slf4j
@@ -27,8 +26,8 @@ public class YoutubeUploadService {
     private final YoutubeOAuth2Service youtubeoAuth2Service;
     private final StorageService storageService;
 
-    public Video uploadVideoToYoutube(Project project, OAuth2AccessToken accessToken) throws IOException {
-            File video = storageService.downloadFile(project.getArtifactHashCode());
+    public Video uploadToYoutube(Project project, OAuth2AccessToken accessToken) throws IOException {
+            File video = storageService.download(project.getArtifactUrl());
             YouTube youtubeService = youtubeoAuth2Service.getYouTubeService(accessToken);
             Video youtubeVideo = new Video();
 
@@ -41,7 +40,7 @@ public class YoutubeUploadService {
             status.setPrivacyStatus("public"); // TODO, 변수로 받게 변경 필요
             youtubeVideo.setStatus(status);
 
-            FileContent mediaContent = new FileContent(project.getArtifactMimeType(), video);
+            FileContent mediaContent = new FileContent("video/*", video);
             Insert request = youtubeService.videos()
                     .insert(List.of("snippet", "status"), youtubeVideo, mediaContent);
 

@@ -26,10 +26,6 @@ public class Project extends BaseEntity {
     private String thumbnailUrl;
     @Setter
     private String artifactUrl;
-    @Setter
-    private String artifactHashCode;
-    @Setter
-    private String artifactMimeType;
 
     @Setter
     private String scriptTone;

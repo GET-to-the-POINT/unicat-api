@@ -46,7 +46,7 @@ public class SectionController {
     }
 
     @PostMapping(value = "/{sectionId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResourceResponse uploadResource(@PathVariable Long projectId, @PathVariable Long sectionId, @Valid @ModelAttribute SectionResourceRequest sectionUploadResourceRequest) throws IOException, NoSuchAlgorithmException {
+    public ResourceResponse uploadResource(@PathVariable Long projectId, @PathVariable Long sectionId, @Valid @ModelAttribute SectionResourceRequest sectionUploadResourceRequest) {
         return sectionService.uploadResource(projectId, sectionId, sectionUploadResourceRequest);
     }
 

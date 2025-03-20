@@ -66,9 +66,8 @@ public class SectionService {
         if (!sectionResourceRequest.script().isEmpty()) section.setScript(sectionResourceRequest.script());
         if (!sectionResourceRequest.alt().isEmpty()) section.setAlt(sectionResourceRequest.alt());
         if (!sectionResourceRequest.multipartFile().isEmpty()) {
-            UploadResult uploadResult = storageService.upload(sectionResourceRequest.multipartFile(), sectionResourceRequest.multipartFile().getContentType());
-            section.setResourceUrl(uploadResult.url());
-            section.setResourceHashCode(uploadResult.fileHashCode());
+            String uploadResult = storageService.upload(sectionResourceRequest.multipartFile());
+            section.setResourceUrl(uploadResult);
         }
         this.update(section);
         return ResourceResponse.fromEntity(section);
@@ -113,5 +112,6 @@ public class SectionService {
 
     public void update(Section section) {
         sectionRepository.save(section);
+        sectionRepository.flush();
     }
 }

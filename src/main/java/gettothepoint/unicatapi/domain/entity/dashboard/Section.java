@@ -26,16 +26,8 @@ public class Section extends BaseEntity {
     private String voiceModel;
 
     @Setter private String resourceUrl;
-    @Setter private String resourceHashCode;
-    @Setter private String resourceMimeType;
-
     @Setter private String audioUrl;
-    @Setter private String audioHashCode;
-    @Setter private String audioMimeType;
-
     @Setter private String videoUrl;
-    @Setter private String videoHashCode;
-    @Setter private String videoMimeType;
 
     @ManyToOne
     @JoinColumn

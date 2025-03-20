@@ -126,7 +126,7 @@ public class OpenAiService {
         }
 
         MultipartFile multipartFile = new MultipartFileUtil(imageBytes, "download", "image/jpeg");
-        return storageService.upload(multipartFile, "image/jpeg").url();
+        return storageService.upload(multipartFile);
     }
 
     private void saveImageToSection(Long sectionId, String imageUrl, String alt) {

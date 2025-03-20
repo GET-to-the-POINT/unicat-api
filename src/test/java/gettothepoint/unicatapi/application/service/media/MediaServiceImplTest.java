@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
@@ -46,18 +47,18 @@ class MediaServiceImplTest {
             assertTrue(audioFile.exists(), "테스트용 오디오 파일이 존재해야 합니다.");
 
             // Call the method which now returns an InputStream
-            InputStream outputStream = mediaServiceImpl.mergeImageAndSound(imageFile, audioFile);
-            assertNotNull(outputStream, "출력 스트림이 null이면 안 됩니다.");
+            MultipartFile multipartFile = mediaServiceImpl.mergeImageAndAudio(imageFile, audioFile);
+            assertNotNull(multipartFile, "출력 스트림이 null이면 안 됩니다.");
 
             try {
-                byte[] outputBytes = outputStream.readAllBytes();
+                byte[] outputBytes = multipartFile.readAllBytes();
                 assertTrue(outputBytes.length > 0, "출력 스트림의 크기가 0보다 커야 합니다.");
                 System.out.println("🎬 생성된 영상 파일의 바이트 크기: " + outputBytes.length);
             } catch (IOException e) {
                 fail("출력 스트림을 읽는 중 예외 발생: " + e.getMessage());
             } finally {
                 try {
-                    outputStream.close();
+                    multipartFile.close();
                 } catch (IOException e) {
                     // ignore
                 }
@@ -72,7 +73,7 @@ class MediaServiceImplTest {
             Files.write(audioFile.toPath(), Files.readAllBytes(Path.of(audioPath)));
 
             Exception exception = assertThrows(ResponseStatusException.class, () ->
-                    mediaServiceImpl.mergeImageAndSound(new File("non_existent.jpg"), audioFile)
+                    mediaServiceImpl.mergeImageAndAudio(new File("non_existent.jpg"), audioFile)
             );
             System.out.println("예외 발생: " + exception.getMessage());
             assertTrue(exception.getMessage().contains("Image file does not exist"));
@@ -86,7 +87,7 @@ class MediaServiceImplTest {
             Files.write(imageFile.toPath(), Files.readAllBytes(Path.of(imagePath)));
 
             Exception exception = assertThrows(ResponseStatusException.class, () ->
-                    mediaServiceImpl.mergeImageAndSound(imageFile, new File("non_existent.mp3"))
+                    mediaServiceImpl.mergeImageAndAudio(imageFile, new File("non_existent.mp3"))
             );
 
             assertTrue(exception.getMessage().contains("Audio file does not exist"));
@@ -105,7 +106,7 @@ class MediaServiceImplTest {
             Files.write(audioFile.toPath(), Files.readAllBytes(Path.of(audioPath)));
 
             Exception exception = assertThrows(ResponseStatusException.class, () ->
-                    mediaServiceImpl.mergeImageAndSound(imageFile, audioFile)
+                    mediaServiceImpl.mergeImageAndAudio(imageFile, audioFile)
             );
 
             assertTrue(exception.getMessage().contains("FFMPEG_PATH 환경 변수가 설정되지 않았습니다"));
@@ -124,7 +125,7 @@ class MediaServiceImplTest {
             Files.write(video1.toPath(), Files.readAllBytes(path));
             Files.write(video2.toPath(), Files.readAllBytes(path));
 
-            File outputVideo = mediaServiceImpl.mergeVideosAndExtractVFRFromFiles(List.of(video1, video2));
+            File outputVideo = mediaServiceImpl.mergeVideosAndExtractVFR(List.of(video1, video2));
 
             assertNotNull(outputVideo, "Output file should not be null");
             assertTrue(outputVideo.exists(), "Output file should be created");
@@ -146,7 +147,7 @@ class MediaServiceImplTest {
             Files.write(video2.toPath(), Files.readAllBytes(Path.of(videoPath)));
 
             Exception exception = assertThrows(ResponseStatusException.class, () ->
-                    mediaServiceImpl.mergeVideosAndExtractVFRFromFiles(List.of(video1, video2))
+                    mediaServiceImpl.mergeVideosAndExtractVFR(List.of(video1, video2))
             );
 
             System.out.println("❗FFmpeg 환경 변수 오류 예외 발생: " + exception.getMessage());
@@ -159,7 +160,7 @@ class MediaServiceImplTest {
             System.setProperty("FFMPEG_PATH", VALID_FFMPEG_PATH);
 
             Exception exception = assertThrows(ResponseStatusException.class, () ->
-                    mediaServiceImpl.mergeVideosAndExtractVFRFromFiles(List.of(new File("non_existent.mp4")))
+                    mediaServiceImpl.mergeVideosAndExtractVFR(List.of(new File("non_existent.mp4")))
             );
 
             System.out.println("❗ 비디오 파일 없음 예외 발생: " + exception.getMessage());
@@ -176,7 +177,7 @@ class MediaServiceImplTest {
             Files.write(invalidVideo.toPath(), new byte[1024]); // 임시 더미 파일 생성
 
             Exception exception = assertThrows(ResponseStatusException.class, () ->
-                    mediaServiceImpl.mergeVideosAndExtractVFRFromFiles(List.of(invalidVideo))
+                    mediaServiceImpl.mergeVideosAndExtractVFR(List.of(invalidVideo))
             );
 
             System.out.println("❗ 지원되지 않는 형식의 비디오 파일 예외 발생: " + exception.getMessage());

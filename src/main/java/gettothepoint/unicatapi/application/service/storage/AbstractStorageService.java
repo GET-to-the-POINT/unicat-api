@@ -3,51 +3,31 @@ package gettothepoint.unicatapi.application.service.storage;
 import gettothepoint.unicatapi.common.util.FileUtil;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
 import java.util.List;
 
 public abstract class AbstractStorageService implements StorageService {
 
     @Override
-    public List<InputStream> downloads(List<String> fileHashes) {
-        return fileHashes.stream()
+    public List<File> downloads(List<String> fileUrls) {
+        return fileUrls.stream()
                 .map(this::download)
                 .toList();
     }
 
     @Override
-    public InputStream download(String fileHash) {
-        try {
-            return new FileInputStream(this.ensureCacheFile(fileHash));
-        } catch (IOException e) {
-            throw new RuntimeException("Error reading cached file for hash: " + fileHash, e);
-        }
+    public File download(String fileUrl) {
+        return ensureCacheFile(fileUrl);
     }
 
-    @Override
-    public File downloadFile(String fileHash) {
-        return ensureCacheFile(fileHash);
-    }
+    private File ensureCacheFile(String fileUrl) {
+        File cacheFile = FileUtil.getFilePath(fileUrl);
 
-    private File ensureCacheFile(String fileHash) {
-        File cacheFile = FileUtil.getOrCreateTemp(fileHash);
-        if (!cacheFile.exists()) {
-            InputStream downloadedStream = realDownload(fileHash);
-            if (downloadedStream == null) {
-                throw new RuntimeException("Failed to download file with hash: " + fileHash);
+        File file = realDownload(fileUrl);
+            if (file == null) {
+                throw new RuntimeException("Failed to download file with hash: " + fileUrl);
             }
-            try {
-                Files.copy(downloadedStream, cacheFile.toPath());
-                downloadedStream.close();
-            } catch (IOException e) {
-                throw new RuntimeException("Error caching downloaded file with hash: " + fileHash, e);
-            }
-        }
         return cacheFile;
     }
 
-    protected abstract InputStream realDownload(String fileHash);
+    protected abstract File realDownload(String fileHash);
 }
