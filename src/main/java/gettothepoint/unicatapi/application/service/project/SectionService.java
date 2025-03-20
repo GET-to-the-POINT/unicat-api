@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.application.service.project;
 
 import gettothepoint.unicatapi.application.service.TextToSpeechService;
-import gettothepoint.unicatapi.application.service.storage.FileStorageService;
+import gettothepoint.unicatapi.application.service.storage.AbstractStorageService;
 import gettothepoint.unicatapi.common.propertie.AppProperties;
 import gettothepoint.unicatapi.common.util.MultipartFileUtil;
 import gettothepoint.unicatapi.domain.dto.project.ImageResponse;
@@ -33,7 +33,7 @@ public class SectionService {
 
     private final SectionRepository sectionRepository;
     private final ProjectRepository projectRepository;
-    private final FileStorageService fileStorageService;
+    private final AbstractStorageService abstractStorageService;
     private final TextToSpeechService textToSpeechService;
     private final MessageSource messageSource;
     private final AppProperties appProperties;
@@ -65,7 +65,7 @@ public class SectionService {
 
         MultipartFile file = uploadResourceRequest.image();
 
-        String url = fileStorageService.uploadFile(file);
+        String url = abstractStorageService.upload(file);
 
         section.setAlt(uploadResourceRequest.alt());
         section.setImageUrl(url);
@@ -106,7 +106,7 @@ public class SectionService {
 
     public String uploadTTSFile(File file) {
         MultipartFileUtil multipartFile = new MultipartFileUtil(file, file.getName(), "audio/mpeg");
-        return fileStorageService.uploadFile(multipartFile);
+        return abstractStorageService.upload(multipartFile);
     }
 
     @Transactional
@@ -136,5 +136,10 @@ public class SectionService {
         }
 
         return section.getSortOrder();
+    }
+
+    public List<Section> getAllSortedBySortOrderOrElseThrow(Long projectId) {
+        // TODO: 구현 필요
+        return null;
     }
 }
