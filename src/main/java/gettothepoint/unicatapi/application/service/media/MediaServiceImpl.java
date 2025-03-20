@@ -1,4 +1,4 @@
-package gettothepoint.unicatapi.application.service.ffmpeg;
+package gettothepoint.unicatapi.application.service.media;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +16,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class MergeService {
+public class MediaServiceImpl implements MediaService {
 
     private static String dynamicFfmpegPath() {
         return System.getProperty("FFMPEG_PATH");

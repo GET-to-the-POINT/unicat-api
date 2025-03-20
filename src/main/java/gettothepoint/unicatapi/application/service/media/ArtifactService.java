@@ -1,5 +1,7 @@
-package gettothepoint.unicatapi.application.service.ffmpeg;
+package gettothepoint.unicatapi.application.service.media;
 
+import gettothepoint.unicatapi.application.service.project.ProjectService;
+import gettothepoint.unicatapi.application.service.project.SectionService;
 import gettothepoint.unicatapi.application.service.storage.SupabaseStorageService;
 import gettothepoint.unicatapi.application.service.video.YoutubeUploadService;
 import gettothepoint.unicatapi.common.util.FileUtil;
@@ -18,32 +20,24 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.File;
 import java.util.List;
 
-
 @RequiredArgsConstructor
 @Service
 public class ArtifactService {
 
     private final ProjectRepository projectRepository;
     private final YoutubeUploadService youtubeUploadService;
-    private final MergeService mergeService;
-    private final SectionRepository sectionRepository;
+    private final MediaService mediaService;
     private final SupabaseStorageService supabaseStorageService;
+    private final ProjectService projectService;
+    private final SectionService sectionService;
 
     private Project build(Long projectId) {
-        Project project = projectRepository.findById(projectId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "프로젝트를 찾을 수 없습니다: " + projectId));
-        if (project.getArtifactUrl() != null) {
-            return project;
-        }
-
-        List<Section> sections = sectionRepository.findAllByProjectIdOrderBySortOrderAsc(projectId);
-        if (sections.isEmpty()) {
-            throw new IllegalArgumentException("해당 프로젝트에 포함된 섹션이 없습니다: " + projectId);
-        }
+        Project project = projectService.getOrElseThrow(projectId);
+        List<Section> sections = sectionService.getAllSortedBySortOrderIfEmptyThrow(projectId);
         List<String> videoPaths = sections.stream()
                 .map(Section::getVideoUrl)
-                .toList();  // Java 16+
-
-        String outputFile = mergeService.videos(videoPaths);
+                .toList();  // Java 16
+        String outputFile = mediaService.videos(videoPaths);
 
         File mergedFile = new File(outputFile);
 
