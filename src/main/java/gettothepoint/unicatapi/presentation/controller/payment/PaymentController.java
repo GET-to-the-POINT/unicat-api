@@ -1,21 +1,19 @@
 package gettothepoint.unicatapi.presentation.controller.payment;
-import gettothepoint.unicatapi.domain.dto.payment.*;
-import gettothepoint.unicatapi.domain.entity.payment.Billing;
-import gettothepoint.unicatapi.domain.repository.BillingRepository;
+
+import gettothepoint.unicatapi.application.service.payment.BillingService;
+import gettothepoint.unicatapi.application.service.payment.PaymentService;
+import gettothepoint.unicatapi.domain.dto.payment.PaymentApprovalRequest;
+import gettothepoint.unicatapi.domain.dto.payment.PaymentHistoryResponse;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
-import gettothepoint.unicatapi.application.service.payment.PaymentService;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
@@ -26,7 +24,7 @@ import java.util.Map;
 public class PaymentController {
 
     private final PaymentService paymentService;
-    private final BillingRepository billingRepository;
+    private final BillingService billingService;
 
     @Operation(
             summary = "구매 이력 조회",
@@ -53,16 +51,9 @@ public class PaymentController {
         return ResponseEntity.ok(tossResponse);
     }
 
-
-    @PutMapping("/{billingId}/cancel")
-    public ResponseEntity<Void> cancelSubscription(@PathVariable Long billingId) {
-        Billing billing = billingRepository.findById(billingId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Billing not found"));
-
-        billing.cancelSubscription();
-        billingRepository.save(billing);
-
-        return ResponseEntity.noContent().build();
+    @PutMapping("/{billingId}/cancel") //자동 결제 취소
+    public void cancelSubscription(@PathVariable Long billingId) {
+        billingService.cancelSubscription(billingId);
     }
 }
 

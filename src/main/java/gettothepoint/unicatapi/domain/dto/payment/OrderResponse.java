@@ -1,5 +1,6 @@
 package gettothepoint.unicatapi.domain.dto.payment;
 
+import gettothepoint.unicatapi.domain.entity.payment.Order;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -10,4 +11,13 @@ public class OrderResponse {
     private String customerKey;
     private String orderId;
     private String orderName;
+
+    public static OrderResponse from(Order order) {
+        return OrderResponse.builder()
+                .amount(order.getAmount())
+                .customerKey(order.getMember().getCustomerKey())
+                .orderId(order.getId())
+                .orderName(order.getOrderName())
+                .build();
+    }
 }

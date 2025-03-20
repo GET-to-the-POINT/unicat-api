@@ -9,5 +9,4 @@ import java.util.Optional;
 
 @Repository
 public interface SubscriptionRepository extends JpaRepository<Subscription, String> {
-    Optional<Subscription> findByOrder(Order order);
 }

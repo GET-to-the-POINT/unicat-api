@@ -39,7 +39,7 @@ public class BillingService {
         Member member = findMemberByEmail(email);
         return billingRepository.findByMember(member)
                 .map(Billing::getBillingKey)
-                .orElseGet(() -> String.valueOf(createAndSaveBilling(member, authKey, customerKey)));
+                .orElseGet(() -> createAndSaveBilling(member, authKey, customerKey).getBillingKey());
     }
 
     private Billing createAndSaveBilling(Member member, String authKey, String customerKey) {
@@ -101,5 +101,13 @@ public class BillingService {
     private Member findMemberByEmail(String email) {
         return memberRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "멤버를 찾을 수 없습니다."));
+    }
+
+    public void cancelSubscription(Long billingId) {
+        Billing billing = billingRepository.findById(billingId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Billing not found"));
+
+        billing.cancelSubscription();
+        billingRepository.save(billing);
     }
 }

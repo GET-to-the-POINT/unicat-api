@@ -1,6 +1,5 @@
 package gettothepoint.unicatapi.domain.entity.payment;
 
-import gettothepoint.unicatapi.domain.dto.payment.CancelPaymentResponse;
 import gettothepoint.unicatapi.domain.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -72,11 +71,5 @@ public class Payment extends BaseEntity {
                 .productName((String) map.get("orderName"))
                 .approvedAt(OffsetDateTime.parse((String) map.get("approvedAt")).toLocalDateTime())
                 .build();
-    }
-
-    public void setCancel(CancelPaymentResponse cancelPaymentResponse) {
-        this.tossPaymentStatus = cancelPaymentResponse.getTossPaymentStatus();
-        this.canceledAt = cancelPaymentResponse.getCancelDate();
-        this.cancelReason = cancelPaymentResponse.getCancelReason();
     }
 }

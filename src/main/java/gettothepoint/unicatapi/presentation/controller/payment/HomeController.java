@@ -34,8 +34,4 @@ public class HomeController {
 
         return "payment";
     }
-    @GetMapping("/success")
-    public String showBillingSuccessPage() {
-        return "billing-success";
-    }
 }
