@@ -77,9 +77,6 @@ public class PaymentService {
         return headers;
     }
 
-    /**
-     * 회원의 결제 내역을 조회합니다.
-     */
     public List<PaymentHistoryResponse> findPaymentHistoryByMember(String email) {
         List<Payment> payments = paymentRepository.findByOrder_Member_Email(email);
         return payments.stream()

@@ -21,6 +21,7 @@ import java.util.Map;
 @Tag(name = "Payment API", description = "결제 관련 API")
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/payment")
 public class PaymentController {
 
     private final PaymentService paymentService;
@@ -51,7 +52,7 @@ public class PaymentController {
         return ResponseEntity.ok(tossResponse);
     }
 
-    @PutMapping("/{billingId}/cancel") //자동 결제 취소
+    @PatchMapping("/{billingId}/cancel") //자동 결제 취소
     public void cancelSubscription(@PathVariable Long billingId) {
         billingService.cancelSubscription(billingId);
     }

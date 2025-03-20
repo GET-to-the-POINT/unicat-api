@@ -18,7 +18,7 @@ public class OrderController {
 
     private final OrderService orderService;
 
-    @PostMapping("/order")
+    @PostMapping("/orders")
     public OrderResponse createOrder(
             @AuthenticationPrincipal Jwt jwt,
             @Valid @RequestBody OrderRequest request

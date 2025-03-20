@@ -1,12 +1,12 @@
 package gettothepoint.unicatapi.application.service.payment;
 
 import gettothepoint.unicatapi.common.propertie.AppProperties;
+import gettothepoint.unicatapi.domain.dto.payment.BillingResponse;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.entity.payment.Billing;
 import gettothepoint.unicatapi.domain.repository.BillingRepository;
 import gettothepoint.unicatapi.domain.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -16,10 +16,12 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-@Slf4j
+
 @Service
 @RequiredArgsConstructor
 public class BillingService {
@@ -109,5 +111,21 @@ public class BillingService {
 
         billing.cancelSubscription();
         billingRepository.save(billing);
+    }
+
+    @Transactional(readOnly = true)
+    public List<BillingResponse> getAllBillings() {
+        List<Billing> billings = billingRepository.findAll();
+        return billings.stream()
+                .map(billing -> BillingResponse.builder()
+                        .lastPaymentDate(billing.getLastPaymentDate())
+                        .id(billing.getId())
+                        .billingKey(billing.getBillingKey())
+                        .cardCompany(billing.getCardCompany())
+                        .cardNumber(billing.getCardNumber())
+                        .method(billing.getMethod())
+                        .subscriptionStatus(billing.getSubscriptionStatus().toString())
+                        .build())
+                .toList();
     }
 }

@@ -24,7 +24,7 @@ public class PasswordController {
     private final JwtUtil jwtUtil;
     private final PasswordService passwordService;
 
-    @PutMapping("/me/password")
+    @PatchMapping("/me/password")
     public void resetPasswordForLoggedInUser(
             @AuthenticationPrincipal Jwt jwt,
             @Valid @RequestBody AuthorizedChangePasswordRequest request) {
@@ -32,7 +32,7 @@ public class PasswordController {
         memberService.updatePassword(email, request.newPassword());
     }
 
-    @PutMapping("/anonymous/password")
+    @PatchMapping("/anonymous/password")
     public void resetPasswordForNonLoggedInUser(
             @Valid @RequestBody AnonymousChangePasswordRequest request) {
         String email = jwtUtil.getEmailFromToken(request.token());

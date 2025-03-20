@@ -1,30 +1,36 @@
 package gettothepoint.unicatapi.presentation.controller.payment;
 
 import gettothepoint.unicatapi.application.service.payment.BillingService;
+import gettothepoint.unicatapi.domain.dto.payment.BillingResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/billing")
 public class BillingController {
 
     private final BillingService billingService;
 
     @GetMapping("/issue")
-    public Map<String, String> issueBillingKey(
+    public void issueBillingKey(
             @AuthenticationPrincipal Jwt jwt,
             @RequestParam String authKey,
             @RequestParam String customerKey
     ) {
         String email = jwt.getClaim("email");
-        String billingKey = billingService.saveBillingKey(authKey, customerKey, email);
-        return Map.of("billingKey", billingKey);
+        billingService.saveBillingKey(authKey, customerKey, email);
+    }
+
+    @GetMapping("/list")
+    public List<BillingResponse> getBillingList() {
+        return billingService.getAllBillings();
     }
 }
