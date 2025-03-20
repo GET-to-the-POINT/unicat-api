@@ -44,7 +44,7 @@ public class ArtifactService {
         Project project = projectService.getOrElseThrow(projectId);
         List<Section> sections = sectionService.getAllSortedBySortOrderOrElseThrow(projectId);
         List<Integer> videoHashes = sections.stream().map(Section::getVideoHashCode).toList();
-        List<InputStream> videoStreams = abstractStorageService.downloadInputStreams(videoHashes);
+        List<InputStream> videoStreams = abstractStorageService.downloads(videoHashes);
         InputStream artifactStream = mediaService.mergeVideosAndExtractVFRFromInputStream(videoStreams);
         Integer artifactHashCode = abstractStorageService.upload(artifactStream);
 

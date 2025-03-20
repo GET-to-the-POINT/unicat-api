@@ -1,16 +1,21 @@
 package gettothepoint.unicatapi.application.service.storage;
 
+import gettothepoint.unicatapi.common.util.FileUtil;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.util.List;
 
 public abstract class AbstractStorageService implements StorageService {
 
     @Override
-    public File downloadFile(Integer fileHash) {
-        return ensureCacheFile(fileHash);
+    public List<InputStream> downloads(List<Integer> fileHashes) {
+        return fileHashes.stream()
+                .map(this::download)
+                .toList();
     }
 
     @Override
@@ -22,10 +27,15 @@ public abstract class AbstractStorageService implements StorageService {
         }
     }
 
+    @Override
+    public File downloadFile(Integer fileHash) {
+        return ensureCacheFile(fileHash);
+    }
+
     private File ensureCacheFile(Integer fileHash) {
-        File cacheFile = getCacheFile(fileHash);
+        File cacheFile = FileUtil.getOrCreateTemp(fileHash);
         if (!cacheFile.exists()) {
-            InputStream downloadedStream = donwload(fileHash);
+            InputStream downloadedStream = realDownload(fileHash);
             if (downloadedStream == null) {
                 throw new RuntimeException("Failed to download file with hash: " + fileHash);
             }
@@ -39,11 +49,5 @@ public abstract class AbstractStorageService implements StorageService {
         return cacheFile;
     }
 
-    private File getCacheFile(Integer fileHash) {
-        String tmpDir = System.getProperty("java.io.tmpdir");
-        String fileName = "unicat_cache_" + fileHash;
-        return new File(tmpDir, fileName);
-    }
-
-    protected abstract InputStream donwload(Integer fileHash);
+    protected abstract InputStream realDownload(Integer fileHash);
 }

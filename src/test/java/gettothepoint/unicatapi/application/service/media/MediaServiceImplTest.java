@@ -6,14 +6,13 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.http.HttpStatus;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -46,16 +45,25 @@ class MediaServiceImplTest {
             assertTrue(imageFile.exists(), "테스트용 이미지 파일이 존재해야 합니다.");
             assertTrue(audioFile.exists(), "테스트용 오디오 파일이 존재해야 합니다.");
 
-            File outputFile = mediaServiceImpl.mergeImageAndSoundFromFile(imageFile, audioFile);
+            // Call the method which now returns an InputStream
+            InputStream outputStream = mediaServiceImpl.mergeImageAndSound(imageFile, audioFile);
+            assertNotNull(outputStream, "출력 스트림이 null이면 안 됩니다.");
 
-            assertNotNull(outputFile, "출력 파일 경로가 null이면 안 됩니다.");
-            assertTrue(outputFile.exists(), "출력 파일이 생성되어야 합니다.");
-            assertTrue(outputFile.length() > 0, "출력 파일 크기가 0보다 커야 합니다.");
-
-            System.out.println("🎬 생성된 영상 파일 경로: " + outputFile.getAbsolutePath());
-
-            outputFile.delete();
+            try {
+                byte[] outputBytes = outputStream.readAllBytes();
+                assertTrue(outputBytes.length > 0, "출력 스트림의 크기가 0보다 커야 합니다.");
+                System.out.println("🎬 생성된 영상 파일의 바이트 크기: " + outputBytes.length);
+            } catch (IOException e) {
+                fail("출력 스트림을 읽는 중 예외 발생: " + e.getMessage());
+            } finally {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    // ignore
+                }
+            }
         }
+
         @Test
         @DisplayName("이미지 파일이 없을 때 예외 발생")
         void testMergeImageAndSoundFromFile_ImageNotFound(@TempDir Path tempDir) throws IOException {
@@ -64,7 +72,7 @@ class MediaServiceImplTest {
             Files.write(audioFile.toPath(), Files.readAllBytes(Path.of(audioPath)));
 
             Exception exception = assertThrows(ResponseStatusException.class, () ->
-                    mediaServiceImpl.mergeImageAndSoundFromFile(new File("non_existent.jpg"), audioFile)
+                    mediaServiceImpl.mergeImageAndSound(new File("non_existent.jpg"), audioFile)
             );
             System.out.println("예외 발생: " + exception.getMessage());
             assertTrue(exception.getMessage().contains("Image file does not exist"));
@@ -78,7 +86,7 @@ class MediaServiceImplTest {
             Files.write(imageFile.toPath(), Files.readAllBytes(Path.of(imagePath)));
 
             Exception exception = assertThrows(ResponseStatusException.class, () ->
-                    mediaServiceImpl.mergeImageAndSoundFromFile(imageFile, new File("non_existent.mp3"))
+                    mediaServiceImpl.mergeImageAndSound(imageFile, new File("non_existent.mp3"))
             );
 
             assertTrue(exception.getMessage().contains("Audio file does not exist"));
@@ -97,7 +105,7 @@ class MediaServiceImplTest {
             Files.write(audioFile.toPath(), Files.readAllBytes(Path.of(audioPath)));
 
             Exception exception = assertThrows(ResponseStatusException.class, () ->
-                    mediaServiceImpl.mergeImageAndSoundFromFile(imageFile, audioFile)
+                    mediaServiceImpl.mergeImageAndSound(imageFile, audioFile)
             );
 
             assertTrue(exception.getMessage().contains("FFMPEG_PATH 환경 변수가 설정되지 않았습니다"));
@@ -112,9 +120,9 @@ class MediaServiceImplTest {
 
             File video1 = new File(tempDir.toFile(), "video1.mp4");
             File video2 = new File(tempDir.toFile(), "video2.mp4");
-
-            Files.write(video1.toPath(), Files.readAllBytes(Path.of(videoPath)));
-            Files.write(video2.toPath(), Files.readAllBytes(Path.of(videoPath)));
+            Path path = Path.of(videoPath);
+            Files.write(video1.toPath(), Files.readAllBytes(path));
+            Files.write(video2.toPath(), Files.readAllBytes(path));
 
             File outputVideo = mediaServiceImpl.mergeVideosAndExtractVFRFromFiles(List.of(video1, video2));
 
