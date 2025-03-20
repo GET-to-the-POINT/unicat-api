@@ -4,11 +4,12 @@ import com.google.api.services.youtubeAnalytics.v2.model.QueryResponse;
 import gettothepoint.unicatapi.application.service.media.ArtifactService;
 import gettothepoint.unicatapi.application.service.project.ProjectService;
 import gettothepoint.unicatapi.application.service.youtube.YouTubeAnalyticsProxyService;
-import gettothepoint.unicatapi.domain.dto.project.ProjectDto;
 import gettothepoint.unicatapi.domain.dto.project.ProjectResponse;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -31,19 +32,19 @@ public class ProjectController {
     private final ArtifactService artifactService;
 
     @GetMapping()
-    public ProjectResponse getProjects(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, @RequestParam(defaultValue = "createdAt,desc") String sort) {
-        return projectService.getProjects(page, size, sort);
+    public Page<ProjectResponse> getAll(Pageable pageable) {
+        return projectService.getAll(pageable);
     }
 
     @PostMapping()
-    public Long createProject(@AuthenticationPrincipal Jwt jwt) {
+    public ProjectResponse create(@AuthenticationPrincipal Jwt jwt) {
         Long memberId = Long.valueOf(jwt.getSubject());
-        return projectService.createProject(memberId);
+        return projectService.create(memberId);
     }
 
     @GetMapping("/{projectId}")
-    public ProjectDto getProject(@PathVariable Long projectId) {
-        return projectService.getProject(projectId);
+    public ProjectResponse get(@PathVariable Long projectId) {
+        return projectService.get(projectId);
     }
 
     @PostMapping("/{projectId}")
@@ -52,10 +53,10 @@ public class ProjectController {
         switch (type) {
             case "youtube", "vimeo":
                 OAuth2AccessToken accessToken = authorizedClient.getAccessToken();
-                artifactService.create(projectId, type, accessToken);
+                artifactService.build(projectId, type, accessToken);
                 return;
             default:
-                artifactService.create(projectId);
+                artifactService.build(projectId);
         }
     }
 

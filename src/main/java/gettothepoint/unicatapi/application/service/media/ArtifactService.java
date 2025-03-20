@@ -1,9 +1,12 @@
 package gettothepoint.unicatapi.application.service.media;
 
+import gettothepoint.unicatapi.application.service.TextToSpeechService;
 import gettothepoint.unicatapi.application.service.project.ProjectService;
 import gettothepoint.unicatapi.application.service.project.SectionService;
-import gettothepoint.unicatapi.application.service.storage.AbstractStorageService;
+import gettothepoint.unicatapi.application.service.storage.StorageService;
 import gettothepoint.unicatapi.application.service.video.YoutubeUploadService;
+import gettothepoint.unicatapi.domain.dto.UploadResult;
+import gettothepoint.unicatapi.domain.dto.project.SectionResponse;
 import gettothepoint.unicatapi.domain.entity.dashboard.Project;
 import gettothepoint.unicatapi.domain.entity.dashboard.Section;
 import lombok.RequiredArgsConstructor;
@@ -24,35 +27,78 @@ public class ArtifactService {
     private final MediaService mediaService;
     private final ProjectService projectService;
     private final SectionService sectionService;
-    private final AbstractStorageService abstractStorageService;
+    private final StorageService storageService;
+    private final TextToSpeechService textToSpeechService;
 
-    public void create(Long projectId) {
-        this.create(projectId, "artifact", null);
+    public void build(Long projectId) {
+        this.build(projectId, "artifact", null);
     }
 
     // TODO: type을 String 으로 받으면 오타 나기 쉬움 밸리데이션 추가 필요, 또는 이넘으로 관리 필요
-    public void create(Long projectId, String type, OAuth2AccessToken accessToken) {
-        Project project = makeProcess(projectId);
-        try {
-            if ("youtube".equalsIgnoreCase(type)) youtubeUploadService.uploadVideoToYoutube(project, accessToken);
-        } catch (IOException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
-        }
+    public void build(Long projectId, String type, OAuth2AccessToken accessToken) {
+        Project project = buildAndUpdate(projectId);
+        uploadSocial(project, type, accessToken);
     }
 
-    private Project makeProcess(Long projectId) {
+    private Project buildAndUpdate(Long projectId) {
+        this.sectionBuild(projectId);
+        return this.projectBuild(projectId);
+    }
+
+    private Project projectBuild(Long projectId) {
         Project project = projectService.getOrElseThrow(projectId);
-        List<Section> sections = sectionService.getAllSortedBySortOrderOrElseThrow(projectId);
-        List<Integer> videoHashes = sections.stream().map(Section::getVideoHashCode).toList();
-        List<InputStream> videoStreams = abstractStorageService.downloads(videoHashes);
-        InputStream artifactStream = mediaService.mergeVideosAndExtractVFRFromInputStream(videoStreams);
-        Integer artifactHashCode = abstractStorageService.upload(artifactStream);
+        List<SectionResponse> sections = sectionService.getAll(projectId);
 
-        project.setArtifactHashCode(artifactHashCode);
-        project.setArtifactMimeType("video/mp4"); // TODO: mime type을 어떻게 가져올지 고민 필요
-        projectService.update(project);
+        // build
+        for (SectionResponse sectionResponse : sections) {
+            sectionBuild(sectionResponse.id());
+        }
+        List<Integer> sectionVideoHashCodes = sections.stream().map(SectionResponse::videoHashCode).toList();
+        List<InputStream> sectionVideoStreams = storageService.downloads(sectionVideoHashCodes);
+        InputStream artifactStream = mediaService.mergeVideosAndExtractVFRFromInputStream(sectionVideoStreams);
+        UploadResult artifactUploadResult = storageService.upload(artifactStream);
+        project.setArtifactHashCode(artifactUploadResult.hashCode());
+        project.setArtifactMimeType(artifactUploadResult.mimeType());
+        project.setArtifactUrl(artifactUploadResult.url());
+        return projectService.update(project);
+    }
 
-        return project;
+    private void sectionBuild(Long sectionId) {
+        Section section = sectionService.getOrElseThrow(sectionId);
+        Integer resourceHashCode = section.getResourceHashCode(); // 리소스는 프로세스상 사용자가 선행하여 업로드한다.(인공지능생성도 선행되어서 진해오딘다)
+
+        // 오디오 생성
+        if (section.getAudioHashCode() == null) {
+            InputStream voiceStream = textToSpeechService.create(section.getScript(), section.getVoiceModel());
+            UploadResult uploadResult = storageService.upload(voiceStream);
+            section.setAudioUrl(uploadResult.url());
+            section.setAudioHashCode(uploadResult.hashCode());
+            section.setAudioMimeType(uploadResult.mimeType());
+        }
+        Integer audioHashCode = section.getAudioHashCode();
+
+        // 비디오 생성
+        InputStream resourceStream = storageService.download(resourceHashCode);
+        InputStream audioStream = storageService.download(audioHashCode);
+        InputStream sectionVideo = mediaService.mergeImageAndSound(resourceStream, audioStream);
+
+        UploadResult uploadResult = storageService.upload(sectionVideo);
+        section.setVideoHashCode(uploadResult.hashCode());
+        section.setVideoUrl(uploadResult.url());
+        section.setVideoMimeType(uploadResult.mimeType());
+        sectionService.update(section);
+    }
+
+    private void uploadSocial(Project project, String type, OAuth2AccessToken accessToken) {
+        try {
+            if ("youtube".equalsIgnoreCase(type)) {
+                youtubeUploadService.uploadVideoToYoutube(project, accessToken);
+            } else if ("vimeo".equalsIgnoreCase(type)) {
+                // TODO: 과연 나중에 생길까?
+            }
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to upload artifact", e);
+        }
     }
 
 }

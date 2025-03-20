@@ -1,6 +1,7 @@
 package gettothepoint.unicatapi.application.service.storage;
 
 import gettothepoint.unicatapi.common.propertie.AppProperties;
+import gettothepoint.unicatapi.domain.dto.UploadResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
@@ -33,37 +34,35 @@ public class SupabaseStorageService extends AbstractStorageService {
     private final MessageSource messageSource;
 
     @Override
-    public Integer upload(File inputStream) {
-        return 0;
+    public UploadResult upload(File inputStream) {
+        // TODO : 구현하기
+        return null;
     }
 
     @Override
-    public Integer upload(InputStream inputStream) {
-        return 0;
+    public UploadResult upload(InputStream inputStream) {
+        // TODO : 구현하기
+        return null;
     }
 
     @Override
-    public String upload(MultipartFile file) {
+    public UploadResult upload(MultipartFile file) {
         String uniqueFileName = generateUniqueFileName(file);
         String supabaseKey = appProperties.supabase().key();
         String bucket = getBucketName(file.getContentType());
-
         String key = "uploads/" + uniqueFileName;
         String url = getUrl(bucket, key);
-
         try {
             byte[] fileBytes = file.getBytes();
-
             HttpHeaders headers = new HttpHeaders();
             headers.set("apikey", supabaseKey);
-            headers.set("Authorization", "Bearer " + supabaseKey);
+            headers.set("Authorization", "Bearer" + supabaseKey);
             headers.setContentType(MediaType.parseMediaType(Objects.requireNonNull(file.getContentType())));
-
             HttpEntity<byte[]> requestEntity = new HttpEntity<>(fileBytes, headers);
-
             restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
-
-            return url;
+            int fileHash = java.util.Arrays.hashCode(fileBytes);
+            String mime = file.getContentType();
+            return new UploadResult(fileHash, url, mime);
         } catch (IOException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to upload file", e);
         } catch (RestClientException e) {
@@ -77,7 +76,7 @@ public class SupabaseStorageService extends AbstractStorageService {
         if (contentType == null || contentType.isBlank()) {
             return appProperties.supabase().storage().bucket();
         }
-        if (contentType.startsWith("image/")) {
+        if (contentType.startsWith("multipartFile/")) {
             return "image";
         } else if (contentType.startsWith("audio/")) {
             return "voice";
