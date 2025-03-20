@@ -122,23 +122,23 @@ public class OpenAiService {
         URI uri = UriComponentsBuilder.fromUriString(imageUrl).build(true).toUri();
         byte[] imageBytes = restTemplate.getForObject(uri, byte[].class);
         if (imageBytes == null) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to download image from OpenAI");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to download multipartFile from OpenAI");
         }
 
         MultipartFile multipartFile = new MultipartFileUtil(imageBytes, "download", "image/jpeg");
-        return supabaseStorageService.upload(multipartFile);
+        return supabaseStorageService.upload(multipartFile).url();
     }
 
     private void saveImageToSection(Long sectionId, String imageUrl, String alt) {
         Section section = sectionRepository.findById(sectionId)
                 .orElseThrow(() -> new EntityNotFoundException(SECTION_NOT_FOUND_MSG + sectionId));
 
-        section.setImageUrl(imageUrl);
+        section.setResourceUrl(imageUrl);
         section.setAlt(alt);
         sectionRepository.save(section);
     }
 
-    public CreateResourceResponse createContent(Long projectId, Long sectionId, String type, PromptRequest promptRequest) {
+    public CreateResourceResponse createResource(Long projectId, Long sectionId, String type, PromptRequest promptRequest) {
 
         if ("image".equalsIgnoreCase(type)) {
            return createImage(projectId, sectionId, promptRequest);

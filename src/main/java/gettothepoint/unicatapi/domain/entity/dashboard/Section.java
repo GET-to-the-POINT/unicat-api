@@ -18,26 +18,24 @@ public class Section extends BaseEntity {
     private Long id;
 
     @Setter
-    private String imageUrl;
-
-    @Setter
-    private String alt;
-
-    @Setter
-    @Column(columnDefinition = "TEXT")
-    private String script;
-
-    @Setter
     private Long sortOrder;
 
-    @Setter
-    private String ttsUrl;
+    @Setter private String alt;
+    @Column(columnDefinition = "TEXT")
+    @Setter private String script;
+    private String voiceModel;
 
-    @Setter
-    private String videoUrl;
+    @Setter private String resourceUrl;
+    @Setter private Integer resourceHashCode;
+    @Setter private String resourceMimeType;
 
-    private Integer videoHashCode;
-    private String videoMimeType;
+    @Setter private String audioUrl;
+    @Setter private Integer audioHashCode;
+    @Setter private String audioMimeType;
+
+    @Setter private String videoUrl;
+    @Setter private Integer videoHashCode;
+    @Setter private String videoMimeType;
 
     @ManyToOne
     @JoinColumn

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 @Service
 @RequiredArgsConstructor
@@ -47,4 +48,21 @@ public class TextToSpeechService {
         }
     }
 
+    public InputStream create(String script, String voiceModel) {
+        SynthesisInput input = SynthesisInput.newBuilder()
+                .setText(script)
+                .build();
+
+        VoiceSelectionParams voice = VoiceSelectionParams.newBuilder()
+                .setLanguageCode("ko-KR")
+                .setName(voiceModel)
+                .build();
+
+        AudioConfig audioConfig = AudioConfig.newBuilder()
+                .setAudioEncoding(AudioEncoding.MP3)
+                .build();
+
+        SynthesizeSpeechResponse response = textToSpeechClient.synthesizeSpeech(input, voice, audioConfig);
+        return response.getAudioContent().newInput();
+    }
 }

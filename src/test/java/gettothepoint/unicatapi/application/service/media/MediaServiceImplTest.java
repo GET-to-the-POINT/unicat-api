@@ -25,7 +25,7 @@ class MediaServiceImplTest {
 
     private final String videoPath = Paths.get("src", "test", "resources", "samples", "video", "video.mp4").toString();
     private final String audioPath = Paths.get("src", "test", "resources", "samples", "audio", "audio.mp3").toString();
-    private final String imagePath = Paths.get("src", "test", "resources", "samples", "image", "image.jpeg").toString();
+    private final String imagePath = Paths.get("src", "test", "resources", "samples", "image", "multipartFile.jpeg").toString();
 
     @BeforeEach
     void setUp() {
