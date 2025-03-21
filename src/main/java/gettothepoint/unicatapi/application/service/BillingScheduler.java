@@ -23,7 +23,7 @@ public class BillingScheduler {
     private final PaymentService paymentService;
     private final OrderService orderService;
 
-    @Scheduled(cron = "0 */3 * * * ?") // 매일 새벽 3시 실행
+    @Scheduled(cron = "0 0 3 * * ?") // 매일 새벽 3시 실행
     @Transactional
     public void processAutoBilling() {
         log.info("🚀 자동 결제 스케줄링 실행 중...");
