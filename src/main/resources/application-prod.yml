@@ -2,11 +2,9 @@ spring:
   config:
     activate:
       on-profile: prod
-  datasource:
-    hikari:
-      auto-commit: true  # 트랜잭션이 끝나면 자동으로 커밋
-      maximum-pool-size: 5  # 최대 5개 커넥션 제한 (세션 부족 방지)
-      minimum-idle: 0  # 최소한의 유휴 커넥션 유지 (세션 낭비 방지)
-      idle-timeout: 10000  # 10초 후 유휴 커넥션 반납 (짧게 설정)
-      max-lifetime: 30000  # 30초 후 커넥션 재생성 (짧게 설정하여 빠른 반납 유도)
-      connection-timeout: 2000  # 2초 동안 커넥션 대기 후 실패
+
+logging:
+  loki:
+    url: ${LOKI_URL:https://loki.xiyo.dev/loki/api/v1/push}
+  level:
+    root: INFO
