@@ -7,8 +7,8 @@
 
 규칙: 최신 자바 문법을 알려주고 올른 SOLID 규칙으로 설계해줘
 추가적으로 필요한 내용이 있다면 내게 다시 질문해 내가 답할게
-
-나는 자바 개발자인데 초보 개발자야 세세하게 설명해줘야해"; \
+비디오 머지 서비스와 그와 영상제작에 관련된 코드에 대해서 개선된 코드를 답해줘
+"; \
 find ./application ./presentation ./domain -type f -name "*.java" -exec cat {} +) \
 | tr -d '\n' | tr -d ' ' | pbcopy
 ```
