@@ -5,12 +5,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,11 +25,19 @@ class MediaServiceImplTest {
 
     private final String videoPath = Paths.get("src", "test", "resources", "samples", "video", "video.mp4").toString();
     private final String audioPath = Paths.get("src", "test", "resources", "samples", "audio", "audio.mp3").toString();
-    private final String imagePath = Paths.get("src", "test", "resources", "samples", "image", "multipartFile.jpeg").toString();
+    private final String imagePath = Paths.get("src", "test", "resources", "samples", "image", "image.jpeg").toString();
+
+//    @BeforeEach
+//    void setUp() {
+//        System.setProperty("FFMPEG_PATH", VALID_FFMPEG_PATH);
+//    }
+
 
     @BeforeEach
-    void setUp() {
-        System.setProperty("FFMPEG_PATH", VALID_FFMPEG_PATH);
+    void setUp() throws Exception {
+        Field ffmpegField = MediaServiceImpl.class.getDeclaredField("ffmpegPath");
+        ffmpegField.setAccessible(true);
+        ffmpegField.set(mediaServiceImpl, VALID_FFMPEG_PATH);
     }
 
     @Nested
@@ -47,21 +54,12 @@ class MediaServiceImplTest {
             assertTrue(audioFile.exists(), "테스트용 오디오 파일이 존재해야 합니다.");
 
             // Call the method which now returns an InputStream
-            MultipartFile multipartFile = mediaServiceImpl.mergeImageAndAudio(imageFile, audioFile);
-            assertNotNull(multipartFile, "출력 스트림이 null이면 안 됩니다.");
+            File outputFile = mediaServiceImpl.mergeImageAndAudio(imageFile, audioFile);
+            assertNotNull(outputFile, "출력 스트림이 null이면 안 됩니다.");
 
-            try {
-                byte[] outputBytes = multipartFile.readAllBytes();
-                assertTrue(outputBytes.length > 0, "출력 스트림의 크기가 0보다 커야 합니다.");
-                System.out.println("🎬 생성된 영상 파일의 바이트 크기: " + outputBytes.length);
-            } catch (IOException e) {
-                fail("출력 스트림을 읽는 중 예외 발생: " + e.getMessage());
-            } finally {
-                try {
-                    multipartFile.close();
-                } catch (IOException e) {
-                    // ignore
-                }
+            if (outputFile.exists()) {
+                assertTrue(outputFile.delete(), "테스트 후 생성된 파일을 삭제해야 합니다.");
+            }
             }
         }
 
@@ -184,4 +182,3 @@ class MediaServiceImplTest {
             assertTrue(exception.getMessage().contains("지원되지 않는 비디오 파일 형식입니다"));
         }
     }
-}
