@@ -11,7 +11,6 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Getter
 @NoArgsConstructor
@@ -29,9 +28,6 @@ public class Member extends BaseEntity {
     @Setter
     private String password;
 
-    @Column(unique = true, nullable = true)
-    private String customerKey;
-
     @Column(nullable = false)
     private boolean verified = false;
 
@@ -48,17 +44,10 @@ public class Member extends BaseEntity {
     public Member(String email, String password) {
         this.email = email;
         this.password = password;
-        this.customerKey = UUID.randomUUID().toString();
     }
 
     public void verified() {
         this.verified = true;
-    }
-
-    public void generateCustomerKey() {
-        if (this.customerKey == null) {
-            this.customerKey = UUID.randomUUID().toString();
-        }
     }
 }
 

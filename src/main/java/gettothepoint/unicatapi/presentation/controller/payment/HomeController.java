@@ -2,7 +2,6 @@ package gettothepoint.unicatapi.presentation.controller.payment;
 
 
 import gettothepoint.unicatapi.application.service.member.MemberService;
-import gettothepoint.unicatapi.domain.entity.member.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -27,10 +26,8 @@ public class HomeController {
     public String showPaymentPage(Model model,@AuthenticationPrincipal Jwt jwt) {
         String email = jwt.getClaim("email");
 
-        Member member = memberService.getOrCreateCustomerKey(email);
-
         model.addAttribute("clientKey", appProperties.toss().clientKey());
-        model.addAttribute("customerKey", member.getCustomerKey());
+        model.addAttribute("customerKey", email);
 
         return "payment";
     }

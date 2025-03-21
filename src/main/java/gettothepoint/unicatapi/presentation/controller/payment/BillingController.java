@@ -20,13 +20,9 @@ public class BillingController {
     private final BillingService billingService;
 
     @GetMapping("/issue")
-    public void issueBillingKey(
-            @AuthenticationPrincipal Jwt jwt,
-            @RequestParam String authKey,
-            @RequestParam String customerKey
-    ) {
+    public void issueBillingKey(@AuthenticationPrincipal Jwt jwt, @RequestParam String authKey) {
         String email = jwt.getClaim("email");
-        billingService.saveBillingKey(authKey, customerKey, email);
+        billingService.saveBillingKey(authKey, email);
     }
 
     @GetMapping("/list")

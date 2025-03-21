@@ -31,16 +31,18 @@ public class BillingService {
     private final OrderService orderService;
 
     @Transactional
-    public String saveBillingKey(String authKey, String customerKey, String email) {
+    public void saveBillingKey(String authKey, String email) {
         Member member = findMemberByEmail(email);
-        return billingRepository.findByMember(member)
-                .map(Billing::getBillingKey)
-                .orElseGet(() -> createAndSaveBilling(member, authKey, customerKey).getBillingKey());
+        billingRepository.findByMember(member)
+                .ifPresentOrElse(
+                        existing -> {},                         // 이미 있으면 아무 작업 없이 종료
+                        () -> createAndSaveBilling(member, authKey) // 없으면 새로 생성 + 저장
+                );
     }
 
-    private Billing createAndSaveBilling(Member member, String authKey, String customerKey) {
+    private void createAndSaveBilling(Member member, String authKey) {
         // TossPayments API 호출
-        Map<String, Object> billingResponse = requestBillingKey(authKey, customerKey);
+        Map<String, Object> billingResponse = requestBillingKey(authKey, member.getEmail());
 
         String billingKey = (String) billingResponse.get("billingKey");
         String cardCompany = (String) billingResponse.get("cardCompany");
@@ -60,14 +62,13 @@ public class BillingService {
                 .build();
 
         billingRepository.save(billing);
-        return billing;
     }
 
-    private Map<String, Object> requestBillingKey(String authKey, String customerKey) {
+    private Map<String, Object> requestBillingKey(String authKey, String email) {
         HttpHeaders headers = createHeaders(encodeSecretKey());
         Map<String, String> requestBody = Map.of(
                 "authKey", authKey,
-                "customerKey", customerKey
+                "customerKey", email
         );
         HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(requestBody, headers);
 

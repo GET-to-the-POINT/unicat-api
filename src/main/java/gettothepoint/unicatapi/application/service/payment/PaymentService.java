@@ -51,7 +51,7 @@ public class PaymentService {
 
         PaymentApprovalRequest req = PaymentApprovalRequest.builder()
                 .amount(order.getAmount())
-                .customerKey(member.getCustomerKey())
+                .customerKey(memberEmail)
                 .orderId(order.getId())
                 .orderName(order.getOrderName())
                 .build();
