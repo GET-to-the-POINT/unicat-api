@@ -26,9 +26,10 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Objects;
+
+import static gettothepoint.unicatapi.common.util.FileUtil.getTempPath;
 
 @Slf4j
 @Service
@@ -41,35 +42,32 @@ public class SupabaseStorageServiceImpl extends AbstractStorageService {
     private final MessageSource messageSource;
 
     @Override
-    protected File realDownload(String fileUrl) {
-        String fileName = Paths.get(URI.create(fileUrl).getPath()).getFileName().toString();
-        File foundFile = FileUtil.getFile(fileName);
-        if (foundFile.exists()) {
-            return foundFile;
-        }
-        if (!foundFile.exists()) {
-            try {
-                Path parentDir = foundFile.toPath().getParent();
-                if (parentDir != null) Files.createDirectories(parentDir);
-            } catch (IOException e) {
-                throw new UncheckedIOException("캐시 디렉토리 생성 실패: " + foundFile.getAbsolutePath(), e);
-            }
-            try {
-                URL url = URI.create(fileUrl).toURL();
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                connection.connect();
+    protected File realDownload(String filename) {
+        File foundFile = FileUtil.getFilenameInTemp(filename);
 
-                if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                    InputStream inputStream = connection.getInputStream();
-                    Files.copy(inputStream, foundFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                    inputStream.close();
-                } else {
-                    throw new HttpClientErrorException(HttpStatus.valueOf(connection.getResponseCode()), "파일 다운로드 실패. HTTP 응답 코드: " + connection.getResponseCode());
-                }
-            } catch (IOException e) {
-                throw new UncheckedIOException("파일 다운로드 오류: " + fileUrl, e);
+        // 여기에 진입한 경우는 무조건 파일이 없을 경우 입니다.
+        // 추상 클래스를 참조하십시오.
+        try {
+            Path parentDir = foundFile.toPath().getParent();
+            if (parentDir != null) Files.createDirectories(parentDir);
+        } catch (IOException e) {
+            throw new UncheckedIOException("캐시 디렉토리 생성 실패: " + foundFile.getAbsolutePath(), e);
+        }
+        try {
+            URL url = URI.create(filename).toURL();
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.connect();
+
+            if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                InputStream inputStream = connection.getInputStream();
+                Files.copy(inputStream, foundFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                inputStream.close();
+            } else {
+                throw new HttpClientErrorException(HttpStatus.valueOf(connection.getResponseCode()), "파일 다운로드 실패. HTTP 응답 코드: " + connection.getResponseCode());
             }
+        } catch (IOException e) {
+            throw new UncheckedIOException("파일 다운로드 오류: " + filename, e);
         }
         return foundFile;
     }
@@ -81,7 +79,7 @@ public class SupabaseStorageServiceImpl extends AbstractStorageService {
             throw new IllegalArgumentException("업로드할 파일을 제공해주세요.");
         }
 
-        Path baseDir = Paths.get(System.getProperty("java.io.tmpdir"), "unicat_uploads");
+        Path baseDir = getTempPath();
         try {
             Files.createDirectories(baseDir);
         } catch (IOException e) {
@@ -126,10 +124,10 @@ public class SupabaseStorageServiceImpl extends AbstractStorageService {
         String contentType;
         try {
             contentType = Files.probeContentType(file.toPath());
-        } catch(IOException e) {
+        } catch (IOException e) {
             contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
         }
-        if(contentType == null || !contentType.contains("/")) {
+        if (contentType == null || !contentType.contains("/")) {
             contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
         }
         MultipartFile multipartFile = new MultipartFileUtil(file, file.getName(), contentType);
@@ -154,9 +152,6 @@ public class SupabaseStorageServiceImpl extends AbstractStorageService {
 
     private String getUrl(String bucket, String key) {
         String supabaseUrl = appProperties.supabase().url();
-        return UriComponentsBuilder.fromUriString(supabaseUrl)
-                .pathSegment("storage", "v1", "object", bucket, key)
-                .build()
-                .toUriString();
+        return UriComponentsBuilder.fromUriString(supabaseUrl).pathSegment("storage", "v1", "object", bucket, key).build().toUriString();
     }
 }

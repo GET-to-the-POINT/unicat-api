@@ -8,25 +8,25 @@ import java.util.List;
 public abstract class AbstractStorageService implements StorageService {
 
     @Override
-    public List<File> downloads(List<String> fileUrls) {
-        return fileUrls.stream()
+    public List<File> downloads(List<String> filenames) {
+        return filenames.stream()
                 .map(this::download)
                 .toList();
     }
 
     @Override
-    public File download(String fileUrl) {
-        return ensureCacheFile(fileUrl);
+    public File download(String filename) {
+        return ensureCacheFile(filename);
     }
 
-    private File ensureCacheFile(String fileUrl) {
-        File cacheFile = FileUtil.getFilePath(fileUrl);
+    private File ensureCacheFile(String filename) {
+        File cacheFile = FileUtil.getFilenameInTemp(filename);
 
-        File file = realDownload(fileUrl);
-            if (file == null) {
-                throw new RuntimeException("Failed to download file with hash: " + fileUrl);
-            }
-        return cacheFile;
+        if (cacheFile.exists()) {
+            return cacheFile;
+        }
+
+        return realDownload(filename);
     }
 
     protected abstract File realDownload(String fileHash);

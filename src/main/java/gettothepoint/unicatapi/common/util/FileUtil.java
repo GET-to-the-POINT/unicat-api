@@ -5,9 +5,16 @@ import lombok.NoArgsConstructor;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FileUtil {
+
+    public static Path getTempPath() {
+        return Paths.get(System.getProperty("java.io.tmpdir"), "unicat_uploads");
+    }
 
     public static File createTempFile(String prefix, String suffix) {
         try {
@@ -17,12 +24,16 @@ public class FileUtil {
         }
     }
 
-    public static File getFile(String filename) {
-        String path = System.getProperty("java.io.tmpdir");
+    public static File getFilenameInTemp(String filename) {
+        String path = getTempPath().toString();
         return new File(path, filename);
     }
 
     public static File getFilePath(String filename) {
         return new File(filename);
+    }
+
+    public static String filenameFromUrl(String url) {
+        return Paths.get(URI.create(url).getPath()).getFileName().toString();
     }
 }

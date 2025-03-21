@@ -52,7 +52,7 @@ public class LocalStorageService extends AbstractStorageService {
 
     @Override
     public String upload(File file) {
-        File foundFile = FileUtil.getFile(file.getName());
+        File foundFile = FileUtil.getFilenameInTemp(file.getName());
         if (foundFile.exists()) {
             return foundFile.getAbsolutePath();
         }
