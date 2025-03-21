@@ -1,0 +1,9 @@
+{
+  "properties": [
+    {
+      "name": "logging.loki.url",
+      "type": "java.lang.String",
+      "description": "Loki logging endpoint URL"
+    }
+  ]
+}
