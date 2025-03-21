@@ -23,7 +23,7 @@ class MediaServiceImplTest {
 
     private static final String VALID_FFMPEG_PATH = "/opt/homebrew/bin/ffmpeg";
 
-    private final String videoPath = Paths.get("src", "test", "resources", "samples", "video", "video.mp4").toString();
+    private final String videoPath = Paths.get("src", "test", "resources", "samples", "video").toString();
     private final String audioPath = Paths.get("src", "test", "resources", "samples", "audio", "audio.mp3").toString();
     private final String imagePath = Paths.get("src", "test", "resources", "samples", "image", "image.jpeg").toString();
 
@@ -117,11 +117,11 @@ class MediaServiceImplTest {
         void testMergeVideosAndExtractVFRFromFiles_Success(@TempDir Path tempDir) throws IOException {
             System.setProperty("FFMPEG_PATH", VALID_FFMPEG_PATH);
 
-            File video1 = new File(tempDir.toFile(), "video1.mp4");
-            File video2 = new File(tempDir.toFile(), "video2.mp4");
-            Path path = Path.of(videoPath);
-            Files.write(video1.toPath(), Files.readAllBytes(path));
-            Files.write(video2.toPath(), Files.readAllBytes(path));
+            Path video1Path = Path.of(videoPath, "final_result_with_bg2.mp4");
+            Path video2Path = Path.of(videoPath, "final_result_with_bg3.mp4");
+
+            File video1 = video1Path.toFile();
+            File video2 = video2Path.toFile();
 
             File outputVideo = mediaServiceImpl.mergeVideosAndExtractVFR(List.of(video1, video2));
 
@@ -130,7 +130,7 @@ class MediaServiceImplTest {
 
             System.out.println("✅ 병합된 비디오 파일 경로: " + outputVideo.getAbsolutePath());
 
-            outputVideo.delete();
+            //outputVideo.delete();
         }
 
         @Test
@@ -181,4 +181,95 @@ class MediaServiceImplTest {
             System.out.println("❗ 지원되지 않는 형식의 비디오 파일 예외 발생: " + exception.getMessage());
             assertTrue(exception.getMessage().contains("지원되지 않는 비디오 파일 형식입니다"));
         }
+
+//    @Test
+//    @DisplayName("🧪 이미지 + 음성 + 타이틀 이미지 병합 - 성공")
+//    void testMergeImageAndAudioWithTitleImage() {
+//        // given
+//        File bgImage = new File("src/test/resources/samples/image/water.jpg");
+//        File audio = new File("src/test/resources/samples/audio/audio2.mp3");
+//        File titleImage = new File("src/test/resources/samples/image/title.png");
+//
+//        assertTrue(bgImage.exists(), "배경 이미지가 존재해야 합니다.");
+//        assertTrue(audio.exists(), "오디오 파일이 존재해야 합니다.");
+//        assertTrue(titleImage.exists(), "타이틀 이미지가 존재해야 합니다.");
+//
+//        // when
+//        File result = mediaServiceImpl.mergeImageAndAudio(bgImage, audio, titleImage);
+//
+//        // then
+//        assertNotNull(result, "출력 파일은 null이면 안 됩니다.");
+//        assertTrue(result.exists(), "출력 파일이 생성되어야 합니다.");
+//
+//        System.out.println("🎥 생성된 영상 경로: " + result.getAbsolutePath());
+//
+//        // cleanup
+//        //assertTrue(result.delete(), "테스트 후 생성된 파일은 삭제해야 합니다.");
+//    }
+
+
+    @Test
+    @DisplayName("🎞️ 배경영상 + 이미지 + 타이틀 + 오디오 병합 - 성공")
+    void testMergeImageAndAudioWithBackground() {
+        // given
+        File bgVideo = new File("src/test/resources/samples/video/back10.mp4"); // 배경 영상
+        File image = new File("src/test/resources/samples/image/coke.jpg"); // 메인 이미지
+        File title = new File("src/test/resources/samples/image/title.png");  // 타이틀 이미지 (투명 배경 추천)
+        File audio = new File("src/test/resources/samples/audio/audio2.mp3");  // 음성
+
+        assertTrue(bgVideo.exists(), "배경 영상이 존재해야 합니다.");
+        assertTrue(image.exists(), "메인 이미지가 존재해야 합니다.");
+        assertTrue(title.exists(), "타이틀 이미지가 존재해야 합니다.");
+        assertTrue(audio.exists(), "오디오 파일이 존재해야 합니다.");
+
+        // when
+        File result = mediaServiceImpl.mergeImageAndAudioWithBackground(bgVideo, image, title, audio);
+
+        // then
+        assertNotNull(result, "출력 파일은 null이면 안 됩니다.");
+        assertTrue(result.exists(), "출력 파일이 생성되어야 합니다.");
+
+        System.out.println("✅ 생성된 영상 경로: " + result.getAbsolutePath());
+
+        // optionally: 테스트 후 삭제
+        // assertTrue(result.delete(), "테스트 후 생성된 파일은 삭제되어야 합니다.");
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//    @Test
+//    @DisplayName("🎞️ 영상 + 배경 병합 - 성공")
+//    void testMergeVideoWithBackground() {
+//        File mainVideo = new File("src/test/resources/samples/video/final.mp4");
+//        File backgroundVideo = new File("src/test/resources/samples/video/Back.mp4");
+//        File outputFile = new File("/Users/yurim/Desktop/result3.mp4");
+//
+//        assertTrue(mainVideo.exists(), "메인 비디오 파일이 존재해야 합니다.");
+//        assertTrue(backgroundVideo.exists(), "배경 비디오 파일이 존재해야 합니다.");
+//
+//        File result = mediaServiceImpl.mergeImageAndAudioWithBackground(mainVideo, backgroundVideo, outputFile);
+//
+//        assertNotNull(result, "출력 파일은 null이면 안 됩니다.");
+//        assertTrue(result.exists(), "출력 파일이 생성되어야 합니다.");
+//
+//        System.out.println("✅ 생성된 병합 영상: " + result.getAbsolutePath());
+//    }
+
+
+
+
     }

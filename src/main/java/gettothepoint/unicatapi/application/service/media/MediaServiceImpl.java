@@ -90,14 +90,71 @@ public class MediaServiceImpl implements MediaService {
     }
 
     @Override
+    public File mergeImageAndAudio(File imageFile, File soundFile, File titleImageFile) {
+        validateImageFile(imageFile.getAbsolutePath());
+        validateImageFile(titleImageFile.getAbsolutePath());
+        validateAudioFile(soundFile.getAbsolutePath());
+        validateFfmpegPath();
+
+//        String filename = this.filePrefix + Objects.hash(imageFile, soundFile, titleImageFile);
+//        File outputFile = FileUtil.createTempFile(filename, ".mp4");
+        File outputFile = new File("/Users/yurim/Desktop/"+ "테스트ㅎ" + ".mp4");
+
+
+        List<String> command = new ArrayList<>();
+        command.add(ffmpegPath);
+
+        // 입력: 배경 이미지 + 타이틀 이미지 + 음성
+        command.addAll(List.of(
+                "-loop", "1",
+                "-i", imageFile.getAbsolutePath(),           // [0] 배경 이미지
+                "-i", titleImageFile.getAbsolutePath(),      // [1] 타이틀 이미지
+                "-i", soundFile.getAbsolutePath()            // [2] 음성
+        ));
+
+        // -vf → -filter_complex 사용: scale + overlay 타이틀
+        String filter =
+                "[0:v]scale=1080:-1:force_original_aspect_ratio=decrease," +
+                        "pad=1080:1920:(ow-iw)/2:(oh-ih)/2,setsar=1[bg];" +
+                        "[1:v]scale=600:-1[title];" +
+                        "[bg][title]overlay=(main_w-overlay_w)/2:100[outv]";
+
+        command.addAll(List.of(
+                "-filter_complex", filter,
+                "-map", "[outv]",
+                "-map", "2:a",
+                "-r", "30",
+                "-c:v", "libx264",
+                "-tune", "stillimage",
+                "-c:a", "aac",
+                "-b:a", "192k",
+                "-pix_fmt", "yuv420p",
+                "-shortest",
+                "-y", outputFile.getAbsolutePath()
+        ));
+
+        ProcessBuilder builder = new ProcessBuilder(command);
+        executeFfmpegCommand(builder);
+        return outputFile;
+    }
+
+
+
+
+
+
+
+
+    @Override
     public File mergeVideosAndExtractVFR(List<File> files) {
         validateFfmpegPath();
 
         List<String> filePaths = files.stream().map(File::getAbsolutePath).collect(Collectors.toList());
         validateVideosFile(filePaths);
 
-        String filename = this.filePrefix + Objects.hash(files) + ".mp4";
-        String outputFilePath = FileUtil.getFile(filename).getAbsolutePath();
+        String outputFilePath = "/Users/yurim/Desktop/final102.mp4";
+//        String filename = this.filePrefix + Objects.hash(files) + ".mp4";
+//        String outputFilePath = FileUtil.getFile(filename).getAbsolutePath();
 
         long totalVideoDurationMs = 0;
         for (File file : files) {
@@ -189,4 +246,72 @@ public class MediaServiceImpl implements MediaService {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "클래스패스 리소스 로딩 실패: " + classpathLocation, e);
         }
     }
+
+
+    public File mergeImageAndAudioWithBackground(File bgVideo, File imageFile, File titleImage, File soundFile) {
+        validateVideoFile(bgVideo.getAbsolutePath());
+        validateImageFile(imageFile.getAbsolutePath());
+        validateImageFile(titleImage.getAbsolutePath());
+        validateAudioFile(soundFile.getAbsolutePath());
+        validateFfmpegPath();
+
+        File outputFile = new File("/Users/yurim/Desktop/final_result_with_bg3.mp4");
+
+        List<String> command = new ArrayList<>();
+        command.add(ffmpegPath);
+
+        command.addAll(List.of(
+                "-stream_loop", "-1",
+                "-i", bgVideo.getAbsolutePath(),     // [0] 배경 영상
+                "-loop", "1",
+                "-i", imageFile.getAbsolutePath(),   // [1] 메인 이미지
+                "-i", titleImage.getAbsolutePath(),  // [2] 타이틀 이미지
+                "-i", soundFile.getAbsolutePath()    // [3] 음성
+        ));
+
+        String filter =
+                "[1:v]scale=1080:-1:force_original_aspect_ratio=decrease," +
+                        "pad=1080:1080:(ow-iw)/2:(oh-ih)/2:black[main];" +
+                        "[2:v]scale=600:-1[title];" +
+                        "[0:v][main]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2[tmp];" +
+                        "[tmp][title]overlay=(main_w-overlay_w)/2:100[outv]";
+
+        command.addAll(List.of(
+                "-filter_complex", filter,
+                "-map", "[outv]",
+                "-map", "3:a",
+                "-t", String.valueOf(getAudioDurationInSeconds(soundFile)),
+                "-r", "30",
+                "-c:v", "libx264",
+                "-tune", "stillimage",
+                "-c:a", "aac",
+                "-b:a", "192k",
+                "-pix_fmt", "yuv420p",
+                "-shortest",
+                "-y", outputFile.getAbsolutePath()
+        ));
+
+        ProcessBuilder builder = new ProcessBuilder(command);
+        executeFfmpegCommand(builder);
+        return outputFile;
+    }
+
+    private double getAudioDurationInSeconds(File file) {
+        try {
+            ProcessBuilder pb = new ProcessBuilder(
+                    "ffprobe", "-v", "error",
+                    "-show_entries", "format=duration",
+                    "-of", "default=noprint_wrappers=1:nokey=1",
+                    file.getAbsolutePath()
+            );
+            Process process = pb.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line = reader.readLine();
+            process.waitFor();
+            return Double.parseDouble(line.trim());
+        } catch (Exception e) {
+            throw new RuntimeException("음성 길이 가져오기 실패: " + e.getMessage(), e);
+        }
+    }
+
 }

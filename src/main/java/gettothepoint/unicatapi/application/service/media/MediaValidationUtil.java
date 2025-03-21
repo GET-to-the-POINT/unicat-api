@@ -48,7 +48,7 @@ public class MediaValidationUtil {
         }
     }
 
-    private static void validateVideoFile(String filePath) {
+    public static void validateVideoFile(String filePath) {
         if (filePath == null || filePath.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Video file path cannot be null or empty");
         }
