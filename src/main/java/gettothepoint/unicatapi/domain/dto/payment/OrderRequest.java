@@ -8,10 +8,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class OrderRequest {
-    // 구독 플랜 이름, 일반 프로
+
     private String orderName;
 
-    // 결제 금액
     private Long amount;
 
     public OrderRequest(String orderName, Long amount) {

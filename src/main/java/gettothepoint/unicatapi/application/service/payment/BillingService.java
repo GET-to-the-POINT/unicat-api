@@ -19,8 +19,6 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
-
 
 @Service
 @RequiredArgsConstructor
@@ -32,10 +30,6 @@ public class BillingService {
     private final BillingRepository billingRepository;
     private final OrderService orderService;
 
-    /**
-     * TossPayments API를 통해 빌링키를 발급받아 회원의 Billing 엔티티로 저장합니다.
-     * 이미 빌링키가 존재하면 해당 키를 재사용합니다.
-     */
     @Transactional
     public String saveBillingKey(String authKey, String customerKey, String email) {
         Member member = findMemberByEmail(email);

@@ -1,5 +1,6 @@
 package gettothepoint.unicatapi.domain.entity.payment;
 
+import gettothepoint.unicatapi.domain.constant.payment.MembershipTier;
 import gettothepoint.unicatapi.domain.constant.payment.SubscriptionStatus;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import jakarta.persistence.*;
@@ -28,6 +29,9 @@ public class Billing {
     @Enumerated(EnumType.STRING)
     private SubscriptionStatus subscriptionStatus;
 
+    @Enumerated(EnumType.STRING)
+    private MembershipTier membershipTier;
+
     private LocalDate lastPaymentDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -43,13 +47,14 @@ public class Billing {
 
     @Builder
     public Billing(Member member, String billingKey, String cardCompany, String cardNumber,
-                   String method, LocalDate lastPaymentDate) {
+                   String method, LocalDate lastPaymentDate,MembershipTier membershipTier) {
         this.member = member;
         this.billingKey = billingKey;
         this.cardCompany = cardCompany;
         this.cardNumber = cardNumber;
         this.method = method;
         this.lastPaymentDate = lastPaymentDate;
+        this.membershipTier = MembershipTier.BASIC;
     }
 
     public void updateLastPaymentDate(LocalDate newDate) {

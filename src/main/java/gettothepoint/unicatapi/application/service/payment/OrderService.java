@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.application.service.payment;
 
+import gettothepoint.unicatapi.domain.constant.payment.MembershipTier;
 import gettothepoint.unicatapi.domain.constant.payment.TossPaymentStatus;
-import gettothepoint.unicatapi.domain.dto.payment.OrderRequest;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.entity.payment.Order;
 import gettothepoint.unicatapi.domain.repository.MemberRepository;
@@ -22,16 +22,17 @@ public class OrderService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public Order createOrder(OrderRequest orderRequest, Long memberId) {
+    public Order createOrder(Long memberId, MembershipTier tier) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "멤버를 찾을 수 없습니다."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Member not found"));
 
         Order order = Order.builder()
                 .id(UUID.randomUUID().toString())
-                .orderName(orderRequest.getOrderName()) // ✅ DTO에서 값 가져오기
-                .amount(orderRequest.getAmount())
-                .status(TossPaymentStatus.PENDING) // ✅ 초기 상태를 PENDING으로 설정
+                .orderName(tier.getAutoOrderName())
+                .amount(tier.getPrice())
+                .membershipTier(tier)
                 .member(member)
+                .status(TossPaymentStatus.PENDING)
                 .build();
 
         return orderRepository.save(order);

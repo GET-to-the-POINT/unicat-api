@@ -2,7 +2,6 @@ package gettothepoint.unicatapi.presentation.controller.payment;
 
 import gettothepoint.unicatapi.application.service.payment.BillingService;
 import gettothepoint.unicatapi.application.service.payment.PaymentService;
-import gettothepoint.unicatapi.domain.dto.payment.PaymentApprovalRequest;
 import gettothepoint.unicatapi.domain.dto.payment.PaymentHistoryResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -43,13 +42,11 @@ public class PaymentController {
         return paymentService.findPaymentHistoryByMember(email);
     }
 
-    @PostMapping("/approve")  //결제 승인
+    @PostMapping("/approve")
     public ResponseEntity<Map<String, Object>> approveAutoPayment(
-            @RequestParam String billingKey,
-            @RequestBody PaymentApprovalRequest approvalRequest
-    ) {
-        Map<String, Object> tossResponse = paymentService.approveAutoPayment(billingKey, approvalRequest);
-        return ResponseEntity.ok(tossResponse);
+            @AuthenticationPrincipal Jwt jwt) {
+        String memberEmail = jwt.getClaim("email");
+        return ResponseEntity.ok(paymentService.approveAutoPayment(memberEmail));
     }
 
     @PatchMapping("/{billingId}/cancel") //자동 결제 취소

@@ -52,5 +52,4 @@ public class EmailService {
 
         send(member.getEmail(), "회원가입 인증", content);
     }
-
 }

@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.domain.entity.payment;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import gettothepoint.unicatapi.domain.constant.payment.PayType;
+import gettothepoint.unicatapi.domain.constant.payment.MembershipTier;
 import gettothepoint.unicatapi.domain.constant.payment.TossPaymentStatus;
 import gettothepoint.unicatapi.domain.entity.BaseEntity;
 import gettothepoint.unicatapi.domain.entity.member.Member;
@@ -10,8 +10,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -27,26 +25,30 @@ public class Order extends BaseEntity {
     private String orderName;
     private Long amount;
 
-    @ManyToOne
-    @JoinColumn(nullable = false)
-    @JsonIgnore
-    private Member member;
+    @Enumerated(EnumType.STRING)
+    private MembershipTier membershipTier;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private TossPaymentStatus status;
+
+    @ManyToOne
+    @JoinColumn(nullable = false)
+    @JsonIgnore
+    private Member member;
 
     @OneToOne(mappedBy = "order")
     @JsonIgnore
     private Payment payment;
 
     @Builder
-    public Order(String id,String orderName, Long amount, Member member, TossPaymentStatus status) {
+    public Order(String id,String orderName, Long amount, Member member, TossPaymentStatus status, MembershipTier membershipTier) {
         this.id = id;
         this.orderName = orderName;
         this.amount = amount;
         this.member = member;
         this.status = status;
+        this.membershipTier = membershipTier;
     }
 
     public void cancelOrder() {

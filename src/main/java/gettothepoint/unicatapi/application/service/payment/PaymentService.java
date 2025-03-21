@@ -2,13 +2,16 @@ package gettothepoint.unicatapi.application.service.payment;
 
 import gettothepoint.unicatapi.common.propertie.AppProperties;
 import gettothepoint.unicatapi.domain.constant.payment.SubscriptionStatus;
+import gettothepoint.unicatapi.domain.constant.payment.TossPaymentStatus;
 import gettothepoint.unicatapi.domain.dto.payment.PaymentApprovalRequest;
 import gettothepoint.unicatapi.domain.dto.payment.PaymentHistoryResponse;
+import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.entity.payment.Billing;
 import gettothepoint.unicatapi.domain.entity.payment.Order;
 import gettothepoint.unicatapi.domain.entity.payment.Payment;
 import gettothepoint.unicatapi.domain.entity.payment.Subscription;
 import gettothepoint.unicatapi.domain.repository.BillingRepository;
+import gettothepoint.unicatapi.domain.repository.OrderRepository;
 import gettothepoint.unicatapi.domain.repository.PaymentRepository;
 import gettothepoint.unicatapi.domain.repository.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -29,45 +34,58 @@ import java.util.Optional;
 public class PaymentService {
 
     private final RestTemplate restTemplate;
-    private final OrderService orderService;
+    private final OrderRepository orderRepository;
     private final PaymentRepository paymentRepository;
     private final AppProperties appProperties;
-    private final SubscriptionRepository subscriptionRepository;
     private final BillingRepository billingRepository;
+    private final SubscriptionRepository subscriptionRepository;
 
     @Transactional
-    public Map<String, Object> approveAutoPayment(String billingKey, PaymentApprovalRequest request) {
-        Map<String, Object> responseBody = callTossBillingApi(billingKey, request);
+    public Map<String, Object> approveAutoPayment(String memberEmail) {
+        Order order = orderRepository.findFirstByMember_EmailAndStatusOrderByCreatedAtDesc(memberEmail, TossPaymentStatus.PENDING)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "진행 중인 주문이 없습니다."));
 
-        Order order = orderService.findById(request.getOrderId());
+        Billing billing = billingRepository.findByMember(order.getMember())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Billing 정보가 없습니다."));
+        Member member = order.getMember();
+
+        PaymentApprovalRequest req = PaymentApprovalRequest.builder()
+                .amount(order.getAmount())
+                .customerKey(member.getCustomerKey())
+                .orderId(order.getId())
+                .orderName(order.getOrderName())
+                .build();
+
+        String url = String.format("%s/%s", appProperties.toss().approveUrl(), billing.getBillingKey());
+        HttpEntity<PaymentApprovalRequest> entity = new HttpEntity<>(req, buildHeaders());
+
+        Map<String, Object> response = Optional.ofNullable(
+                restTemplate.exchange(
+                        url,
+                        HttpMethod.POST,
+                        entity,
+                        new ParameterizedTypeReference<Map<String, Object>>() {}
+                ).getBody()
+        ).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "자동 결제 승인 실패"));
+
         order.markDone();
-        paymentRepository.save(Payment.fromMap(responseBody, order));
+        paymentRepository.save(Payment.fromMap(response, order));
+
+        billing.setSubscriptionStatus(SubscriptionStatus.ACTIVE);
+        billing.updateLastPaymentDate(LocalDate.now());
+        billingRepository.save(billing);
 
         subscriptionRepository.save(
-                        Subscription.builder()
-                        .member(order.getMember())
+                Subscription.builder()
+                        .member(member)
                         .order(order)
+                        .membershipTier(order.getMembershipTier())
+                        .startDate(LocalDateTime.now())
                         .build()
         );
 
-        Billing billing = billingRepository.findByBillingKey(billingKey)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Billing not found"));
-        billing.setSubscriptionStatus(SubscriptionStatus.ACTIVE);
-        billingRepository.save(billing);
-
-        return responseBody;
+        return response;
     }
-
-    private Map<String, Object> callTossBillingApi(String billingKey, PaymentApprovalRequest req) {
-        String url = String.format("https://api.tosspayments.com/v1/billing/%s", billingKey);
-        HttpEntity<PaymentApprovalRequest> entity = new HttpEntity<>(req, buildHeaders());
-
-        return Optional.ofNullable(
-                restTemplate.exchange(url, HttpMethod.POST, entity,
-                        new ParameterizedTypeReference<Map<String, Object>>() {}).getBody()
-        ).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "자동 결제 승인 실패"));
-    }
-
     private HttpHeaders buildHeaders() {
         String encoded = Base64.getEncoder()
                 .encodeToString((appProperties.toss().secretKey() + ":").getBytes());

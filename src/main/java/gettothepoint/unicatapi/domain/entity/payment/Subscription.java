@@ -1,5 +1,6 @@
 package gettothepoint.unicatapi.domain.entity.payment;
 
+import gettothepoint.unicatapi.domain.constant.payment.MembershipTier;
 import gettothepoint.unicatapi.domain.constant.payment.SubscriptionStatus;
 import gettothepoint.unicatapi.domain.entity.BaseEntity;
 import gettothepoint.unicatapi.domain.entity.member.Member;
@@ -24,6 +25,10 @@ public class Subscription extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    private MembershipTier membershipTier;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     @Setter
     private SubscriptionStatus status; // 구독 상태 (pending, active, cancel, expired)
 
@@ -35,11 +40,12 @@ public class Subscription extends BaseEntity {
     private Order order;
 
     @Builder
-    public Subscription(Member member, Order order) {
+    public Subscription(Member member, Order order, MembershipTier membershipTier, SubscriptionStatus status, LocalDateTime startDate, LocalDateTime endDate) {
         this.startDate = LocalDateTime.now();
         this.endDate = this.startDate.plusMonths(1);
         this.status = SubscriptionStatus.ACTIVE;
         this.member = member;
         this.order = order;
+        this.membershipTier = membershipTier;
     }
 }

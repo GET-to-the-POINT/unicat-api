@@ -46,8 +46,7 @@ public class Payment extends BaseEntity {
     private Billing billing;
 
     private LocalDateTime approvedAt;
-    private LocalDateTime canceledAt;
-    private String cancelReason;
+
 
     @Builder
     public Payment(Order order, String paymentKey, Long amount, TossPaymentStatus tossPaymentStatus,
