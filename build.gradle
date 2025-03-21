@@ -72,8 +72,13 @@ dependencies {
 
 	// ===== ETC =====
 	implementation 'org.apache.tika:tika-core:3.1.0'
+	implementation 'com.github.loki4j:loki-logback-appender:1.5.1'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+configurations.configureEach {
+	exclude group: 'commons-logging', module: 'commons-logging'
 }
