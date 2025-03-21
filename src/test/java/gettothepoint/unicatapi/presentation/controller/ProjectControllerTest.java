@@ -6,7 +6,7 @@ import gettothepoint.unicatapi.application.service.project.ProjectService;
 import gettothepoint.unicatapi.application.service.project.SectionService;
 import gettothepoint.unicatapi.domain.dto.project.CreateResourceResponse;
 import gettothepoint.unicatapi.domain.dto.project.PromptRequest;
-import gettothepoint.unicatapi.domain.dto.project.ProjectDto;
+import gettothepoint.unicatapi.domain.dto.project.ProjectResponse;
 import gettothepoint.unicatapi.presentation.controller.project.ProjectController;
 import gettothepoint.unicatapi.test.config.TestDummyTextToSpeechConfiguration;
 import gettothepoint.unicatapi.test.config.TestSecurityConfig;
@@ -23,8 +23,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
 
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -116,19 +114,18 @@ public class ProjectControllerTest {
         void testGetProjectWithValidId() throws Exception {
             // Given
             Long projectId = 1L;
-            ProjectDto expectedResponse = new ProjectDto(
+            ProjectResponse expectedResponse = new ProjectResponse(
                     projectId,
                     "테스트 프로젝트",
                     "테스트 부제목",
                     "https://example.com/image.png",
                     "https://example.com/video.mp4",
                     "설정된 톤",
-                    "설정된 이미지 스타일",
-                    List.of()
+                    "설정된 이미지 스타일"
             );
             System.out.println("✅ expectedResponse: " + expectedResponse);
             // ✅ Mock 설정 확인
-            doReturn(expectedResponse).when(projectService).getProject(projectId);
+            doReturn(expectedResponse).when(projectService).get(projectId);
 
             // ✅ 컨트롤러와 같은 URL 요청
             mockMvc.perform(get("/projects/" + projectId)
@@ -145,7 +142,7 @@ public class ProjectControllerTest {
 
             // Mock 설정: 존재하지 않는 프로젝트 ID 요청 시 예외 발생
             doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "요청한 프로젝트를 찾을 수 없습니다."))
-                    .when(projectService).getProject(invalidProjectId);
+                    .when(projectService).get(invalidProjectId);
 
             // When & Then
             mockMvc.perform(get("/project/" + invalidProjectId)

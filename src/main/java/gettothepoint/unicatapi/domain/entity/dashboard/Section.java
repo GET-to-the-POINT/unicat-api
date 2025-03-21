@@ -14,23 +14,20 @@ public class Section extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Setter
     private Long id;
-
-    @Setter
-    private String imageUrl;
-
-    @Setter
-    private String alt;
-
-    @Setter
-    @Column(columnDefinition = "TEXT")
-    private String script;
 
     @Setter
     private Long sortOrder;
 
-    @Setter
-    private String ttsUrl;
+    @Setter private String alt;
+    @Column(columnDefinition = "TEXT")
+    @Setter private String script;
+    private String voiceModel;
+
+    @Setter private String resourceUrl;
+    @Setter private String audioUrl;
+    @Setter private String videoUrl;
 
     @ManyToOne
     @JoinColumn

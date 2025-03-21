@@ -95,6 +95,11 @@ public class MemberService {
 
         return member;
     }
+
+    public Member getOrElseThrow(Long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Member not found with id: " + memberId));
+    }
 }
 
 

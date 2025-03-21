@@ -3,7 +3,9 @@ package gettothepoint.unicatapi.application.service;
 import com.google.cloud.texttospeech.v1.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -17,20 +19,18 @@ public class TextToSpeechService {
         this.textToSpeechClient = TextToSpeechClient.create();
     }
 
-    public void createAndSaveTTSFile(String text, String voiceName, String filePath) throws IOException {
-        byte[] audioData = createTextToSpeech(text, voiceName);
-        saveTTSFile(audioData, filePath);
-    }
-
-    public byte[] createTextToSpeech(String text, String voiceName) {
-
+    public File create(String script, String voiceModel) {
+        String voiceName = voiceModel;
+        if (StringUtils.isEmpty(voiceModel)) {
+            voiceName = "ko-KR-Neural2-A";
+        }
         SynthesisInput input = SynthesisInput.newBuilder()
-                .setText(text)
+                .setText(script)
                 .build();
 
         VoiceSelectionParams voice = VoiceSelectionParams.newBuilder()
                 .setLanguageCode("ko-KR")
-                .setName(voiceName)
+                 .setName(voiceName)
                 .build();
 
         AudioConfig audioConfig = AudioConfig.newBuilder()
@@ -38,13 +38,17 @@ public class TextToSpeechService {
                 .build();
 
         SynthesizeSpeechResponse response = textToSpeechClient.synthesizeSpeech(input, voice, audioConfig);
-        return response.getAudioContent().toByteArray();
-    }
 
-    public void saveTTSFile(byte[] audioData, String filePath) throws IOException {
-        try (FileOutputStream fos = new FileOutputStream(filePath)) {
-            fos.write(audioData);
+        File outputFile;
+        try {
+            outputFile = File.createTempFile("tts-", ".mp3");
+            try (FileOutputStream fos = new FileOutputStream(outputFile)) {
+                response.getAudioContent().writeTo(fos);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("TTS 파일 생성 중 오류가 발생했습니다.", e);
         }
-    }
 
+        return outputFile;
+    }
 }
