@@ -41,12 +41,7 @@ public class Payment extends BaseEntity {
     @JoinColumn
     private Order order;
 
-    @ManyToOne
-    @JoinColumn
-    private Billing billing;
-
     private LocalDateTime approvedAt;
-
 
     @Builder
     public Payment(Order order, String paymentKey, Long amount, TossPaymentStatus tossPaymentStatus,

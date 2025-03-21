@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.application.service.payment;
 
-import gettothepoint.unicatapi.domain.constant.payment.MembershipTier;
+import gettothepoint.unicatapi.domain.constant.payment.SubscriptionPlan;
 import gettothepoint.unicatapi.domain.constant.payment.TossPaymentStatus;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.entity.payment.Order;
@@ -22,15 +22,15 @@ public class OrderService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public Order createOrder(Long memberId, MembershipTier tier) {
+    public Order create(Long memberId, SubscriptionPlan plan) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Member not found"));
 
         Order order = Order.builder()
                 .id(UUID.randomUUID().toString())
-                .orderName(tier.getAutoOrderName())
-                .amount(tier.getPrice())
-                .membershipTier(tier)
+                .orderName(plan.getAutoOrderName())
+                .amount(plan.getPrice())
+                .subscriptionPlan(plan)
                 .member(member)
                 .status(TossPaymentStatus.PENDING)
                 .build();
@@ -38,12 +38,15 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
-    public Order findById(String orderId) {
-        return orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
+    @Transactional
+    public void markAsDone(Order order) {
+        order.markDone();
+        orderRepository.save(order);
     }
 
-    public void findLatestOrderByMember(Member member) {
-        orderRepository.findTopByMemberOrderByCreatedAtDesc(member);
+    @Transactional(readOnly = true)
+    public Order getPendingOrderByEmail(String email) {
+        return orderRepository.findFirstByMember_EmailAndStatusOrderByCreatedAtDesc(email, TossPaymentStatus.PENDING)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "진행 중인 주문이 없습니다."));
     }
 }

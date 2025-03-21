@@ -22,7 +22,7 @@ public class OrderController {
             @Valid @RequestBody SubscriptionRequest request
     ) {
         Long memberId = Long.valueOf(jwt.getSubject());
-        orderService.createOrder(memberId, request.getTier());
+        orderService.create(memberId, request.getTier());
     }
 }
 

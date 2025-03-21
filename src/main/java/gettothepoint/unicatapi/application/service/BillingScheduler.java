@@ -2,8 +2,8 @@ package gettothepoint.unicatapi.application.service;
 
 import gettothepoint.unicatapi.application.service.payment.OrderService;
 import gettothepoint.unicatapi.application.service.payment.PaymentService;
-import gettothepoint.unicatapi.domain.constant.payment.SubscriptionStatus;
 import gettothepoint.unicatapi.domain.entity.payment.Billing;
+import gettothepoint.unicatapi.domain.entity.payment.Order;
 import gettothepoint.unicatapi.domain.repository.BillingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +30,7 @@ public class BillingScheduler {
 
         LocalDate oneMonthAgo = LocalDate.now().minusMonths(1);
         List<Billing> billingList = billingRepository
-                .findAllByLastPaymentDateBeforeAndSubscriptionStatus(oneMonthAgo, SubscriptionStatus.ACTIVE);
+                .findAllByLastPaymentDateBeforeAndRecurring(oneMonthAgo, Boolean.TRUE);
 
         if (billingList.isEmpty()) {
             log.info("⏳ 자동 결제 대상이 없습니다.");
@@ -40,10 +40,10 @@ public class BillingScheduler {
         for (Billing billing : billingList) {
             String email = billing.getMember().getEmail();
             try {
-                orderService.createOrder(billing.getMember().getId(), billing.getMembershipTier());
+                Order order = orderService.create(billing.getMember().getId(), billing.getSubscriptionPlan());
                 paymentService.approveAutoPayment(email);
 
-                log.info("{}님 {} 자동 결제 성공 ({}원)", email, billing.getMembershipTier().getKoreanName(), billing.getMembershipTier().getPrice());
+                log.info("{}님 {} 자동 결제 성공 ({}원)", email, billing.getSubscriptionPlan().getKoreanName(), billing.getSubscriptionPlan().getPrice());
             } catch (Exception e) {
                 log.error("{}님 자동 결제 실패: {}", email, e.getMessage());
             }

@@ -1,11 +1,11 @@
 package gettothepoint.unicatapi.application.service.payment;
 
+import gettothepoint.unicatapi.application.service.member.MemberService;
 import gettothepoint.unicatapi.common.propertie.AppProperties;
-import gettothepoint.unicatapi.domain.dto.payment.BillingResponse;
+import gettothepoint.unicatapi.common.util.ApiUtil;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.entity.payment.Billing;
 import gettothepoint.unicatapi.domain.repository.BillingRepository;
-import gettothepoint.unicatapi.domain.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
@@ -14,9 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDate;
-import java.util.Base64;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -26,31 +23,24 @@ public class BillingService {
 
     private final RestTemplate restTemplate;
     private final AppProperties appProperties;
-    private final MemberRepository memberRepository;
     private final BillingRepository billingRepository;
-    private final OrderService orderService;
+    private final MemberService memberService;
+    private final ApiUtil apiUtil;
 
     @Transactional
     public void saveBillingKey(String authKey, String email) {
-        Member member = findMemberByEmail(email);
-        billingRepository.findByMember(member)
-                .ifPresentOrElse(
-                        existing -> {},                         // 이미 있으면 아무 작업 없이 종료
-                        () -> createAndSaveBilling(member, authKey) // 없으면 새로 생성 + 저장
-                );
+        Member member = memberService.findByEmail(email);
+        issueSuccessAndCreate(member, authKey);
     }
 
-    private void createAndSaveBilling(Member member, String authKey) {
-        // TossPayments API 호출
+    private void issueSuccessAndCreate(Member member, String authKey) {
         Map<String, Object> billingResponse = requestBillingKey(authKey, member.getEmail());
 
+        // 결제가 성공한 다음
         String billingKey = (String) billingResponse.get("billingKey");
         String cardCompany = (String) billingResponse.get("cardCompany");
         String cardNumber = (String) billingResponse.get("cardNumber");
         String method = (String) billingResponse.get("method");
-
-        // 회원의 최신 주문 정보 조회 (없으면 기본값 처리)
-        orderService.findLatestOrderByMember(member);
 
         Billing billing = Billing.builder()
                 .member(member)
@@ -58,14 +48,13 @@ public class BillingService {
                 .cardCompany(cardCompany)
                 .cardNumber(cardNumber)
                 .method(method)
-                .lastPaymentDate(LocalDate.now())
                 .build();
 
         billingRepository.save(billing);
     }
 
     private Map<String, Object> requestBillingKey(String authKey, String email) {
-        HttpHeaders headers = createHeaders(encodeSecretKey());
+        HttpHeaders headers = apiUtil.createHeaders(apiUtil.encodeSecretKey());
         Map<String, String> requestBody = Map.of(
                 "authKey", authKey,
                 "customerKey", email
@@ -73,7 +62,7 @@ public class BillingService {
         HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(requestBody, headers);
 
         ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
-                "https://api.tosspayments.com/v1/billing/authorizations/issue",
+                appProperties.toss().billingUrl(),
                 HttpMethod.POST,
                 requestEntity,
                 new ParameterizedTypeReference<>() {}
@@ -83,44 +72,24 @@ public class BillingService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "빌링키 발급 실패"));
     }
 
-    private String encodeSecretKey() {
-        String secretKeyWithColon = appProperties.toss().secretKey() + ":";
-        return Base64.getEncoder().encodeToString(secretKeyWithColon.getBytes());
-    }
-
-    private HttpHeaders createHeaders(String encodedSecretKey) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Basic " + encodedSecretKey);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        return headers;
-    }
-
-    private Member findMemberByEmail(String email) {
-        return memberRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "멤버를 찾을 수 없습니다."));
-    }
-
-    public void cancelSubscription(Long billingId) {
+    public void cancelRecurring(Long billingId) {
         Billing billing = billingRepository.findById(billingId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Billing not found"));
 
-        billing.cancelSubscription();
+        billing.cancelRecurring();
         billingRepository.save(billing);
     }
 
     @Transactional(readOnly = true)
-    public List<BillingResponse> getAllBillings() {
-        List<Billing> billings = billingRepository.findAll();
-        return billings.stream()
-                .map(billing -> BillingResponse.builder()
-                        .lastPaymentDate(billing.getLastPaymentDate())
-                        .id(billing.getId())
-                        .billingKey(billing.getBillingKey())
-                        .cardCompany(billing.getCardCompany())
-                        .cardNumber(billing.getCardNumber())
-                        .method(billing.getMethod())
-                        .subscriptionStatus(billing.getSubscriptionStatus().toString())
-                        .build())
-                .toList();
+    public Billing getBillingForMember(Member member) {
+        return billingRepository.findByMember(member)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Billing 정보가 없습니다."));
+    }
+
+    @Transactional
+    public void applyRecurring(Billing billing) {
+        billing.recurring(); // 도메인 메소드 호출
+        billing.updateLastPaymentDate();
+        billingRepository.save(billing);
     }
 }

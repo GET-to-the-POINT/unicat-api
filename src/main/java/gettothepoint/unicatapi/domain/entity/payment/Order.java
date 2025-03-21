@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.domain.entity.payment;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import gettothepoint.unicatapi.domain.constant.payment.MembershipTier;
+import gettothepoint.unicatapi.domain.constant.payment.SubscriptionPlan;
 import gettothepoint.unicatapi.domain.constant.payment.TossPaymentStatus;
 import gettothepoint.unicatapi.domain.entity.BaseEntity;
 import gettothepoint.unicatapi.domain.entity.member.Member;
@@ -26,7 +26,7 @@ public class Order extends BaseEntity {
     private Long amount;
 
     @Enumerated(EnumType.STRING)
-    private MembershipTier membershipTier;
+    private SubscriptionPlan subscriptionPlan;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -42,13 +42,13 @@ public class Order extends BaseEntity {
     private Payment payment;
 
     @Builder
-    public Order(String id,String orderName, Long amount, Member member, TossPaymentStatus status, MembershipTier membershipTier) {
+    public Order(String id,String orderName, Long amount, Member member, TossPaymentStatus status, SubscriptionPlan subscriptionPlan) {
         this.id = id;
         this.orderName = orderName;
         this.amount = amount;
         this.member = member;
         this.status = status;
-        this.membershipTier = membershipTier;
+        this.subscriptionPlan = subscriptionPlan;
     }
 
     public void cancelOrder() {

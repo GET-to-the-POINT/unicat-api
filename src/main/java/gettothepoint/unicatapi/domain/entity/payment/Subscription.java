@@ -1,14 +1,13 @@
 package gettothepoint.unicatapi.domain.entity.payment;
 
-import gettothepoint.unicatapi.domain.constant.payment.MembershipTier;
-import gettothepoint.unicatapi.domain.constant.payment.SubscriptionStatus;
+import gettothepoint.unicatapi.domain.constant.payment.SubscriptionPlan;
 import gettothepoint.unicatapi.domain.entity.BaseEntity;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-
+import java.util.List;
 
 @NoArgsConstructor
 @Getter
@@ -25,27 +24,32 @@ public class Subscription extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private MembershipTier membershipTier;
+    private SubscriptionPlan subscriptionPlan;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    @Setter
-    private SubscriptionStatus status; // 구독 상태 (pending, active, cancel, expired)
-
-    @ManyToOne
-    @JoinColumn
-    private Member member;
+    private Boolean active = false;
 
     @OneToOne
-    private Order order;
+    private Member member;
+
+    @OneToMany
+    private List<Order> order;
 
     @Builder
-    public Subscription(Member member, Order order, MembershipTier membershipTier, SubscriptionStatus status, LocalDateTime startDate, LocalDateTime endDate) {
+    public Subscription(Member member, SubscriptionPlan subscriptionPlan) {
         this.startDate = LocalDateTime.now();
         this.endDate = this.startDate.plusMonths(1);
-        this.status = SubscriptionStatus.ACTIVE;
         this.member = member;
-        this.order = order;
-        this.membershipTier = membershipTier;
+        this.subscriptionPlan = subscriptionPlan;
+        this.active = true;
+    }
+
+    public void setActive() {
+        this.active = true;
+        this.startDate = LocalDateTime.now();
+        this.endDate = this.startDate.plusMonths(1);
+    }
+
+    public void setInactive() {
+        this.active = false;
     }
 }

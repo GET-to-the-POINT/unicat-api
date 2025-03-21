@@ -1,7 +1,6 @@
 package gettothepoint.unicatapi.domain.entity.payment;
 
-import gettothepoint.unicatapi.domain.constant.payment.MembershipTier;
-import gettothepoint.unicatapi.domain.constant.payment.SubscriptionStatus;
+import gettothepoint.unicatapi.domain.constant.payment.SubscriptionPlan;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -26,11 +25,11 @@ public class Billing {
     private String cardNumber;
     private String method;
 
-    @Enumerated(EnumType.STRING)
-    private SubscriptionStatus subscriptionStatus;
+    @Column(nullable = false)
+    private Boolean recurring = false;
 
     @Enumerated(EnumType.STRING)
-    private MembershipTier membershipTier;
+    private SubscriptionPlan subscriptionPlan;
 
     private LocalDate lastPaymentDate;
 
@@ -38,34 +37,31 @@ public class Billing {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    @PrePersist
-    public void prePersist() {
-        if (subscriptionStatus == null) {
-            subscriptionStatus = SubscriptionStatus.PENDING;
-        }
-    }
-
     @Builder
     public Billing(Member member, String billingKey, String cardCompany, String cardNumber,
-                   String method, LocalDate lastPaymentDate,MembershipTier membershipTier) {
+                   String method) {
         this.member = member;
         this.billingKey = billingKey;
         this.cardCompany = cardCompany;
         this.cardNumber = cardNumber;
         this.method = method;
-        this.lastPaymentDate = lastPaymentDate;
-        this.membershipTier = MembershipTier.BASIC;
+        this.subscriptionPlan = SubscriptionPlan.BASIC;
     }
 
-    public void updateLastPaymentDate(LocalDate newDate) {
-        this.lastPaymentDate = newDate;
+    @PrePersist
+    public void prePersist() {
+        this.lastPaymentDate = LocalDate.now();
     }
 
-    public void cancelSubscription() {
-        this.subscriptionStatus = SubscriptionStatus.CANCELLED;
+    public void updateLastPaymentDate() {
+        this.lastPaymentDate = LocalDate.now();
     }
 
-    public void setSubscriptionStatus(SubscriptionStatus subscriptionStatus) {
-        this.subscriptionStatus = subscriptionStatus;
+    public void cancelRecurring() {
+        this.recurring = false;
+    }
+
+    public void recurring() {
+        this.recurring = true;
     }
 }

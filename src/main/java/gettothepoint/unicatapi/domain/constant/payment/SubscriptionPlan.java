@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum MembershipTier {
+public enum SubscriptionPlan {
     BASIC("Basic Subscription", "BASIC", 1_000L),
     PREMIUM("Premium Subscription", "PREMIUM", 2_000L),
     VIP("VIP Subscription", "VIP", 3_000L);
@@ -15,6 +15,6 @@ public enum MembershipTier {
     private final Long price;
 
     public String getAutoOrderName() {
-        return String.format("자동결제 %s 결제", koreanName);
+        return String.format("%s 플랜 자동 결제", koreanName);
     }
 }

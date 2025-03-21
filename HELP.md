@@ -33,7 +33,16 @@ find /path/one /path/two -type f -name "*.java" -exec cat {} + | tr -d '\n' | tr
 application|domain|presentation 이것들의 파일만 추출 윈도우버전 
 
 ```shell
-Get-ChildItem -Directory | Where-Object { $_.Name -match '^(application|domain|presentation)$' }
+(Get-ChildItem -Directory |
+    Where-Object Name -match '^(application|domain|presentation)$' |
+    ForEach-Object { Get-ChildItem -Path $_.FullName -Recurse -Filter *.java } |
+    Get-Content -Raw) -replace "[\r\n ]", "" |
+    Set-Clipboard
+```
+트리 파일구조 
+
+```shell
+tree
 ```
 
 ### 특정 디렉토리는 제외하고 클립보드로 복사

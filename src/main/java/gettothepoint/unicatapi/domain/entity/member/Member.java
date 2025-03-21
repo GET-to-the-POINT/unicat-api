@@ -34,8 +34,8 @@ public class Member extends BaseEntity {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<Order> orders = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL )
-    private final List<Subscription> subscriptions = new ArrayList<>();
+    @OneToOne
+    private Subscription subscriptions;
 
     @OneToMany(mappedBy = "member", fetch = FetchType.EAGER)
     private final List<OAuthLink> oAuthLinks = new ArrayList<>();
