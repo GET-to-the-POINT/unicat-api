@@ -9,7 +9,6 @@ import gettothepoint.unicatapi.domain.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.UUID;
@@ -21,9 +20,8 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final MemberRepository memberRepository;
 
-    @Transactional
-    public Order create(Long memberId, SubscriptionPlan plan) {
-        Member member = memberRepository.findById(memberId)
+    public Order create(String email, SubscriptionPlan plan) {
+        Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Member not found"));
 
         Order order = Order.builder()
@@ -38,15 +36,9 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
-    @Transactional
     public void markAsDone(Order order) {
         order.markDone();
         orderRepository.save(order);
     }
 
-    @Transactional(readOnly = true)
-    public Order getPendingOrderByEmail(String email) {
-        return orderRepository.findFirstByMember_EmailAndStatusOrderByCreatedAtDesc(email, TossPaymentStatus.PENDING)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "진행 중인 주문이 없습니다."));
-    }
 }

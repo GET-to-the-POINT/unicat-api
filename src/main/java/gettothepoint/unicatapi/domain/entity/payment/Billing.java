@@ -1,6 +1,5 @@
 package gettothepoint.unicatapi.domain.entity.payment;
 
-import gettothepoint.unicatapi.domain.constant.payment.SubscriptionPlan;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -21,39 +20,22 @@ public class Billing {
     @Column(nullable = false, unique = true)
     private String billingKey;
 
-    private String cardCompany;
-    private String cardNumber;
-    private String method;
-
     @Column(nullable = false)
     private Boolean recurring = false;
 
-    @Enumerated(EnumType.STRING)
-    private SubscriptionPlan subscriptionPlan;
-
     private LocalDate lastPaymentDate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false)
+    @OneToOne
     private Member member;
 
     @Builder
-    public Billing(Member member, String billingKey, String cardCompany, String cardNumber,
-                   String method) {
+    public Billing(Member member, String billingKey) {
         this.member = member;
         this.billingKey = billingKey;
-        this.cardCompany = cardCompany;
-        this.cardNumber = cardNumber;
-        this.method = method;
-        this.subscriptionPlan = SubscriptionPlan.BASIC;
     }
 
     @PrePersist
     public void prePersist() {
-        this.lastPaymentDate = LocalDate.now();
-    }
-
-    public void updateLastPaymentDate() {
         this.lastPaymentDate = LocalDate.now();
     }
 
@@ -63,5 +45,6 @@ public class Billing {
 
     public void recurring() {
         this.recurring = true;
+        this.lastPaymentDate = LocalDate.now();
     }
 }

@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum SubscriptionPlan {
-    BASIC("Basic Subscription", "BASIC", 1_000L),
+    BASIC("Basic Subscription", "BASIC", 0L),
     PREMIUM("Premium Subscription", "PREMIUM", 2_000L),
     VIP("VIP Subscription", "VIP", 3_000L);
 

@@ -7,7 +7,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @NoArgsConstructor
 @Getter
@@ -19,37 +18,26 @@ public class Subscription extends BaseEntity {
     private Long id;
 
     private LocalDateTime startDate;
-
     private LocalDateTime endDate;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private SubscriptionPlan subscriptionPlan;
 
-    private Boolean active = false;
-
     @OneToOne
     private Member member;
 
-    @OneToMany
-    private List<Order> order;
-
     @Builder
-    public Subscription(Member member, SubscriptionPlan subscriptionPlan) {
-        this.startDate = LocalDateTime.now();
-        this.endDate = this.startDate.plusMonths(1);
+    public Subscription(Member member) {
         this.member = member;
-        this.subscriptionPlan = subscriptionPlan;
-        this.active = true;
+        this.subscriptionPlan = SubscriptionPlan.BASIC;
+        this.startDate = LocalDateTime.now();
+        this.endDate = LocalDateTime.of(9999, 12, 31, 23, 59, 59);
     }
 
-    public void setActive() {
-        this.active = true;
+    public void changePlan(SubscriptionPlan subscriptionPlan) {
+        this.subscriptionPlan = subscriptionPlan;
         this.startDate = LocalDateTime.now();
         this.endDate = this.startDate.plusMonths(1);
-    }
-
-    public void setInactive() {
-        this.active = false;
     }
 }

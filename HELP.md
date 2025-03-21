@@ -74,7 +74,7 @@ application|domain|presentation 이것들의 파일만 추출 윈도우버전
 트리 파일구조 
 
 ```shell
-tree
+tree.com
 ```
 
 ### 특정 디렉토리는 제외하고 클립보드로 복사

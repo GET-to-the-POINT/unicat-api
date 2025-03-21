@@ -21,8 +21,8 @@ public class OrderController {
             @AuthenticationPrincipal Jwt jwt,
             @Valid @RequestBody SubscriptionRequest request
     ) {
-        Long memberId = Long.valueOf(jwt.getSubject());
-        orderService.create(memberId, request.getTier());
+        String email = jwt.getClaimAsString("email");
+        orderService.create(email, request.getTier());
     }
 }
 

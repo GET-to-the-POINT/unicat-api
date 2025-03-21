@@ -61,4 +61,8 @@ public class Order extends BaseEntity {
         }
         this.status = TossPaymentStatus.DONE;
     }
+
+    public boolean isPending() {
+        return this.status == TossPaymentStatus.PENDING;
+    }
 }

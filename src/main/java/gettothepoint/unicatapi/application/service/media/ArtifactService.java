@@ -32,13 +32,13 @@ public class ArtifactService {
     private final StorageService storageService;
     private final TextToSpeechService textToSpeechService;
 
-    @Transactional
+
     public void build(Long projectId) {
         this.build(projectId, "artifact", null);
     }
 
     // TODO: type을 String 으로 받으면 오타 나기 쉬움 밸리데이션 추가 필요, 또는 이넘으로 관리 필요
-    @Transactional
+
     public void build(Long projectId, String type, OAuth2AccessToken accessToken) {
         Project project = buildAndUpdate(projectId);
         if ("youtube".equals(type) && accessToken != null) {

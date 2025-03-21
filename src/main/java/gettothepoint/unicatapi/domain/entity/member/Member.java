@@ -1,6 +1,7 @@
 package gettothepoint.unicatapi.domain.entity.member;
 
 import gettothepoint.unicatapi.domain.entity.BaseEntity;
+import gettothepoint.unicatapi.domain.entity.payment.Billing;
 import gettothepoint.unicatapi.domain.entity.payment.Order;
 import gettothepoint.unicatapi.domain.entity.payment.Subscription;
 import jakarta.persistence.*;
@@ -34,8 +35,11 @@ public class Member extends BaseEntity {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<Order> orders = new ArrayList<>();
 
-    @OneToOne
-    private Subscription subscriptions;
+    @OneToOne(cascade = CascadeType.ALL)
+    private Subscription subscription;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @Setter private Billing billing;
 
     @OneToMany(mappedBy = "member", fetch = FetchType.EAGER)
     private final List<OAuthLink> oAuthLinks = new ArrayList<>();
@@ -44,6 +48,7 @@ public class Member extends BaseEntity {
     public Member(String email, String password) {
         this.email = email;
         this.password = password;
+        this.subscription = Subscription.builder().member(this).build();
     }
 
     public void verified() {

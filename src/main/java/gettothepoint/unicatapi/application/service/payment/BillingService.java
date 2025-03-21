@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -27,7 +26,6 @@ public class BillingService {
     private final MemberService memberService;
     private final ApiUtil apiUtil;
 
-    @Transactional
     public void saveBillingKey(String authKey, String email) {
         Member member = memberService.findByEmail(email);
         issueSuccessAndCreate(member, authKey);
@@ -36,21 +34,19 @@ public class BillingService {
     private void issueSuccessAndCreate(Member member, String authKey) {
         Map<String, Object> billingResponse = requestBillingKey(authKey, member.getEmail());
 
-        // 결제가 성공한 다음
         String billingKey = (String) billingResponse.get("billingKey");
-        String cardCompany = (String) billingResponse.get("cardCompany");
-        String cardNumber = (String) billingResponse.get("cardNumber");
-        String method = (String) billingResponse.get("method");
+//        String cardCompany = (String) billingResponse.get("cardCompany");
+//        String cardNumber = (String) billingResponse.get("cardNumber");
+//        String method = (String) billingResponse.get("method");
 
         Billing billing = Billing.builder()
                 .member(member)
                 .billingKey(billingKey)
-                .cardCompany(cardCompany)
-                .cardNumber(cardNumber)
-                .method(method)
                 .build();
-
         billingRepository.save(billing);
+
+        member.setBilling(billing);
+        memberService.update(member);
     }
 
     private Map<String, Object> requestBillingKey(String authKey, String email) {
@@ -72,24 +68,18 @@ public class BillingService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "빌링키 발급 실패"));
     }
 
-    public void cancelRecurring(Long billingId) {
-        Billing billing = billingRepository.findById(billingId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Billing not found"));
-
-        billing.cancelRecurring();
+    public void applyRecurring(Billing billing) {
+        billing.recurring();
         billingRepository.save(billing);
     }
 
-    @Transactional(readOnly = true)
-    public Billing getBillingForMember(Member member) {
-        return billingRepository.findByMember(member)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Billing 정보가 없습니다."));
-    }
 
-    @Transactional
-    public void applyRecurring(Billing billing) {
-        billing.recurring(); // 도메인 메소드 호출
-        billing.updateLastPaymentDate();
+    public void cancelRecurringByMember(Long memberId) {
+        Member member = memberService.getOrElseThrow(memberId);
+        Billing billing = billingRepository.findByMember(member)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Billing not found"));
+
+        billing.cancelRecurring();
         billingRepository.save(billing);
     }
 }
