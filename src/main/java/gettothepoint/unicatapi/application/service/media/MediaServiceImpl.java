@@ -4,14 +4,12 @@ import gettothepoint.unicatapi.common.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -24,7 +22,7 @@ import static gettothepoint.unicatapi.application.service.media.MediaValidationU
 @RequiredArgsConstructor
 public class MediaServiceImpl implements MediaService {
 
-    @Value("${app.media.ffmpeg.path}")
+   @Value("${app.media.ffmpeg.path}")
     private String ffmpegPath;
 
     private final String filePrefix = "unicat_artifact_";
@@ -51,6 +49,7 @@ public class MediaServiceImpl implements MediaService {
 
     void executeFfmpegCommand(ProcessBuilder builder) {
         builder.redirectErrorStream(true);
+
         try {
             Process process = builder.start();
 
@@ -77,14 +76,13 @@ public class MediaServiceImpl implements MediaService {
         validateAudioFile(soundFile.getAbsolutePath());
         validateFfmpegPath();
 
-
         String filename = this.filePrefix + Objects.hash(imageFile, soundFile);
         String extension = ".mp4";
         File outputFile = FileUtil.createTempFile(filename, extension);
 
         List<String> command = new ArrayList<>();
         command.add(ffmpegPath);
-        command.addAll(List.of("-loop", "1", "-i", imageFile.getAbsolutePath(), "-i", soundFile.getAbsolutePath(), "-c:v", "libx264", "-tune", "stillimage", "-c:a", "aac", "-b:a", "192k", "-pix_fmt", "yuv420p", "-shortest", "-y", outputFile.getAbsolutePath()));
+        command.addAll(List.of("-loop", "1", "-i", imageFile.getAbsolutePath(), "-i", soundFile.getAbsolutePath(),"-vf","scale=1080:-1:force_original_aspect_ratio=decrease,pad=1080:1920,pad=1080:1920:(ow-iw)/2:(oh-ih)/2,setsar=1", "-r", "30","-c:v", "libx264", "-tune", "stillimage", "-c:a", "aac", "-b:a", "192k", "-pix_fmt", "yuv420p", "-shortest", "-y", outputFile.getAbsolutePath()));
         ProcessBuilder builder = new ProcessBuilder(command);
         executeFfmpegCommand(builder);
 
@@ -101,20 +99,53 @@ public class MediaServiceImpl implements MediaService {
         String filename = this.filePrefix + Objects.hash(files) + ".mp4";
         String outputFilePath = FileUtil.getFile(filename).getAbsolutePath();
 
+        long totalVideoDurationMs = 0;
+        for (File file : files) {
+            totalVideoDurationMs += getVideoDurationInMs(file);
+        }
+        double totalDurationSec = totalVideoDurationMs / 1000.0;
+
         List<String> command = new ArrayList<>();
         command.add(ffmpegPath);
+
         for (File file : files) {
             command.add("-i");
             command.add(file.getAbsolutePath());
         }
 
+        File transitionSound = loadTempFileFromClasspath("assets/audio/transition/transition1.mp3", "transition", ".mp3");
+
+        command.add("-i");
+        command.add(transitionSound.getAbsolutePath());
+
         StringBuilder filterComplex = new StringBuilder();
+
         for (int i = 0; i < files.size(); i++) {
             filterComplex.append("[").append(i).append(":v:0][").append(i).append(":a:0]");
         }
-        filterComplex.append("concat=n=").append(files.size()).append(":v=1:a=1[outv][outa]");
+        filterComplex.append("concat=n=").append(files.size()).append(":v=1:a=1[outv][outa]; ");
 
-        command.addAll(List.of("-filter_complex", filterComplex.toString(), "-map", "[outv]", "-map", "[outa]", "-vsync", "vfr", "-c:v", "libx264", "-c:a", "aac", "-strict", "experimental", "-y", outputFilePath));
+        long totalDelay = 0;
+
+        for (int i = 1; i < files.size(); i++) {
+            totalDelay += getVideoDurationInMs(files.get(i - 1));
+            filterComplex.append("[").append(files.size())
+                    .append(":a:0]adelay=")
+                    .append(totalDelay).append("|").append(totalDelay)
+                    .append("[sfx").append(i).append("]; ");
+        }
+
+        filterComplex.append("[outa]");
+        for (int i = 1; i < files.size(); i++) {
+            filterComplex.append("[sfx").append(i).append("]");
+        }
+        int totalInputs = 1 + (files.size() - 1);
+        filterComplex.append("amix=inputs=").append(totalInputs)
+                .append(":duration=longest[out_finala]");
+
+        command.addAll(List.of(
+                "-filter_complex", filterComplex.toString(),"-map", "[outv]","-map", "[out_finala]", "-vsync", "vfr", "-c:v", "libx264", "-c:a", "aac", "-strict", "experimental", "-t", String.valueOf(totalDurationSec), "-y", outputFilePath
+        ));
 
         ProcessBuilder builder = new ProcessBuilder(command);
         executeFfmpegCommand(builder);
@@ -122,4 +153,40 @@ public class MediaServiceImpl implements MediaService {
         return new File(outputFilePath);
     }
 
+    public long getVideoDurationInMs(File file) {
+        try {
+            ProcessBuilder pb = new ProcessBuilder(
+                    "ffprobe",
+                    "-v", "error",
+                    "-select_streams", "v:0",
+                    "-show_entries", "format=duration",
+                    "-of", "default=noprint_wrappers=1:nokey=1",
+                    file.getAbsolutePath()
+            );
+            Process process = pb.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line = reader.readLine();
+            process.waitFor();
+            return (long) (Double.parseDouble(line.trim()) * 1000); // 초 → ms
+        } catch (Exception e) {
+            throw new RuntimeException("ffprobe duration 가져오기 실패: " + e.getMessage(), e);
+        }
+    }
+
+    private File loadTempFileFromClasspath(String classpathLocation, String prefix, String extension) {
+        try {
+            ClassPathResource resource = new ClassPathResource(classpathLocation);
+            File tempFile = File.createTempFile(prefix, extension);
+            try (InputStream in = resource.getInputStream(); OutputStream out = new FileOutputStream(tempFile)) {
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = in.read(buffer)) != -1) {
+                    out.write(buffer, 0, bytesRead);
+                }
+            }
+            return tempFile;
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "클래스패스 리소스 로딩 실패: " + classpathLocation, e);
+        }
+    }
 }
