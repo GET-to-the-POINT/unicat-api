@@ -9,6 +9,29 @@ services:
     env_file:
       - .env
 
+  loki:
+    image: grafana/loki:3.4.1
+    container_name: loki
+    ports:
+      - "10001:3100"
+    volumes:
+      - ./loki-config.yaml:/etc/loki/loki-config.yaml
+    command: -config.file=/etc/loki/loki-config.yaml
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "10002:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=unicat.api
+      - GF_SECURITY_ADMIN_PASSWORD=unicat.api
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+    depends_on:
+      - loki
+
   database:
     image: postgres:15-alpine
     container_name: unicat-database
@@ -25,6 +48,7 @@ services:
 
 volumes:
   postgres_data:
+  grafana-data:
 
 networks:
   unicat-network:
