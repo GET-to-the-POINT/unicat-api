@@ -6,6 +6,7 @@ import gettothepoint.unicatapi.common.util.MultipartFileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,7 @@ import java.util.Objects;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Primary
 public class SupabaseStorageServiceImpl extends AbstractStorageService {
 
     private final AppProperties appProperties;
@@ -40,8 +42,18 @@ public class SupabaseStorageServiceImpl extends AbstractStorageService {
 
     @Override
     protected File realDownload(String fileUrl) {
-        File cacheFile = FileUtil.getFilePath(fileUrl);
-        if (!cacheFile.exists()) {
+        String fileName = Paths.get(URI.create(fileUrl).getPath()).getFileName().toString();
+        File foundFile = FileUtil.getFile(fileName);
+        if (foundFile.exists()) {
+            return foundFile;
+        }
+        if (!foundFile.exists()) {
+            try {
+                Path parentDir = foundFile.toPath().getParent();
+                if (parentDir != null) Files.createDirectories(parentDir);
+            } catch (IOException e) {
+                throw new UncheckedIOException("캐시 디렉토리 생성 실패: " + foundFile.getAbsolutePath(), e);
+            }
             try {
                 URL url = URI.create(fileUrl).toURL();
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -50,7 +62,7 @@ public class SupabaseStorageServiceImpl extends AbstractStorageService {
 
                 if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                     InputStream inputStream = connection.getInputStream();
-                    Files.copy(inputStream, cacheFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    Files.copy(inputStream, foundFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                     inputStream.close();
                 } else {
                     throw new HttpClientErrorException(HttpStatus.valueOf(connection.getResponseCode()), "파일 다운로드 실패. HTTP 응답 코드: " + connection.getResponseCode());
@@ -59,7 +71,7 @@ public class SupabaseStorageServiceImpl extends AbstractStorageService {
                 throw new UncheckedIOException("파일 다운로드 오류: " + fileUrl, e);
             }
         }
-        return cacheFile;
+        return foundFile;
     }
 
 
@@ -111,8 +123,16 @@ public class SupabaseStorageServiceImpl extends AbstractStorageService {
 
     @Override
     public String upload(File file) {
-        String extension = file.getName().substring(file.getName().lastIndexOf("."));
-        MultipartFile multipartFile = new MultipartFileUtil(file, file.getName(), extension);
+        String contentType;
+        try {
+            contentType = Files.probeContentType(file.toPath());
+        } catch(IOException e) {
+            contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+        }
+        if(contentType == null || !contentType.contains("/")) {
+            contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+        }
+        MultipartFile multipartFile = new MultipartFileUtil(file, file.getName(), contentType);
         return upload(multipartFile);
     }
 
