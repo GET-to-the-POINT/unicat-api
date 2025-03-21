@@ -1,22 +1,27 @@
 package gettothepoint.unicatapi.application.service.storage;
 
 import gettothepoint.unicatapi.common.util.FileUtil;
-import org.springframework.context.annotation.Primary;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Service
-@Primary
 public class LocalStorageService extends AbstractStorageService {
 
     @Override
     protected File realDownload(String fileUrl) {
         File cacheFile = FileUtil.getFilePath(fileUrl);
         if (!cacheFile.exists()) {
-            throw new RuntimeException("File not found for hash: " + fileUrl);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "File not found for hash: " + fileUrl
+            );
         }
 
         return cacheFile;
@@ -24,15 +29,25 @@ public class LocalStorageService extends AbstractStorageService {
 
     @Override
     public String upload(MultipartFile file) {
-        String tempPath = System.getProperty("java.io.tmpdir");
+        Path baseDir = Paths.get(System.getProperty("java.io.tmpdir"), "unicat_uploads");
         try {
-            String extension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
-            File tmpFile = File.createTempFile(tempPath, extension);
-            file.transferTo(tmpFile);
-            return tmpFile.getAbsolutePath();
+            Files.createDirectories(baseDir);
         } catch (IOException e) {
-            throw new RuntimeException("Error uploading file", e);
+            throw new UncheckedIOException("임시 업로드 디렉토리 생성 실패", e);
         }
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null || originalFilename.isBlank() || !originalFilename.contains(".")) {
+            throw new IllegalArgumentException("유효한 파일 이름(확장자 포함)을 제공해주세요.");
+        }
+        String extension = originalFilename.substring(originalFilename.lastIndexOf('.'));
+        File tmpFile;
+        try {
+            tmpFile = Files.createTempFile(baseDir, "upload-", extension).toFile();
+            file.transferTo(tmpFile);
+        } catch (IOException e) {
+            throw new UncheckedIOException("임시 파일 생성 실패", e);
+        }
+        return tmpFile.getAbsolutePath();
     }
 
     @Override
