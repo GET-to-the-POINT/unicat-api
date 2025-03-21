@@ -19,6 +19,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import static gettothepoint.unicatapi.common.util.FileUtil.filenameFromUrl;
+
 @RequiredArgsConstructor
 @Service
 public class ArtifactService {
@@ -55,8 +57,10 @@ public class ArtifactService {
         sectionResponses = sectionService.getAll(projectId);
 
         // project build standby
-        List<String> sectionVideoUrls = sectionResponses.stream().map(SectionResponse::videoUrl).toList();
-        List<File> sectionVideos = storageService.downloads(sectionVideoUrls);
+        List<String> sectionVideoFilenames = sectionResponses.stream()
+                .map(i -> filenameFromUrl(i.videoUrl()))
+                .toList();
+        List<File> sectionVideos = storageService.downloads(sectionVideoFilenames);
 
         // artifact build
         File artifactFile = mediaService.mergeVideosAndExtractVFR(sectionVideos);
@@ -83,8 +87,8 @@ public class ArtifactService {
         }
 
         // video standby & build
-        File resourceFile = storageService.download(resourceUrl);
-        File audioFile = storageService.download(audioUrl);
+        File resourceFile = storageService.download(filenameFromUrl(resourceUrl));
+        File audioFile = storageService.download(filenameFromUrl(audioUrl));
         File sectionVideoFile = mediaService.mergeImageAndAudio(resourceFile, audioFile);
 
         // video upload process

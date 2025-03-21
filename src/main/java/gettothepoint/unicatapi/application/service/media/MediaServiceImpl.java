@@ -97,7 +97,7 @@ public class MediaServiceImpl implements MediaService {
         validateVideosFile(filePaths);
 
         String filename = this.filePrefix + Objects.hash(files) + ".mp4";
-        String outputFilePath = FileUtil.getFile(filename).getAbsolutePath();
+        String outputFilePath = FileUtil.getFilenameInTemp(filename).getAbsolutePath();
 
         long totalVideoDurationMs = 0;
         for (File file : files) {

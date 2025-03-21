@@ -1,5 +1,12 @@
 <configuration>
     <springProperty name="lokiUrl" source="logging.loki.url"/>
+    <springProperty name="ROOT_LOG_LEVEL" source="logging.level.root" defaultValue="WARN"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
 
     <springProfile name="prod">
         <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
@@ -16,13 +23,15 @@
             </format>
         </appender>
 
-        <root>
+        <root level="${ROOT_LOG_LEVEL}">
+            <appender-ref ref="CONSOLE"/>
             <appender-ref ref="LOKI"/>
         </root>
     </springProfile>
 
     <springProfile name="dev">
-        <root/>
+        <root level="${ROOT_LOG_LEVEL}">
+            <appender-ref ref="CONSOLE"/>
+        </root>
     </springProfile>
-
 </configuration>

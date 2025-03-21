@@ -9,8 +9,7 @@ import gettothepoint.unicatapi.domain.repository.ProjectRepository;
 import gettothepoint.unicatapi.domain.repository.SectionRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.ai.chat.messages.AssistantMessage;
-import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.image.Image;
 import org.springframework.ai.image.ImagePrompt;
@@ -26,6 +25,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -72,10 +72,18 @@ public class OpenAiService {
                 .build();
 
         Prompt prompt = new Prompt(promptText, options);
-        ChatResponse response = openAiChatModel.call(prompt);
-        AssistantMessage assistantMessage = response.getResult().getOutput();
 
-        return new CreateResourceResponse(null, null, assistantMessage.getText());
+        String raw = ChatClient.create(openAiChatModel)
+                        .prompt()
+                        .user(prompt.getContents())
+                        .call()
+                        .content();
+
+        String script = Optional.ofNullable(raw)
+                .map(s -> s.startsWith("\"") && s.endsWith("\"") ? s.substring(1, s.length() - 1) : s)
+                .orElse("");
+
+        return new CreateResourceResponse(null, null, script);
     }
 
     public CreateResourceResponse createImage(Long projectId, Long sectionId, PromptRequest scriptRequest) {

@@ -1,10 +1,1 @@
-spring:
-  config:
-    activate:
-      on-profile: prod
-
-logging:
-  loki:
-    url: ${LOKI_URL:https://loki.xiyo.dev/loki/api/v1/push}
-  level:
-    root: INFO
+\
