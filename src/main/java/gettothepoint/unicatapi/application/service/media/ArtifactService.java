@@ -19,6 +19,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import static gettothepoint.unicatapi.common.util.FileUtil.filenameFromUrl;
+
 @RequiredArgsConstructor
 @Service
 public class ArtifactService {
@@ -30,13 +32,13 @@ public class ArtifactService {
     private final StorageService storageService;
     private final TextToSpeechService textToSpeechService;
 
-    @Transactional
+
     public void build(Long projectId) {
         this.build(projectId, "artifact", null);
     }
 
     // TODO: type을 String 으로 받으면 오타 나기 쉬움 밸리데이션 추가 필요, 또는 이넘으로 관리 필요
-    @Transactional
+
     public void build(Long projectId, String type, OAuth2AccessToken accessToken) {
         Project project = buildAndUpdate(projectId);
         if ("youtube".equals(type) && accessToken != null) {
@@ -55,8 +57,10 @@ public class ArtifactService {
         sectionResponses = sectionService.getAll(projectId);
 
         // project build standby
-        List<String> sectionVideoUrls = sectionResponses.stream().map(SectionResponse::videoUrl).toList();
-        List<File> sectionVideos = storageService.downloads(sectionVideoUrls);
+        List<String> sectionVideoFilenames = sectionResponses.stream()
+                .map(i -> filenameFromUrl(i.videoUrl()))
+                .toList();
+        List<File> sectionVideos = storageService.downloads(sectionVideoFilenames);
 
         // artifact build
         File artifactFile = mediaService.mergeVideosAndExtractVFR(sectionVideos);
@@ -83,8 +87,8 @@ public class ArtifactService {
         }
 
         // video standby & build
-        File resourceFile = storageService.download(resourceUrl);
-        File audioFile = storageService.download(audioUrl);
+        File resourceFile = storageService.download(filenameFromUrl(resourceUrl));
+        File audioFile = storageService.download(filenameFromUrl(audioUrl));
         File sectionVideoFile = mediaService.mergeImageAndAudio(resourceFile, audioFile);
 
         // video upload process

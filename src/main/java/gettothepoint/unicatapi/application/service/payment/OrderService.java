@@ -1,15 +1,17 @@
 package gettothepoint.unicatapi.application.service.payment;
 
+import gettothepoint.unicatapi.domain.constant.payment.SubscriptionPlan;
+import gettothepoint.unicatapi.domain.constant.payment.TossPaymentStatus;
+import gettothepoint.unicatapi.domain.entity.member.Member;
+import gettothepoint.unicatapi.domain.entity.payment.Order;
 import gettothepoint.unicatapi.domain.repository.MemberRepository;
+import gettothepoint.unicatapi.domain.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import gettothepoint.unicatapi.domain.dto.payment.OrderRequest;
-import gettothepoint.unicatapi.domain.entity.member.Member;
-import gettothepoint.unicatapi.domain.entity.payment.Order;
-import gettothepoint.unicatapi.domain.repository.OrderRepository;
-import gettothepoint.unicatapi.domain.constant.payment.TossPaymentStatus;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -18,31 +20,25 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final MemberRepository memberRepository;
 
-    public void createOrder(OrderRequest orderRequest, Long memberId) {
-        Member member = memberRepository.findById(memberId)
+    public Order create(String email, SubscriptionPlan plan) {
+        Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Member not found"));
-        Order order = buildOrder(orderRequest, member);
-        orderRepository.save(order);
-    }
 
-    private Order buildOrder(OrderRequest orderRequest, Member member) {
-        return Order.builder()
-                .orderName(orderRequest.getOrderName())
-                .amount(orderRequest.getAmount())
-                .payMethod(orderRequest.getPayMethod())
-                .status(TossPaymentStatus.PENDING)
+        Order order = Order.builder()
+                .id(UUID.randomUUID().toString())
+                .orderName(plan.getAutoOrderName())
+                .amount(plan.getPrice())
+                .subscriptionPlan(plan)
                 .member(member)
+                .status(TossPaymentStatus.PENDING)
                 .build();
+
+        return orderRepository.save(order);
     }
 
-    public Order findById(String orderId) {
-        return orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
-    }
-
-    public void updateOrder(String orderId, TossPaymentStatus status) {
-        Order order = findById(orderId);
-        order.setStatus(status);
+    public void markAsDone(Order order) {
+        order.markDone();
         orderRepository.save(order);
     }
+
 }

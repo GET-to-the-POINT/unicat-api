@@ -32,7 +32,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional
 @Import({TestDummyTextToSpeechConfiguration.class, TestDummyEmailServiceConfiguration.class})
 @DisplayName("패스워드 컨트롤러 통합 테스트")
 class PasswordControllerIntegrationTest {

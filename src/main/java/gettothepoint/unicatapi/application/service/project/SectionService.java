@@ -73,7 +73,7 @@ public class SectionService {
         return ResourceResponse.fromEntity(section);
     }
 
-    @Transactional
+
     public Long updateSectionSortOrder(Long sectionId, int newOrder) {
         Section section = sectionRepository.findById(sectionId).orElseThrow(() -> new EntityNotFoundException(SECTION_NOT_FOUND_MSG + sectionId));
         Project project = section.getProject();

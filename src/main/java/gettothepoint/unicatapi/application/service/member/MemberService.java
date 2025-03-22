@@ -65,14 +65,6 @@ public class MemberService {
         return memberRepository.findByEmail(email).isPresent();
     }
 
-    public void verifyEmail(String email) {
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member not found"));
-
-        member.verified();
-        memberRepository.save(member);
-    }
-
     public boolean validCurrentPassword(String email, String currentPassword) {
         Member member = findByEmail(email);
         return passwordEncoder.matches(currentPassword, member.getPassword());
@@ -87,6 +79,10 @@ public class MemberService {
     public Member getOrElseThrow(Long memberId) {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Member not found with id: " + memberId));
+    }
+
+    public void update(Member member) {
+        memberRepository.save(member);
     }
 }
 

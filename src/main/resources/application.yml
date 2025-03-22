@@ -17,7 +17,7 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:create}
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:validate}
     open-in-view: false
 
   profiles:
@@ -70,10 +70,10 @@ app:
     domain: api.unicat.day
     port: 443
   toss:
-    client-key: ${APP_TOSS_CLIENT_KEY:test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm} # 토스거 공개적으로 제공하는 키
-    secret-key: ${APP_TOSS_SECRET_KEY:test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6} # 토스가 공개적으로 제공하는 키
-    confirm-url: ${APP_TOSS_CONFIRM_URL:https://api.tosspayments.com/v1/payments/confirm}
-    cancel-url: ${APP_TOSS_CANCEL_URL:https://api.tosspayments.com/v1/payments/}
+    client-key: ${APP_TOSS_CLIENT_KEY:test_ck_D5GePWvyJnrK0W0k6q8gLzN97Eoq} # 토스거 공개적으로 제공하는 키
+    secret-key: ${APP_TOSS_SECRET_KEY:test_sk_zXLkKEypNArWmo50nX3lmeaxYG5R} # 토스가 공개적으로 제공하는 키
+    approve-url: ${APP_TOSS_APPROVE_URL:https://api.tosspayments.com/v1/billing}
+    billing-url: ${APP_TOSS_BILLING_URL:https://api.tosspayments.com/v1/billing/authorizations/issue}
   email:
     from: ${APP_MAIL_MAIL_FROM}
     from-name: ${APP_MAIL_MAIL_FROM_NAME}
@@ -105,8 +105,6 @@ app:
 
 server:
   port: 443
-  http2:
-    enabled: true
   ssl:
     key-store: ${APP_SSL_KEY_STORE:classpath:unicat.day/unicat.day.p12}
     key-store-type: ${APP_SSL_KEY_STORE_TYPE:PKCS12}

@@ -4,24 +4,18 @@
 
 ```shell
 (echo "롤: 너는 자바 선생님이야
-
-규칙: 최신 자바 문법을 알려주고 올른 SOLID 규칙으로 설계해줘
-추가적으로 필요한 내용이 있다면 내게 다시 질문해 내가 답할게
-비디오 머지 서비스와 그와 영상제작에 관련된 코드에 대해서 개선된 코드를 답해줘
+SOLID 원칙을 위배하는 코드를 알려주고 클린코드와 클린아키텍처의 시각으로 코드를 개선해줘
+개선해야할 클래스: MediaServiceImpl
+그리고 연관된 클래스도 같이 개선이 필요하면 알려줘
 "; \
-find ./application ./presentation ./domain -type f -name "*.java" -exec cat {} +) \
+find \
+src/main/java/gettothepoint/unicatapi/application/service \
+src/main/java/gettothepoint/unicatapi/domain \
+src/main/java/gettothepoint/unicatapi/common \
+src/main/java/gettothepoint/unicatapi/presentation/controller \
+src/main/java/gettothepoint/unicatapi/UnicatApiApplication.java \
+-type f -name "*.java" -exec grep -v '^import ' {} +) \
 | tr -d '\n' | tr -d ' ' | pbcopy
-```
-
-## 질문 프롬프트
-
-```text
-롤: 너는 자바 선생님이야
-
-규칙: 최신 자바 문법을 알려주고 올른 SOLID 규칙으로 설계해줘
-추가적으로 필요한 내용이 있다면 내게 다시 질문해 내가 답할게
-
-나는 자바 개발자인데 초보 개발자야 세세하게 설명해줘야해
 ```
 
 ## 코드 클립보드에 넣기
@@ -34,10 +28,6 @@ MacOS
 ```shell
 find . -print | sed -e 's;[^/]*/;|____;g;s;____|; |;g'
 find . -type d | sed -e 's;[^/]*/;|____;g;s;____|; |;g'
-```
-
-```shell
-cd /path/to/your/directory
 ```
 
 ### 하위 경로를 포함한 모든 파일을 클립보드로 복사
@@ -54,6 +44,27 @@ find . -type f -name "*.java" -exec cat {} + | tr -d '\n' | tr -d ' ' | pbcopy
 
 ```shell
 find ./application ./presentation ./domain -type f -name "*.java" -exec cat {} + | tr -d '\n' | tr -d ' ' | pbcopy
+```
+
+윈도우 버전
+
+```shell
+(Get-ChildItem -Recurse -Filter *.java | Get-Content -Raw) -replace "[\r\n ]", "" | Set-Clipboard
+```
+
+application|domain|presentation 이것들의 파일만 추출 윈도우버전 
+
+```shell
+(Get-ChildItem -Directory |
+    Where-Object Name -match '^(application|domain|presentation)$' |
+    ForEach-Object { Get-ChildItem -Path $_.FullName -Recurse -Filter *.java } |
+    Get-Content -Raw) -replace "[\r\n ]", "" |
+    Set-Clipboard
+```
+트리 파일구조 
+
+```shell
+tree.com
 ```
 
 ### 특정 디렉토리는 제외하고 클립보드로 복사
