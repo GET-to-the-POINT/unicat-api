@@ -19,14 +19,15 @@ public abstract class AbstractStorageService implements StorageService {
         return ensureCacheFile(filename);
     }
 
-    private File ensureCacheFile(String filename) {
+    private File ensureCacheFile(String fileUrl) {
+        String filename = FileUtil.filenameFromUrl(fileUrl);
         File cacheFile = FileUtil.getFilenameInTemp(filename);
 
         if (cacheFile.exists()) {
             return cacheFile;
         }
 
-        return realDownload(filename);
+        return realDownload(fileUrl);
     }
 
     protected abstract File realDownload(String fileHash);

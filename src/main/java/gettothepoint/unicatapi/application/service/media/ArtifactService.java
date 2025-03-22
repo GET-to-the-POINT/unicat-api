@@ -5,6 +5,7 @@ import gettothepoint.unicatapi.application.service.project.ProjectService;
 import gettothepoint.unicatapi.application.service.project.SectionService;
 import gettothepoint.unicatapi.application.service.storage.StorageService;
 import gettothepoint.unicatapi.application.service.video.YoutubeUploadService;
+import gettothepoint.unicatapi.common.util.FileUtil;
 import gettothepoint.unicatapi.domain.dto.project.SectionResponse;
 import gettothepoint.unicatapi.domain.entity.dashboard.Project;
 import gettothepoint.unicatapi.domain.entity.dashboard.Section;
@@ -87,9 +88,14 @@ public class ArtifactService {
         }
 
         // video standby & build
-        File resourceFile = storageService.download(filenameFromUrl(resourceUrl));
-        File audioFile = storageService.download(filenameFromUrl(audioUrl));
-        File sectionVideoFile = mediaService.mergeImageAndAudio(resourceFile, audioFile);
+        Project project = section.getProject();
+        File templateResource = storageService.download(project.getTemplateUrl());
+        File titleResource = storageService.download(project.getTitleUrl());
+
+        File contentResource = storageService.download(resourceUrl);
+        File audioResource = storageService.download(audioUrl);
+
+        File sectionVideoFile = mediaService.mergeImageAndAudio(templateResource, contentResource, titleResource, audioResource);
 
         // video upload process
         String sectionVideoUrl = storageService.upload(sectionVideoFile);
