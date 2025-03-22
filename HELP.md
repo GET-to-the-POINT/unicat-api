@@ -61,6 +61,27 @@ find . -type f -name "*.java" -exec cat {} + | tr -d '\n' | tr -d ' ' | pbcopy
 find ./application ./presentation ./domain -type f -name "*.java" -exec cat {} + | tr -d '\n' | tr -d ' ' | pbcopy
 ```
 
+윈도우 버전
+
+```shell
+(Get-ChildItem -Recurse -Filter *.java | Get-Content -Raw) -replace "[\r\n ]", "" | Set-Clipboard
+```
+
+application|domain|presentation 이것들의 파일만 추출 윈도우버전 
+
+```shell
+(Get-ChildItem -Directory |
+    Where-Object Name -match '^(application|domain|presentation)$' |
+    ForEach-Object { Get-ChildItem -Path $_.FullName -Recurse -Filter *.java } |
+    Get-Content -Raw) -replace "[\r\n ]", "" |
+    Set-Clipboard
+```
+트리 파일구조 
+
+```shell
+tree.com
+```
+
 ### 특정 디렉토리는 제외하고 클립보드로 복사
 
 현제 디렉토리에서 특정 디렉토리는 제외하고 하위 경로를 포함한 모든 파일을 클립보드로 복사합니다.

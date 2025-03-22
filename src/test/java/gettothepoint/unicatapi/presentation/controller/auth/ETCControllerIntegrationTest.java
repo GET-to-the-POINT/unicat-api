@@ -22,7 +22,6 @@ import gettothepoint.unicatapi.common.util.JwtUtil;
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional
 @Import(TestDummyTextToSpeechConfiguration.class)
 class ETCControllerIntegrationTest {
 

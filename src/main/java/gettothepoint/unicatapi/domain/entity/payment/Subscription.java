@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.domain.entity.payment;
 
-import gettothepoint.unicatapi.domain.constant.payment.SubscriptionStatus;
+import gettothepoint.unicatapi.domain.constant.payment.SubscriptionPlan;
 import gettothepoint.unicatapi.domain.entity.BaseEntity;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import jakarta.persistence.*;
@@ -18,27 +18,26 @@ public class Subscription extends BaseEntity {
     private Long id;
 
     private LocalDateTime startDate;
-
     private LocalDateTime endDate;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    @Setter
-    private SubscriptionStatus status; // 구독 상태 (pending, active, cancel, expired)
-
-    @ManyToOne
-    @JoinColumn
-    private Member member;
+    private SubscriptionPlan subscriptionPlan;
 
     @OneToOne
-    private Order order;
+    private Member member;
 
     @Builder
-    public Subscription(Member member, Order order) {
+    public Subscription(Member member) {
+        this.member = member;
+        this.subscriptionPlan = SubscriptionPlan.BASIC;
+        this.startDate = LocalDateTime.now();
+        this.endDate = LocalDateTime.of(9999, 12, 31, 23, 59, 59);
+    }
+
+    public void changePlan(SubscriptionPlan subscriptionPlan) {
+        this.subscriptionPlan = subscriptionPlan;
         this.startDate = LocalDateTime.now();
         this.endDate = this.startDate.plusMonths(1);
-        this.status = SubscriptionStatus.ACTIVE;
-        this.member = member;
-        this.order = order;
     }
 }
