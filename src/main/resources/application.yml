@@ -105,8 +105,6 @@ app:
 
 server:
   port: 443
-  http2:
-    enabled: true
   ssl:
     key-store: ${APP_SSL_KEY_STORE:classpath:unicat.day/unicat.day.p12}
     key-store-type: ${APP_SSL_KEY_STORE_TYPE:PKCS12}
