@@ -43,7 +43,6 @@ public class PaymentService {
         Map<String, Object> approvalResult = tossPaymentGateway.requestApproval(
                 order, billing.getBillingKey(), email
         );
-
         orderService.markAsDone(order);
         paymentRecordService.save(order, approvalResult);
         billingService.applyRecurring(billing); //recurring 갱신

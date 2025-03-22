@@ -43,7 +43,7 @@ public class EmailService {
     }
 
     public void sendVerificationEmail(Member member) {
-        String verificationLink = String.format("%s/verification/email?token=%s",
+        String verificationLink = String.format("%s/members/email?token=%s",
                 UrlUtil.buildBaseUrl(appProperties.api()),
                 URLEncoder.encode(jwtUtil.generateJwtToken(member.getId(), member.getEmail()), StandardCharsets.UTF_8));
 

@@ -29,10 +29,14 @@ public class Billing {
     @OneToOne
     private Member member;
 
+    @Setter
+    private String cardCompany;
+
     @Builder
-    public Billing(Member member, String billingKey) {
+    public Billing(Member member, String billingKey, String cardCompany) {
         this.member = member;
         this.billingKey = billingKey;
+        this.cardCompany = cardCompany;
     }
 
     @PrePersist
