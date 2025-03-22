@@ -16,7 +16,7 @@ import java.util.UUID;
 @Entity
 @NoArgsConstructor
 @Table(name = "purchase")
-public class Order extends BaseEntity {
+public class Order extends BaseEntity implements Comparable<Order> {
 
     @Id
     @Column(updatable = false, nullable = false)
@@ -64,5 +64,10 @@ public class Order extends BaseEntity {
 
     public boolean isPending() {
         return this.status == TossPaymentStatus.PENDING;
+    }
+
+    @Override
+    public int compareTo(Order other) {
+        return other.getCreatedAt().compareTo(this.getCreatedAt());
     }
 }

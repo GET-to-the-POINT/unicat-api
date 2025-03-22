@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
@@ -18,7 +19,7 @@ public class Billing {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String billingKey;
+    @Setter private String billingKey;
 
     @Column(nullable = false)
     private Boolean recurring = false;

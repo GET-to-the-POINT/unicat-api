@@ -39,13 +39,16 @@ public class BillingService {
 //        String cardNumber = (String) billingResponse.get("cardNumber");
 //        String method = (String) billingResponse.get("method");
 
-        Billing billing = Billing.builder()
-                .member(member)
-                .billingKey(billingKey)
-                .build();
-        billingRepository.save(billing);
-
-        member.setBilling(billing);
+        Billing membersBilling = member.getBilling();
+        if (membersBilling != null) {
+            membersBilling.setBillingKey(billingKey);
+        } else {
+            membersBilling = Billing.builder()
+                    .member(member)
+                    .billingKey(billingKey)
+                    .build();
+        }
+        billingRepository.save(membersBilling);
         memberService.update(member);
     }
 

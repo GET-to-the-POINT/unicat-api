@@ -38,7 +38,7 @@ public class Member extends BaseEntity {
     @OneToOne(cascade = CascadeType.ALL)
     private Subscription subscription;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne
     @Setter private Billing billing;
 
     @OneToMany(mappedBy = "member", fetch = FetchType.EAGER)
