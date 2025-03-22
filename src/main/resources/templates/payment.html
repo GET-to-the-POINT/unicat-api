@@ -19,7 +19,7 @@
 			.requestBillingAuth("카드", {
 				// 결제 정보 파라미터
 				customerKey: customerKey,
-				successUrl: window.location.origin + "/billing/issue",
+				successUrl: window.location.origin + "/toss/approve",
 				failUrl:window.location.origin + "/fail",
 			})
 			.catch(function (error) {
