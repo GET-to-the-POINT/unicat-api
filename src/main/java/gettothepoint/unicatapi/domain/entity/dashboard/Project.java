@@ -32,6 +32,9 @@ public class Project extends BaseEntity {
 
     private String imageStyle;
 
+    private String templateUrl;
+    private String titleUrl;
+
     @ManyToOne
     @JoinColumn
     private Member member;
