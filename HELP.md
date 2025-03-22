@@ -18,17 +18,6 @@ src/main/java/gettothepoint/unicatapi/UnicatApiApplication.java \
 | tr -d '\n' | tr -d ' ' | pbcopy
 ```
 
-## 질문 프롬프트
-
-```text
-롤: 너는 자바 선생님이야
-
-규칙: 최신 자바 문법을 알려주고 올른 SOLID 규칙으로 설계해줘
-추가적으로 필요한 내용이 있다면 내게 다시 질문해 내가 답할게
-
-나는 자바 개발자인데 초보 개발자야 세세하게 설명해줘야해
-```
-
 ## 코드 클립보드에 넣기
 
 클리보드로 복사할 디렉토리로 먼저 이동합니다.
@@ -39,10 +28,6 @@ MacOS
 ```shell
 find . -print | sed -e 's;[^/]*/;|____;g;s;____|; |;g'
 find . -type d | sed -e 's;[^/]*/;|____;g;s;____|; |;g'
-```
-
-```shell
-cd /path/to/your/directory
 ```
 
 ### 하위 경로를 포함한 모든 파일을 클립보드로 복사
