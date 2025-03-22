@@ -25,6 +25,14 @@ public class Member extends BaseEntity {
     @Column(unique = true, nullable = false)
     private String email;
 
+    @Setter
+    @Column
+    private String name;
+
+    @Setter
+    @Column
+    private String phoneNumber;
+
     @Column(nullable = false)
     @Setter
     private String password;
@@ -45,9 +53,11 @@ public class Member extends BaseEntity {
     private final List<OAuthLink> oAuthLinks = new ArrayList<>();
 
     @Builder
-    public Member(String email, String password) {
+    public Member(String email, String password ,String name, String phoneNumber) {
         this.email = email;
         this.password = password;
+        this.name = name;
+        this.phoneNumber = phoneNumber;
         this.subscription = Subscription.builder().member(this).build();
     }
 
