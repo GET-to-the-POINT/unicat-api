@@ -39,6 +39,7 @@ public class OpenAiService {
     private final OpenAiImageModel openAiImageModel;
     private static final String SECTION_NOT_FOUND_MSG = "Section not found with id: ";
     private final OpenAiChatModel openAiChatModel;
+    private final TranslateService translateService;
 
     public CreateResourceResponse createScript(Long id, Long sectionId, PromptRequest request) {
 
@@ -110,13 +111,15 @@ public class OpenAiService {
                 request.prompt()
         );
 
+        String translatedPrompt = translateService.translateToEnglish(promptText);
+
         OpenAiImageOptions options = OpenAiImageOptions.builder()
                 .model(appProperties.openAIImage().model())
                 .quality(appProperties.openAIImage().quality())
                 .build();
 
         org.springframework.ai.image.ImageResponse response = openAiImageModel.call(
-                new ImagePrompt(promptText, options));
+                new ImagePrompt(translatedPrompt, options));
 
         Image image = response.getResult().getOutput();
 
