@@ -28,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Objects;
+import java.util.Optional;
 
 import static gettothepoint.unicatapi.common.util.FileUtil.getTempPath;
 
@@ -86,7 +87,11 @@ public class SupabaseStorageServiceImpl extends AbstractStorageService {
             throw new UncheckedIOException("임시 업로드 디렉토리 생성 실패", e);
         }
 
-        String extension = Objects.requireNonNull(file.getOriginalFilename()).substring(file.getOriginalFilename().lastIndexOf("."));
+        String extension = Optional.ofNullable(file.getOriginalFilename())
+                .filter(name -> name.lastIndexOf('.') != -1)
+                .map(name -> name.substring(name.lastIndexOf('.')))
+                .orElse("");
+
         File tmpFile;
         try {
             tmpFile = Files.createTempFile(baseDir, "upload-", extension).toFile();
