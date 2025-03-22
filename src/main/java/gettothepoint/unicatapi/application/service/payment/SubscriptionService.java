@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 public class SubscriptionService {
 
     private final SubscriptionRepository subscriptionRepository;
-    private final BillingService billingService;
 
     public void subscribe(Member member, SubscriptionPlan plan) {
         Subscription subscription = member.getSubscription();
@@ -24,11 +23,10 @@ public class SubscriptionService {
      * 반드시 자동 결제 해지와 연동 되어서 실행되어야한다.
      * @param member 구독 해지할 회원
      */
-    public void unsubscribe(Member member) {
-        billingService.cancelRecurringByMember(member.getId());
-    }
 
     public void changeBasePlan(Member member) {
-        member.getSubscription().changePlan(SubscriptionPlan.BASIC);
+        Subscription subscription = member.getSubscription();
+        subscription.changePlan(SubscriptionPlan.BASIC);
+        subscriptionRepository.save(subscription);
     }
 }
