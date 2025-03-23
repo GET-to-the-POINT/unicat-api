@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Assets", description = "Assets API")
+@Tag(name = "Project - Asset", description = "Assets API")
 @RestController
 @RequestMapping("/assets")
 @RequiredArgsConstructor
