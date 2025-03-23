@@ -1,6 +1,5 @@
 package gettothepoint.unicatapi.application.service.media;
 
-import gettothepoint.unicatapi.application.service.storage.StorageService;
 import gettothepoint.unicatapi.common.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,8 +12,6 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-
-import static gettothepoint.unicatapi.application.service.media.MediaValidationUtil.*;
 
 @Slf4j
 @Service
@@ -33,13 +30,6 @@ public class MediaServiceImpl implements MediaService {
     public static class MediaProcessingException extends RuntimeException {
         public MediaProcessingException(String message, Throwable cause) {
             super(message, cause);
-        }
-    }
-
-    private void validateFfmpegPath() {
-        File ffmpeg = new File(ffmpegPath);
-        if (!ffmpeg.exists() || !ffmpeg.isFile() || !ffmpeg.canExecute()) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "FFmpeg 실행 파일 문제: " + ffmpegPath);
         }
     }
 
@@ -64,9 +54,6 @@ public class MediaServiceImpl implements MediaService {
 
     @Override
     public File mergeImageAndAudio(File imageFile, File soundFile) {
-        validateImageFile(imageFile.getName());
-        validateAudioFile(soundFile.getName());
-        validateFfmpegPath();
 
         File outputFile = FileUtil.createTempFile(FILE_PREFIX + "img_audio", ".mp4");
         List<String> command = List.of(
@@ -86,11 +73,6 @@ public class MediaServiceImpl implements MediaService {
 
     @Override
     public File mergeImageAndAudio(File templateResource, File contentResource, File titleResource, File audioResource) {
-//        validateVideoFile(templateResource.getName());
-//        validateImageFile(contentResource.getName());
-//        validateImageFile(titleResource.getName());
-//        validateAudioFile(audioResource.getName());
-        validateFfmpegPath();
 
         File outputFile = FileUtil.createTempFile(FILE_PREFIX + "merged_with_bg_", ".mp4");
         double duration = getAudioDurationInSeconds(audioResource);
@@ -121,9 +103,6 @@ public class MediaServiceImpl implements MediaService {
 
     @Override
     public File mergeVideosAndExtractVFR(List<File> files) {
-        validateFfmpegPath();
-        List<String> filePaths = files.stream().map(File::getAbsolutePath).toList();
-        validateVideosFile(filePaths);
 
         File outputFile = FileUtil.createTempFile(FILE_PREFIX + "merged_videos_", ".mp4");
 

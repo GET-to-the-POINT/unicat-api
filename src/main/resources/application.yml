@@ -101,7 +101,7 @@ app:
     quality: ${IMAGE_AI_QUALITY:standard}
   media:
     ffmpeg:
-      path: ${APP_MEDIA_FFMPEG_PATH:/opt/homebrew/bin/ffmpeg}
+      path: ${APP_MEDIA_FFMPEG_PATH:ffmpeg}
 
 server:
   port: 443
