@@ -61,7 +61,7 @@ public class MediaServiceImpl implements MediaService {
                 "-loop", "1",
                 "-i", imageFile.getAbsolutePath(),
                 "-i", soundFile.getAbsolutePath(),
-                "-vf", "scale='if(gt(iw,1080),1080,iw)':-1,crop='min(in_w,1080)':'min(in_h,1920)',setsar=1",
+                "-vf", "scale='if(gt(iw,1080),1080,iw)':'-1', crop='if(gt(in_w,1080),1080,in_w)':'if(gt(in_h,1080),1080,in_h)', setsar=1",
                 "-r", "30", "-c:v", VIDEO_CODEC,
                 "-tune", "stillimage", "-c:a", "aac", "-b:a", "192k",
                 "-pix_fmt", "yuv420p", "-shortest", "-y", outputFile.getAbsolutePath()
@@ -77,8 +77,8 @@ public class MediaServiceImpl implements MediaService {
         double duration = getAudioDurationInSeconds(audioResource);
 
         String filter =
-                "[1:v]scale='if(gt(iw,1080),1080,iw)':-1," +
-                        "crop='min(in_w,1080)':'min(in_h,1920)',setsar=1[content];" +
+                "[1:v]scale='if(gt(iw,1080),1080,iw)':'-1'," +
+                        "crop='if(gt(in_w,1080),1080,in_w)':'if(gt(in_h,1080),1080,in_h)',setsar=1[content];" +
                         "[2:v]scale=600:-1[title];" +
                         "[0:v][content]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2[tmp];" +
                         "[tmp][title]overlay=(main_w-overlay_w)/2:100[outv]";
