@@ -1,20 +1,15 @@
 package gettothepoint.unicatapi.application.service.media;
 
-import gettothepoint.unicatapi.application.service.TextToSpeechService;
-import gettothepoint.unicatapi.application.service.storage.StorageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -22,194 +17,168 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
-@DisplayName("MediaServiceImpl Test")
 class MediaServiceImplTest {
 
-    @Autowired
-    MediaServiceImpl mediaServiceImpl;
+    private final MediaServiceImpl mediaServiceImpl = new MediaServiceImpl();
 
-    @Autowired
-    StorageService storageService;
-
-    @TestConfiguration
-    static class TestConfig {
-        @Bean
-        public TextToSpeechService textToSpeechService() {
-            return Mockito.mock(TextToSpeechService.class);
-        }
-    }
-
-    // 실제 FFmpeg 실행 파일 경로 (환경에 맞게 수정)
     private static final String VALID_FFMPEG_PATH = "/opt/homebrew/bin/ffmpeg";
 
-    // 실제 샘플 파일들이 위치한 경로 (src/test/resources/samples/...)
-    private static final String BACKGROUND_URL = "https://bhqvrnbzzqzqlwwrcgbm.supabase.co/storage/v1/object/public/video/uploads/Back3.mp4";
-    private static final String CONTENT_IMAGE_URL = "https://bhqvrnbzzqzqlwwrcgbm.supabase.co/storage/v1/object/public/image/uploads/coke.jpg";
-    private static final String TITLE_IMAGE_URL = "https://bhqvrnbzzqzqlwwrcgbm.supabase.co/storage/v1/object/public/image/uploads/title.png";
-    private static final String AUDIO_URL = "https://bhqvrnbzzqzqlwwrcgbm.supabase.co/storage/v1/object/public/voice/uploads/audio.mp3";
+    private final String videoPath = Paths.get("src", "test", "resources", "samples", "video", "video.mp4").toString();
+    private final String audioPath = Paths.get("src", "test", "resources", "samples", "audio", "audio.mp3").toString();
+    private final String imagePath = Paths.get("src", "test", "resources", "samples", "image", "image.jpeg").toString();
+
+//    @BeforeEach
+//    void setUp() {
+//        System.setProperty("FFMPEG_PATH", VALID_FFMPEG_PATH);
+//    }
+
 
     @BeforeEach
-    void setupSupabaseFiles() {
-        // Supabase에 있는 파일이 임시저장소에 복사되어 있는지 확인 (다운로드 수행)
-        File bgFile = storageService.download(BACKGROUND_URL);
-        File contentFile = storageService.download(CONTENT_IMAGE_URL);
-        File titleFile = storageService.download(TITLE_IMAGE_URL);
-        File audioFile = storageService.download(AUDIO_URL);
-
-        assertTrue(bgFile.exists(), "배경 영상 파일이 임시저장소에 존재해야 합니다.");
-        assertTrue(contentFile.exists(), "컨텐츠 이미지 파일이 임시저장소에 존재해야 합니다.");
-        assertTrue(titleFile.exists(), "타이틀 이미지 파일이 임시저장소에 존재해야 합니다.");
-        assertTrue(audioFile.exists(), "오디오 파일이 임시저장소에 존재해야 합니다.");
-
-        System.out.println("Supabase 파일 다운로드 확인:");
-        System.out.println("  배경 영상: " + bgFile.getAbsolutePath());
-        System.out.println("  컨텐츠 이미지: " + contentFile.getAbsolutePath());
-        System.out.println("  타이틀 이미지: " + titleFile.getAbsolutePath());
-        System.out.println("  오디오: " + audioFile.getAbsolutePath());
+    void setUp() throws Exception {
+        Field ffmpegField = MediaServiceImpl.class.getDeclaredField("ffmpegPath");
+        ffmpegField.setAccessible(true);
+        ffmpegField.set(mediaServiceImpl, VALID_FFMPEG_PATH);
     }
 
-//
-//
-//    @Test
-//    @DisplayName("단일 이미지와 오디오를 합성하여 mp4 생성")
-//    void testMergeImageAndAudio() {
-//        File imageFile = SAMPLE_IMAGE_PATH.toFile();
-//        File audioFile = SAMPLE_AUDIO_PATH.toFile();
-//
-//        assertTrue(imageFile.exists(), "샘플 이미지 파일이 존재해야 합니다.");
-//        assertTrue(audioFile.exists(), "샘플 오디오 파일이 존재해야 합니다.");
-//
-//        File outputFile = mediaServiceImpl.mergeImageAndAudio(imageFile, audioFile);
-//        assertNotNull(outputFile, "생성된 출력 파일은 null이 아니어야 합니다.");
-//        assertTrue(outputFile.exists(), "출력 파일이 실제로 생성되어야 합니다.");
-//        assertTrue(outputFile.getName().endsWith(".mp4"), "출력 파일 확장자는 .mp4여야 합니다.");
-//
-//        // 테스트 후 생성된 파일 삭제 (원할 경우)
-//        outputFile.delete();
-//    }
-//
-//    @Test
-//    @DisplayName("배경영상, 컨텐츠 이미지, 타이틀 이미지, 오디오를 합성하여 mp4 생성")
-//    void testMergeImageAndAudioWithBackground() {
-//        File bgVideo = SAMPLE_BG_VIDEO_PATH.toFile();
-//        File contentImage = SAMPLE_IMAGE_PATH.toFile();
-//        File titleImage = SAMPLE_TITLE_PATH.toFile();
-//        File audioFile = SAMPLE_AUDIO_PATH.toFile();
-//
-//        assertTrue(bgVideo.exists(), "배경 영상 파일이 존재해야 합니다.");
-//        assertTrue(contentImage.exists(), "컨텐츠 이미지 파일이 존재해야 합니다.");
-//        assertTrue(titleImage.exists(), "타이틀 이미지 파일이 존재해야 합니다.");
-//        assertTrue(audioFile.exists(), "오디오 파일이 존재해야 합니다.");
-//
-//        File outputFile = mediaServiceImpl.mergeImageAndAudio(bgVideo, contentImage, titleImage, audioFile);
-//        assertNotNull(outputFile, "생성된 출력 파일은 null이 아니어야 합니다.");
-//        assertTrue(outputFile.exists(), "출력 파일이 실제로 생성되어야 합니다.");
-//        assertTrue(outputFile.getName().endsWith(".mp4"), "출력 파일 확장자는 .mp4여야 합니다.");
-//
-//        // 테스트 후 생성된 파일 삭제 (원할 경우)
-//        outputFile.delete();
-//    }
-//
-//    @Test
-//    @DisplayName("여러 영상 파일을 병합하여 mp4 생성 (VFR)")
-//    void testMergeVideosAndExtractVFR() {
-//        File video1 = SAMPLE_VIDEO1_PATH.toFile();
-//        File video2 = SAMPLE_VIDEO2_PATH.toFile();
-//
-//        assertTrue(video1.exists(), "첫 번째 영상 파일이 존재해야 합니다.");
-//        assertTrue(video2.exists(), "두 번째 영상 파일이 존재해야 합니다.");
-//
-//        List<File> videoFiles = List.of(video1, video2);
-//        File outputFile = mediaServiceImpl.mergeVideosAndExtractVFR(videoFiles);
-//        assertNotNull(outputFile, "병합된 출력 파일은 null이 아니어야 합니다.");
-//        assertTrue(outputFile.exists(), "병합된 출력 파일이 실제로 생성되어야 합니다.");
-//        assertTrue(outputFile.getName().endsWith(".mp4"), "출력 파일 확장자는 .mp4여야 합니다.");
-//
-//        // 테스트 후 생성된 파일 삭제 (원할 경우)
-//        outputFile.delete();
-//    }
-//
-//    @Test
-//    @DisplayName("지원되지 않는 이미지 형식으로 mergeImageAndAudio 호출 시 예외 발생")
-//    void testMergeImageAndAudio_UnsupportedImageFormat(@TempDir Path tempDir) throws IOException {
-//        // 임시로 지원되지 않는 확장자 파일 생성
-//        File invalidImage = tempDir.resolve("invalid_image.txt").toFile();
-//        Files.write(invalidImage.toPath(), "invalid image content".getBytes());
-//        File audioFile = SAMPLE_AUDIO_PATH.toFile();
-//
-//        Exception exception = assertThrows(ResponseStatusException.class, () ->
-//                mediaServiceImpl.mergeImageAndAudio(invalidImage, audioFile)
-//        );
-//        assertTrue(exception.getMessage().contains("지원되지 않는 이미지 파일 형식"),
-//                "예외 메시지에 이미지 형식 지원 여부가 포함되어야 합니다.");
-//    }
-//
-//    @Test
-//    @DisplayName("지원되지 않는 비디오 형식으로 mergeVideosAndExtractVFR 호출 시 예외 발생")
-//    void testMergeVideosAndExtractVFR_UnsupportedVideoFormat(@TempDir Path tempDir) throws IOException {
-//        // 임시로 지원되지 않는 확장자 파일 생성
-//        File invalidVideo = tempDir.resolve("invalid_video.xyz").toFile();
-//        Files.write(invalidVideo.toPath(), "dummy video content".getBytes());
-//
-//        Exception exception = assertThrows(ResponseStatusException.class, () ->
-//                mediaServiceImpl.mergeVideosAndExtractVFR(List.of(invalidVideo))
-//        );
-//        assertTrue(exception.getMessage().contains("지원되지 않는 비디오 파일 형식"),
-//                "예외 메시지에 비디오 형식 지원 여부가 포함되어야 합니다.");
-//    }
-//
-//
-//    @Test
-//    @DisplayName("🎬 Supabase 리소스로 영상 병합 - 통합 테스트")
-//    void testMergeWithSupabaseResources() {
-//        // given
-//        String backgroundUrl = "https://bhqvrnbzzqzqlwwrcgbm.supabase.co/storage/v1/object/public/video/uploads/Back3.mp4";
-//        String contentImageUrl = "https://bhqvrnbzzqzqlwwrcgbm.supabase.co/storage/v1/object/public/image/uploads/coke.jpg";
-//        String titleImageUrl = "https://bhqvrnbzzqzqlwwrcgbm.supabase.co/storage/v1/object/public/image/uploads/title.png";
-//        String audioUrl = "https://bhqvrnbzzqzqlwwrcgbm.supabase.co/storage/v1/object/public/voice/uploads/audio.mp3";
-//
-//
-//
-//        // when
-//        File result = mediaServiceImpl.mergeImageAndAudio(
-//                backgroundUrl,
-//                contentImageUrl,
-//                titleImageUrl,
-//                audioUrl
-//        );
-//
-//        // then
-//        assertNotNull(result, "병합된 파일이 null이면 안 됩니다.");
-//        assertTrue(result.exists(), "병합된 영상 파일이 실제로 존재해야 합니다.");
-//        System.out.println("✅ 병합된 파일 경로: " + result.getAbsolutePath());
-//    }
+    @Nested
+    @DisplayName("비디오 병합 테스트")
+    class videoMerge {
 
-    @Test
-    @DisplayName("🎬 Supabase 리소스로 영상 병합 - 통합 테스트")
-    void testMergeWithSupabaseResources() {
-        // given
-        String backgroundUrl = BACKGROUND_URL;
-        String contentImageUrl = CONTENT_IMAGE_URL;
-        String titleImageUrl = TITLE_IMAGE_URL;
-        String audioUrl = AUDIO_URL;
+        @Test
+        @DisplayName("오디오 이미지 병합")
+        void testMergeImageAndSoundFromFile() {
+            File imageFile = new File(imagePath);
+            File audioFile = new File(audioPath);
 
-        System.out.println("🚀 테스트 시작: Supabase URL 사용");
-        System.out.println("🎥 배경 URL: " + backgroundUrl);
-        System.out.println("🖼️ 컨텐츠 이미지 URL: " + contentImageUrl);
-        System.out.println("🎵 오디오 URL: " + audioUrl);
+            assertTrue(imageFile.exists(), "테스트용 이미지 파일이 존재해야 합니다.");
+            assertTrue(audioFile.exists(), "테스트용 오디오 파일이 존재해야 합니다.");
 
-        // when
-        File result = mediaServiceImpl.mergeImageAndAudio(
-                backgroundUrl,
-                contentImageUrl,
-                titleImageUrl,
-                audioUrl
-        );
+            // Call the method which now returns an InputStream
+            File outputFile = mediaServiceImpl.mergeImageAndAudio(imageFile, audioFile);
+            assertNotNull(outputFile, "출력 스트림이 null이면 안 됩니다.");
 
-        // then
-        assertNotNull(result, "병합된 파일이 null이면 안 됩니다.");
-        assertTrue(result.exists(), "병합된 영상 파일이 실제로 존재해야 합니다.");
-        System.out.println("✅ 병합된 파일 경로: " + result.getAbsolutePath());
+            if (outputFile.exists()) {
+                assertTrue(outputFile.delete(), "테스트 후 생성된 파일을 삭제해야 합니다.");
+            }
+            }
+        }
+
+        @Test
+        @DisplayName("이미지 파일이 없을 때 예외 발생")
+        void testMergeImageAndSoundFromFile_ImageNotFound(@TempDir Path tempDir) throws IOException {
+
+            File audioFile = new File(tempDir.toFile(), "audio.mp3");
+            Files.write(audioFile.toPath(), Files.readAllBytes(Path.of(audioPath)));
+
+            Exception exception = assertThrows(ResponseStatusException.class, () ->
+                    mediaServiceImpl.mergeImageAndAudio(new File("non_existent.jpg"), audioFile)
+            );
+            System.out.println("예외 발생: " + exception.getMessage());
+            assertTrue(exception.getMessage().contains("Image file does not exist"));
+        }
+
+        @Test
+        @DisplayName("오디오 파일이 없을 때 예외 발생")
+        void testMergeImageAndSoundFromFile_AudioNotFound(@TempDir Path tempDir) throws IOException {
+
+            File imageFile = new File(tempDir.toFile(), "test.jpg");
+            Files.write(imageFile.toPath(), Files.readAllBytes(Path.of(imagePath)));
+
+            Exception exception = assertThrows(ResponseStatusException.class, () ->
+                    mediaServiceImpl.mergeImageAndAudio(imageFile, new File("non_existent.mp3"))
+            );
+
+            assertTrue(exception.getMessage().contains("Audio file does not exist"));
+        }
+
+        @Test
+        @DisplayName("FFmpeg 실행 파일이 없을 때 예외 발생")
+        void testMergeImageAndSoundFromFile_FfmpegNotFound(@TempDir Path tempDir) throws IOException {
+            // ✅ FFmpeg 경로를 비워서 실행 오류 발생 유도
+            System.clearProperty("FFMPEG_PATH");
+
+            File imageFile = new File(tempDir.toFile(), "test.jpg");
+            File audioFile = new File(tempDir.toFile(), "test.mp3");
+
+            Files.write(imageFile.toPath(), Files.readAllBytes(Path.of(imagePath)));
+            Files.write(audioFile.toPath(), Files.readAllBytes(Path.of(audioPath)));
+
+            Exception exception = assertThrows(ResponseStatusException.class, () ->
+                    mediaServiceImpl.mergeImageAndAudio(imageFile, audioFile)
+            );
+
+            assertTrue(exception.getMessage().contains("FFMPEG_PATH 환경 변수가 설정되지 않았습니다"));
+
+            System.setProperty("FFMPEG_PATH", "/usr/bin/ffmpeg");
+        }
+
+        @Test
+        @DisplayName("🎬 여러 비디오 파일을 병합(VFR) - 성공")
+        void testMergeVideosAndExtractVFRFromFiles_Success(@TempDir Path tempDir) throws IOException {
+            System.setProperty("FFMPEG_PATH", VALID_FFMPEG_PATH);
+
+            File video1 = new File(tempDir.toFile(), "video1.mp4");
+            File video2 = new File(tempDir.toFile(), "video2.mp4");
+            Path path = Path.of(videoPath);
+            Files.write(video1.toPath(), Files.readAllBytes(path));
+            Files.write(video2.toPath(), Files.readAllBytes(path));
+
+            File outputVideo = mediaServiceImpl.mergeVideosAndExtractVFR(List.of(video1, video2));
+
+            assertNotNull(outputVideo, "Output file should not be null");
+            assertTrue(outputVideo.exists(), "Output file should be created");
+
+            System.out.println("✅ 병합된 비디오 파일 경로: " + outputVideo.getAbsolutePath());
+
+            outputVideo.delete();
+        }
+
+        @Test
+        @DisplayName("FFmpeg 경로 미설정 시 예외 발생")
+        void testMergeVideosAndExtractVFRFromFiles_FfmpegNotFound(@TempDir Path tempDir) throws IOException {
+            System.clearProperty("FFMPEG_PATH");
+
+            File video1 = new File(tempDir.toFile(), "video1.mp4");
+            File video2 = new File(tempDir.toFile(), "video2.mp4");
+
+            Files.write(video1.toPath(), Files.readAllBytes(Path.of(videoPath)));
+            Files.write(video2.toPath(), Files.readAllBytes(Path.of(videoPath)));
+
+            Exception exception = assertThrows(ResponseStatusException.class, () ->
+                    mediaServiceImpl.mergeVideosAndExtractVFR(List.of(video1, video2))
+            );
+
+            System.out.println("❗FFmpeg 환경 변수 오류 예외 발생: " + exception.getMessage());
+            assertTrue(exception.getMessage().contains("FFMPEG_PATH 환경 변수가 설정되지 않았습니다"));
+        }
+
+        @Test
+        @DisplayName("비디오 파일이 없을 때 예외 발생")
+        void testMergeVideosAndExtractVFRFromFiles_VideoNotFound() {
+            System.setProperty("FFMPEG_PATH", VALID_FFMPEG_PATH);
+
+            Exception exception = assertThrows(ResponseStatusException.class, () ->
+                    mediaServiceImpl.mergeVideosAndExtractVFR(List.of(new File("non_existent.mp4")))
+            );
+
+            System.out.println("❗ 비디오 파일 없음 예외 발생: " + exception.getMessage());
+            assertTrue(exception.getMessage().contains("Video file does not exist"));
+        }
+
+        @Test
+        @DisplayName("지원되지 않는 형식의 비디오 파일 예외 발생")
+        void testMergeVideosAndExtractVFRFromFiles_UnsupportedFormat(@TempDir Path tempDir) throws IOException {
+            System.setProperty("FFMPEG_PATH", VALID_FFMPEG_PATH);
+
+            File invalidVideo = new File(tempDir.toFile(), "video.xyz"); // ❌ 지원되지 않는 확장자
+
+            Files.write(invalidVideo.toPath(), new byte[1024]); // 임시 더미 파일 생성
+
+            Exception exception = assertThrows(ResponseStatusException.class, () ->
+                    mediaServiceImpl.mergeVideosAndExtractVFR(List.of(invalidVideo))
+            );
+
+            System.out.println("❗ 지원되지 않는 형식의 비디오 파일 예외 발생: " + exception.getMessage());
+            assertTrue(exception.getMessage().contains("지원되지 않는 비디오 파일 형식입니다"));
+        }
     }
-}
