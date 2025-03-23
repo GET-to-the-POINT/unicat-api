@@ -18,7 +18,7 @@ public class LocalStorageService extends AbstractStorageService {
 
     @Override
     protected File realDownload(String fileUrl) {
-        File cacheFile = FileUtil.getFilePath(fileUrl);
+        File cacheFile = FileUtil.getTemp(fileUrl);
         if (!cacheFile.exists()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "File not found for hash: " + fileUrl
             );

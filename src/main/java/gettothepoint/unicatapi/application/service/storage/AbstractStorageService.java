@@ -8,27 +8,26 @@ import java.util.List;
 public abstract class AbstractStorageService implements StorageService {
 
     @Override
-    public List<File> downloads(List<String> filenames) {
-        return filenames.stream()
+    public List<File> downloads(List<String> fileUrls) {
+        return fileUrls.stream()
                 .map(this::download)
                 .toList();
     }
 
     @Override
-    public File download(String filename) {
-        return ensureCacheFile(filename);
+    public File download(String fileUrl) {
+        return ensureCacheFile(fileUrl);
     }
 
-    private File ensureCacheFile(String fileUrl) {
-        String filename = FileUtil.filenameFromUrl(fileUrl);
-        File cacheFile = FileUtil.getFilenameInTemp(filename);
+    private File ensureCacheFile(String url) {
+        File cacheFile = FileUtil.getTemp(url);
 
         if (cacheFile.exists()) {
             return cacheFile;
         }
 
-        return realDownload(fileUrl);
+        return realDownload(url);
     }
 
-    protected abstract File realDownload(String fileHash);
+    protected abstract File realDownload(String fileUrl);
 }

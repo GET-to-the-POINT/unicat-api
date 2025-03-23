@@ -86,10 +86,10 @@ public class MediaServiceImpl implements MediaService {
 
     @Override
     public File mergeImageAndAudio(File templateResource, File contentResource, File titleResource, File audioResource) {
-        validateVideoFile(templateResource.getName());
-        validateImageFile(contentResource.getName());
-        validateImageFile(titleResource.getName());
-        validateAudioFile(audioResource.getName());
+//        validateVideoFile(templateResource.getName());
+//        validateImageFile(contentResource.getName());
+//        validateImageFile(titleResource.getName());
+//        validateAudioFile(audioResource.getName());
         validateFfmpegPath();
 
         File outputFile = FileUtil.createTempFile(FILE_PREFIX + "merged_with_bg_", ".mp4");

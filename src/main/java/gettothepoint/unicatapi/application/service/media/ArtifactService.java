@@ -5,7 +5,6 @@ import gettothepoint.unicatapi.application.service.project.ProjectService;
 import gettothepoint.unicatapi.application.service.project.SectionService;
 import gettothepoint.unicatapi.application.service.storage.StorageService;
 import gettothepoint.unicatapi.application.service.video.YoutubeUploadService;
-import gettothepoint.unicatapi.common.util.FileUtil;
 import gettothepoint.unicatapi.domain.dto.project.SectionResponse;
 import gettothepoint.unicatapi.domain.entity.dashboard.Project;
 import gettothepoint.unicatapi.domain.entity.dashboard.Section;
@@ -13,14 +12,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-
-import static gettothepoint.unicatapi.common.util.FileUtil.filenameFromUrl;
 
 @RequiredArgsConstructor
 @Service
@@ -58,10 +54,10 @@ public class ArtifactService {
         sectionResponses = sectionService.getAll(projectId);
 
         // project build standby
-        List<String> sectionVideoFilenames = sectionResponses.stream()
-                .map(i -> filenameFromUrl(i.videoUrl()))
+        List<String> sectionVideoUrls = sectionResponses.stream()
+                .map(SectionResponse::videoUrl)
                 .toList();
-        List<File> sectionVideos = storageService.downloads(sectionVideoFilenames);
+        List<File> sectionVideos = storageService.downloads(sectionVideoUrls);
 
         // artifact build
         File artifactFile = mediaService.mergeVideosAndExtractVFR(sectionVideos);

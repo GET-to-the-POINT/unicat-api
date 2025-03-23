@@ -18,8 +18,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import static gettothepoint.unicatapi.common.util.FileUtil.filenameFromUrl;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -29,8 +27,7 @@ public class YoutubeUploadService {
     private final StorageService storageService;
 
     public Video uploadToYoutube(Project project, OAuth2AccessToken accessToken) throws IOException {
-            String artifactFilename = filenameFromUrl(project.getArtifactUrl());
-            File video = storageService.download(artifactFilename);
+            File video = storageService.download(project.getArtifactUrl());
             YouTube youtubeService = youtubeoAuth2Service.getYouTubeService(accessToken);
             Video youtubeVideo = new Video();
 
