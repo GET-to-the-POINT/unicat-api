@@ -42,34 +42,19 @@ public class SupabaseStorageServiceImpl extends AbstractStorageService {
     private final MessageSource messageSource;
 
     @Override
-    protected File realDownload(String filename) {
-        File foundFile = FileUtil.getFilenameInTemp(filename);
+    protected File realDownload(String url) {
+        File targetFile = FileUtil.getTemp(url);
 
         // 여기에 진입한 경우는 무조건 파일이 없을 경우 입니다.
         // 추상 클래스를 참조하십시오.
         try {
-            Path parentDir = foundFile.toPath().getParent();
+            Path parentDir = targetFile.toPath().getParent();
             if (parentDir != null) Files.createDirectories(parentDir);
         } catch (IOException e) {
-            throw new UncheckedIOException("캐시 디렉토리 생성 실패: " + foundFile.getAbsolutePath(), e);
+            throw new UncheckedIOException("캐시 디렉토리 생성 실패: " + targetFile.getAbsolutePath(), e);
         }
-        try {
-            URL url = URI.create(filename).toURL();
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.connect();
-
-            if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                InputStream inputStream = connection.getInputStream();
-                Files.copy(inputStream, foundFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                inputStream.close();
-            } else {
-                throw new HttpClientErrorException(HttpStatus.valueOf(connection.getResponseCode()), "파일 다운로드 실패. HTTP 응답 코드: " + connection.getResponseCode());
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException("파일 다운로드 오류: " + filename, e);
-        }
-        return foundFile;
+    downloadToFile(url, targetFile);
+        return targetFile;
     }
 
 
@@ -153,5 +138,27 @@ public class SupabaseStorageServiceImpl extends AbstractStorageService {
     private String getUrl(String bucket, String key) {
         String supabaseUrl = appProperties.supabase().url();
         return UriComponentsBuilder.fromUriString(supabaseUrl).pathSegment("storage", "v1", "object", bucket, key).build().toUriString();
+    }
+
+    private void downloadToFile(String url, File targetFile) {
+        try {
+            // Convert the string URL into a URL object via URI for proper parsing
+            URL downloadUrl = URI.create(url).toURL();
+            HttpURLConnection connection = (HttpURLConnection) downloadUrl.openConnection();
+            connection.setRequestMethod("GET");
+            connection.connect();
+
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                try (InputStream inputStream = connection.getInputStream()) {
+                    // Use Files.copy to write the input stream to the target file
+                    Files.copy(inputStream, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                }
+            } else {
+                throw new HttpClientErrorException(HttpStatus.valueOf(responseCode), "파일 다운로드 실패. HTTP 응답 코드: " + responseCode);
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException("파일 다운로드 오류: " + url, e);
+        }
     }
 }

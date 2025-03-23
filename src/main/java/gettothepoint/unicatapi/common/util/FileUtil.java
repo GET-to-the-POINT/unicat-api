@@ -24,16 +24,17 @@ public class FileUtil {
         }
     }
 
-    public static File getFilenameInTemp(String filename) {
+    public static File getFilenameInTemp(String url) {
+        String filename = filenameFromUrl(url);
         String path = getTempPath().toString();
         return new File(path, filename);
     }
 
-    public static File getFilePath(String filename) {
-        return new File(filename);
+    public static File getTemp(String url) {
+        return new File(url);
     }
 
-    public static String filenameFromUrl(String url) {
+    private static String filenameFromUrl(String url) {
         return Paths.get(URI.create(url).getPath()).getFileName().toString();
     }
 }

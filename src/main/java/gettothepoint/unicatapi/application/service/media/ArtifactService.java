@@ -12,14 +12,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-
-import static gettothepoint.unicatapi.common.util.FileUtil.filenameFromUrl;
 
 @RequiredArgsConstructor
 @Service
@@ -57,10 +54,10 @@ public class ArtifactService {
         sectionResponses = sectionService.getAll(projectId);
 
         // project build standby
-        List<String> sectionVideoFilenames = sectionResponses.stream()
-                .map(i -> filenameFromUrl(i.videoUrl()))
+        List<String> sectionVideoUrls = sectionResponses.stream()
+                .map(SectionResponse::videoUrl)
                 .toList();
-        List<File> sectionVideos = storageService.downloads(sectionVideoFilenames);
+        List<File> sectionVideos = storageService.downloads(sectionVideoUrls);
 
         // artifact build
         File artifactFile = mediaService.mergeVideosAndExtractVFR(sectionVideos);
@@ -87,9 +84,14 @@ public class ArtifactService {
         }
 
         // video standby & build
-        File resourceFile = storageService.download(filenameFromUrl(resourceUrl));
-        File audioFile = storageService.download(filenameFromUrl(audioUrl));
-        File sectionVideoFile = mediaService.mergeImageAndAudio(resourceFile, audioFile);
+        Project project = section.getProject();
+        File templateResource = storageService.download(project.getTemplateUrl());
+        File titleResource = storageService.download(project.getTitleUrl());
+
+        File contentResource = storageService.download(resourceUrl);
+        File audioResource = storageService.download(audioUrl);
+
+        File sectionVideoFile = mediaService.mergeImageAndAudio(templateResource, contentResource, titleResource, audioResource);
 
         // video upload process
         String sectionVideoUrl = storageService.upload(sectionVideoFile);
