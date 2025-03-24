@@ -70,7 +70,7 @@ app:
     domain: api.unicat.day
     port: 443
   toss:
-    client-key: ${APP_TOSS_CLIENT_KEY:test_ck_D5GePWvyJnrK0W0k6q8gLzN97Eoq} # 토스거 공개적으로 제공하는 키
+    client-key: ${APP_TOSS_CLIENT_KEY:test_ck_D5GePWvyJnrK0W0k6q8gLzN97Eoq} # 토스가 공개적으로 제공하는 키
     secret-key: ${APP_TOSS_SECRET_KEY:test_sk_zXLkKEypNArWmo50nX3lmeaxYG5R} # 토스가 공개적으로 제공하는 키
     approve-url: ${APP_TOSS_APPROVE_URL:https://api.tosspayments.com/v1/billing}
     billing-url: ${APP_TOSS_BILLING_URL:https://api.tosspayments.com/v1/billing/authorizations/issue}
@@ -96,9 +96,9 @@ app:
     model: ${SCRIPT_AI_MODEL:gpt-4o-mini}
     temperature: ${SCRIPT_AI_TEMPERATURE:0.7}
   openai-image:
-    prompt: ${IMAGE_AI_PROMPT:"Read the following script and create an image that suits the script in the style of ‘%s’. %n%nScript:%n%s"}
-    model: ${IMAGE_AI_MODEL:dall-e-2}
-    quality: ${IMAGE_AI_QUALITY:standard}
+    prompt: ${IMAGE_AI_PROMPT:"다음 스크립트를 읽고, ‘%s’스타일로 아름답고 퀄리티 좋은 정밀한 이미지를 만들어줘. 부족한 부분이 있다면 알아서 채워줘. %n%n스크립트:%n%s"}
+    model: ${IMAGE_AI_MODEL:dall-e-3}
+    quality: ${IMAGE_AI_QUALITY:hd}
   media:
     ffmpeg:
       path: ${APP_MEDIA_FFMPEG_PATH:ffmpeg}
