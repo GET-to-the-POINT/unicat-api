@@ -39,7 +39,6 @@ public class OpenAiService {
     private final OpenAiImageModel openAiImageModel;
     private static final String SECTION_NOT_FOUND_MSG = "Section not found with id: ";
     private final OpenAiChatModel openAiChatModel;
-    private final TranslateService translateService;
 
     public CreateResourceResponse createScript(Long id, Long sectionId, PromptRequest request) {
 
@@ -96,7 +95,7 @@ public class OpenAiService {
                 .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + projectId))
                 .getImageStyle();
 
-        String imageStyle = (style == null || style.isBlank()) ? "default" : style;
+        String imageStyle = (style == null || style.isBlank()) ? "" : style;
 
         CreateResourceResponse imageResponse = generateImageAI(imageStyle, scriptRequest);
 
@@ -111,15 +110,13 @@ public class OpenAiService {
                 request.prompt()
         );
 
-        String translatedPrompt = translateService.translateToEnglish(promptText);
-
         OpenAiImageOptions options = OpenAiImageOptions.builder()
                 .model(appProperties.openAIImage().model())
                 .quality(appProperties.openAIImage().quality())
                 .build();
 
         org.springframework.ai.image.ImageResponse response = openAiImageModel.call(
-                new ImagePrompt(translatedPrompt, options));
+                new ImagePrompt(promptText, options));
 
         Image image = response.getResult().getOutput();
 
