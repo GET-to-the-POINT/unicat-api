@@ -64,7 +64,7 @@ public class AuthService {
     }
 
     private void generateAndAddJwtToken(HttpServletResponse response, Member member) {
-        String token = jwtUtil.generateJwtToken(member.getId(), member.getEmail());
+        String token = jwtUtil.generateJwtToken(member.getId(), member.getEmail(), member.getSubscription().getSubscriptionPlan());
         jwtUtil.addJwtCookie(response, token);
     }
 
