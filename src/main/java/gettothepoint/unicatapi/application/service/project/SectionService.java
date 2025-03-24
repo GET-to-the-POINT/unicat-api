@@ -1,7 +1,6 @@
 package gettothepoint.unicatapi.application.service.project;
 
 import gettothepoint.unicatapi.application.service.storage.StorageService;
-import gettothepoint.unicatapi.domain.dto.storage.UploadResult;
 import gettothepoint.unicatapi.domain.dto.project.ResourceResponse;
 import gettothepoint.unicatapi.domain.dto.project.SectionResourceRequest;
 import gettothepoint.unicatapi.domain.dto.project.SectionResponse;
@@ -15,7 +14,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;

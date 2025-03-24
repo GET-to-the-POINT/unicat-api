@@ -2,6 +2,7 @@ package gettothepoint.unicatapi.presentation.controller.project;
 
 import gettothepoint.unicatapi.application.service.OpenAiService;
 import gettothepoint.unicatapi.application.service.project.SectionService;
+import gettothepoint.unicatapi.common.validation.usagelimit.UsageLimit;
 import gettothepoint.unicatapi.domain.dto.project.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -43,6 +44,7 @@ public class SectionController {
         return sectionService.uploadResource(projectId, sectionId, sectionUploadResourceRequest);
     }
 
+    @UsageLimit("")
     @PreAuthorize("@projectService.verifyProjectOwner(#projectId, jwt.getSubject())")
     @PostMapping(value = "/{sectionId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public CreateResourceResponse createResource(@AuthenticationPrincipal Jwt jwt, @PathVariable Long projectId, @PathVariable Long sectionId, @RequestParam(required = false) String type, @Valid @RequestBody PromptRequest scriptRequest) {

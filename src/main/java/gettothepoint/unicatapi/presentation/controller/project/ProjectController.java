@@ -4,6 +4,7 @@ import com.google.api.services.youtubeAnalytics.v2.model.QueryResponse;
 import gettothepoint.unicatapi.application.service.media.ArtifactService;
 import gettothepoint.unicatapi.application.service.project.ProjectService;
 import gettothepoint.unicatapi.application.service.youtube.YouTubeAnalyticsProxyService;
+import gettothepoint.unicatapi.common.validation.usagelimit.UsageLimit;
 import gettothepoint.unicatapi.domain.dto.project.ProjectResponse;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -47,6 +48,8 @@ public class ProjectController {
         return projectService.get(projectId);
     }
 
+
+    @UsageLimit("")
     @PostMapping("/{projectId}")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void createArtifact(@PathVariable("projectId") Long projectId, @RequestParam(name = "type", required = false, defaultValue = "artifact") String type, @Parameter(hidden = true) @RegisteredOAuth2AuthorizedClient("google") OAuth2AuthorizedClient authorizedClient) {
