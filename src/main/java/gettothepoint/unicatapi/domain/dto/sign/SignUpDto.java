@@ -23,7 +23,7 @@ public record SignUpDto(
         String email,
 
         @NotBlank(message = "{password.required}")
-        @Schema(description = "사용자 비밀번호", example = "StrongPassword123")
+        @Schema(description = "사용자 비밀번호", example = "Strong@123")
         @Pattern(
                 regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,16}$",
                 message = "비밀번호는 최소 8자, 최대 16자, 대문자, 소문자, 숫자, 특수문자를 포함해야 합니다."
@@ -31,9 +31,17 @@ public record SignUpDto(
         @CompareTarget // 패스워드 비교 대상 필드 지정
         String password ,
 
-        @Schema(description = "비밀번호 확인", example = "StrongPassword123", requiredMode = Schema.RequiredMode.REQUIRED)
+        @Schema(description = "비밀번호 확인", example = "Strong@123", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(message = "패스워드 확인을 입력해주세요.")
         @CompareResult // 패스워드 비교 결과 필드 지정
-        String confirmPassword
+        String confirmPassword,
+
+        @NotBlank(message = "{name.required}")
+        @Schema(description = "사용자 이름", example = "홍길동")
+        String  name,
+
+        @NotBlank(message = "{phone.required}")
+        @Schema(description = "사용자 전화번호 (전체 번호 입력)", example = "01012345678")
+        String phoneNumber
 
 ) {}
