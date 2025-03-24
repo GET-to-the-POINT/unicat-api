@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import gettothepoint.unicatapi.domain.constant.payment.SubscriptionPlan;
 import gettothepoint.unicatapi.test.config.TestDummyTextToSpeechConfiguration;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,7 +16,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.transaction.annotation.Transactional;
 import jakarta.servlet.http.Cookie;
 import gettothepoint.unicatapi.common.util.JwtUtil;
 
@@ -54,7 +54,7 @@ class ETCControllerIntegrationTest {
     @Test
     @DisplayName("토큰 리프레시 - 204 No Content")
     void refreshToken_returnsNoContent() throws Exception {
-         String token = jwtUtil.generateJwtToken(1L, "test@example.com");
+         String token = jwtUtil.generateJwtToken(1L, "test@example.com", SubscriptionPlan.BASIC);
          mockMvc.perform(post("/auth/token/refresh")
                 .cookie(new Cookie("Authorization", token)))
                 .andExpect(status().isNoContent());
