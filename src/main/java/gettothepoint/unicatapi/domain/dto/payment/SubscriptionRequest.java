@@ -12,7 +12,7 @@ public class SubscriptionRequest {
 
     @Schema(
             description = "구독 plan (가능한 값: basic, premium, vip)",
-            example = "basic",
+            example = "premium",
             allowableValues = {"basic", "premium", "vip"}
     )
     @NotNull
