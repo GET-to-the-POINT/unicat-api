@@ -3,6 +3,7 @@ package gettothepoint.unicatapi.presentation.controller.payment;
 import gettothepoint.unicatapi.application.service.payment.BillingService;
 import gettothepoint.unicatapi.application.service.payment.OrderService;
 import gettothepoint.unicatapi.application.service.payment.PaymentService;
+import gettothepoint.unicatapi.common.propertie.AppProperties;
 import gettothepoint.unicatapi.domain.constant.payment.SubscriptionPlan;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,6 +23,7 @@ public class TossPaymentController {
     private final BillingService billingService;
     private final PaymentService paymentService;
     private final OrderService orderService;
+    private final AppProperties appProperties;
 
     @GetMapping("/approve")
     public void approveAutoPayment(
@@ -32,7 +34,7 @@ public class TossPaymentController {
         orderService.create(email, SubscriptionPlan.PREMIUM);//todo 가주문 나중에 subscription컨트롤러 옮길수도 있음
         billingService.saveBillingKey(authKey, email);
         paymentService.approveAutoPayment(email);
-        response.sendRedirect("https://unicat.day");
+        response.sendRedirect(appProperties.frontend().url());
     }
 
 }
