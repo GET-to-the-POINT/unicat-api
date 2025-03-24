@@ -95,7 +95,7 @@ public class OpenAiService {
                 .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + projectId))
                 .getImageStyle();
 
-        String imageStyle = (style == null || style.isBlank()) ? "" : style;
+        String imageStyle = (style == null || style.isBlank()) ? "Photo" : style;
 
         CreateResourceResponse imageResponse = generateImageAI(imageStyle, scriptRequest);
 
