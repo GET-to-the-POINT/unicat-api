@@ -17,7 +17,7 @@ public class EmailController {
     @GetMapping("/email")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void verifyEmail(@RequestParam("token") String token) {
-        String email = jwtUtil.getEmailFromToken(token);
+        String email = jwtUtil.getEmail(token);
         memberService.verifyEmail(email);
     }
 }

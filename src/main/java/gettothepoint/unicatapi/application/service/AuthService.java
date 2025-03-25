@@ -7,6 +7,7 @@ import gettothepoint.unicatapi.domain.dto.sign.SignInDto;
 import gettothepoint.unicatapi.domain.dto.sign.SignUpDto;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.repository.MemberRepository;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -27,20 +28,21 @@ public class AuthService {
     private final MemberService memberService;
     private final EmailService emailService;
 
-    public void signUp(SignUpDto signUpDto, HttpServletResponse response) {
+    public String signUp(SignUpDto signUpDto) {
         validateEmail(signUpDto.email());
         Member member = createMember(signUpDto.email(), signUpDto.password(),signUpDto.name(), signUpDto.phoneNumber());
-        generateAndAddJwtToken(response, member);
         emailService.sendVerificationEmail(member);
+        return generateAndAddJwtToken(member);
     }
 
-    public void signIn(SignInDto signInDto, HttpServletResponse response) {
+    public String signIn(SignInDto signInDto) {
         Member member = validateCredentials(signInDto.email(), signInDto.password());
-        generateAndAddJwtToken(response, member);
+        return generateAndAddJwtToken(member);
     }
 
     public void signOut(HttpServletResponse response) {
-        jwtUtil.removeJwtCookie(response);
+        Cookie jwtCookie = jwtUtil.removeJwtCookie();
+        response.addCookie(jwtCookie);
     }
 
     private void validateEmail(String email) {
@@ -63,9 +65,8 @@ public class AuthService {
         return member;
     }
 
-    private void generateAndAddJwtToken(HttpServletResponse response, Member member) {
-        String token = jwtUtil.generateJwtToken(member.getId(), member.getEmail(), member.getSubscription().getSubscriptionPlan());
-        jwtUtil.addJwtCookie(response, token);
+    private String generateAndAddJwtToken(Member member) {
+        return jwtUtil.generateJwtToken(member.getId(), member.getEmail(), member.getSubscription().getSubscriptionPlan());
     }
 
 }
