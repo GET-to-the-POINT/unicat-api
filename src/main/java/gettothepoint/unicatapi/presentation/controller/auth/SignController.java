@@ -1,6 +1,7 @@
 package gettothepoint.unicatapi.presentation.controller.auth;
 
 import gettothepoint.unicatapi.common.util.JwtUtil;
+import gettothepoint.unicatapi.domain.dto.sign.SignUpRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import gettothepoint.unicatapi.common.schema.ErrorResponse;
 import gettothepoint.unicatapi.common.schema.UnauthorizedErrorResponse;
 import gettothepoint.unicatapi.domain.dto.sign.SignInDto;
-import gettothepoint.unicatapi.domain.dto.sign.SignUpDto;
 import gettothepoint.unicatapi.application.service.AuthService;
 
 @RestController
@@ -58,10 +58,10 @@ public class SignController {
             }
     )
     public void signUpJson(
-            @Valid @RequestBody SignUpDto signUpDto,
+            @Valid @RequestBody SignUpRequest signUpRequest,
             HttpServletResponse response
     ) {
-        String jwtToken = authService.signUp(signUpDto);
+        String jwtToken = authService.signUp(signUpRequest);
         Cookie jwtCookie = jwtUtil.createJwtCookie(jwtToken);
         response.addCookie(jwtCookie);
     }
@@ -69,10 +69,10 @@ public class SignController {
     @PostMapping(value = "/sign-up", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public void signUpForm(
-            @Valid @ModelAttribute SignUpDto signUpDto,
+            @Valid @ModelAttribute SignUpRequest signUpRequest,
             HttpServletResponse response
     ) {
-        String jwtToken = authService.signUp(signUpDto);
+        String jwtToken = authService.signUp(signUpRequest);
         Cookie jwtCookie = jwtUtil.createJwtCookie(jwtToken);
         response.addCookie(jwtCookie);
     }
