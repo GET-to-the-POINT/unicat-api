@@ -53,6 +53,15 @@ public class ArtifactService {
         }
         sectionResponses = sectionService.getAll(projectId);
 
+        // thumbnail standby and upload
+        String thumbnailTargetUrl = sectionResponses.getFirst().resourceUrl();
+        File thumbnailTarget = storageService.download(thumbnailTargetUrl);
+        File thumbnail = mediaService.extractThumbnail(thumbnailTarget);
+        String thumbnailUrl = storageService.upload(thumbnail);
+        project.setThumbnailUrl(thumbnailUrl);
+
+
+
         // project build standby
         List<String> sectionVideoUrls = sectionResponses.stream()
                 .map(SectionResponse::videoUrl)

@@ -64,4 +64,9 @@ public class MediaValidationUtil {
     private static boolean hasValidExtension(String fileName, List<String> extensions) {
         return extensions.stream().anyMatch(fileName.toLowerCase()::endsWith);
     }
+
+
+    public static boolean hasValidImageExtension(String fileName) {
+        return IMAGE_EXTENSIONS.stream().anyMatch(fileName.toLowerCase()::endsWith);
+    }
 }
