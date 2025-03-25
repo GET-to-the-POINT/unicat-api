@@ -4,7 +4,7 @@ import gettothepoint.unicatapi.application.service.email.EmailService;
 import gettothepoint.unicatapi.application.service.member.MemberService;
 import gettothepoint.unicatapi.common.util.JwtUtil;
 import gettothepoint.unicatapi.domain.dto.sign.SignInDto;
-import gettothepoint.unicatapi.domain.dto.sign.SignUpDto;
+import gettothepoint.unicatapi.domain.dto.sign.SignUpRequest;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.repository.MemberRepository;
 import jakarta.servlet.http.Cookie;
@@ -28,9 +28,9 @@ public class AuthService {
     private final MemberService memberService;
     private final EmailService emailService;
 
-    public String signUp(SignUpDto signUpDto) {
-        validateEmail(signUpDto.email());
-        Member member = createMember(signUpDto.email(), signUpDto.password(),signUpDto.name(), signUpDto.phoneNumber());
+    public String signUp(SignUpRequest signUpRequest) {
+        validateEmail(signUpRequest.email());
+        Member member = memberService.create(signUpRequest.email(), signUpRequest.password(), signUpRequest.name(), signUpRequest.phoneNumber());
         emailService.sendVerificationEmail(member);
         return generateAndAddJwtToken(member);
     }
@@ -50,10 +50,6 @@ public class AuthService {
             String errorMessage = messageSource.getMessage("error.email.in.use", null, "", LocaleContextHolder.getLocale());
             throw new ResponseStatusException(HttpStatus.CONFLICT, errorMessage);
         }
-    }
-
-    private Member createMember(String email, String password, String name, String phoneNumber) {
-        return memberService.create(email, passwordEncoder.encode(password), name, phoneNumber);
     }
 
     private Member validateCredentials(String email, String password) {
