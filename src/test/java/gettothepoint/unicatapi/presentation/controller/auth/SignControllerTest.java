@@ -2,7 +2,7 @@ package gettothepoint.unicatapi.presentation.controller.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gettothepoint.unicatapi.application.service.AuthService;
-import gettothepoint.unicatapi.domain.dto.sign.SignInDto;
+import gettothepoint.unicatapi.domain.dto.sign.SignInRequest;
 import gettothepoint.unicatapi.domain.dto.sign.SignUpRequest;
 import gettothepoint.unicatapi.test.config.TestDummyTextToSpeechConfiguration;
 import gettothepoint.unicatapi.test.config.TestSecurityConfig;
@@ -112,44 +112,44 @@ class SignControllerTest {
         @Test
         @DisplayName("유효한 로그인")
         void testSignInWithValidData() throws Exception {
-            SignInDto signInDto = SignInDto.builder().email("test@example.com").password("password").build();
-            doNothing().when(authService).signIn(any(SignInDto.class), any(HttpServletResponse.class));
+            SignInRequest signInRequest = SignInRequest.builder().email("test@example.com").password("password").build();
+            doNothing().when(authService).signIn(any(SignInRequest.class), any(HttpServletResponse.class));
             mockMvc.perform(post("/auth/sign-in")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(signInDto)))
+                            .content(objectMapper.writeValueAsString(signInRequest)))
                     .andExpect(status().isOk());
         }
         @Test
         @DisplayName("이메일 누락 로그인")
         void testSignInWithMissingEmail() throws Exception {
-            SignInDto signInDto = SignInDto.builder().password("password").build();
+            SignInRequest signInRequest = SignInRequest.builder().password("password").build();
             doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is required"))
-                    .when(authService).signIn(any(SignInDto.class), any(HttpServletResponse.class));
+                    .when(authService).signIn(any(SignInRequest.class), any(HttpServletResponse.class));
             mockMvc.perform(post("/auth/sign-in")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(signInDto)))
+                            .content(objectMapper.writeValueAsString(signInRequest)))
                     .andExpect(status().isBadRequest());
         }
         @Test
         @DisplayName("비밀번호 누락 로그인")
         void testSignInWithMissingPassword() throws Exception {
-            SignInDto signInDto = SignInDto.builder().email("test@example.com").build();
+            SignInRequest signInRequest = SignInRequest.builder().email("test@example.com").build();
             doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password is required"))
-                    .when(authService).signIn(any(SignInDto.class), any(HttpServletResponse.class));
+                    .when(authService).signIn(any(SignInRequest.class), any(HttpServletResponse.class));
             mockMvc.perform(post("/auth/sign-in")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(signInDto)))
+                            .content(objectMapper.writeValueAsString(signInRequest)))
                     .andExpect(status().isBadRequest());
         }
         @Test
         @DisplayName("잘못된 자격 증명 로그인")
         void testSignInWithInvalidCredentials() throws Exception {
-            SignInDto signInDto = SignInDto.builder().email("test@example.com").password("wrongpassword").build();
+            SignInRequest signInRequest = SignInRequest.builder().email("test@example.com").password("wrongpassword").build();
             doThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password"))
-                    .when(authService).signIn(any(SignInDto.class), any(HttpServletResponse.class));
+                    .when(authService).signIn(any(SignInRequest.class), any(HttpServletResponse.class));
             mockMvc.perform(post("/auth/sign-in")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(signInDto)))
+                            .content(objectMapper.writeValueAsString(signInRequest)))
                     .andExpect(status().isUnauthorized());
         }
     }

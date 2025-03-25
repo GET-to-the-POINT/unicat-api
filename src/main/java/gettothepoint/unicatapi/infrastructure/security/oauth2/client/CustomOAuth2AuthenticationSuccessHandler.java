@@ -37,7 +37,7 @@ public class CustomOAuth2AuthenticationSuccessHandler extends SimpleUrlAuthentic
         Subscription subscription = member.getSubscription();
         String email = oAuth2User.getAttribute("email");
 
-        String token = jwtUtil.generateJwtToken(memberId, email, subscription.getSubscriptionPlan());
+        String token = jwtUtil.generateJwtToken(memberId, email, subscription.getSubscriptionPlan().name());
         Cookie jwtCookie = jwtUtil.createJwtCookie(token);
         response.addCookie(jwtCookie);
 
