@@ -4,12 +4,14 @@ import gettothepoint.unicatapi.application.service.member.MemberService;
 import gettothepoint.unicatapi.domain.dto.member.MemberResponse;
 import gettothepoint.unicatapi.domain.dto.member.MemberUpdateDto;
 import gettothepoint.unicatapi.domain.entity.member.Member;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = " - Member", description = "멤버 관련 API")
 @RestController
 @RequestMapping("/members")
 @RequiredArgsConstructor
