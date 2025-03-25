@@ -1,6 +1,7 @@
 package gettothepoint.unicatapi.common.util;
 
 import gettothepoint.unicatapi.common.propertie.AppProperties;
+import gettothepoint.unicatapi.domain.constant.payment.SubscriptionPlan;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -42,12 +43,12 @@ public class JwtUtil {
         response.addCookie(jwtCookie);
     }
 
-    public String generateJwtToken(Long memberId, String email) {
+    public String generateJwtToken(Long memberId, String email, SubscriptionPlan subscription) {
         Instant now = Instant.now();
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .subject(memberId.toString())
                 .claim("email", email)
-                .claim("scope", "all")
+                .claim("subscription", subscription.name())
                 .issuedAt(now)
                 .expiresAt(now.plus(appProperties.jwt().cookie().maxAge(), ChronoUnit.SECONDS))
                 .build();

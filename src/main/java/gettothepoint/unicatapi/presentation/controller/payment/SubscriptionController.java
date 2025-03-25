@@ -2,10 +2,9 @@ package gettothepoint.unicatapi.presentation.controller.payment;
 
 import gettothepoint.unicatapi.application.service.payment.BillingService;
 import gettothepoint.unicatapi.application.service.payment.OrderService;
-import gettothepoint.unicatapi.domain.dto.payment.SubscriptionRequest;
+import gettothepoint.unicatapi.domain.constant.payment.SubscriptionPlan;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -27,11 +26,9 @@ public class SubscriptionController {
     )
     @PostMapping
     public void create(
-            @AuthenticationPrincipal Jwt jwt,
-            @Valid @RequestBody SubscriptionRequest request
-    ) {
+            @AuthenticationPrincipal Jwt jwt){
         String email = jwt.getClaimAsString("email");
-        orderService.create(email, request.getPlan());
+        orderService.create(email, SubscriptionPlan.PREMIUM);
     }
 
     @DeleteMapping

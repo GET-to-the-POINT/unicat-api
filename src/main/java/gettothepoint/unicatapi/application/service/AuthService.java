@@ -29,7 +29,7 @@ public class AuthService {
 
     public void signUp(SignUpDto signUpDto, HttpServletResponse response) {
         validateEmail(signUpDto.email());
-        Member member = createMember(signUpDto.email(), signUpDto.password());
+        Member member = createMember(signUpDto.email(), signUpDto.password(),signUpDto.name(), signUpDto.phoneNumber());
         generateAndAddJwtToken(response, member);
         emailService.sendVerificationEmail(member);
     }
@@ -50,8 +50,8 @@ public class AuthService {
         }
     }
 
-    private Member createMember(String email, String password) {
-        return memberService.create(email, passwordEncoder.encode(password));
+    private Member createMember(String email, String password, String name, String phoneNumber) {
+        return memberService.create(email, passwordEncoder.encode(password), name, phoneNumber);
     }
 
     private Member validateCredentials(String email, String password) {
@@ -64,7 +64,7 @@ public class AuthService {
     }
 
     private void generateAndAddJwtToken(HttpServletResponse response, Member member) {
-        String token = jwtUtil.generateJwtToken(member.getId(), member.getEmail());
+        String token = jwtUtil.generateJwtToken(member.getId(), member.getEmail(), member.getSubscription().getSubscriptionPlan());
         jwtUtil.addJwtCookie(response, token);
     }
 

@@ -20,6 +20,7 @@ public class Section extends BaseEntity {
     @Setter
     private Long sortOrder;
 
+    @Column(columnDefinition = "TEXT")
     @Setter private String alt;
     @Column(columnDefinition = "TEXT")
     @Setter private String script;

@@ -43,9 +43,9 @@ public class EmailService {
     }
 
     public void sendVerificationEmail(Member member) {
-        String verificationLink = String.format("%s/verification/email?token=%s",
+        String verificationLink = String.format("%s/members/email?token=%s",
                 UrlUtil.buildBaseUrl(appProperties.api()),
-                URLEncoder.encode(jwtUtil.generateJwtToken(member.getId(), member.getEmail()), StandardCharsets.UTF_8));
+                URLEncoder.encode(jwtUtil.generateJwtToken(member.getId(), member.getEmail(), member.getSubscription().getSubscriptionPlan()), StandardCharsets.UTF_8));
 
         String content = "<h1>이메일 인증</h1><p>아래 링크를 클릭하여 이메일을 인증하세요.</p>" +
                 "<a href=\"" + verificationLink + "\">이메일 인증하기</a>";

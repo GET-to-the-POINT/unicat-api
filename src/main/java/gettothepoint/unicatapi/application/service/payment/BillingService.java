@@ -35,19 +35,24 @@ public class BillingService {
         Map<String, Object> billingResponse = requestBillingKey(authKey, member.getEmail());
 
         String billingKey = (String) billingResponse.get("billingKey");
-//        String cardCompany = (String) billingResponse.get("cardCompany");
+        String cardCompany = (String) billingResponse.get("cardCompany");
 //        String cardNumber = (String) billingResponse.get("cardNumber");
 //        String method = (String) billingResponse.get("method");
 
-        Billing membersBilling = member.getBilling();
+        Billing membersBilling =billingRepository.findByMember(member).orElse(null);
         if (membersBilling != null) {
             membersBilling.setBillingKey(billingKey);
+            membersBilling.setCardCompany(cardCompany);
         } else {
             membersBilling = Billing.builder()
                     .member(member)
                     .billingKey(billingKey)
+                    .cardCompany(cardCompany)
                     .build();
         }
+
+        member.setBilling(membersBilling);
+
         billingRepository.save(membersBilling);
         memberService.update(member);
     }

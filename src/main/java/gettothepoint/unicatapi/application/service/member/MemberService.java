@@ -1,5 +1,6 @@
 package gettothepoint.unicatapi.application.service.member;
 
+import gettothepoint.unicatapi.domain.dto.member.MemberUpdateDto;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.entity.member.OAuthLink;
 import gettothepoint.unicatapi.domain.repository.MemberRepository;
@@ -20,13 +21,15 @@ public class MemberService {
     private final OAuthLinkRepository oAuthLinkRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public Member create(String email, String password) {
+    public Member create(String email, String password, String name, String phoneNumber) {
         if (email == null || password == null) {
             throw new IllegalArgumentException("Email and password must not be null");
         }
         Member member = Member.builder()
                 .email(email)
                 .password(password)
+                .name(name)
+                .phoneNumber(phoneNumber)
                 .build();
         return memberRepository.save(member);
     }
@@ -82,6 +85,20 @@ public class MemberService {
     }
 
     public void update(Member member) {
+        memberRepository.save(member);
+    }
+
+    public void updateMember(Long memberId, MemberUpdateDto dto) {
+        Member member = getOrElseThrow(memberId);
+        member.setName(dto.name());
+        member.setPhoneNumber(dto.phoneNumber());
+        memberRepository.save(member);
+    }
+    public void verifyEmail(String email) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member not found"));
+
+        member.verified();
         memberRepository.save(member);
     }
 }
