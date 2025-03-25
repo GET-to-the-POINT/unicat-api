@@ -25,7 +25,7 @@ public class AssetsController {
     @Operation(
             summary = "샘플 에셋 조회",
             description = """
-                숏폼 영상을 만들 때 사용할 수 있는 샘플 리소스를 조회합니다.  
+                숏폼 영상을 만들 때 사용할 수 있는 샘플 리소스를 조회합니다.
              
                 - voice: 텍스트를 음성으로 읽어주는 샘플 보이스 목록
                 - transition: 영상 전환 시 사용할 수 있는 효과음
@@ -38,7 +38,7 @@ public class AssetsController {
         return type == null ? assetService.get() : assetService.get(type);
     }
 
-    @GetMapping("/imageStyles")
+    @GetMapping("/image-styles")
     public ImageStyle[] getImageStyles() {
         return ImageStyle.values();
     }

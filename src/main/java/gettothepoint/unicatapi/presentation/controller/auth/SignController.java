@@ -1,10 +1,12 @@
 package gettothepoint.unicatapi.presentation.controller.auth;
 
+import gettothepoint.unicatapi.common.util.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ import gettothepoint.unicatapi.application.service.AuthService;
 public class SignController {
 
     private final AuthService authService;
+    private final JwtUtil jwtUtil;
 
     // -------------------------------------------------
     //                회원가입 (Sign-Up)
@@ -58,7 +61,9 @@ public class SignController {
             @Valid @RequestBody SignUpDto signUpDto,
             HttpServletResponse response
     ) {
-        authService.signUp(signUpDto, response);
+        String jwtToken = authService.signUp(signUpDto);
+        Cookie jwtCookie = jwtUtil.createJwtCookie(jwtToken);
+        response.addCookie(jwtCookie);
     }
 
     @PostMapping(value = "/sign-up", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
@@ -67,7 +72,9 @@ public class SignController {
             @Valid @ModelAttribute SignUpDto signUpDto,
             HttpServletResponse response
     ) {
-        authService.signUp(signUpDto, response);
+        String jwtToken = authService.signUp(signUpDto);
+        Cookie jwtCookie = jwtUtil.createJwtCookie(jwtToken);
+        response.addCookie(jwtCookie);
     }
 
     // -------------------------------------------------
@@ -106,7 +113,9 @@ public class SignController {
             @Valid @RequestBody SignInDto signInDto,
             HttpServletResponse response
     ) {
-        authService.signIn(signInDto, response);
+        String jwtToken = authService.signIn(signInDto);
+        Cookie jwtCookie = jwtUtil.createJwtCookie(jwtToken);
+        response.addCookie(jwtCookie);
     }
 
     @PostMapping(value = "/sign-in", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
@@ -115,8 +124,9 @@ public class SignController {
             @Valid @ModelAttribute SignInDto signInDto,
             HttpServletResponse response
     ) {
-        authService.signIn(signInDto, response);
-    }
+        String jwtToken = authService.signIn(signInDto);
+        Cookie jwtCookie = jwtUtil.createJwtCookie(jwtToken);
+        response.addCookie(jwtCookie);    }
 
     // -------------------------------------------------
     //                사인아웃 (Sign-Out)

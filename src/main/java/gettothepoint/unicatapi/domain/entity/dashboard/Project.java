@@ -23,6 +23,7 @@ public class Project extends BaseEntity {
     private String title;
     private String subtitle;
     private String description;
+    @Setter
     private String thumbnailUrl;
     @Setter
     private String artifactUrl;

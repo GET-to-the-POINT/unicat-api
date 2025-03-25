@@ -53,6 +53,15 @@ public class ArtifactService {
         }
         sectionResponses = sectionService.getAll(projectId);
 
+        // thumbnail standby and upload
+        String thumbnailTargetUrl = sectionResponses.getFirst().resourceUrl();
+        File thumbnailTarget = storageService.download(thumbnailTargetUrl);
+        File thumbnail = mediaService.extractThumbnail(thumbnailTarget);
+        String thumbnailUrl = storageService.upload(thumbnail);
+        project.setThumbnailUrl(thumbnailUrl);
+
+
+
         // project build standby
         List<String> sectionVideoUrls = sectionResponses.stream()
                 .map(SectionResponse::videoUrl)
@@ -68,6 +77,7 @@ public class ArtifactService {
 
         return projectService.update(project);
     }
+
 
     private void sectionBuildAndUpload(Long sectionId) {
         Section section = sectionService.getOrElseThrow(sectionId);
@@ -108,12 +118,12 @@ public class ArtifactService {
     }
 
     private void uploadSocial(Project project, String type, OAuth2AccessToken accessToken) {
-        try {
-            if ("youtube".equalsIgnoreCase(type)) {
-                youtubeUploadService.uploadToYoutube(project, accessToken);
-            }
-        } catch (IOException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to upload artifact", e);
+        if ("youtube".equalsIgnoreCase(type)) {
+
+            youtubeUploadService.uploadToYoutube(project, accessToken)
+                    .exceptionally(ex -> {
+                        return null;
+                    });
         }
     }
 

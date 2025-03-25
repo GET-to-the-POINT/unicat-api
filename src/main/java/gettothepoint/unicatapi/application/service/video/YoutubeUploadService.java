@@ -11,12 +11,13 @@ import gettothepoint.unicatapi.domain.entity.dashboard.Project;
 import gettothepoint.unicatapi.infrastructure.security.youtube.YoutubeOAuth2Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Service
@@ -26,7 +27,9 @@ public class YoutubeUploadService {
     private final YoutubeOAuth2Service youtubeoAuth2Service;
     private final StorageService storageService;
 
-    public Video uploadToYoutube(Project project, OAuth2AccessToken accessToken) throws IOException {
+    @Async
+    public CompletableFuture<Void> uploadToYoutube(Project project, OAuth2AccessToken accessToken) {
+        try {
             File video = storageService.download(project.getArtifactUrl());
             YouTube youtubeService = youtubeoAuth2Service.getYouTubeService(accessToken);
             Video youtubeVideo = new Video();
@@ -37,13 +40,16 @@ public class YoutubeUploadService {
             youtubeVideo.setSnippet(snippet);
 
             VideoStatus status = new VideoStatus();
-            status.setPrivacyStatus("public"); // TODO, 변수로 받게 변경 필요
+            status.setPrivacyStatus("public");
             youtubeVideo.setStatus(status);
 
             FileContent mediaContent = new FileContent("video/*", video);
-            Insert request = youtubeService.videos()
-                    .insert(List.of("snippet", "status"), youtubeVideo, mediaContent);
+            Insert request = youtubeService.videos().insert(List.of("snippet", "status"), youtubeVideo, mediaContent);
+            request.execute();
 
-            return request.execute();
+            return CompletableFuture.completedFuture(null);
+        } catch (Exception e) {
+            return CompletableFuture.failedFuture(e);
+        }
     }
 }

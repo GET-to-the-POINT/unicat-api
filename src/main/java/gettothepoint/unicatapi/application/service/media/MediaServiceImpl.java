@@ -145,7 +145,7 @@ public class MediaServiceImpl implements MediaService {
         double totalSec = totalMs / 1000.0;
 
         // transition 사운드
-        File transitionSound = loadTransitionSoundFile(".mp3");
+        File transitionSound = loadTransitionSoundFile();
 
         List<String> command = new ArrayList<>();
         command.add(ffmpegPath);
@@ -188,10 +188,10 @@ public class MediaServiceImpl implements MediaService {
         return outputFile;
     }
 
-    private File loadTransitionSoundFile(String extension) {
+    private File loadTransitionSoundFile() {
         try {
             ClassPathResource resource = new ClassPathResource(TRANSITION_AUDIO_CLASSPATH);
-            File tempFile = File.createTempFile(TRANSITION_AUDIO_PREFIX, extension);
+            File tempFile = File.createTempFile(TRANSITION_AUDIO_PREFIX, ".mp3");
             try (InputStream in = resource.getInputStream();
                  OutputStream out = new FileOutputStream(tempFile)) {
                 in.transferTo(out);
@@ -239,4 +239,24 @@ public class MediaServiceImpl implements MediaService {
             throw new MediaProcessingException("비디오 길이 가져오기 실패", e);
         }
     }
+
+    public File extractThumbnail(File file) {
+        if (MediaValidationUtil.hasValidImageExtension(file.getName())) {
+            return file;
+        }
+        File outputImage = FileUtil.createTempFile("thumbnail_", ".jpg");
+
+        List<String> command = List.of(
+                ffmpegPath,
+                "-i", file.getAbsolutePath(),
+                "-ss", "00:00:00.000",
+                "-vframes", "1",
+                "-q:v", "2",
+                outputImage.getAbsolutePath()
+        );
+
+        executeFfmpegCommand(new ProcessBuilder(command));
+        return outputImage;
+    }
+
 }

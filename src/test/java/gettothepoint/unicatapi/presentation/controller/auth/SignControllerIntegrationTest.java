@@ -17,7 +17,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -42,11 +41,13 @@ class SignControllerIntegrationTest {
     class SignUpIntegrationTests {
         private static final String TEST_EMAIL = "integration@example.com";
         private static final String VALID_PASSWORD = "ValidPass123!";
+        private static final String TEST_NAME = "test-user";
+        private static final String TEST_PHONE_NUMBER = "01012345678";
 
         @Test
         @DisplayName("정상 회원가입 요청 - 201 Created")
         void signUpWithValidData() throws Exception {
-            SignUpDto request = new SignUpDto(TEST_EMAIL, VALID_PASSWORD, VALID_PASSWORD);
+            SignUpDto request = new SignUpDto(TEST_EMAIL, VALID_PASSWORD, VALID_PASSWORD, TEST_NAME, TEST_PHONE_NUMBER);
 
             mockMvc.perform(post("/auth/sign-up")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -59,13 +60,13 @@ class SignControllerIntegrationTest {
         @DisplayName("중복 이메일 회원가입 - 400 BadRequest")
         void signUpWithDuplicateEmail() throws Exception {
             // 첫 번째 회원가입 요청
-            SignUpDto initialRequest = new SignUpDto(TEST_EMAIL, VALID_PASSWORD, VALID_PASSWORD);
+            SignUpDto initialRequest = new SignUpDto(TEST_EMAIL, VALID_PASSWORD, VALID_PASSWORD,TEST_NAME, TEST_PHONE_NUMBER);
             mockMvc.perform(post("/auth/sign-up")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(initialRequest)));
 
             // 중복 이메일 요청
-            SignUpDto duplicateRequest = new SignUpDto(TEST_EMAIL, "DifferentPass123!", "DifferentPass123!");
+            SignUpDto duplicateRequest = new SignUpDto(TEST_EMAIL, "DifferentPass123!", "DifferentPass123!", TEST_NAME, TEST_PHONE_NUMBER);
             mockMvc.perform(post("/auth/sign-up")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(duplicateRequest)))
@@ -75,7 +76,7 @@ class SignControllerIntegrationTest {
         @Test
         @DisplayName("유효성 검증 실패 - 400 BadRequest")
         void signUpWithInvalidData() throws Exception {
-            SignUpDto invalidRequest = new SignUpDto("invalid-email", "short", "mismatch");
+            SignUpDto invalidRequest = new SignUpDto("invalid-email", "short", "mismatch", TEST_NAME, TEST_PHONE_NUMBER);
 
             mockMvc.perform(post("/auth/sign-up")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -90,11 +91,13 @@ class SignControllerIntegrationTest {
     class SignInIntegrationTests {
         private static final String TEST_EMAIL = "login@example.com";
         private static final String VALID_PASSWORD = "SecurePass123!";
+        private static final String TEST_NAME = "test-user";
+        private static final String TEST_PHONE_NUMBER = "01012345678";
 
         @BeforeEach
         void setUp() throws Exception {
             // 테스트 사용자 생성
-            SignUpDto signUpRequest = new SignUpDto(TEST_EMAIL, VALID_PASSWORD, VALID_PASSWORD);
+            SignUpDto signUpRequest = new SignUpDto(TEST_EMAIL, VALID_PASSWORD, VALID_PASSWORD,TEST_NAME, TEST_PHONE_NUMBER);
             mockMvc.perform(post("/auth/sign-up")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(signUpRequest)));
@@ -146,7 +149,7 @@ class SignControllerIntegrationTest {
         @DisplayName("비밀번호 암호화 검증")
         void passwordEncryptionTest() throws Exception {
             String rawPassword = "OriginalPass123!";
-            SignUpDto signUpRequest = new SignUpDto("encrypt@example.com", rawPassword, rawPassword);
+            SignUpDto signUpRequest = new SignUpDto("encrypt@example.com", rawPassword, rawPassword, "test-user", "01012345678");
 
             // 회원가입 요청
             mockMvc.perform(post("/auth/sign-up")

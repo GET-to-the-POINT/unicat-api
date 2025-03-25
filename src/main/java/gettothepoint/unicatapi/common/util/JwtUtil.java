@@ -1,8 +1,8 @@
 package gettothepoint.unicatapi.common.util;
 
 import gettothepoint.unicatapi.common.propertie.AppProperties;
+import gettothepoint.unicatapi.domain.constant.payment.SubscriptionPlan;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.jwt.*;
@@ -20,12 +20,7 @@ public class JwtUtil {
     private final JwtEncoder jwtEncoder;
     private final JwtDecoder jwtDecoder;
 
-    public void addJwtCookie(HttpServletResponse response, String token) {
-        Cookie jwtCookie = this.createJwtCookie(token);
-        response.addCookie(jwtCookie);
-    }
-
-    private Cookie createJwtCookie(String token) {
+    public Cookie createJwtCookie(String token) {
         Cookie jwtCookie = new Cookie(appProperties.jwt().cookie().name(), token);
         jwtCookie.setDomain(appProperties.jwt().cookie().domain());
         jwtCookie.setPath(appProperties.jwt().cookie().path());
@@ -36,18 +31,18 @@ public class JwtUtil {
         return jwtCookie;
     }
 
-    public void removeJwtCookie(HttpServletResponse response) {
+    public Cookie removeJwtCookie() {
         Cookie jwtCookie = this.createJwtCookie("");
         jwtCookie.setMaxAge(0);
-        response.addCookie(jwtCookie);
+        return jwtCookie;
     }
 
-    public String generateJwtToken(Long memberId, String email) {
+    public String generateJwtToken(Long memberId, String email, SubscriptionPlan subscription) {
         Instant now = Instant.now();
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .subject(memberId.toString())
                 .claim("email", email)
-                .claim("scope", "all")
+                .claim("subscription", subscription.name())
                 .issuedAt(now)
                 .expiresAt(now.plus(appProperties.jwt().cookie().maxAge(), ChronoUnit.SECONDS))
                 .build();
@@ -62,7 +57,16 @@ public class JwtUtil {
         return jwtEncoder.encode(parameters).getTokenValue();
     }
 
-    public String getEmailFromToken(String token) {
+    public Long getMemberId(String token) {
+        try {
+            Jwt decodedJwt = jwtDecoder.decode(token);
+            return Long.parseLong(decodedJwt.getSubject());
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다.");
+        }
+    }
+
+    public String getEmail(String token) {
         try {
             Jwt decodedJwt = jwtDecoder.decode(token);
             return decodedJwt.getClaim("email");
