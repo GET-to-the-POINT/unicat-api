@@ -28,15 +28,15 @@ public class PasswordController {
     public void resetPasswordForLoggedInUser(
             @AuthenticationPrincipal Jwt jwt,
             @Valid @RequestBody AuthorizedChangePasswordRequest request) {
-        String email = jwt.getClaim("email");
-        memberService.updatePassword(email, request.newPassword());
+        Long memberId = Long.parseLong(jwt.getSubject());
+        memberService.updatePassword(memberId, request.newPassword());
     }
 
     @PatchMapping("/anonymous/password")
     public void resetPasswordForNonLoggedInUser(
             @Valid @RequestBody AnonymousChangePasswordRequest request) {
-        String email = jwtUtil.getEmailFromToken(request.token());
-        memberService.updatePassword(email, request.newPassword());
+        Long memberId = jwtUtil.getMemberId(request.token());
+        memberService.updatePassword(memberId, request.newPassword());
     }
 
     @PostMapping("/anonymous/password")

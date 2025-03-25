@@ -1,5 +1,6 @@
 package gettothepoint.unicatapi.infrastructure.security.oauth2.resourceserver;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,8 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
-        jwtUtil.removeJwtCookie(response);
+        Cookie jwtCookie = jwtUtil.removeJwtCookie();
+        response.addCookie(jwtCookie);
         String errorMessage = messageSource.getMessage("error.jwt.invalid", null, "", request.getLocale());
         response.sendError(HttpServletResponse.SC_UNAUTHORIZED, errorMessage);
     }

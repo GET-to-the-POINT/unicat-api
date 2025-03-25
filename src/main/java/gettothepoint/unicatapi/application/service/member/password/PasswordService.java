@@ -20,7 +20,7 @@ public class PasswordService {
 
     public void sendResetEmail(String email, String url) {
         try {
-            Member member = memberService.findByEmail(email);
+            Member member = memberService.getOrElseThrow(email);
             String token = jwtUtil.generateJwtToken(member.getId(), email, member.getSubscription().getSubscriptionPlan());
             String href = String.format("%stoken=%s", url, token);
 
