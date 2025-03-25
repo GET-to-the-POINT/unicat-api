@@ -86,18 +86,20 @@ public class ArtifactService {
         // video standby & build
         Project project = section.getProject();
         File templateResource = storageService.download(project.getTemplateUrl());
+        File contentResource = storageService.download(resourceUrl);
+        File audioResource = storageService.download(audioUrl);
 
         File titleResource = null;
         if (project.getTitleUrl() != null && !project.getTitleUrl().isBlank()) {
             titleResource = storageService.download(project.getTitleUrl());
         }
 
-//        File titleResource = storageService.download(project.getTitleUrl());
-
-        File contentResource = storageService.download(resourceUrl);
-        File audioResource = storageService.download(audioUrl);
-
-        File sectionVideoFile = mediaService.mergeImageAndAudio(templateResource, contentResource, audioResource);
+        File sectionVideoFile;
+        if (titleResource != null) {
+            sectionVideoFile = mediaService.mergeImageAndAudio(templateResource, contentResource, titleResource, audioResource);
+        } else {
+            sectionVideoFile = mediaService.mergeImageAndAudio(templateResource, contentResource, audioResource);
+        }
 
         // video upload process
         String sectionVideoUrl = storageService.upload(sectionVideoFile);
