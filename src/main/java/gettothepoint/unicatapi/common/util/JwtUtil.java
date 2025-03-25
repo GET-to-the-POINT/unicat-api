@@ -20,8 +20,8 @@ public class JwtUtil {
     private final JwtEncoder jwtEncoder;
     private final JwtDecoder jwtDecoder;
 
-    public Cookie createJwtCookie(String token) {
-        Cookie jwtCookie = new Cookie(appProperties.jwt().cookie().name(), token);
+    public Cookie createJwtCookie(String jwtToken) {
+        Cookie jwtCookie = new Cookie(appProperties.jwt().cookie().name(), jwtToken);
         jwtCookie.setDomain(appProperties.jwt().cookie().domain());
         jwtCookie.setPath(appProperties.jwt().cookie().path());
         jwtCookie.setSecure(appProperties.jwt().cookie().secure());
@@ -57,18 +57,18 @@ public class JwtUtil {
         return jwtEncoder.encode(parameters).getTokenValue();
     }
 
-    public Long getMemberId(String token) {
+    public Long getMemberId(String jwtToken) {
         try {
-            Jwt decodedJwt = jwtDecoder.decode(token);
+            Jwt decodedJwt = jwtDecoder.decode(jwtToken);
             return Long.parseLong(decodedJwt.getSubject());
         } catch (JwtException | IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다.");
         }
     }
 
-    public String getEmail(String token) {
+    public String getEmail(String jwtToken) {
         try {
-            Jwt decodedJwt = jwtDecoder.decode(token);
+            Jwt decodedJwt = jwtDecoder.decode(jwtToken);
             return decodedJwt.getClaim("email");
         } catch (JwtException | IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다.");

@@ -142,6 +142,7 @@ public class SignController {
             }
     )
     public void signOut(HttpServletResponse response) {
-        authService.signOut(response);
+        Cookie jwtCookie = jwtUtil.removeJwtCookie();
+        response.addCookie(jwtCookie);
     }
 }

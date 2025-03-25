@@ -7,8 +7,6 @@ import gettothepoint.unicatapi.domain.dto.sign.SignInDto;
 import gettothepoint.unicatapi.domain.dto.sign.SignUpRequest;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.repository.MemberRepository;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -38,11 +36,6 @@ public class AuthService {
     public String signIn(SignInDto signInDto) {
         Member member = validateCredentials(signInDto.email(), signInDto.password());
         return generateAndAddJwtToken(member);
-    }
-
-    public void signOut(HttpServletResponse response) {
-        Cookie jwtCookie = jwtUtil.removeJwtCookie();
-        response.addCookie(jwtCookie);
     }
 
     private void validateEmail(String email) {
