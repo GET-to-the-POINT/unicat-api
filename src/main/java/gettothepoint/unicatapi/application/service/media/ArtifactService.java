@@ -86,16 +86,12 @@ public class ArtifactService {
         // video standby & build
         Project project = section.getProject();
         File templateResource = storageService.download(project.getTemplateUrl());
-
-        File titleResource = null;
-        if (project.getTitleUrl() != null && !project.getTitleUrl().isBlank()) {
-            titleResource = storageService.download(project.getTitleUrl());
-        }
-
-//        File titleResource = storageService.download(project.getTitleUrl());
-
         File contentResource = storageService.download(resourceUrl);
         File audioResource = storageService.download(audioUrl);
+
+        if (project.getTitleUrl() != null && !project.getTitleUrl().isBlank()) {
+            storageService.download(project.getTitleUrl());
+        }
 
         File sectionVideoFile = mediaService.mergeImageAndAudio(templateResource, contentResource, audioResource);
 

@@ -29,6 +29,7 @@ public class Section extends BaseEntity {
     @Setter private String resourceUrl;
     @Setter private String audioUrl;
     @Setter private String videoUrl;
+    @Setter private String tansitionUrl;
 
     @ManyToOne
     @JoinColumn
