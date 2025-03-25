@@ -147,7 +147,13 @@ public class SupabaseStorageServiceImpl extends AbstractStorageService {
 
     private void downloadToFile(String url, File targetFile) {
         try {
-            // Convert the string URL into a URL object via URI for proper parsing
+            if (!url.startsWith("http")) {
+                String baseUrl = appProperties.supabase().url();
+                String bucketUrlPrefix = "/storage/v1/object/";
+                String fixedPrefix = "public/assets/template/";
+                url = baseUrl + bucketUrlPrefix + fixedPrefix + url;
+            }
+
             URL downloadUrl = URI.create(url).toURL();
             HttpURLConnection connection = (HttpURLConnection) downloadUrl.openConnection();
             connection.setRequestMethod("GET");
@@ -156,7 +162,6 @@ public class SupabaseStorageServiceImpl extends AbstractStorageService {
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 try (InputStream inputStream = connection.getInputStream()) {
-                    // Use Files.copy to write the input stream to the target file
                     Files.copy(inputStream, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 }
             } else {
