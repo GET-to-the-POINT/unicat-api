@@ -5,6 +5,7 @@ import gettothepoint.unicatapi.application.service.payment.OrderService;
 import gettothepoint.unicatapi.application.service.payment.PaymentService;
 import gettothepoint.unicatapi.common.propertie.AppProperties;
 import gettothepoint.unicatapi.domain.constant.payment.SubscriptionPlan;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,10 @@ public class TossPaymentController {
     private final OrderService orderService;
     private final AppProperties appProperties;
 
+    @Operation(
+            summary = "정기 결제 승인",
+            description = "사용자의 빌링키를 저장하고 자동 결제 승인이 이루어집니다."
+    )
     @GetMapping("/approve")
     public void approveAutoPayment(
             @AuthenticationPrincipal Jwt jwt,

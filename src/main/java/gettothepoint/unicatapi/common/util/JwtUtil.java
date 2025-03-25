@@ -1,7 +1,6 @@
 package gettothepoint.unicatapi.common.util;
 
 import gettothepoint.unicatapi.common.propertie.AppProperties;
-import gettothepoint.unicatapi.domain.constant.payment.SubscriptionPlan;
 import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,8 +19,8 @@ public class JwtUtil {
     private final JwtEncoder jwtEncoder;
     private final JwtDecoder jwtDecoder;
 
-    public Cookie createJwtCookie(String token) {
-        Cookie jwtCookie = new Cookie(appProperties.jwt().cookie().name(), token);
+    public Cookie createJwtCookie(String jwtToken) {
+        Cookie jwtCookie = new Cookie(appProperties.jwt().cookie().name(), jwtToken);
         jwtCookie.setDomain(appProperties.jwt().cookie().domain());
         jwtCookie.setPath(appProperties.jwt().cookie().path());
         jwtCookie.setSecure(appProperties.jwt().cookie().secure());
@@ -37,12 +36,12 @@ public class JwtUtil {
         return jwtCookie;
     }
 
-    public String generateJwtToken(Long memberId, String email, SubscriptionPlan subscription) {
+    public String generateJwtToken(Long memberId, String email, String plan) {
         Instant now = Instant.now();
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .subject(memberId.toString())
                 .claim("email", email)
-                .claim("subscription", subscription.name())
+                .claim("plan", plan)
                 .issuedAt(now)
                 .expiresAt(now.plus(appProperties.jwt().cookie().maxAge(), ChronoUnit.SECONDS))
                 .build();
@@ -57,18 +56,18 @@ public class JwtUtil {
         return jwtEncoder.encode(parameters).getTokenValue();
     }
 
-    public Long getMemberId(String token) {
+    public Long getMemberId(String jwtToken) {
         try {
-            Jwt decodedJwt = jwtDecoder.decode(token);
+            Jwt decodedJwt = jwtDecoder.decode(jwtToken);
             return Long.parseLong(decodedJwt.getSubject());
         } catch (JwtException | IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다.");
         }
     }
 
-    public String getEmail(String token) {
+    public String getEmail(String jwtToken) {
         try {
-            Jwt decodedJwt = jwtDecoder.decode(token);
+            Jwt decodedJwt = jwtDecoder.decode(jwtToken);
             return decodedJwt.getClaim("email");
         } catch (JwtException | IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다.");

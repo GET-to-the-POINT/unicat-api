@@ -8,7 +8,7 @@ import lombok.extern.jackson.Jacksonized;
 @Schema(description = "사용자 사인인을 위한 데이터 DTO")
 @Builder
 @Jacksonized
-public record SignInDto(
+public record SignInRequest(
         @NotBlank(message = "{email.required}")
         @Schema(description = "사용자 이메일", example = "user@example.com")
         String email,
