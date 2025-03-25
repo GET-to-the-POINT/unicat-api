@@ -31,6 +31,10 @@ public class SubscriptionController {
         orderService.create(email, SubscriptionPlan.PREMIUM);
     }
 
+    @Operation(
+            summary = "구독 취소",
+            description = "구독 취소하면 다음달 사용자의 정기결제가 이루어지지 않습니다. "
+    )
     @DeleteMapping
     public void delete(@AuthenticationPrincipal Jwt jwt) {
         Long memberId = Long.valueOf(jwt.getSubject());
