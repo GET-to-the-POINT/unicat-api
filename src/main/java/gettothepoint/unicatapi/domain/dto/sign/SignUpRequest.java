@@ -15,7 +15,7 @@ import lombok.extern.jackson.Jacksonized;
 @Builder
 @FieldComparison(message = "패스워드와 확인 패스워드가 일치하지 않습니다.")
 @Jacksonized
-public record SignUpDto(
+public record SignUpRequest(
         @NotBlank(message = "{email.required}")
         @Schema(description = "사용자 이메일", example = "user@example.com")
         @Email(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$", message = "{email.valid}")
