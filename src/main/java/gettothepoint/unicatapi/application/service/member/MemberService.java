@@ -22,9 +22,6 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
 
     public Member create(String email, String password, String name, String phoneNumber) {
-        if (email == null || password == null) {
-            throw new IllegalArgumentException("Email and password must not be null");
-        }
         Member member = Member.builder()
                 .email(email)
                 .password(password)

@@ -16,7 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import gettothepoint.unicatapi.common.schema.ErrorResponse;
 import gettothepoint.unicatapi.common.schema.UnauthorizedErrorResponse;
-import gettothepoint.unicatapi.domain.dto.sign.SignInDto;
+import gettothepoint.unicatapi.domain.dto.sign.SignInRequest;
 import gettothepoint.unicatapi.application.service.AuthService;
 
 @RestController
@@ -110,10 +110,10 @@ public class SignController {
 
 
     public void signInJson(
-            @Valid @RequestBody SignInDto signInDto,
+            @Valid @RequestBody SignInRequest signInRequest,
             HttpServletResponse response
     ) {
-        String jwtToken = authService.signIn(signInDto);
+        String jwtToken = authService.signIn(signInRequest);
         Cookie jwtCookie = jwtUtil.createJwtCookie(jwtToken);
         response.addCookie(jwtCookie);
     }
@@ -121,10 +121,10 @@ public class SignController {
     @PostMapping(value = "/sign-in", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public void signInForm(
-            @Valid @ModelAttribute SignInDto signInDto,
+            @Valid @ModelAttribute SignInRequest signInRequest,
             HttpServletResponse response
     ) {
-        String jwtToken = authService.signIn(signInDto);
+        String jwtToken = authService.signIn(signInRequest);
         Cookie jwtCookie = jwtUtil.createJwtCookie(jwtToken);
         response.addCookie(jwtCookie);    }
 

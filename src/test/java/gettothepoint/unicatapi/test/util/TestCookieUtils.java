@@ -1,12 +1,11 @@
 package gettothepoint.unicatapi.test.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import gettothepoint.unicatapi.domain.dto.sign.SignInDto;
+import gettothepoint.unicatapi.domain.dto.sign.SignInRequest;
 import jakarta.servlet.http.Cookie;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.stereotype.Component;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
@@ -29,11 +28,11 @@ public class TestCookieUtils {
      * @throws Exception 로그인 요청 실패 시
      */
     public Cookie getJwtCookie(String email, String password) throws Exception {
-        SignInDto signInDto = new SignInDto(email, password);
+        SignInRequest signInRequest = new SignInRequest(email, password);
 
         MockHttpServletRequestBuilder request = post("/sign-in")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(signInDto));
+                .content(objectMapper.writeValueAsString(signInRequest));
 
         MockHttpServletResponse response = mockMvc.perform(request)
                 .andReturn()
