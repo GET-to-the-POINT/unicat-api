@@ -51,6 +51,8 @@ public class MemberService {
                     .email(email)
                     .password("{noop}oauth2user")
                     .build();
+
+            newMember.verified();
             memberRepository.save(newMember);
 
             OAuthLink oAuthLink = OAuthLink.builder()
