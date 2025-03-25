@@ -22,4 +22,10 @@ public class Plan extends BaseEntity {
     private String description;
 
     private String price;
+
+    private Long aiImageCount;
+
+    private Long aiScriptCount;
+
+    private Long artifactCount;
 }
