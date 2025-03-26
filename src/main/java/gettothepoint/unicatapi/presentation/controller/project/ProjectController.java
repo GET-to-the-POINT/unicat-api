@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
@@ -37,13 +36,11 @@ public class ProjectController {
         return projectService.getAll(pageable);
     }
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping()
     public ProjectResponse create(@AuthenticationPrincipal Jwt jwt) {
         Long memberId = Long.valueOf(jwt.getSubject());
         return projectService.create(memberId);
     }
-
-
 
     @GetMapping("/{projectId}")
     public ProjectResponse get(@PathVariable Long projectId) {
@@ -52,15 +49,17 @@ public class ProjectController {
 
     @PostMapping("/{projectId}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void createArtifact(@PathVariable("projectId") Long projectId,
-                               @RequestParam(name = "type", required = false, defaultValue = "artifact") String type, @Parameter(hidden = true) @RegisteredOAuth2AuthorizedClient("google") OAuth2AuthorizedClient authorizedClient) {
+    public void createArtifact(
+            @PathVariable("projectId") Long projectId,
+            @RequestParam(name = "type", required = false, defaultValue = "artifact") String type,
+            @Parameter(hidden = true) @RegisteredOAuth2AuthorizedClient("google") OAuth2AuthorizedClient authorizedClient
+    ) {
         switch (type) {
-            case "youtube", "vimeo":
+            case "youtube", "vimeo" -> {
                 OAuth2AccessToken accessToken = authorizedClient.getAccessToken();
-                artifactService.build(projectId, type, accessToken);
-                return;
-            default:
-                artifactService.build(projectId);
+                artifactService.buildAsync(projectId, type, accessToken);
+            }
+            default -> artifactService.buildAsync(projectId, "artifact", null);
         }
     }
 

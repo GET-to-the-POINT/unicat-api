@@ -9,12 +9,13 @@ import gettothepoint.unicatapi.domain.dto.project.SectionResponse;
 import gettothepoint.unicatapi.domain.entity.dashboard.Project;
 import gettothepoint.unicatapi.domain.entity.dashboard.Section;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @RequiredArgsConstructor
 @Service
@@ -41,6 +42,13 @@ public class ArtifactService {
         }
     }
 
+    @Async
+    public CompletableFuture<Void> buildAsync(Long projectId, String type, OAuth2AccessToken accessToken) {
+        this.build(projectId, type, accessToken);
+        return CompletableFuture.completedFuture(null);
+    }
+
+
     private Project buildAndUpdate(Long projectId) {
         Project project = projectService.getOrElseThrow(projectId);
         List<SectionResponse> sectionResponses = sectionService.getAll(projectId);
@@ -57,7 +65,6 @@ public class ArtifactService {
         File thumbnail = mediaService.extractThumbnail(thumbnailTarget);
         String thumbnailUrl = storageService.upload(thumbnail);
         project.setThumbnailUrl(thumbnailUrl);
-
 
 
         // project build standby
@@ -79,12 +86,6 @@ public class ArtifactService {
 
     private void sectionBuildAndUpload(Long sectionId) {
         Section section = sectionService.getOrElseThrow(sectionId);
-
-        String sectionVideoUrl = section.getVideoUrl();
-        if (StringUtils.hasText(sectionVideoUrl)) {
-            storageService.download(sectionVideoUrl);
-            return; // 이미 업로드된 경우
-        }
 
         // resource standby
         String resourceUrl = section.getResourceUrl(); // 리소스는 프로세스상 사용자가 선행하여 업로드한다.(인공지능생성도 선행되어서 진해오딘다)
@@ -116,7 +117,7 @@ public class ArtifactService {
         }
 
         // video upload process
-        sectionVideoUrl = storageService.upload(sectionVideoFile);
+        String sectionVideoUrl = storageService.upload(sectionVideoFile);
         section.setVideoUrl(sectionVideoUrl);
         sectionService.update(section);
     }
