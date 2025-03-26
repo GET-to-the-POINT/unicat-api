@@ -1,13 +1,15 @@
 package gettothepoint.unicatapi.application.service;
 
+import gettothepoint.unicatapi.application.service.project.ProjectService;
+import gettothepoint.unicatapi.application.service.project.SectionService;
+import gettothepoint.unicatapi.application.service.project.UsageLimitService;
 import gettothepoint.unicatapi.application.service.storage.StorageService;
 import gettothepoint.unicatapi.common.propertie.AppProperties;
 import gettothepoint.unicatapi.common.util.MultipartFileUtil;
-import gettothepoint.unicatapi.domain.dto.project.*;
+import gettothepoint.unicatapi.domain.dto.project.CreateResourceResponse;
+import gettothepoint.unicatapi.domain.dto.project.PromptRequest;
+import gettothepoint.unicatapi.domain.entity.dashboard.Project;
 import gettothepoint.unicatapi.domain.entity.dashboard.Section;
-import gettothepoint.unicatapi.domain.repository.ProjectRepository;
-import gettothepoint.unicatapi.domain.repository.SectionRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.Prompt;
@@ -25,35 +27,31 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
 public class OpenAiService {
 
-    private final SectionRepository sectionRepository;
-    private final ProjectRepository projectRepository;
     private final AppProperties appProperties;
     private final RestTemplate restTemplate;
     private final StorageService storageService;
     private final OpenAiImageModel openAiImageModel;
-    private static final String SECTION_NOT_FOUND_MSG = "Section not found with id: ";
     private final OpenAiChatModel openAiChatModel;
+    private final UsageLimitService usageLimitService;
+    private final ProjectService projectService;
+    private final SectionService sectionService;
 
-    public CreateResourceResponse createScript(Long id, Long sectionId, PromptRequest request) {
+    public CreateResourceResponse createScript(Long projectId, Long sectionId, PromptRequest request) {
+        Project project = projectService.getOrElseThrow(projectId);
+        Section section = sectionService.getOrElseThrow(sectionId);
+        usageLimitService.incrementUsage(project.getMember().getId(), "script");
 
-        Section section = sectionRepository.findById(sectionId)
-                .orElseThrow(() -> new EntityNotFoundException(SECTION_NOT_FOUND_MSG + sectionId));
-
-        String tone = projectRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + id))
-                .getScriptTone();
-
+        String tone = project.getScriptTone();
         String scriptTone = (tone == null || tone.isBlank()) ? "default" : tone;
 
         CreateResourceResponse scriptResponse = generateScriptAI(scriptTone, request);
         section.setScript(scriptResponse.script());
-        sectionRepository.save(section);
+        sectionService.update(section);
 
         return scriptResponse;
 
@@ -73,33 +71,27 @@ public class OpenAiService {
 
         Prompt prompt = new Prompt(promptText, options);
 
-        String raw = ChatClient.create(openAiChatModel)
+        String script = ChatClient.create(openAiChatModel)
                         .prompt()
                         .user(prompt.getContents())
                         .call()
-                        .content();
-
-        String script = Optional.ofNullable(raw)
-                .map(s -> s.startsWith("\"") && s.endsWith("\"") ? s.substring(1, s.length() - 1) : s)
-                .orElse("");
+                        .entity(String.class);
 
         return new CreateResourceResponse(null, null, script);
     }
 
     public CreateResourceResponse createImage(Long projectId, Long sectionId, PromptRequest scriptRequest) {
+        Project project = projectService.getOrElseThrow(projectId);
+        Section section = sectionService.getOrElseThrow(sectionId);
+        usageLimitService.incrementUsage(project.getMember().getId(), "image");
 
-        sectionRepository.findById(sectionId)
-                .orElseThrow(() -> new EntityNotFoundException(SECTION_NOT_FOUND_MSG + sectionId));
-
-        String style = projectRepository.findById(projectId)
-                .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + projectId))
-                .getImageStyle();
-
+        String style = project.getImageStyle();
         String imageStyle = (style == null || style.isBlank()) ? "Photo" : style;
 
         CreateResourceResponse imageResponse = generateImageAI(imageStyle, scriptRequest);
+        saveImageToSection(section, imageResponse);
+        sectionService.update(section);
 
-        saveImageToSection(sectionId, imageResponse.imageUrl(), imageResponse.alt());
         return imageResponse;
     }
 
@@ -137,20 +129,15 @@ public class OpenAiService {
         return storageService.upload(multipartFile);
     }
 
-    private void saveImageToSection(Long sectionId, String imageUrl, String alt) {
-        Section section = sectionRepository.findById(sectionId)
-                .orElseThrow(() -> new EntityNotFoundException(SECTION_NOT_FOUND_MSG + sectionId));
+    private void saveImageToSection(Section section, CreateResourceResponse imageResponse) {
+        String imageUrl = imageResponse.imageUrl();
+        String alt = imageResponse.alt();
 
         section.setResourceUrl(imageUrl);
         section.setAlt(alt);
-        sectionRepository.save(section);
     }
 
-    public CreateResourceResponse createResource(Long projectId, Long sectionId, String type, PromptRequest promptRequest, String transitionUrl) {
-
-        String finalTransitionUrl = (transitionUrl != null && !transitionUrl.isBlank())
-                ? transitionUrl
-                : "https://your-default-transition-url.mp3";
+    public CreateResourceResponse createResource(Long projectId, Long sectionId, String type, PromptRequest promptRequest) {
 
         if ("image".equalsIgnoreCase(type)) {
            return createImage(projectId, sectionId, promptRequest);

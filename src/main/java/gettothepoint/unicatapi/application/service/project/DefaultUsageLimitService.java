@@ -49,6 +49,10 @@ public class DefaultUsageLimitService implements UsageLimitService {
                             plan, usageType, allowed, currentUsage)
             );
         }
+    }
+
+    @Override
+    public void incrementUsage(Long memberId, String usageType) {
         usageLimitRepository.incrementUsage(memberId, usageType);
     }
 }
