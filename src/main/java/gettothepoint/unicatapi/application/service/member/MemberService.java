@@ -1,5 +1,6 @@
 package gettothepoint.unicatapi.application.service.member;
 
+import gettothepoint.unicatapi.application.service.payment.SubscriptionService;
 import gettothepoint.unicatapi.domain.dto.member.MemberUpdateDto;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.entity.member.OAuthLink;
@@ -10,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Slf4j
@@ -20,7 +22,10 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final OAuthLinkRepository oAuthLinkRepository;
     private final PasswordEncoder passwordEncoder;
+    private final SubscriptionService subscriptionService;
 
+
+    @Transactional
     public Member create(String email, String password, String name, String phoneNumber) {
         Member member = Member.builder()
                 .email(email)
@@ -28,6 +33,8 @@ public class MemberService {
                 .name(name)
                 .phoneNumber(phoneNumber)
                 .build();
+
+        subscriptionService.createSubscription(member);
         return memberRepository.save(member);
     }
 
@@ -41,28 +48,31 @@ public class MemberService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "No user found with email: " + email));
     }
 
+    @Transactional
     public Member findOrCreateMember(String email, String registrationId) {
-        if (email == null || registrationId == null) {
-            throw new IllegalArgumentException("Email and registrationId must not be null");
-        }
-        return memberRepository.findByEmail(email).orElseGet(() -> {
-            Member newMember = Member.builder()
-                    .email(email)
-                    .password("{noop}oauth2user")
-                    .build();
+        return memberRepository.findByEmail(email)
+                .orElseGet(() -> {
 
-            newMember.verified();
-            memberRepository.save(newMember);
+                    Member newMember = Member.builder()
+                            .email(email)
+                            .password("{noop}oauth2user")
+                            .build();
+                    newMember.verified();
 
-            OAuthLink oAuthLink = OAuthLink.builder()
-                    .email(email)
-                    .provider(registrationId)
-                    .member(newMember)
-                    .build();
-            oAuthLinkRepository.save(oAuthLink);
+                    Member savedMember = memberRepository.save(newMember);
 
-            return newMember;
-        });
+                    oAuthLinkRepository.save(
+                            OAuthLink.builder()
+                                    .email(email)
+                                    .provider(registrationId)
+                                    .member(savedMember)
+                                    .build()
+                    );
+
+                    subscriptionService.createSubscription(savedMember);
+
+                    return savedMember;
+                });
     }
 
     public boolean isEmailTaken(String email) {
