@@ -34,7 +34,7 @@ public class BillingProcessingService {
         log.info("자동 결제 대상 Billing 수: {}", recurringList.size());
         for (Billing billing : recurringList) {
             Member member = billing.getMember();
-            Order order = orderService.create(member.getEmail(), member.getSubscription().getSubscriptionPlan());
+            Order order = orderService.create(member.getEmail(),member.getSubscription().getPlan());
             paymentService.approveAutoPayment(order, billing);
             log.info("자동 결제 처리 완료: 회원 {}", member.getEmail());
         }
@@ -52,7 +52,7 @@ public class BillingProcessingService {
         log.info("구독 만료 대상 Billing 수: {}", expiredList.size());
         for (Billing billing : expiredList) {
             Member member = billing.getMember();
-            subscriptionService.changeBasePlan(member);
+            subscriptionService.changeToBasicPlan(member);
             log.info("구독 BASIC 전환 완료: 회원 {}", member.getEmail());
         }
     }

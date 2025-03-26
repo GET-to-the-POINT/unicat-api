@@ -44,6 +44,7 @@ public class Member extends BaseEntity {
     private final List<Order> orders = new ArrayList<>();
 
     @OneToOne(cascade = CascadeType.ALL)
+    @Setter
     private Subscription subscription;
 
     @OneToOne
@@ -58,7 +59,6 @@ public class Member extends BaseEntity {
         this.password = password;
         this.name = name;
         this.phoneNumber = phoneNumber;
-        this.subscription = Subscription.builder().member(this).build();
     }
 
     public void verified() {
