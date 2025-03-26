@@ -24,7 +24,7 @@ public class MemberService {
     public Member create(String email, String password, String name, String phoneNumber) {
         Member member = Member.builder()
                 .email(email)
-                .password(password)
+                .password(passwordEncoder.encode(password))
                 .name(name)
                 .phoneNumber(phoneNumber)
                 .build();
