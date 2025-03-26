@@ -6,6 +6,7 @@ import gettothepoint.unicatapi.common.util.JwtUtil;
 import gettothepoint.unicatapi.domain.dto.sign.SignInRequest;
 import gettothepoint.unicatapi.domain.dto.sign.SignUpRequest;
 import gettothepoint.unicatapi.domain.entity.member.Member;
+import gettothepoint.unicatapi.domain.entity.payment.Plan;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -45,7 +46,11 @@ public class AuthService {
     }
 
     private String generateAndAddJwtToken(Member member) {
-        return jwtUtil.generateJwtToken(member.getId(), member.getEmail(), member.getSubscription().getSubscriptionPlan().name());
+        Plan currentPlan = member.getSubscription().getPlan();
+        if (currentPlan == null) {
+            throw new IllegalStateException("활성화된 플랜이 없습니다.");
+        }
+        return jwtUtil.generateJwtToken(member.getId(), member.getEmail(), currentPlan.getName());
     }
-
 }
+

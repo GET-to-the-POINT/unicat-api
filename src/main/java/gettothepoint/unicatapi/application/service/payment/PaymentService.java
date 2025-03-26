@@ -46,7 +46,7 @@ public class PaymentService {
         orderService.markAsDone(order);
         paymentRecordService.save(order, approvalResult);
         billingService.applyRecurring(billing); //recurring 갱신
-        subscriptionService.subscribe(order.getMember(), order.getSubscriptionPlan());
+        subscriptionService.subscribe(order.getMember(), order.getPlan());
 
         return approvalResult;
     }
