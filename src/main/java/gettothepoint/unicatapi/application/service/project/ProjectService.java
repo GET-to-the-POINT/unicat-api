@@ -48,21 +48,14 @@ public class ProjectService {
     }
 
     // 생성
-    public ProjectResponse create(Long memberId, String templateUrl, MultipartFile title) {
+    public ProjectResponse create(Long memberId) {
         Member member = memberService.getOrElseThrow(memberId);
+        String templateUrl = assetService.getDefaultTemplateUrl();
 
-        if (templateUrl == null || templateUrl.isBlank()) {
-            templateUrl = assetService.getDefaultTemplateUrl();
-        }
-
-        String titleUrl = null;
-        if (title != null && !title.isEmpty()) {
-            titleUrl = storageService.upload(title);
-        }
         Project project = Project.builder()
                 .member(member)
                 .templateUrl(templateUrl)
-                .titleUrl(titleUrl)
+                .titleUrl(null)
                 .build();
 
         projectRepository.save(project);
