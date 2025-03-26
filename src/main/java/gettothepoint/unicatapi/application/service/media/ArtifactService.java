@@ -9,14 +9,13 @@ import gettothepoint.unicatapi.domain.dto.project.SectionResponse;
 import gettothepoint.unicatapi.domain.entity.dashboard.Project;
 import gettothepoint.unicatapi.domain.entity.dashboard.Section;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @RequiredArgsConstructor
 @Service
@@ -43,6 +42,13 @@ public class ArtifactService {
         }
     }
 
+    @Async
+    public CompletableFuture<Void> buildAsync(Long projectId, String type, OAuth2AccessToken accessToken) {
+        this.build(projectId, type, accessToken);
+        return CompletableFuture.completedFuture(null);
+    }
+
+
     private Project buildAndUpdate(Long projectId) {
         Project project = projectService.getOrElseThrow(projectId);
         List<SectionResponse> sectionResponses = sectionService.getAll(projectId);
@@ -59,7 +65,6 @@ public class ArtifactService {
         File thumbnail = mediaService.extractThumbnail(thumbnailTarget);
         String thumbnailUrl = storageService.upload(thumbnail);
         project.setThumbnailUrl(thumbnailUrl);
-
 
 
         // project build standby
