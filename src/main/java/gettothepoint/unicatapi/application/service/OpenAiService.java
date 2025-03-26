@@ -146,7 +146,11 @@ public class OpenAiService {
         sectionRepository.save(section);
     }
 
-    public CreateResourceResponse createResource(Long projectId, Long sectionId, String type, PromptRequest promptRequest) {
+    public CreateResourceResponse createResource(Long projectId, Long sectionId, String type, PromptRequest promptRequest, String transitionUrl) {
+
+        String finalTransitionUrl = (transitionUrl != null && !transitionUrl.isBlank())
+                ? transitionUrl
+                : "https://your-default-transition-url.mp3";
 
         if ("image".equalsIgnoreCase(type)) {
            return createImage(projectId, sectionId, promptRequest);

@@ -41,9 +41,9 @@ public class CustomOAuth2AuthenticationSuccessHandler extends SimpleUrlAuthentic
         Cookie jwtCookie = jwtUtil.createJwtCookie(token);
         response.addCookie(jwtCookie);
 
-        String redirectUri = CookieUtil.getCookieValue(request, HttpCookieOAuth2AuthorizationRequestRepository.REDIRECT_URI)
+        String redirectUri = CookieUtil.getCookieValue(request, HttpCookieOAuth2AuthorizationRequestRepository.REDIRECT)
                 .orElse("/");
-        CookieUtil.deleteCookie(request, response, HttpCookieOAuth2AuthorizationRequestRepository.REDIRECT_URI);
+        CookieUtil.deleteCookie(request, response, HttpCookieOAuth2AuthorizationRequestRepository.REDIRECT);
 
         getRedirectStrategy().sendRedirect(request, response, redirectUri);
     }

@@ -27,7 +27,7 @@ public class AuthService {
 
     public String signUp(SignUpRequest signUpRequest) {
         Member member = memberService.create(signUpRequest.email(), signUpRequest.password(), signUpRequest.name(), signUpRequest.phoneNumber());
-        emailService.sendVerificationEmail(member);
+//        emailService.sendVerificationEmail(member);
         return generateAndAddJwtToken(member);
     }
 

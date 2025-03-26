@@ -21,7 +21,7 @@ import java.util.Base64;
 public class HttpCookieOAuth2AuthorizationRequestRepository implements AuthorizationRequestRepository<OAuth2AuthorizationRequest> {
 
     public static final String OAUTH2_AUTH_REQUEST = HttpCookieOAuth2AuthorizationRequestRepository.class.getName() + "oauth2_auth_request";
-    public static final String REDIRECT_URI = HttpCookieOAuth2AuthorizationRequestRepository.class.getName() + "redirect_uri";
+    public static final String REDIRECT = "redirect";
     private static final int COOKIE_EXPIRE_SECONDS = 180;
 
     @Override
@@ -38,15 +38,15 @@ public class HttpCookieOAuth2AuthorizationRequestRepository implements Authoriza
     public void saveAuthorizationRequest(OAuth2AuthorizationRequest authorizationRequest, HttpServletRequest request, HttpServletResponse response) {
         if (authorizationRequest == null) {
             CookieUtil.deleteCookie(request, response, OAUTH2_AUTH_REQUEST);
-            CookieUtil.deleteCookie(request, response, REDIRECT_URI);
+            CookieUtil.deleteCookie(request, response, REDIRECT);
             return;
         }
         String serializedAuthRequest = serialize(authorizationRequest);
         CookieUtil.addCookie(response, OAUTH2_AUTH_REQUEST, serializedAuthRequest, COOKIE_EXPIRE_SECONDS);
 
-        String redirectUriAfterSignIn = request.getParameter(REDIRECT_URI);
+        String redirectUriAfterSignIn = request.getParameter(REDIRECT);
         if (redirectUriAfterSignIn != null && !redirectUriAfterSignIn.isEmpty()) {
-            CookieUtil.addCookie(response, REDIRECT_URI, redirectUriAfterSignIn, COOKIE_EXPIRE_SECONDS);
+            CookieUtil.addCookie(response, REDIRECT, redirectUriAfterSignIn, COOKIE_EXPIRE_SECONDS);
         }
     }
 

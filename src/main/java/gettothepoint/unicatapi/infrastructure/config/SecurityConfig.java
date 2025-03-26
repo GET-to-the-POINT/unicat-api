@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -34,7 +35,7 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
@@ -45,6 +46,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/auth/sign-in", "/auth/sign-up").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/sign-out").permitAll()
                         .requestMatchers("/verification/email", "/verification/email/resend").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/members/email").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/members/anonymous/password").permitAll()
                         .requestMatchers(HttpMethod.POST, "/members/anonymous/password").permitAll()
                         .requestMatchers(HttpMethod.GET, "/project/**").permitAll()
