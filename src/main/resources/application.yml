@@ -35,9 +35,9 @@ spring:
           starttls:
             enable: ${SPRING_MAIL_STARTTLS_ENABLE:true}
             required: ${SPRING_MAIL_STARTTLS_REQUIRED:true}
-          connectiontimeout: ${SPRING_MAIL_CONNECTION_TIMEOUT:5000}
-          timeout: ${SPRING_MAIL_TIMEOUT:5000}
-          writetimeout: ${SPRING_MAIL_WRITE_TIMEOUT:5000}
+          connectiontimeout: ${SPRING_MAIL_CONNECTION_TIMEOUT:20000}
+          timeout: ${SPRING_MAIL_TIMEOUT:20000}
+          writetimeout: ${SPRING_MAIL_WRITE_TIMEOUT:20000}
   servlet:
     multipart:
       max-file-size: 50MB
