@@ -45,6 +45,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/auth/sign-in", "/auth/sign-up").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/sign-out").permitAll()
                         .requestMatchers("/verification/email", "/verification/email/resend").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/members/email").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/members/anonymous/password").permitAll()
                         .requestMatchers(HttpMethod.POST, "/members/anonymous/password").permitAll()
                         .requestMatchers(HttpMethod.GET, "/project/**").permitAll()
