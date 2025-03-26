@@ -23,6 +23,12 @@ public class Plan extends BaseEntity {
 
     private Long price;
 
+    private Long aiImageCount;
+
+    private Long aiScriptCount;
+
+    private Long artifactCount;
+
     @OneToMany(mappedBy = "plan")
     private List<Subscription> subscription;
 
