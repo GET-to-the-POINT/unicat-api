@@ -70,6 +70,39 @@ public class MediaServiceImpl implements MediaService {
         return outputFile;
     }
 
+
+
+    @Override
+    public File mergeImageAndAudio(File templateResource, File contentResource, File audioResource) {
+
+        File outputFile = FileUtil.createTempFile(FILE_PREFIX + "merged_with_bg_", ".mp4");
+        double duration = getAudioDurationInSeconds(audioResource);
+
+        String filter =
+                "[1:v]scale='if(gt(iw,1080),1080,iw)':'-1'," +
+                        "crop='if(gt(in_w,1080),1080,in_w)':'if(gt(in_h,1080),1080,in_h)',setsar=1[content];" +
+                        "[0:v][content]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2[tmp];";
+
+        List<String> command = List.of(
+                ffmpegPath,
+                "-stream_loop", "-1", "-i", templateResource.getAbsolutePath(),
+                "-loop", "1", "-i", contentResource.getAbsolutePath(),
+                "-i", audioResource.getAbsolutePath(),
+                "-filter_complex", filter,
+                "-map", "[tmp]",
+                "-map", "2:a",
+                "-t", String.valueOf(duration),
+                "-r", "30", "-c:v", VIDEO_CODEC, "-tune", "stillimage",
+                "-c:a", "aac", "-b:a", "192k", "-pix_fmt", "yuv420p",
+                "-shortest", "-y", outputFile.getAbsolutePath()
+        );
+        executeFfmpegCommand(new ProcessBuilder(command));
+        return outputFile;
+    }
+
+
+
+
     @Override
     public File mergeImageAndAudio(File templateResource, File contentResource, File titleResource, File audioResource) {
 
@@ -112,7 +145,7 @@ public class MediaServiceImpl implements MediaService {
         double totalSec = totalMs / 1000.0;
 
         // transition 사운드
-        File transitionSound = loadTransitionSoundFile(".mp3");
+        File transitionSound = loadTransitionSoundFile();
 
         List<String> command = new ArrayList<>();
         command.add(ffmpegPath);
@@ -155,10 +188,10 @@ public class MediaServiceImpl implements MediaService {
         return outputFile;
     }
 
-    private File loadTransitionSoundFile(String extension) {
+    private File loadTransitionSoundFile() {
         try {
             ClassPathResource resource = new ClassPathResource(TRANSITION_AUDIO_CLASSPATH);
-            File tempFile = File.createTempFile(TRANSITION_AUDIO_PREFIX, extension);
+            File tempFile = File.createTempFile(TRANSITION_AUDIO_PREFIX, ".mp3");
             try (InputStream in = resource.getInputStream();
                  OutputStream out = new FileOutputStream(tempFile)) {
                 in.transferTo(out);
@@ -206,4 +239,24 @@ public class MediaServiceImpl implements MediaService {
             throw new MediaProcessingException("비디오 길이 가져오기 실패", e);
         }
     }
+
+    public File extractThumbnail(File file) {
+        if (MediaValidationUtil.hasValidImageExtension(file.getName())) {
+            return file;
+        }
+        File outputImage = FileUtil.createTempFile("thumbnail_", ".jpg");
+
+        List<String> command = List.of(
+                ffmpegPath,
+                "-i", file.getAbsolutePath(),
+                "-ss", "00:00:00.000",
+                "-vframes", "1",
+                "-q:v", "2",
+                outputImage.getAbsolutePath()
+        );
+
+        executeFfmpegCommand(new ProcessBuilder(command));
+        return outputImage;
+    }
+
 }

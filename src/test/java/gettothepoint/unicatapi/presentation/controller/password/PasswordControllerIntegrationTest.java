@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import gettothepoint.unicatapi.domain.dto.password.AnonymousChangePasswordRequest;
 import gettothepoint.unicatapi.domain.dto.password.AuthorizedChangePasswordRequest;
 import gettothepoint.unicatapi.domain.dto.password.PasswordResetEmailRequest;
-import gettothepoint.unicatapi.domain.dto.sign.SignUpDto;
+import gettothepoint.unicatapi.domain.dto.sign.SignUpRequest;
 import gettothepoint.unicatapi.test.config.TestDummyEmailServiceConfiguration;
 import gettothepoint.unicatapi.test.config.TestDummyTextToSpeechConfiguration;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,7 +19,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 
@@ -54,7 +53,7 @@ class PasswordControllerIntegrationTest {
 
     private String signUp() throws Exception {
         String testPassword = "ValidPass123!";
-        SignUpDto signUpRequest = SignUpDto.builder()
+        SignUpRequest signUpRequest = SignUpRequest.builder()
                 .email(testEmail)
                 .password(testPassword)
                 .confirmPassword(testPassword)

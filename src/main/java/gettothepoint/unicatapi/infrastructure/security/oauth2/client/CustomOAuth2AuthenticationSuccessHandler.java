@@ -7,6 +7,7 @@ import gettothepoint.unicatapi.domain.entity.payment.Subscription;
 import gettothepoint.unicatapi.domain.repository.MemberRepository;
 import gettothepoint.unicatapi.infrastructure.security.oauth2.client.authorizedclient.HttpCookieOAuth2AuthorizationRequestRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -36,12 +37,13 @@ public class CustomOAuth2AuthenticationSuccessHandler extends SimpleUrlAuthentic
         Subscription subscription = member.getSubscription();
         String email = oAuth2User.getAttribute("email");
 
-        String token = jwtUtil.generateJwtToken(memberId, email, subscription.getSubscriptionPlan());
-        jwtUtil.addJwtCookie(response, token);
+        String token = jwtUtil.generateJwtToken(memberId, email, subscription.getSubscriptionPlan().name());
+        Cookie jwtCookie = jwtUtil.createJwtCookie(token);
+        response.addCookie(jwtCookie);
 
-        String redirectUri = CookieUtil.getCookieValue(request, HttpCookieOAuth2AuthorizationRequestRepository.REDIRECT_URI)
+        String redirectUri = CookieUtil.getCookieValue(request, HttpCookieOAuth2AuthorizationRequestRepository.REDIRECT)
                 .orElse("/");
-        CookieUtil.deleteCookie(request, response, HttpCookieOAuth2AuthorizationRequestRepository.REDIRECT_URI);
+        CookieUtil.deleteCookie(request, response, HttpCookieOAuth2AuthorizationRequestRepository.REDIRECT);
 
         getRedirectStrategy().sendRedirect(request, response, redirectUri);
     }

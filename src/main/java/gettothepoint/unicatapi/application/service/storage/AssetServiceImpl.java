@@ -125,4 +125,17 @@ public class AssetServiceImpl implements AssetService {
                 .build()
                 .toUriString();
     }
+
+    public String getDefaultTemplateUrl() {
+        final String DEFAULT_TEMPLATE_FILENAME = "back2.mp4";
+
+        // Supabase의 기본 URL (appProperties를 통해 가져온다고 가정)
+        String supabaseUrl = appProperties.supabase().url();
+
+        // 예: https://your-supabase-url/storage/v1/object/assets/template/black-background.jpg
+        return UriComponentsBuilder.fromUriString(supabaseUrl)
+                .pathSegment("storage", "v1", "object", "assets", "template", DEFAULT_TEMPLATE_FILENAME)
+                .build()
+                .toUriString();
+    }
 }

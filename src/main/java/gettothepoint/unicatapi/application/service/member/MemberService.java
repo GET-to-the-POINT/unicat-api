@@ -22,9 +22,6 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
 
     public Member create(String email, String password, String name, String phoneNumber) {
-        if (email == null || password == null) {
-            throw new IllegalArgumentException("Email and password must not be null");
-        }
         Member member = Member.builder()
                 .email(email)
                 .password(password)
@@ -34,10 +31,12 @@ public class MemberService {
         return memberRepository.save(member);
     }
 
-    public Member findByEmail(String email) {
-        if (email == null) {
-            throw new IllegalArgumentException("Email must not be null");
-        }
+    public Member getOrElseThrow(Long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Member not found with id: " + memberId));
+    }
+
+    public Member getOrElseThrow(String email) {
         return memberRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "No user found with email: " + email));
     }
@@ -51,6 +50,8 @@ public class MemberService {
                     .email(email)
                     .password("{noop}oauth2user")
                     .build();
+
+            newMember.verified();
             memberRepository.save(newMember);
 
             OAuthLink oAuthLink = OAuthLink.builder()
@@ -68,21 +69,17 @@ public class MemberService {
         return memberRepository.findByEmail(email).isPresent();
     }
 
-    public boolean validCurrentPassword(String email, String currentPassword) {
-        Member member = findByEmail(email);
+    public boolean validCurrentPassword(Long memberId, String currentPassword) {
+        Member member = getOrElseThrow(memberId);
         return passwordEncoder.matches(currentPassword, member.getPassword());
     }
 
-    public void updatePassword(String email, String newPassword) {
-        Member member = findByEmail(email);
+    public void updatePassword(Long memberId, String newPassword) {
+        Member member = getOrElseThrow(memberId);
         member.setPassword(passwordEncoder.encode(newPassword));
         memberRepository.save(member);
     }
 
-    public Member getOrElseThrow(Long memberId) {
-        return memberRepository.findById(memberId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Member not found with id: " + memberId));
-    }
 
     public void update(Member member) {
         memberRepository.save(member);
