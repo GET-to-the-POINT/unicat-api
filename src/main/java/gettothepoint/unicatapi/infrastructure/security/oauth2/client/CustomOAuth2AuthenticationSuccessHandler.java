@@ -25,6 +25,7 @@ public class CustomOAuth2AuthenticationSuccessHandler extends SimpleUrlAuthentic
 
     private final JwtUtil jwtUtil;
     private final MemberRepository memberRepository;
+    private final CookieUtil cookieUtil;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
@@ -39,7 +40,7 @@ public class CustomOAuth2AuthenticationSuccessHandler extends SimpleUrlAuthentic
         String email = oAuth2User.getAttribute("email");
 
         String token = jwtUtil.generateJwtToken(memberId, email, subscription.getSubscriptionPlan().name());
-        Cookie jwtCookie = jwtUtil.createJwtCookie(token);
+        Cookie jwtCookie = cookieUtil.createJwtCookie(token);
         response.addCookie(jwtCookie);
 
         // 꺼낸뒤 버린다.
@@ -47,7 +48,7 @@ public class CustomOAuth2AuthenticationSuccessHandler extends SimpleUrlAuthentic
         String redirectUrl = "/";
         if (redirectCookie != null) {
             redirectUrl = redirectCookie.getValue();
-            CookieUtil.fire(redirectCookie);
+            cookieUtil.zeroAge(redirectCookie);
         }
 
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);

@@ -4,6 +4,7 @@ import gettothepoint.unicatapi.common.util.CookieUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.stereotype.Component;
@@ -18,11 +19,14 @@ import java.io.ObjectOutputStream;
 import java.util.Base64;
 
 @Component
+@RequiredArgsConstructor
 public class HttpCookieOAuth2AuthorizationRequestRepository implements AuthorizationRequestRepository<OAuth2AuthorizationRequest> {
 
     public static final String OAUTH2_AUTH_REQUEST = HttpCookieOAuth2AuthorizationRequestRepository.class.getName() + "oauth2_auth_request";
     public static final String REDIRECT = "redirect";
     private static final int COOKIE_EXPIRE_SECONDS = 180;
+
+    private final CookieUtil cookieUtil;
 
     @Override
     public OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
@@ -39,20 +43,20 @@ public class HttpCookieOAuth2AuthorizationRequestRepository implements Authoriza
         if (authorizationRequest == null) {
             Cookie oauth2AuthRequestCookie = WebUtils.getCookie(request, OAUTH2_AUTH_REQUEST);
             assert oauth2AuthRequestCookie != null;
-            CookieUtil.fire(oauth2AuthRequestCookie);
+            cookieUtil.zeroAge(oauth2AuthRequestCookie);
 
             Cookie redirectCookie = WebUtils.getCookie(request, REDIRECT);
             assert redirectCookie != null;
-            CookieUtil.fire(redirectCookie);
+            cookieUtil.zeroAge(redirectCookie);
             return;
         }
         String serializedAuthRequest = serialize(authorizationRequest);
-        Cookie jwtCookie = CookieUtil.create(OAUTH2_AUTH_REQUEST, serializedAuthRequest, COOKIE_EXPIRE_SECONDS);
+        Cookie jwtCookie = cookieUtil.create(OAUTH2_AUTH_REQUEST, serializedAuthRequest, COOKIE_EXPIRE_SECONDS);
         response.addCookie(jwtCookie);
 
         String redirectUriAfterSignIn = request.getParameter(REDIRECT);
         if (redirectUriAfterSignIn != null && !redirectUriAfterSignIn.isEmpty()) {
-            Cookie cookie = CookieUtil.create(REDIRECT, redirectUriAfterSignIn, COOKIE_EXPIRE_SECONDS);
+            Cookie cookie = cookieUtil.create(REDIRECT, redirectUriAfterSignIn, COOKIE_EXPIRE_SECONDS);
             response.addCookie(cookie);
         }
     }
@@ -62,7 +66,7 @@ public class HttpCookieOAuth2AuthorizationRequestRepository implements Authoriza
         OAuth2AuthorizationRequest authorizationRequest = loadAuthorizationRequest(request);
         Cookie oauth2AuthRequestCookie = WebUtils.getCookie(request, OAUTH2_AUTH_REQUEST);
         assert oauth2AuthRequestCookie != null;
-        CookieUtil.fire(oauth2AuthRequestCookie);
+        cookieUtil.zeroAge(oauth2AuthRequestCookie);
         return authorizationRequest;
     }
 

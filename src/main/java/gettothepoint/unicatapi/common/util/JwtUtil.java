@@ -1,7 +1,6 @@
 package gettothepoint.unicatapi.common.util;
 
 import gettothepoint.unicatapi.common.propertie.AppProperties;
-import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.jwt.*;
@@ -18,23 +17,6 @@ public class JwtUtil {
     private final AppProperties appProperties;
     private final JwtEncoder jwtEncoder;
     private final JwtDecoder jwtDecoder;
-
-    public Cookie createJwtCookie(String jwtToken) {
-        Cookie jwtCookie = new Cookie(appProperties.jwt().cookie().name(), jwtToken);
-        jwtCookie.setDomain(appProperties.jwt().cookie().domain());
-        jwtCookie.setPath(appProperties.jwt().cookie().path());
-        jwtCookie.setSecure(appProperties.jwt().cookie().secure());
-        jwtCookie.setHttpOnly(appProperties.jwt().cookie().httpOnly());
-        jwtCookie.setMaxAge(appProperties.jwt().cookie().maxAge());
-
-        return jwtCookie;
-    }
-
-    public Cookie removeJwtCookie() {
-        Cookie jwtCookie = this.createJwtCookie("");
-        jwtCookie.setMaxAge(0);
-        return jwtCookie;
-    }
 
     public String generateJwtToken(Long memberId, String email, String plan) {
         Instant now = Instant.now();

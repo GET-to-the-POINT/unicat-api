@@ -1,5 +1,7 @@
 package gettothepoint.unicatapi.presentation.controller.auth;
 
+import gettothepoint.unicatapi.common.propertie.AppProperties;
+import gettothepoint.unicatapi.common.util.CookieUtil;
 import gettothepoint.unicatapi.common.util.JwtUtil;
 import gettothepoint.unicatapi.domain.dto.sign.SignUpRequest;
 import io.swagger.v3.oas.annotations.Operation;
@@ -8,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +21,7 @@ import gettothepoint.unicatapi.common.schema.ErrorResponse;
 import gettothepoint.unicatapi.common.schema.UnauthorizedErrorResponse;
 import gettothepoint.unicatapi.domain.dto.sign.SignInRequest;
 import gettothepoint.unicatapi.application.service.AuthService;
+import org.springframework.web.util.WebUtils;
 
 @RestController
 @RequestMapping("/auth")
@@ -27,10 +31,8 @@ public class SignController {
 
     private final AuthService authService;
     private final JwtUtil jwtUtil;
-
-    // -------------------------------------------------
-    //                회원가입 (Sign-Up)
-    // -------------------------------------------------
+    private final AppProperties appProperties;
+    private final CookieUtil cookieUtil;
 
     @PostMapping(value = "/sign-up", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
@@ -62,24 +64,9 @@ public class SignController {
             HttpServletResponse response
     ) {
         String jwtToken = authService.signUp(signUpRequest);
-        Cookie jwtCookie = jwtUtil.createJwtCookie(jwtToken);
+        Cookie jwtCookie = cookieUtil.createJwtCookie(jwtToken);
         response.addCookie(jwtCookie);
     }
-
-    @PostMapping(value = "/sign-up", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    @ResponseStatus(HttpStatus.CREATED)
-    public void signUpForm(
-            @Valid @ModelAttribute SignUpRequest signUpRequest,
-            HttpServletResponse response
-    ) {
-        String jwtToken = authService.signUp(signUpRequest);
-        Cookie jwtCookie = jwtUtil.createJwtCookie(jwtToken);
-        response.addCookie(jwtCookie);
-    }
-
-    // -------------------------------------------------
-    //                사인인 (Sign-In)
-    // -------------------------------------------------
 
     @PostMapping(value = "/sign-in", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
@@ -107,30 +94,14 @@ public class SignController {
                     )
             }
     )
-
-
     public void signInJson(
             @Valid @RequestBody SignInRequest signInRequest,
             HttpServletResponse response
     ) {
         String jwtToken = authService.signIn(signInRequest);
-        Cookie jwtCookie = jwtUtil.createJwtCookie(jwtToken);
+        Cookie jwtCookie = cookieUtil.createJwtCookie(jwtToken);
         response.addCookie(jwtCookie);
     }
-
-    @PostMapping(value = "/sign-in", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    @ResponseStatus(HttpStatus.OK)
-    public void signInForm(
-            @Valid @ModelAttribute SignInRequest signInRequest,
-            HttpServletResponse response
-    ) {
-        String jwtToken = authService.signIn(signInRequest);
-        Cookie jwtCookie = jwtUtil.createJwtCookie(jwtToken);
-        response.addCookie(jwtCookie);    }
-
-    // -------------------------------------------------
-    //                사인아웃 (Sign-Out)
-    // -------------------------------------------------
 
     @DeleteMapping("/sign-out")
     @ResponseStatus(HttpStatus.OK)
@@ -141,8 +112,10 @@ public class SignController {
                     @ApiResponse(responseCode = "200", description = "사인아웃 성공")
             }
     )
-    public void signOut(HttpServletResponse response) {
-        Cookie jwtCookie = jwtUtil.removeJwtCookie();
+    public void signOut(HttpServletRequest request, HttpServletResponse response) {
+        Cookie jwtCookie = WebUtils.getCookie(request, appProperties.jwt().cookie().name());
+        assert jwtCookie != null;
+        cookieUtil.zeroAge(jwtCookie);
         response.addCookie(jwtCookie);
     }
 }
