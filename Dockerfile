@@ -1,4 +1,4 @@
-FROM xiyo/ffmpeg-base:latest
+FROM amazoncorretto:21-alpine-jdk
 WORKDIR /app
 
 COPY build/libs/*.jar app.jar

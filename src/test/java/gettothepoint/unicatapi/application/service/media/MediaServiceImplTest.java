@@ -9,7 +9,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,24 +20,9 @@ class MediaServiceImplTest {
 
     private final MediaServiceImpl mediaServiceImpl = new MediaServiceImpl();
 
-    private static final String VALID_FFMPEG_PATH = "/opt/homebrew/bin/ffmpeg";
-
     private final String videoPath = Paths.get("src", "test", "resources", "samples", "video", "video.mp4").toString();
     private final String audioPath = Paths.get("src", "test", "resources", "samples", "audio", "audio.mp3").toString();
     private final String imagePath = Paths.get("src", "test", "resources", "samples", "image", "image.jpeg").toString();
-
-//    @BeforeEach
-//    void setUp() {
-//        System.setProperty("FFMPEG_PATH", VALID_FFMPEG_PATH);
-//    }
-
-
-    @BeforeEach
-    void setUp() throws Exception {
-        Field ffmpegField = MediaServiceImpl.class.getDeclaredField("ffmpegPath");
-        ffmpegField.setAccessible(true);
-        ffmpegField.set(mediaServiceImpl, VALID_FFMPEG_PATH);
-    }
 
     @Nested
     @DisplayName("비디오 병합 테스트")
@@ -59,7 +43,6 @@ class MediaServiceImplTest {
 
             if (outputFile.exists()) {
                 assertTrue(outputFile.delete(), "테스트 후 생성된 파일을 삭제해야 합니다.");
-            }
             }
         }
 
@@ -92,30 +75,8 @@ class MediaServiceImplTest {
         }
 
         @Test
-        @DisplayName("FFmpeg 실행 파일이 없을 때 예외 발생")
-        void testMergeImageAndSoundFromFile_FfmpegNotFound(@TempDir Path tempDir) throws IOException {
-            // ✅ FFmpeg 경로를 비워서 실행 오류 발생 유도
-            System.clearProperty("FFMPEG_PATH");
-
-            File imageFile = new File(tempDir.toFile(), "test.jpg");
-            File audioFile = new File(tempDir.toFile(), "test.mp3");
-
-            Files.write(imageFile.toPath(), Files.readAllBytes(Path.of(imagePath)));
-            Files.write(audioFile.toPath(), Files.readAllBytes(Path.of(audioPath)));
-
-            Exception exception = assertThrows(ResponseStatusException.class, () ->
-                    mediaServiceImpl.mergeImageAndAudio(imageFile, audioFile)
-            );
-
-            assertTrue(exception.getMessage().contains("FFMPEG_PATH 환경 변수가 설정되지 않았습니다"));
-
-            System.setProperty("FFMPEG_PATH", "/usr/bin/ffmpeg");
-        }
-
-        @Test
         @DisplayName("🎬 여러 비디오 파일을 병합(VFR) - 성공")
         void testMergeVideosAndExtractVFRFromFiles_Success(@TempDir Path tempDir) throws IOException {
-            System.setProperty("FFMPEG_PATH", VALID_FFMPEG_PATH);
 
             File video1 = new File(tempDir.toFile(), "video1.mp4");
             File video2 = new File(tempDir.toFile(), "video2.mp4");
@@ -134,28 +95,8 @@ class MediaServiceImplTest {
         }
 
         @Test
-        @DisplayName("FFmpeg 경로 미설정 시 예외 발생")
-        void testMergeVideosAndExtractVFRFromFiles_FfmpegNotFound(@TempDir Path tempDir) throws IOException {
-            System.clearProperty("FFMPEG_PATH");
-
-            File video1 = new File(tempDir.toFile(), "video1.mp4");
-            File video2 = new File(tempDir.toFile(), "video2.mp4");
-
-            Files.write(video1.toPath(), Files.readAllBytes(Path.of(videoPath)));
-            Files.write(video2.toPath(), Files.readAllBytes(Path.of(videoPath)));
-
-            Exception exception = assertThrows(ResponseStatusException.class, () ->
-                    mediaServiceImpl.mergeVideosAndExtractVFR(List.of(video1, video2))
-            );
-
-            System.out.println("❗FFmpeg 환경 변수 오류 예외 발생: " + exception.getMessage());
-            assertTrue(exception.getMessage().contains("FFMPEG_PATH 환경 변수가 설정되지 않았습니다"));
-        }
-
-        @Test
         @DisplayName("비디오 파일이 없을 때 예외 발생")
         void testMergeVideosAndExtractVFRFromFiles_VideoNotFound() {
-            System.setProperty("FFMPEG_PATH", VALID_FFMPEG_PATH);
 
             Exception exception = assertThrows(ResponseStatusException.class, () ->
                     mediaServiceImpl.mergeVideosAndExtractVFR(List.of(new File("non_existent.mp4")))
@@ -168,7 +109,6 @@ class MediaServiceImplTest {
         @Test
         @DisplayName("지원되지 않는 형식의 비디오 파일 예외 발생")
         void testMergeVideosAndExtractVFRFromFiles_UnsupportedFormat(@TempDir Path tempDir) throws IOException {
-            System.setProperty("FFMPEG_PATH", VALID_FFMPEG_PATH);
 
             File invalidVideo = new File(tempDir.toFile(), "video.xyz"); // ❌ 지원되지 않는 확장자
 
@@ -182,3 +122,4 @@ class MediaServiceImplTest {
             assertTrue(exception.getMessage().contains("지원되지 않는 비디오 파일 형식입니다"));
         }
     }
+}
