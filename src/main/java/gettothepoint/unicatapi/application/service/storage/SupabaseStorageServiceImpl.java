@@ -87,13 +87,13 @@ public class SupabaseStorageServiceImpl extends AbstractStorageService {
         @SuppressWarnings("java:S2095")
         HttpClient httpClient = HttpClient.newHttpClient();
 
-        try (InputStream is = file.getInputStream()) {
+        try {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .header("apikey", supabaseKey)
                     .header("Authorization", "Bearer " + supabaseKey)
                     .header("Content-Type", Objects.requireNonNull(file.getContentType()))
-                    .POST(HttpRequest.BodyPublishers.ofInputStream(() -> is))
+                    .POST(HttpRequest.BodyPublishers.ofFile(tmpFile.toPath()))
                     .build();
 
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
