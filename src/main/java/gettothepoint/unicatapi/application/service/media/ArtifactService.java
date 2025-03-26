@@ -49,7 +49,10 @@ public class ArtifactService {
         try {
             progressManager.send(projectId, "status", "started");
 
-            this.build(projectId, type, accessToken);
+            Project project = buildAndUpdate(projectId);
+            if ("youtube".equals(type) && accessToken != null) {
+                uploadSocial(project, type, accessToken);
+            }
 
             progressManager.send(projectId, "status", "completed");
             return CompletableFuture.completedFuture(null);
@@ -59,7 +62,6 @@ public class ArtifactService {
             return CompletableFuture.failedFuture(e);
         }
     }
-
 
     private Project buildAndUpdate(Long projectId) {
         Project project = projectService.getOrElseThrow(projectId);
