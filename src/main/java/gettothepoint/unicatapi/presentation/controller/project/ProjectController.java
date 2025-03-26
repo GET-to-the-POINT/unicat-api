@@ -19,7 +19,6 @@ import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2Aut
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
@@ -39,11 +38,9 @@ public class ProjectController {
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ProjectResponse create(@AuthenticationPrincipal Jwt jwt,
-                                  @RequestParam(name = "templateUrl", required = false) String templateUrl,
-                                  @RequestParam(name = "titleImage", required = false) MultipartFile title) {
+    public ProjectResponse create(@AuthenticationPrincipal Jwt jwt) {
         Long memberId = Long.valueOf(jwt.getSubject());
-        return projectService.create(memberId, templateUrl, title);
+        return projectService.create(memberId);
     }
 
 
