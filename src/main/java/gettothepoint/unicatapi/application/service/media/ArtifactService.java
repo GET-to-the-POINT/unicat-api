@@ -81,7 +81,7 @@ public class ArtifactService {
         Section section = sectionService.getOrElseThrow(sectionId);
 
         String sectionVideoUrl = section.getVideoUrl();
-        if (StringUtils.isEmpty(sectionVideoUrl)) {
+        if (StringUtils.hasText(sectionVideoUrl)) {
             storageService.download(sectionVideoUrl);
             return; // 이미 업로드된 경우
         }
