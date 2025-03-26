@@ -22,7 +22,7 @@ public class EmailController {
     @GetMapping("/email")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void verifyEmail(@RequestParam("token") String token, HttpServletResponse response) throws IOException {
-        String email = jwtUtil.getEmailFromToken(token);
+        String email = jwtUtil.getEmail(token);
         memberService.verifyEmail(email);
 
         String frontend = appProperties.frontend().url();
