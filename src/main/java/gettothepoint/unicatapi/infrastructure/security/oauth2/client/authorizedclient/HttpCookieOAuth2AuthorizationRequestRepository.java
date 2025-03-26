@@ -37,23 +37,32 @@ public class HttpCookieOAuth2AuthorizationRequestRepository implements Authoriza
     @Override
     public void saveAuthorizationRequest(OAuth2AuthorizationRequest authorizationRequest, HttpServletRequest request, HttpServletResponse response) {
         if (authorizationRequest == null) {
-            CookieUtil.deleteCookie(request, response, OAUTH2_AUTH_REQUEST);
-            CookieUtil.deleteCookie(request, response, REDIRECT);
+            Cookie oauth2AuthRequestCookie = WebUtils.getCookie(request, OAUTH2_AUTH_REQUEST);
+            assert oauth2AuthRequestCookie != null;
+            CookieUtil.fire(oauth2AuthRequestCookie);
+
+            Cookie redirectCookie = WebUtils.getCookie(request, REDIRECT);
+            assert redirectCookie != null;
+            CookieUtil.fire(redirectCookie);
             return;
         }
         String serializedAuthRequest = serialize(authorizationRequest);
-        CookieUtil.addCookie(response, OAUTH2_AUTH_REQUEST, serializedAuthRequest, COOKIE_EXPIRE_SECONDS);
+        Cookie jwtCookie = CookieUtil.create(OAUTH2_AUTH_REQUEST, serializedAuthRequest, COOKIE_EXPIRE_SECONDS);
+        response.addCookie(jwtCookie);
 
         String redirectUriAfterSignIn = request.getParameter(REDIRECT);
         if (redirectUriAfterSignIn != null && !redirectUriAfterSignIn.isEmpty()) {
-            CookieUtil.addCookie(response, REDIRECT, redirectUriAfterSignIn, COOKIE_EXPIRE_SECONDS);
+            Cookie cookie = CookieUtil.create(REDIRECT, redirectUriAfterSignIn, COOKIE_EXPIRE_SECONDS);
+            response.addCookie(cookie);
         }
     }
 
     @Override
     public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request, HttpServletResponse response) {
         OAuth2AuthorizationRequest authorizationRequest = loadAuthorizationRequest(request);
-        CookieUtil.deleteCookie(request, response, OAUTH2_AUTH_REQUEST);
+        Cookie oauth2AuthRequestCookie = WebUtils.getCookie(request, OAUTH2_AUTH_REQUEST);
+        assert oauth2AuthRequestCookie != null;
+        CookieUtil.fire(oauth2AuthRequestCookie);
         return authorizationRequest;
     }
 

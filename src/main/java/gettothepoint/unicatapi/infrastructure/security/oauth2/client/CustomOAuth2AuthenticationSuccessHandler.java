@@ -15,6 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.WebUtils;
 
 import java.io.IOException;
 
@@ -41,10 +42,14 @@ public class CustomOAuth2AuthenticationSuccessHandler extends SimpleUrlAuthentic
         Cookie jwtCookie = jwtUtil.createJwtCookie(token);
         response.addCookie(jwtCookie);
 
-        String redirectUri = CookieUtil.getCookieValue(request, HttpCookieOAuth2AuthorizationRequestRepository.REDIRECT)
-                .orElse("/");
-        CookieUtil.deleteCookie(request, response, HttpCookieOAuth2AuthorizationRequestRepository.REDIRECT);
+        // 꺼낸뒤 버린다.
+        Cookie redirectCookie = WebUtils.getCookie(request, HttpCookieOAuth2AuthorizationRequestRepository.REDIRECT);
+        String redirectUrl = "/";
+        if (redirectCookie != null) {
+            redirectUrl = redirectCookie.getValue();
+            CookieUtil.fire(redirectCookie);
+        }
 
-        getRedirectStrategy().sendRedirect(request, response, redirectUri);
+        getRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }
 }

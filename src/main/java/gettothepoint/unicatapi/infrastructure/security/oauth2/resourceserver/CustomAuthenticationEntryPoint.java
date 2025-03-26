@@ -1,5 +1,6 @@
 package gettothepoint.unicatapi.infrastructure.security.oauth2.resourceserver;
 
+import gettothepoint.unicatapi.common.util.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -8,7 +9,6 @@ import org.springframework.context.MessageSource;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
-import gettothepoint.unicatapi.common.util.JwtUtil;
 
 import java.io.IOException;
 
