@@ -126,6 +126,7 @@ public class AssetServiceImpl implements AssetService {
                 .toUriString();
     }
 
+    @Override
     public String getDefaultTemplateUrl() {
         final String DEFAULT_TEMPLATE_FILENAME = "back2.mp4";
 
