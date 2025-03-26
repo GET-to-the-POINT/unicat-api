@@ -8,6 +8,7 @@ import gettothepoint.unicatapi.application.service.video.YoutubeUploadService;
 import gettothepoint.unicatapi.domain.dto.project.SectionResponse;
 import gettothepoint.unicatapi.domain.entity.dashboard.Project;
 import gettothepoint.unicatapi.domain.entity.dashboard.Section;
+import gettothepoint.unicatapi.infrastructure.progress.ProgressManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -27,6 +28,7 @@ public class ArtifactService {
     private final SectionService sectionService;
     private final StorageService storageService;
     private final TextToSpeechService textToSpeechService;
+    private final ProgressManager progressManager;
 
 
     public void build(Long projectId) {
@@ -44,8 +46,18 @@ public class ArtifactService {
 
     @Async
     public CompletableFuture<Void> buildAsync(Long projectId, String type, OAuth2AccessToken accessToken) {
-        this.build(projectId, type, accessToken);
-        return CompletableFuture.completedFuture(null);
+        try {
+            progressManager.send(projectId, "status", "started");
+
+            this.build(projectId, type, accessToken);
+
+            progressManager.send(projectId, "status", "completed");
+            return CompletableFuture.completedFuture(null);
+        } catch (Exception e) {
+            progressManager.send(projectId, "status", "failed");
+            progressManager.error(projectId, "Artifact build 실패: " + e.getMessage());
+            return CompletableFuture.failedFuture(e);
+        }
     }
 
 

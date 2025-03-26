@@ -71,7 +71,6 @@ public class MediaServiceImpl implements MediaService {
     }
 
 
-
     @Override
     public File mergeImageAndAudio(File templateResource, File contentResource, File audioResource) {
 
@@ -99,8 +98,6 @@ public class MediaServiceImpl implements MediaService {
         executeFfmpegCommand(new ProcessBuilder(command));
         return outputFile;
     }
-
-
 
 
     @Override
@@ -132,14 +129,12 @@ public class MediaServiceImpl implements MediaService {
         return outputFile;
     }
 
-
-
     @Override
     public File mergeVideosAndExtractVFR(List<File> files) {
 
         File outputFile = FileUtil.createTempFile(FILE_PREFIX + "merged_videos_", ".mp4");
 
-        // 총 길이
+        // 총 길이 계산
         long totalMs = 0;
         for (File f : files) totalMs += getVideoDurationInMs(f);
         double totalSec = totalMs / 1000.0;
@@ -156,17 +151,21 @@ public class MediaServiceImpl implements MediaService {
         command.add("-i");
         command.add(transitionSound.getAbsolutePath());
 
+        // 필터 생성
         StringBuilder filter = new StringBuilder();
+
         for (int i = 0; i < files.size(); i++) {
             filter.append("[").append(i).append(":v:0][").append(i).append(":a:0]");
         }
+
         filter.append("concat=n=").append(files.size()).append(":v=1:a=1[outv][outa];");
 
         long delay = 0;
         for (int i = 1; i < files.size(); i++) {
             delay += getVideoDurationInMs(files.get(i - 1));
             filter.append("[").append(files.size()).append(":a:0]adelay=")
-                    .append(delay).append("|").append(delay).append("[sfx").append(i).append("];");
+                    .append(delay).append("|").append(delay)
+                    .append(",volume=0.3[sfx").append(i).append("];");
         }
 
         filter.append("[outa]");
@@ -174,15 +173,25 @@ public class MediaServiceImpl implements MediaService {
             filter.append("[sfx").append(i).append("]");
         }
 
-        filter.append("amix=inputs=").append(1 + (files.size() - 1)).append(":duration=longest[out_finala]");
+        filter.append("amix=inputs=")
+                .append(1 + (files.size() - 1))
+                .append(":duration=longest:dropout_transition=0:normalize=0[out_mixed];");
+
+        filter.append("[out_mixed]volume=0.8[out_finala]");
 
         command.add("-filter_complex");
         command.add(filter.toString());
-        command.addAll(List.of("-map", "[outv]", "-map", "[out_finala]",
-                "-vsync", "vfr", "-c:v", VIDEO_CODEC,
-                "-c:a", "aac", "-strict", "experimental",
+
+        command.addAll(List.of(
+                "-map", "[outv]",
+                "-map", "[out_finala]",
+                "-vsync", "vfr",
+                "-c:v", VIDEO_CODEC,
+                "-c:a", "aac",
+                "-strict", "experimental",
                 "-t", String.valueOf(totalSec),
-                "-y", outputFile.getAbsolutePath()));
+                "-y", outputFile.getAbsolutePath()
+        ));
 
         executeFfmpegCommand(new ProcessBuilder(command));
         return outputFile;
@@ -241,22 +250,9 @@ public class MediaServiceImpl implements MediaService {
     }
 
     public File extractThumbnail(File file) {
-        if (MediaValidationUtil.hasValidImageExtension(file.getName())) {
-            return file;
+        if (!MediaValidationUtil.hasValidImageExtension(file.getName())) {
+            throw new IllegalArgumentException("썸네일은 이미지 파일만 지원됩니다.");
         }
-        File outputImage = FileUtil.createTempFile("thumbnail_", ".jpg");
-
-        List<String> command = List.of(
-                ffmpegPath,
-                "-i", file.getAbsolutePath(),
-                "-ss", "00:00:00.000",
-                "-vframes", "1",
-                "-q:v", "2",
-                outputImage.getAbsolutePath()
-        );
-
-        executeFfmpegCommand(new ProcessBuilder(command));
-        return outputImage;
+        return file;
     }
-
 }
