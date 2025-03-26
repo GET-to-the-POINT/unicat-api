@@ -1,40 +1,33 @@
 package gettothepoint.unicatapi.common.util;
 
+import gettothepoint.unicatapi.common.propertie.AppProperties;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.NoArgsConstructor;
-import org.springframework.web.util.WebUtils;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
-import java.util.Optional;
-
-@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+@Component
+@RequiredArgsConstructor
 public class CookieUtil {
 
-    public static Optional<Cookie> getCookie(HttpServletRequest request, String name) {
-        return Optional.ofNullable(WebUtils.getCookie(request, name));
+    private final AppProperties appProperties;
+
+    public Cookie createJwtCookie(String jwtToken) {
+        String cookieName = appProperties.jwt().cookie().name();
+        int maxAge = appProperties.jwt().cookie().maxAge();
+
+        return this.create(cookieName, jwtToken, maxAge);
     }
 
-    public static void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
+    public Cookie create(String name, String value, int maxAge) {
         Cookie cookie = new Cookie(name, value);
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
+        cookie.setPath(appProperties.jwt().cookie().path());
+        cookie.setSecure(appProperties.jwt().cookie().secure());
+        cookie.setHttpOnly(appProperties.jwt().cookie().httpOnly());
         cookie.setMaxAge(maxAge);
-        response.addCookie(cookie);
+        return cookie;
     }
 
-    public static void deleteCookie(HttpServletRequest request, HttpServletResponse response, String name) {
-        Cookie cookie = WebUtils.getCookie(request, name);
-        if (cookie != null) {
-            cookie.setValue("");
-            cookie.setPath("/");
-            cookie.setMaxAge(0);
-            response.addCookie(cookie);
-        }
-    }
-
-    public static Optional<String> getCookieValue(HttpServletRequest request, String name) {
-        return getCookie(request, name).map(Cookie::getValue);
+    public void zeroAge(Cookie cookie) {
+        cookie.setMaxAge(0);
     }
 }

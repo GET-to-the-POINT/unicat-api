@@ -20,8 +20,8 @@ public class PasswordService {
 
     public void sendResetEmail(String email, String url) {
         try {
-            Member member = memberService.findByEmail(email);
-            String token = jwtUtil.generateJwtToken(member.getId(), email, member.getSubscription().getSubscriptionPlan());
+            Member member = memberService.getOrElseThrow(email);
+            String token = jwtUtil.generateJwtToken(member.getId(), email,  member.getSubscription().getPlan().getName());
             String href = String.format("%stoken=%s", url, token);
 
             String content = "<h1>비밀번호 재설정</h1><p>아래 링크를 클릭하여 비밀번호를 재설정하세요.</p>" +

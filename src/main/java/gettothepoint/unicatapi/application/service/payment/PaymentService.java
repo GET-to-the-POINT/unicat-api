@@ -26,7 +26,7 @@ public class PaymentService {
 
     @Transactional
     public Map<String, Object> approveAutoPayment(String email) {
-        Member member = memberService.findByEmail(email);
+        Member member = memberService.getOrElseThrow(email);
         Billing billing = member.getBilling();
         Order order = member.getOrders().stream()
                 .filter(Order::isPending)
@@ -46,7 +46,7 @@ public class PaymentService {
         orderService.markAsDone(order);
         paymentRecordService.save(order, approvalResult);
         billingService.applyRecurring(billing); //recurring 갱신
-        subscriptionService.subscribe(order.getMember(), order.getSubscriptionPlan());
+        subscriptionService.subscribe(order.getMember(), order.getPlan());
 
         return approvalResult;
     }

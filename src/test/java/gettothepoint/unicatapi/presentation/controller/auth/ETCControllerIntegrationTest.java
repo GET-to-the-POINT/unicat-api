@@ -54,7 +54,7 @@ class ETCControllerIntegrationTest {
     @Test
     @DisplayName("토큰 리프레시 - 204 No Content")
     void refreshToken_returnsNoContent() throws Exception {
-         String token = jwtUtil.generateJwtToken(1L, "test@example.com", SubscriptionPlan.BASIC);
+         String token = jwtUtil.generateJwtToken(1L, "test@example.com", SubscriptionPlan.BASIC.name());
          mockMvc.perform(post("/auth/token/refresh")
                 .cookie(new Cookie("Authorization", token)))
                 .andExpect(status().isNoContent());

@@ -1,8 +1,9 @@
 package gettothepoint.unicatapi.application.service.payment;
 
-import gettothepoint.unicatapi.domain.constant.payment.SubscriptionPlan;
 import gettothepoint.unicatapi.domain.entity.member.Member;
+import gettothepoint.unicatapi.domain.entity.payment.Plan;
 import gettothepoint.unicatapi.domain.entity.payment.Subscription;
+import gettothepoint.unicatapi.domain.repository.PlanRepository;
 import gettothepoint.unicatapi.domain.repository.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,11 +13,25 @@ import org.springframework.stereotype.Service;
 public class SubscriptionService {
 
     private final SubscriptionRepository subscriptionRepository;
+    private final PlanRepository planRepository;
 
-    public void subscribe(Member member, SubscriptionPlan plan) {
+    public void subscribe(Member member, Plan plan) {
         Subscription subscription = member.getSubscription();
         subscription.changePlan(plan);
         subscriptionRepository.save(subscription);
+    }
+
+
+    public void createSubscription(Member member) {
+        Plan basicPlan = planRepository.findByName("BASIC")
+                .orElseThrow(() -> new IllegalStateException("기본 플랜이 존재하지 않습니다."));
+
+        Subscription subscription = Subscription.builder()
+                .member(member)
+                .plan(basicPlan)
+                .build();
+
+        member.setSubscription(subscription);
     }
 
     /**
@@ -24,9 +39,12 @@ public class SubscriptionService {
      * @param member 구독 해지할 회원
      */
 
-    public void changeBasePlan(Member member) {
+    public void changeToBasicPlan(Member member) {
+        Plan basicPlan = planRepository.findByName("BASIC")
+                .orElseThrow(() -> new IllegalStateException("기본 플랜이 존재하지 않습니다."));
+
         Subscription subscription = member.getSubscription();
-        subscription.changePlan(SubscriptionPlan.BASIC);
+        subscription.changePlan(basicPlan);
         subscriptionRepository.save(subscription);
     }
 }

@@ -13,7 +13,7 @@ import lombok.Setter;
 public class Section extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Setter
     private Long id;
 
@@ -29,6 +29,7 @@ public class Section extends BaseEntity {
     @Setter private String resourceUrl;
     @Setter private String audioUrl;
     @Setter private String videoUrl;
+    @Setter private String tansitionUrl;
 
     @ManyToOne
     @JoinColumn

@@ -1,7 +1,6 @@
 package gettothepoint.unicatapi.domain.entity.payment;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import gettothepoint.unicatapi.domain.constant.payment.SubscriptionPlan;
 import gettothepoint.unicatapi.domain.constant.payment.TossPaymentStatus;
 import gettothepoint.unicatapi.domain.entity.BaseEntity;
 import gettothepoint.unicatapi.domain.entity.member.Member;
@@ -25,8 +24,8 @@ public class Order extends BaseEntity implements Comparable<Order> {
     private String orderName;
     private Long amount;
 
-    @Enumerated(EnumType.STRING)
-    private SubscriptionPlan subscriptionPlan;
+    @ManyToOne
+    private Plan plan;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -42,17 +41,13 @@ public class Order extends BaseEntity implements Comparable<Order> {
     private Payment payment;
 
     @Builder
-    public Order(String id,String orderName, Long amount, Member member, TossPaymentStatus status, SubscriptionPlan subscriptionPlan) {
+    public Order(String id,String orderName, Long amount, Member member, TossPaymentStatus status, Plan plan) {
         this.id = id;
         this.orderName = orderName;
         this.amount = amount;
         this.member = member;
         this.status = status;
-        this.subscriptionPlan = subscriptionPlan;
-    }
-
-    public void cancelOrder() {
-        this.status = TossPaymentStatus.CANCELED;
+        this.plan = plan;
     }
 
     public void markDone() {

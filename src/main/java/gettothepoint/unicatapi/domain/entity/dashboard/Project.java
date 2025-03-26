@@ -17,7 +17,7 @@ import java.util.List;
 public class Project extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
     private String title;
@@ -32,6 +32,7 @@ public class Project extends BaseEntity {
     private String scriptTone;
 
     private String imageStyle;
+
 
     private String templateUrl;
     private String titleUrl;
@@ -48,8 +49,10 @@ public class Project extends BaseEntity {
     private final List<Section> sections = new ArrayList<>();
 
     @Builder
-    public Project(Member member) {
+    public Project(Member member, String templateUrl, String titleUrl) {
         this.member = member;
+        this.templateUrl = templateUrl;
+        this.titleUrl = titleUrl;
     }
 
     public void assignUploadVideo(UploadVideo uploadVideo) {

@@ -24,9 +24,10 @@ public class CurrentPasswordValidator implements ConstraintValidator<CurrentPass
 
         if (authentication instanceof JwtAuthenticationToken jwtAuthToken) {
             Jwt jwt = jwtAuthToken.getToken();
-            String email = jwt.getClaim("email");
-            return memberService.validCurrentPassword(email, currentPassword);
+            Long memberId = Long.parseLong(jwt.getSubject());
+            return memberService.validCurrentPassword(memberId, currentPassword);
         }
+
         return false;
     }
 }

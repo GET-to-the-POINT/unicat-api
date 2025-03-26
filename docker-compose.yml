@@ -46,6 +46,20 @@ services:
     networks:
         - unicat-network
 
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./src/main/resources/unicat.day:/etc/nginx/certs:ro
+    depends_on:
+      - api
+    networks:
+      - unicat-network
+
 volumes:
   postgres_data:
   grafana-data:

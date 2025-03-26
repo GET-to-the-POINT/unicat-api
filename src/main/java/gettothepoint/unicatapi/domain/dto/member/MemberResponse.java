@@ -1,7 +1,6 @@
 package gettothepoint.unicatapi.domain.dto.member;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import gettothepoint.unicatapi.domain.constant.payment.SubscriptionPlan;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.entity.payment.Billing;
 import gettothepoint.unicatapi.domain.entity.payment.Subscription;
@@ -28,9 +27,9 @@ public record MemberResponse(Long id,
     }
 }
 
-record SubscriptionResponse(Long id, SubscriptionPlan subscriptionPlan, String startDate, String endDate) {
+record SubscriptionResponse(Long id, String plan, String startDate, String endDate) {
 public static SubscriptionResponse fromEntity(Subscription subscription) {
-        return new SubscriptionResponse(subscription.getId(), subscription.getSubscriptionPlan(), subscription.getStartDate().toString(), subscription.getEndDate().toString());
+        return new SubscriptionResponse(subscription.getId(), subscription.getPlan().getName(), subscription.getStartDate().toString(), subscription.getEndDate().toString());
     }
 }
 

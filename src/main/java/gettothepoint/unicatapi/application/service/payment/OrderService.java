@@ -1,9 +1,9 @@
 package gettothepoint.unicatapi.application.service.payment;
 
-import gettothepoint.unicatapi.domain.constant.payment.SubscriptionPlan;
 import gettothepoint.unicatapi.domain.constant.payment.TossPaymentStatus;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.entity.payment.Order;
+import gettothepoint.unicatapi.domain.entity.payment.Plan;
 import gettothepoint.unicatapi.domain.repository.MemberRepository;
 import gettothepoint.unicatapi.domain.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,15 +20,15 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final MemberRepository memberRepository;
 
-    public Order create(String email, SubscriptionPlan plan) {
+    public Order create(String email, Plan plan) {
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Member not found"));
 
         Order order = Order.builder()
                 .id(UUID.randomUUID().toString())
-                .orderName(plan.getAutoOrderName())
+                .orderName(plan.getName())
                 .amount(plan.getPrice())
-                .subscriptionPlan(plan)
+                .plan(plan)
                 .member(member)
                 .status(TossPaymentStatus.PENDING)
                 .build();

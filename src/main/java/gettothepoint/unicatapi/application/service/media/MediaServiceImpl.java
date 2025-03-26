@@ -70,6 +70,39 @@ public class MediaServiceImpl implements MediaService {
         return outputFile;
     }
 
+
+
+    @Override
+    public File mergeImageAndAudio(File templateResource, File contentResource, File audioResource) {
+
+        File outputFile = FileUtil.createTempFile(FILE_PREFIX + "merged_with_bg_", ".mp4");
+        double duration = getAudioDurationInSeconds(audioResource);
+
+        String filter =
+                "[1:v]scale='if(gt(iw,1080),1080,iw)':'-1'," +
+                        "crop='if(gt(in_w,1080),1080,in_w)':'if(gt(in_h,1080),1080,in_h)',setsar=1[content];" +
+                        "[0:v][content]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2[tmp];";
+
+        List<String> command = List.of(
+                ffmpegPath,
+                "-stream_loop", "-1", "-i", templateResource.getAbsolutePath(),
+                "-loop", "1", "-i", contentResource.getAbsolutePath(),
+                "-i", audioResource.getAbsolutePath(),
+                "-filter_complex", filter,
+                "-map", "[tmp]",
+                "-map", "2:a",
+                "-t", String.valueOf(duration),
+                "-r", "30", "-c:v", VIDEO_CODEC, "-tune", "stillimage",
+                "-c:a", "aac", "-b:a", "192k", "-pix_fmt", "yuv420p",
+                "-shortest", "-y", outputFile.getAbsolutePath()
+        );
+        executeFfmpegCommand(new ProcessBuilder(command));
+        return outputFile;
+    }
+
+
+
+
     @Override
     public File mergeImageAndAudio(File templateResource, File contentResource, File titleResource, File audioResource) {
 
