@@ -110,6 +110,7 @@ app:
   supertone:
     api-key: ${APP_SUPERTONE_API_KEY}
     default-voice-id: ${APP_SUPERTONE_DEFAULT_VOICE_ID:ntYeJyLCd1PB3CEgmU7pHA}
+    temp-dir: ${APP_SUPERTONE_TEMP_DIR:/unicat/supertone}
 
 server:
   port: 443

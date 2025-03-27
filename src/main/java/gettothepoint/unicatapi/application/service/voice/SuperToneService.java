@@ -1,39 +1,34 @@
 package gettothepoint.unicatapi.application.service.voice;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import gettothepoint.unicatapi.common.util.FileUtil;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 @Primary
 @Service
-@RequiredArgsConstructor
 @Log4j2
 public class SuperToneService implements TTSService {
 
-    private String ttsPath = FileUtil.getTempPath() + "tts-";
+    private final String ttsPath;
+    private final String apiKey;
+    private final String defaultVoiceId;
 
-    @Value("${app.supertone.api-key}")
-    private String apiKey;
-
-    @Value("${app.supertone.default-voice-id}")
-    private String defaultVoiceId;
-
-    public SuperToneService(String apiKey, String defaultVoiceId, String ttsFilePath) {
+    public SuperToneService(@Value("${app.supertone.api-key}") String apiKey,
+                            @Value("${app.supertone.default-voice-id}") String defaultVoiceId,
+                            @Value("${app.supertone.temp-dir}") String ttsFilePath) {
         this.apiKey = apiKey;
         this.defaultVoiceId = defaultVoiceId;
-        if (StringUtils.hasText(ttsFilePath)) {
-            this.ttsPath = ttsFilePath;
-        }
+        this.ttsPath = FileUtil.getTempPath() + ttsFilePath;
     }
 
     @Override
@@ -42,22 +37,26 @@ public class SuperToneService implements TTSService {
         String url = "https://supertoneapi.com/v1/text-to-speech/" + actualVoiceId + "?output_format=mp3";
 
         // JSON 요청 본문 구성
-        String jsonBody = "{\n" +
-                "  \"text\": \"" + script + "\",\n" +
-                "  \"language\": \"ko\",\n" +
-                "  \"model\": \"turbo\",\n" +
-                "  \"voice_settings\": {\n" +
-                "    \"pitch_shift\": 0,\n" +
-                "    \"pitch_variance\": 1,\n" +
-                "    \"speed\": 1\n" +
-                "  }\n" +
-                "}";
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, Object> body = Map.of(
+                "text", script,
+                "language", "ko",
+                "model", "turbo",
+                "voice_settings", Map.of(
+                        "pitch_shift", 0,
+                        "pitch_variance", 1,
+                        "speed", 1
+                )
+        );
 
-        HttpResponse<byte[]> response = Unirest.post(url)
-                .header("x-sup-api-key", apiKey)
-                .header("Content-Type", "application/json")
-                .body(jsonBody)
-                .asBytes();
+        String jsonBody;
+        try {
+            jsonBody = objectMapper.writeValueAsString(body);
+        } catch (Exception e) {
+            throw new RuntimeException("JSON 직렬화 실패", e);
+        }
+
+        HttpResponse<byte[]> response = Unirest.post(url).header("x-sup-api-key", apiKey).header("Content-Type", "application/json").body(jsonBody).asBytes();
 
         if (response.getStatus() != 200) {
             log.error("TTS 요청 실패, 상태 코드: {}", response.getStatus());

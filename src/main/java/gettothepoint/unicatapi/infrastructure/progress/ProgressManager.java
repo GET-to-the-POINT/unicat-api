@@ -1,5 +1,6 @@
 package gettothepoint.unicatapi.infrastructure.progress;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -7,6 +8,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Slf4j
 @Component
 public class ProgressManager {
 
@@ -18,7 +20,7 @@ public class ProgressManager {
 
         emitter.onCompletion(() -> emitters.remove(projectId));
         emitter.onTimeout(() -> emitters.remove(projectId));
-        emitter.onError((e) -> emitters.remove(projectId));
+        emitter.onError(e -> emitters.remove(projectId));
 
         return emitter;
     }
@@ -27,14 +29,14 @@ public class ProgressManager {
         SseEmitter emitter = emitters.get(projectId);
         if (emitter != null) {
             try {
-                System.out.println("[SSE 전송] projectId = " + projectId + ", progress = " + progress);
+                log.info("Sending progress {}% to project {}", progress, projectId);
                 emitter.send(SseEmitter.event().name("progress").data(progress));
             } catch (IOException e) {
-                System.out.println("[SSE 전송 실패] projectId = " + projectId);
+                log.error("Failed to send progress to project {}: {}", projectId, e.getMessage());
                 emitters.remove(projectId);
             }
         } else {
-            System.out.println("[SSE Emitter 없음] projectId = " + projectId);
+            log.warn("No emitter found for project {}", projectId);
         }
     }
 

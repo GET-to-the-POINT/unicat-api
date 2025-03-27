@@ -16,6 +16,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.util.List;
@@ -89,7 +90,7 @@ public class ArtifactService {
 
         // audio standby, TODO, 메서드 분리가 필요
         String audioUrl = section.getAudioUrl();
-        if (audioUrl == null) {
+        if (!StringUtils.hasText(audioUrl)) {
             File voiceFile = ttsService.create(section.getScript(), section.getVoiceModel());
             audioUrl = storageService.upload(voiceFile);
             section.setAudioUrl(audioUrl);

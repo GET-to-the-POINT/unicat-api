@@ -39,7 +39,7 @@ public class MediaServiceImpl implements MediaService {
             Process process = builder.start();
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
                 String line;
-                while ((line = reader.readLine()) != null) log.info(line);
+                while ((line = reader.readLine()) != null) log.debug(line);
             }
             if (process.waitFor() != 0) {
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "FFmpeg 실행 실패");
