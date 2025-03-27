@@ -21,7 +21,7 @@ public class TextToSpeechService {
 
     public File create(String script, String voiceModel) {
         String voiceName = voiceModel;
-        if (StringUtils.isEmpty(voiceModel)) {
+        if (!StringUtils.hasText(voiceModel)) {
             voiceName = "ko-KR-Neural2-A";
         }
         SynthesisInput input = SynthesisInput.newBuilder()
