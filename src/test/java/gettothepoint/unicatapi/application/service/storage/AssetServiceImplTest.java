@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.application.service.storage;
 
-import gettothepoint.unicatapi.application.service.TextToSpeechService;
+import gettothepoint.unicatapi.application.service.voice.GoogleTextToSpeechService;
 import gettothepoint.unicatapi.common.propertie.AppProperties;
 import gettothepoint.unicatapi.domain.dto.storage.AssetItem;
 import org.junit.jupiter.api.Test;
@@ -46,9 +46,9 @@ class AssetServiceImplTest {
     @TestConfiguration
     public static class TestConfig {
         @Bean
-        public TextToSpeechService textToSpeechService() {
+        public GoogleTextToSpeechService textToSpeechService() {
             // 여기서 필요에 따라 목(mock) 객체를 생성하거나 간단한 stub을 반환합니다.
-            return mock(TextToSpeechService.class);
+            return mock(GoogleTextToSpeechService.class);
         }
     }
 }

@@ -56,6 +56,7 @@ public class SupabaseStorageServiceImpl extends AbstractStorageService {
     @Override
     public String upload(MultipartFile file) {
         if (file == null || file.isEmpty()) {
+            log.error("업로드할 파일이 null 이거나 비어 있습니다.");
             throw new IllegalArgumentException("업로드할 파일을 제공해주세요.");
         }
 
@@ -63,6 +64,7 @@ public class SupabaseStorageServiceImpl extends AbstractStorageService {
         try {
             Files.createDirectories(baseDir);
         } catch (IOException e) {
+            log.error("임시 업로드 디렉토리 생성 실패: {}", baseDir, e);
             throw new UncheckedIOException("임시 업로드 디렉토리 생성 실패", e);
         }
 

@@ -1,10 +1,10 @@
 package gettothepoint.unicatapi.application.service.media;
 
-import gettothepoint.unicatapi.application.service.TextToSpeechService;
 import gettothepoint.unicatapi.application.service.project.ProjectService;
 import gettothepoint.unicatapi.application.service.project.SectionService;
 import gettothepoint.unicatapi.application.service.storage.StorageService;
 import gettothepoint.unicatapi.application.service.video.YoutubeUploadService;
+import gettothepoint.unicatapi.application.service.voice.TTSService;
 import gettothepoint.unicatapi.domain.dto.project.SectionResponse;
 import gettothepoint.unicatapi.domain.entity.dashboard.Project;
 import gettothepoint.unicatapi.domain.entity.dashboard.Section;
@@ -26,7 +26,7 @@ public class ArtifactService {
     private final ProjectService projectService;
     private final SectionService sectionService;
     private final StorageService storageService;
-    private final TextToSpeechService textToSpeechService;
+    private final TTSService ttsService;
 
 
     public void build(Long projectId) {
@@ -85,7 +85,7 @@ public class ArtifactService {
         // audio standby, TODO, 메서드 분리가 필요
         String audioUrl = section.getAudioUrl();
         if (audioUrl == null) {
-            File voiceFile = textToSpeechService.create(section.getScript(), section.getVoiceModel());
+            File voiceFile = ttsService.create(section.getScript(), section.getVoiceModel());
             audioUrl = storageService.upload(voiceFile);
             section.setAudioUrl(audioUrl);
         }

@@ -55,7 +55,7 @@ public class MediaServiceImpl implements MediaService {
     @Override
     public File mergeImageAndAudio(File imageFile, File soundFile) {
 
-        File outputFile = FileUtil.createTempFile(FILE_PREFIX + "img_audio", ".mp4");
+        File outputFile = FileUtil.createTempFile(".mp4");
         List<String> command = List.of(
                 ffmpegPath,
                 "-loop", "1",
@@ -75,7 +75,7 @@ public class MediaServiceImpl implements MediaService {
     @Override
     public File mergeImageAndAudio(File templateResource, File contentResource, File audioResource) {
 
-        File outputFile = FileUtil.createTempFile(FILE_PREFIX + "merged_with_bg_", ".mp4");
+        File outputFile = FileUtil.createTempFile( ".mp4");
         double duration = getAudioDurationInSeconds(audioResource);
 
         String filter =
@@ -106,7 +106,7 @@ public class MediaServiceImpl implements MediaService {
     @Override
     public File mergeImageAndAudio(File templateResource, File contentResource, File titleResource, File audioResource) {
 
-        File outputFile = FileUtil.createTempFile(FILE_PREFIX + "merged_with_bg_", ".mp4");
+        File outputFile = FileUtil.createTempFile(".mp4");
         double duration = getAudioDurationInSeconds(audioResource);
 
         String filter =
@@ -137,7 +137,7 @@ public class MediaServiceImpl implements MediaService {
     @Override
     public File mergeVideosAndExtractVFR(List<File> files) {
 
-        File outputFile = FileUtil.createTempFile(FILE_PREFIX + "merged_videos_", ".mp4");
+        File outputFile = FileUtil.createTempFile(".mp4");
 
         // 총 길이
         long totalMs = 0;
@@ -191,7 +191,7 @@ public class MediaServiceImpl implements MediaService {
     private File loadTransitionSoundFile() {
         try {
             ClassPathResource resource = new ClassPathResource(TRANSITION_AUDIO_CLASSPATH);
-            File tempFile = File.createTempFile(TRANSITION_AUDIO_PREFIX, ".mp3");
+            File tempFile = FileUtil.createTempFile(".mp3");
             try (InputStream in = resource.getInputStream();
                  OutputStream out = new FileOutputStream(tempFile)) {
                 in.transferTo(out);
@@ -244,7 +244,7 @@ public class MediaServiceImpl implements MediaService {
         if (MediaValidationUtil.hasValidImageExtension(file.getName())) {
             return file;
         }
-        File outputImage = FileUtil.createTempFile("thumbnail_", ".jpg");
+        File outputImage = FileUtil.createTempFile(".jpg");
 
         List<String> command = List.of(
                 ffmpegPath,
