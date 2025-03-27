@@ -26,7 +26,7 @@ import org.springframework.web.util.WebUtils;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-@Tag(name = "Auth - Sign API", description = "멤버 관련 api")
+@Tag(name = "Auth", description = "멤버 관련 api")
 public class SignController {
 
     private final AuthService authService;

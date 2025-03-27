@@ -50,6 +50,7 @@ springdoc:
   swagger-ui:
     path: /
 
+
 app:
   name: unicat-api
   jwt:

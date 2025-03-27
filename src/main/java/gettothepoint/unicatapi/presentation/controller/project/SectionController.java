@@ -22,7 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.beans.PropertyEditorSupport;
 
-@Tag(name = "Project - Section", description = "섹션 API")
+@Tag(name = "Project", description = "섹션 API")
 @RestController
 @RequestMapping("/projects/{projectId}/sections")
 @RequiredArgsConstructor

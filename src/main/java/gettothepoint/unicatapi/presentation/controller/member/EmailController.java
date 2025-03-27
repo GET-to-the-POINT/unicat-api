@@ -3,6 +3,7 @@ package gettothepoint.unicatapi.presentation.controller.member;
 import gettothepoint.unicatapi.application.service.member.MemberService;
 import gettothepoint.unicatapi.common.propertie.AppProperties;
 import gettothepoint.unicatapi.common.util.JwtUtil;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 
 import java.io.IOException;
 
+@Tag(name = "Member", description = "이메일 관련 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/members")

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Subscription - Subscription", description = "구독 API")
+@Tag(name = "Subscription", description = "구독 API")
 @RestController
 @RequestMapping("/subscription")
 @RequiredArgsConstructor

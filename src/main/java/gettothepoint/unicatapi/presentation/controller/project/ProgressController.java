@@ -13,7 +13,7 @@ import java.util.concurrent.Executors;
 
 @RestController
 @RequiredArgsConstructor
-@Tag(name = "Project - Progress", description = "업로드 진행률 관련 API")
+@Tag(name = "Project", description = "업로드 진행률 관련 API")
 public class ProgressController {
 
     private final ProgressManager progressManager;

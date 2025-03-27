@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@Tag(name = "Project - Asset", description = "샘플 리소스(보이스, 배경화면, 효과음 등)를 가져오는 API")
+@Tag(name = "Asset", description = "샘플 리소스(보이스, 배경화면, 효과음 등)를 가져오는 API")
 @RestController
 @RequestMapping("/assets")
 @RequiredArgsConstructor

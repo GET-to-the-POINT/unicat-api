@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 
-@Tag(name = "Subscription - Toss", description = "Toss Payments API")
+@Tag(name = "Payment", description = "Toss Payments API")
 @RestController
 @RequestMapping("/toss")
 @RequiredArgsConstructor
