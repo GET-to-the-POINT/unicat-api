@@ -11,7 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = " - Member", description = "멤버 관련 API")
+@Tag(name = "Member - Member", description = "멤버 관련 API")
 @RestController
 @RequestMapping("/members")
 @RequiredArgsConstructor
