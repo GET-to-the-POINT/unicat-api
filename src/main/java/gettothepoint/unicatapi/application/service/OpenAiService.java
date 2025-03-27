@@ -9,6 +9,7 @@ import gettothepoint.unicatapi.domain.repository.ProjectRepository;
 import gettothepoint.unicatapi.domain.repository.SectionRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.image.Image;
@@ -28,6 +29,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
+@Log4j2
 @RequiredArgsConstructor
 @Service
 public class OpenAiService {
@@ -67,6 +69,7 @@ public class OpenAiService {
                 tone,
                 request.prompt()
         );
+        log.debug("generateScriptAI - Prompt created: {}", promptText);
 
         OpenAiChatOptions options = OpenAiChatOptions.builder()
                 .model(appProperties.openAIScript().model())
@@ -80,6 +83,7 @@ public class OpenAiService {
                 .user(prompt.getContents())
                 .call()
                 .content();
+        log.info("Received response from OpenAiChatModel for script generation");
 
         String script = Optional.ofNullable(raw)
                 .map(s -> s.startsWith("\"") && s.endsWith("\"") ? s.substring(1, s.length() - 1) : s)
@@ -89,9 +93,11 @@ public class OpenAiService {
     }
 
     public CreateResourceResponse createImage(Long projectId, Long sectionId, PromptRequest scriptRequest) {
+        log.info("createImage called with projectId: {}, sectionId: {}", projectId, sectionId);
 
         sectionRepository.findById(sectionId)
                 .orElseThrow(() -> new EntityNotFoundException(SECTION_NOT_FOUND_MSG + sectionId));
+        log.debug("Section {} validated", sectionId);
 
         String style = projectRepository.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundException(PROJECT_NOT_FOUND_MSG + projectId))

@@ -55,19 +55,22 @@ public class SupabaseStorageServiceImpl extends AbstractStorageService {
 
     @Override
     public String upload(MultipartFile file) {
-        if (file == null || file.isEmpty()) {
+        log.info("업로드 요청: {}", file.getOriginalFilename());
+        if (file.isEmpty()) {
             log.error("업로드할 파일이 null 이거나 비어 있습니다.");
             throw new IllegalArgumentException("업로드할 파일을 제공해주세요.");
         }
 
         Path baseDir = getTempPath();
         try {
+            log.info("임시 업로드 디렉토리 생성: {}", baseDir);
             Files.createDirectories(baseDir);
         } catch (IOException e) {
             log.error("임시 업로드 디렉토리 생성 실패: {}", baseDir, e);
             throw new UncheckedIOException("임시 업로드 디렉토리 생성 실패", e);
         }
 
+        log.info("업로드할 파일: {}", file.getOriginalFilename());
         String extension = Optional.ofNullable(file.getOriginalFilename())
                 .filter(name -> name.lastIndexOf('.') != -1)
                 .map(name -> name.substring(name.lastIndexOf('.')))
@@ -75,6 +78,7 @@ public class SupabaseStorageServiceImpl extends AbstractStorageService {
 
         File tmpFile;
         try {
+            log.info("임시 파일 생성: {}", extension);
             tmpFile = Files.createTempFile(baseDir, "upload-", extension).toFile();
             file.transferTo(tmpFile);
         } catch (IOException e) {
@@ -90,6 +94,7 @@ public class SupabaseStorageServiceImpl extends AbstractStorageService {
         HttpClient httpClient = HttpClient.newHttpClient();
 
         try {
+            log.info("업로드 요청 URL: {}", url);
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .header("apikey", supabaseKey)
@@ -98,18 +103,23 @@ public class SupabaseStorageServiceImpl extends AbstractStorageService {
                     .POST(HttpRequest.BodyPublishers.ofFile(tmpFile.toPath()))
                     .build();
 
+            log.info("업로드 요청 전송: {}", request);
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() >= 400) {
+                log.error("업로드 실패: {}", response.body());
                 throw new ResponseStatusException(
                         HttpStatus.INTERNAL_SERVER_ERROR,
                         String.format("업로드 실패, 상태코드: %d, 메시지: %s", response.statusCode(), response.body())
                 );
             }
 
+            log.info("업로드 성공: {}", response.body());
             return url;
         } catch (IOException e) {
+            log.error("업로드 요청 중 IO 오류 발생", e);
             throw new UncheckedIOException("파일 업로드 중 IO 오류 발생", e);
         } catch (InterruptedException e) {
+            log.error("업로드 요청이 중단되었습니다.", e);
             Thread.currentThread().interrupt();
             throw new IllegalStateException("업로드 요청이 중단되었습니다.", e);
         }
