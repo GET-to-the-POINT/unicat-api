@@ -62,7 +62,7 @@ public class ProjectService {
         return ProjectResponse.fromEntity(project);
     }
 
-    public void verifyProjectOwner(Long projectId, Long memberId) {
+    public void verifyProjectOwner(Long memberId, Long projectId) {
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + projectId));
 
         if (!project.getMember().getId().equals(memberId)) {
