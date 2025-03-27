@@ -85,6 +85,13 @@ public class ArtifactService {
     private void sectionBuildAndUpload(Long sectionId) {
         Section section = sectionService.getOrElseThrow(sectionId);
 
+        // video standby
+        String videoUrl = section.getVideoUrl();
+        if (StringUtils.hasText(videoUrl)) {
+            storageService.download(videoUrl);
+            return;
+        }
+
         // resource standby
         String resourceUrl = section.getContentUrl(); // 리소스는 프로세스상 사용자가 선행하여 업로드한다.(인공지능생성도 선행되어서 진해오딘다)
 
