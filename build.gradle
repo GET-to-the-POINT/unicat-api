@@ -1,6 +1,6 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.4.3'
+	id 'org.springframework.boot' version '3.4.4'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'com.github.ben-manes.versions' version '0.52.0'
 }
@@ -72,8 +72,8 @@ dependencies {
 	implementation 'org.springframework.ai:spring-ai-openai'
 
 	// ===== ETC =====
-	implementation 'org.apache.tika:tika-core:3.1.0'
-	implementation 'com.github.loki4j:loki-logback-appender:1.5.1'
+	implementation 'com.github.loki4j:loki-logback-appender:1.6.0'
+	implementation 'com.konghq:unirest-java:4.0.0-RC2'
 }
 
 tasks.named('test') {

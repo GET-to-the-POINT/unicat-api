@@ -10,6 +10,7 @@ import gettothepoint.unicatapi.domain.repository.SectionRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class SectionService {
+
+    @Value("${app.supertone.default-voice-id}")
+    private String supertoneDefaultVoiceId;
 
     private final ProjectService projectService;
     private final SectionRepository sectionRepository;
@@ -52,7 +56,7 @@ public class SectionService {
         Long sortOrder = sectionRepository.findMaxSortOrderByProject(projectId);
         Section newSection = Section.builder()
                         .project(project)
-                        .voiceModel("ko-KR-Neural2-A")
+                        .voiceModel(supertoneDefaultVoiceId)
                         .sortOrder(sortOrder + 1)
                         .build();
         sectionRepository.save(newSection);

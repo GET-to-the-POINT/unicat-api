@@ -17,7 +17,7 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:validate}
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
     open-in-view: false
 
   profiles:
@@ -45,7 +45,6 @@ spring:
   ai:
     openai:
       api-key: ${SPRING_AI_OPENAI_API_KEY}
-
 
 springdoc:
   swagger-ui:
@@ -92,8 +91,8 @@ app:
     allow-credentials: true
     max-age: 3600
   tts:
-    file-path: "/Users/wooyeon/Desktop/"
-    file-extension: ".mp3"
+    file-path: /Users/wooyeon/Desktop/
+    file-extension: .mp3
   openai-script:
     prompt: ${SCRIPT_AI_PROMPT:"다음 스크립트를 읽고, '%s'에 맞춰 문장을 자연스럽게 다듬고 필요한 보충 내용을 추가해줘.%n%n원본 스크립트:%n%s"}
     model: ${SCRIPT_AI_MODEL:gpt-4o-mini}
@@ -107,6 +106,9 @@ app:
   media:
     ffmpeg:
       path: ${APP_MEDIA_FFMPEG_PATH:ffmpeg}
+  supertone:
+    api-key: ${APP_SUPERTONE_API_KEY}
+    default-voice-id: ${APP_SUPERTONE_DEFAULT_VOICE_ID:ntYeJyLCd1PB3CEgmU7pHA}
 
 server:
   port: 443

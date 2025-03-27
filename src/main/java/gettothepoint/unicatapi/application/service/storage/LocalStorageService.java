@@ -52,14 +52,8 @@ public class LocalStorageService extends AbstractStorageService {
 
     @Override
     public String upload(File file) {
-        File foundFile = FileUtil.getFilenameInTemp(file.getName());
-        if (foundFile.exists()) {
-            return foundFile.getAbsolutePath();
-        }
-
-        String tempPath = System.getProperty("java.io.tmpdir");
         String extension = file.getName().substring(file.getName().lastIndexOf("."));
-        File tmpFile = FileUtil.createTempFile(tempPath, extension);
+        File tmpFile = FileUtil.createTempFile(extension);
         return tmpFile.getAbsolutePath();
     }
 }
