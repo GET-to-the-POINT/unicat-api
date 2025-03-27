@@ -5,6 +5,7 @@ import gettothepoint.unicatapi.application.service.project.ProjectService;
 import gettothepoint.unicatapi.application.service.project.SectionService;
 import gettothepoint.unicatapi.application.service.storage.StorageService;
 import gettothepoint.unicatapi.application.service.video.YoutubeUploadService;
+import gettothepoint.unicatapi.application.service.voice.TTSService;
 import gettothepoint.unicatapi.domain.dto.project.ProjectResponse;
 import gettothepoint.unicatapi.domain.dto.project.PromptRequest;
 import gettothepoint.unicatapi.domain.dto.project.SectionResponse;
