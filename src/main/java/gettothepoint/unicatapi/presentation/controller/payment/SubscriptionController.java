@@ -26,20 +26,19 @@ public class SubscriptionController {
 
     @Operation(
             summary = "주문 생성",
-            description = "사용자의 이메일과 구독 플랜을 기반으로 주문을 생성합니다. " +
-                    "가능한 구독 플랜은 BASIC, PREMIUM, VIP 입니다."
+            description = "사용자 이메일과 'PREMIUM' 구독 플랜을 기준으로 주문을 생성하는 API입니다. (BASIC, PREMIUM, VIP 중 선택 가능)"
     )
     @PostMapping
     public void create(
             @AuthenticationPrincipal Jwt jwt){
-        String email = jwt.getClaimAsString("email");
+        Long memberId = Long.parseLong(jwt.getSubject());
         Plan premiumPlan = planService.getPlanByName("PREMIUM");
-        orderService.create(email, premiumPlan);
+        orderService.create(memberId, premiumPlan);
     }
 
     @Operation(
             summary = "구독 취소",
-            description = "구독 취소하면 다음달 사용자의 정기결제가 이루어지지 않습니다. "
+            description = "현재 사용 중인 구독을 취소하며 다음 달 정기 결제를 중지시키는 API입니다."
     )
     @DeleteMapping
     public void delete(@AuthenticationPrincipal Jwt jwt) {

@@ -20,7 +20,7 @@ public class ProgressController {
 
     @Operation(
             summary = "샘플 진행률 SSE 테스트",
-            description = "샘플입니다."
+            description = "샘플 데이터를 사용하여 SSE 방식으로 진행률 이벤트(0~100%)를 테스트하는 API입니다."
     )
     @GetMapping("/progress")
     public SseEmitter progress() {
@@ -43,7 +43,7 @@ public class ProgressController {
 
     @Operation(
             summary = "프로젝트 업로드 진행률 구독",
-            description = "특정 프로젝트의 유튜브 업로드 진행률을 SSE 방식으로 구독합니다."
+            description = "특정 프로젝트의 유튜브 업로드 진행률을 SSE 방식으로 구독합니다. projectId 경로 변수를 사용합니다."
     )
     @GetMapping("/{projectId}/progress")
     public SseEmitter subscribe(@PathVariable Long projectId) {

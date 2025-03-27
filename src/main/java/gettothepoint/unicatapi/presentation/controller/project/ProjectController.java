@@ -6,11 +6,16 @@ import gettothepoint.unicatapi.application.service.project.ProjectService;
 import gettothepoint.unicatapi.application.service.youtube.YouTubeAnalyticsProxyService;
 import gettothepoint.unicatapi.domain.dto.project.ProjectResponse;
 import gettothepoint.unicatapi.domain.dto.project.PromptRequest;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+@Log4j2
 @Tag(name = "Project - Project", description = "프로젝트 API")
 @RestController
 @RequestMapping("/projects")
@@ -32,22 +38,42 @@ public class ProjectController {
     private final YouTubeAnalyticsProxyService youtubeAnalyticsProxyService;
     private final ArtifactService artifactService;
 
-    @GetMapping()
-    public Page<ProjectResponse> getAll(Pageable pageable) {
+    @Operation(
+            summary = "프로젝트 목록 조회",
+            description = "페이지 번호, 사이즈, 정렬 옵션을 사용하여 모든 프로젝트를 페이징 단위로 조회하는 API입니다."
+    )
+    @GetMapping
+    public Page<ProjectResponse> getAll(
+            @ParameterObject
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable
+    ) {
         return projectService.getAll(pageable);
     }
 
+    @Operation(
+            summary = "프로젝트 생성",
+            description = "현재 로그인 사용자의 정보를 기반으로 새로운 프로젝트를 생성합니다. JWT 토큰의 subject 값을 memberId로 사용합니다."
+    )
     @PostMapping()
     public ProjectResponse create(@AuthenticationPrincipal Jwt jwt) {
         Long memberId = Long.valueOf(jwt.getSubject());
         return projectService.create(memberId);
     }
 
+    @Operation(
+            summary = "프로젝트 상세 조회",
+            description = "경로 변수 projectId를 사용해 특정 프로젝트의 상세 정보를 반환합니다."
+    )
     @GetMapping("/{projectId}")
     public ProjectResponse get(@PathVariable Long projectId) {
         return projectService.get(projectId);
     }
 
+    @Operation(
+            summary = "아티팩트 생성",
+            description = "프로젝트에 대해 아티팩트를 생성합니다. type이 'youtube' 또는 'vimeo'인 경우 인증된 액세스 토큰을 사용하며, 기본 타입은 'artifact'입니다."
+    )
     @PostMapping("/{projectId}")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void createArtifact(
@@ -64,6 +90,10 @@ public class ProjectController {
         }
     }
 
+    @Operation(
+            summary = "유튜브 분석 조회",
+            description = "현재 인증된 사용자의 유튜브 분석 데이터를 추가 쿼리 파라미터와 함께 조회합니다."
+    )
     @GetMapping("/youtube-analytics")
     @PreAuthorize("isAuthenticated()")
     public QueryResponse getYouTubeAnalytics(@RegisteredOAuth2AuthorizedClient("google") OAuth2AuthorizedClient authorizedClient, @RequestParam Map<String, String> queryParams) {
@@ -71,6 +101,10 @@ public class ProjectController {
         return youtubeAnalyticsProxyService.getYouTubeAnalyticsData(authorizedClient.getAccessToken(), queryParams, memberId);
     }
 
+    @Operation(
+            summary = "원스탭 아티팩트 생성",
+            description = "프롬프트 정보를 기반으로 OpenAI를 사용해 콘텐츠를 자동 생성하고, 이를 기반으로 프로젝트 아티팩트를 생성하는 API입니다."
+    )
     @PostMapping("/one-step")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void autoBuild(@AuthenticationPrincipal Jwt jwt, PromptRequest promptRequest) {

@@ -1,15 +1,13 @@
 package gettothepoint.unicatapi.application.service.payment;
 
+import gettothepoint.unicatapi.application.service.member.MemberService;
 import gettothepoint.unicatapi.domain.constant.payment.TossPaymentStatus;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.entity.payment.Order;
 import gettothepoint.unicatapi.domain.entity.payment.Plan;
-import gettothepoint.unicatapi.domain.repository.MemberRepository;
 import gettothepoint.unicatapi.domain.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.UUID;
 
@@ -18,11 +16,10 @@ import java.util.UUID;
 public class OrderService {
 
     private final OrderRepository orderRepository;
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
 
-    public Order create(String email, Plan plan) {
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Member not found"));
+    public Order create(Long memberId, Plan plan) {
+        Member member = memberService.getOrElseThrow(memberId);
 
         Order order = Order.builder()
                 .id(UUID.randomUUID().toString())

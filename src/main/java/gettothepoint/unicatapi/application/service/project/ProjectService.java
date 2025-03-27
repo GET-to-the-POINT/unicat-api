@@ -15,8 +15,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class ProjectService {
@@ -25,16 +23,9 @@ public class ProjectService {
     private final MemberService memberService;
     private final AssetService assetService;
 
-    // 컬렉션 페이지네이션
     public Page<ProjectResponse> getAll(Pageable pageable) {
         Page<Project> projectPage = projectRepository.findAll(pageable);
         return projectPage.map(ProjectResponse::fromEntity);
-    }
-
-    // 컬렉션 전체
-    public List<ProjectResponse> getAll() {
-        List<Project> projects = projectRepository.findAll();
-        return projects.stream().map(ProjectResponse::fromEntity).toList();
     }
 
     // 싱글

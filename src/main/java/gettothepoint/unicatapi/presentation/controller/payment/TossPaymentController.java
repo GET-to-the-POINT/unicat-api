@@ -33,18 +33,18 @@ public class TossPaymentController {
 
     @Operation(
             summary = "정기 결제 승인",
-            description = "사용자의 빌링키를 저장하고 자동 결제 승인이 이루어집니다."
+            description = "사용자의 빌링키(authKey)를 저장한 후, 'PREMIUM' 플랜 기반 주문 생성 및 자동 결제 승인을 수행하고 프론트엔드 URL로 리다이렉트합니다."
     )
     @GetMapping("/approve")
     public void approveAutoPayment(
             @AuthenticationPrincipal Jwt jwt,
             @RequestParam String authKey,
             HttpServletResponse response) throws IOException {
-        String email = jwt.getClaim("email");
+        Long memberId = Long.parseLong(jwt.getSubject());
         Plan premiumPlan = planService.getPlanByName("PREMIUM");
-        orderService.create(email, premiumPlan);//todo 가주문 나중에 subscription컨트롤러 옮길수도 있음
-        billingService.saveBillingKey(authKey, email);
-        paymentService.approveAutoPayment(email);
+        orderService.create(memberId, premiumPlan);//todo 가주문 나중에 subscription컨트롤러 옮길수도 있음
+        billingService.saveBillingKey(authKey, memberId);
+        paymentService.approveAutoPayment(memberId);
         response.sendRedirect(appProperties.frontend().url());
     }
 

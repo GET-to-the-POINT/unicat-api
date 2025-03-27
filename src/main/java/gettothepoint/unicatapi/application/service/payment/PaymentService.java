@@ -25,8 +25,8 @@ public class PaymentService {
     private final MemberService memberService;
 
     @Transactional
-    public Map<String, Object> approveAutoPayment(String email) {
-        Member member = memberService.getOrElseThrow(email);
+    public Map<String, Object> approveAutoPayment(Long memberId) {
+        Member member = memberService.getOrElseThrow(memberId);
         Billing billing = member.getBilling();
         Order order = member.getOrders().stream()
                 .filter(Order::isPending)

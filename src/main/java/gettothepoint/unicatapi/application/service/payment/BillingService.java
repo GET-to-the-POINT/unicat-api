@@ -26,8 +26,8 @@ public class BillingService {
     private final MemberService memberService;
     private final ApiUtil apiUtil;
 
-    public void saveBillingKey(String authKey, String email) {
-        Member member = memberService.getOrElseThrow(email);
+    public void saveBillingKey(String authKey, Long memberId) {
+        Member member = memberService.getOrElseThrow(memberId);
         issueSuccessAndCreate(member, authKey);
     }
 
