@@ -1,10 +1,13 @@
 package gettothepoint.unicatapi.application.service.media;
 
+import gettothepoint.unicatapi.application.service.OpenAiService;
 import gettothepoint.unicatapi.application.service.TextToSpeechService;
 import gettothepoint.unicatapi.application.service.project.ProjectService;
 import gettothepoint.unicatapi.application.service.project.SectionService;
 import gettothepoint.unicatapi.application.service.storage.StorageService;
 import gettothepoint.unicatapi.application.service.video.YoutubeUploadService;
+import gettothepoint.unicatapi.domain.dto.project.ProjectResponse;
+import gettothepoint.unicatapi.domain.dto.project.PromptRequest;
 import gettothepoint.unicatapi.domain.dto.project.SectionResponse;
 import gettothepoint.unicatapi.domain.entity.dashboard.Project;
 import gettothepoint.unicatapi.domain.entity.dashboard.Section;
@@ -12,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.util.List;
@@ -27,7 +31,7 @@ public class ArtifactService {
     private final SectionService sectionService;
     private final StorageService storageService;
     private final TextToSpeechService textToSpeechService;
-
+    private final OpenAiService openAiService;
 
     public void build(Long projectId) {
         this.build(projectId, "artifact", null);
@@ -120,4 +124,18 @@ public class ArtifactService {
         }
     }
 
+
+    @Transactional
+    @Async
+    public CompletableFuture<Long> oneStepAutoArtifact(Long memberId, PromptRequest promptRequest) {
+        ProjectResponse projectResponse = projectService.create(memberId);
+        Long projectId = projectResponse.id();
+        for(int i = 0; i < 5; i++) {
+            sectionService.create(projectId);
+        }
+        openAiService.oneStepCreateResource(projectId, promptRequest);
+        Project project = projectService.getOrElseThrow(projectId);
+        projectService.update(project);
+        return CompletableFuture.completedFuture(projectId);
+    }
 }
