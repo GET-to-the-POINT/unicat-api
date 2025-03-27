@@ -25,6 +25,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -39,6 +40,7 @@ public class OpenAiService {
     private final OpenAiImageModel openAiImageModel;
     private static final String SECTION_NOT_FOUND_MSG = "Section not found with id: ";
     private final OpenAiChatModel openAiChatModel;
+    private static final String PROJECT_NOT_FOUND_MSG = "Project not found with id: ";
 
     public CreateResourceResponse createScript(Long id, Long sectionId, PromptRequest request) {
 
@@ -46,7 +48,7 @@ public class OpenAiService {
                 .orElseThrow(() -> new EntityNotFoundException(SECTION_NOT_FOUND_MSG + sectionId));
 
         String tone = projectRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + id))
+                .orElseThrow(() -> new EntityNotFoundException(PROJECT_NOT_FOUND_MSG + id))
                 .getScriptTone();
 
         String scriptTone = (tone == null || tone.isBlank()) ? "default" : tone;
@@ -74,10 +76,10 @@ public class OpenAiService {
         Prompt prompt = new Prompt(promptText, options);
 
         String raw = ChatClient.create(openAiChatModel)
-                        .prompt()
-                        .user(prompt.getContents())
-                        .call()
-                        .content();
+                .prompt()
+                .user(prompt.getContents())
+                .call()
+                .content();
 
         String script = Optional.ofNullable(raw)
                 .map(s -> s.startsWith("\"") && s.endsWith("\"") ? s.substring(1, s.length() - 1) : s)
@@ -92,7 +94,7 @@ public class OpenAiService {
                 .orElseThrow(() -> new EntityNotFoundException(SECTION_NOT_FOUND_MSG + sectionId));
 
         String style = projectRepository.findById(projectId)
-                .orElseThrow(() -> new EntityNotFoundException("Project not found with id: " + projectId))
+                .orElseThrow(() -> new EntityNotFoundException(PROJECT_NOT_FOUND_MSG + projectId))
                 .getImageStyle();
 
         String imageStyle = (style == null || style.isBlank()) ? "Photo" : style;
@@ -146,15 +148,50 @@ public class OpenAiService {
         sectionRepository.save(section);
     }
 
-    public CreateResourceResponse createResource(Long projectId, Long sectionId, String type, PromptRequest promptRequest, String transitionName) {
+    public CreateResourceResponse createResource(Long projectId, Long sectionId, String type, PromptRequest promptRequest) {
         if ("image".equalsIgnoreCase(type)) {
-           return createImage(projectId, sectionId, promptRequest);
+            return createImage(projectId, sectionId, promptRequest);
         } else if ("script".equalsIgnoreCase(type)) {
             return createScript(projectId, sectionId, promptRequest);
         } else {
             CreateResourceResponse imageResponse = createImage(projectId, sectionId, promptRequest);
             CreateResourceResponse scriptResponse = createScript(projectId, sectionId, promptRequest);
             return new CreateResourceResponse(imageResponse.imageUrl(), imageResponse.alt(), scriptResponse.script());
+        }
+    }
+
+    public void oneStepCreateResource(Long projectId, PromptRequest request) {
+        List<Section> sections = sectionRepository.findAllByProjectIdOrderBySortOrderAsc(projectId);
+
+        String tone = projectRepository.findById(projectId)
+                .orElseThrow(() -> new EntityNotFoundException(PROJECT_NOT_FOUND_MSG + projectId))
+                .getScriptTone();
+
+        String promptText = String.format(
+                appProperties.openAIAuto().prompt(),
+                tone,
+                request.prompt()
+        );
+
+        OpenAiChatOptions options = OpenAiChatOptions.builder()
+                .model(appProperties.openAIScript().model())
+                .temperature(appProperties.openAIScript().temperature())
+                .build();
+
+        Prompt prompt = new Prompt(promptText, options);
+
+        AutoArtifact autoArtifact = ChatClient.create(openAiChatModel).prompt()
+                .user(prompt.getContents())
+                .call()
+                .entity(AutoArtifact.class);
+
+        for (int i = 0; i < sections.size(); i++) {
+            Section section = sections.get(i);
+            assert autoArtifact != null;
+            String script = autoArtifact.scripts().get(i);
+            section.setScript(script);
+            sectionRepository.save(section);
+            createImage(projectId, section.getId(), new PromptRequest(script));
         }
     }
 }
