@@ -5,6 +5,7 @@ import gettothepoint.unicatapi.application.service.media.ArtifactService;
 import gettothepoint.unicatapi.application.service.project.ProjectService;
 import gettothepoint.unicatapi.application.service.youtube.YouTubeAnalyticsProxyService;
 import gettothepoint.unicatapi.domain.dto.project.ProjectResponse;
+import gettothepoint.unicatapi.domain.dto.project.PromptRequest;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -68,6 +69,14 @@ public class ProjectController {
     public QueryResponse getYouTubeAnalytics(@RegisteredOAuth2AuthorizedClient("google") OAuth2AuthorizedClient authorizedClient, @RequestParam Map<String, String> queryParams) {
         Long memberId = Long.valueOf(authorizedClient.getPrincipalName());
         return youtubeAnalyticsProxyService.getYouTubeAnalyticsData(authorizedClient.getAccessToken(), queryParams, memberId);
+    }
+
+    @PostMapping("/one-step")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void autoBuild(@AuthenticationPrincipal Jwt jwt, PromptRequest promptRequest) {
+        Long memberId = Long.valueOf(jwt.getSubject());
+        Long projectId = artifactService.oneStepAutoArtifact(memberId, promptRequest).join();
+        artifactService.buildAsync(projectId,"artifact", null).join();
     }
 
 }
