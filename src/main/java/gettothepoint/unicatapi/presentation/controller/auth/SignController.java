@@ -1,8 +1,11 @@
 package gettothepoint.unicatapi.presentation.controller.auth;
 
+import gettothepoint.unicatapi.application.service.AuthService;
 import gettothepoint.unicatapi.common.propertie.AppProperties;
+import gettothepoint.unicatapi.common.schema.ErrorResponse;
+import gettothepoint.unicatapi.common.schema.UnauthorizedErrorResponse;
 import gettothepoint.unicatapi.common.util.CookieUtil;
-import gettothepoint.unicatapi.common.util.JwtUtil;
+import gettothepoint.unicatapi.domain.dto.sign.SignInRequest;
 import gettothepoint.unicatapi.domain.dto.sign.SignUpRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -17,10 +20,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import gettothepoint.unicatapi.common.schema.ErrorResponse;
-import gettothepoint.unicatapi.common.schema.UnauthorizedErrorResponse;
-import gettothepoint.unicatapi.domain.dto.sign.SignInRequest;
-import gettothepoint.unicatapi.application.service.AuthService;
 import org.springframework.web.util.WebUtils;
 
 @RestController
@@ -30,7 +29,6 @@ import org.springframework.web.util.WebUtils;
 public class SignController {
 
     private final AuthService authService;
-    private final JwtUtil jwtUtil;
     private final AppProperties appProperties;
     private final CookieUtil cookieUtil;
 
