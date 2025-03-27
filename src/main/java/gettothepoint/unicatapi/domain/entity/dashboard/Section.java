@@ -26,7 +26,7 @@ public class Section extends BaseEntity {
     @Setter private String script;
     @Setter private String voiceModel;
 
-    @Setter private String resourceUrl;
+    @Setter private String contentUrl;
     @Setter private String audioUrl;
     @Setter private String videoUrl;
     @Setter private String transitionUrl;

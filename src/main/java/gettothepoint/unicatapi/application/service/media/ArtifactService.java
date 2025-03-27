@@ -59,14 +59,6 @@ public class ArtifactService {
         }
         sectionResponses = sectionService.getAll(projectId);
 
-        // thumbnail standby and upload
-//        String thumbnailTargetUrl = sectionResponses.getFirst().resourceUrl();
-//        File thumbnailTarget = storageService.download(thumbnailTargetUrl);
-//        File thumbnail = mediaService.extractThumbnail(thumbnailTarget);
-//        String thumbnailUrl = storageService.upload(thumbnail);
-//        project.setThumbnailUrl(thumbnailUrl);
-
-
         // project build standby
         List<String> sectionVideoUrls = sectionResponses.stream()
                 .map(SectionResponse::videoUrl)
@@ -88,7 +80,7 @@ public class ArtifactService {
         Section section = sectionService.getOrElseThrow(sectionId);
 
         // resource standby
-        String resourceUrl = section.getResourceUrl(); // 리소스는 프로세스상 사용자가 선행하여 업로드한다.(인공지능생성도 선행되어서 진해오딘다)
+        String resourceUrl = section.getContentUrl(); // 리소스는 프로세스상 사용자가 선행하여 업로드한다.(인공지능생성도 선행되어서 진해오딘다)
 
         // audio standby, TODO, 메서드 분리가 필요
         String audioUrl = section.getAudioUrl();
@@ -124,11 +116,7 @@ public class ArtifactService {
 
     private void uploadSocial(Project project, String type, OAuth2AccessToken accessToken) {
         if ("youtube".equalsIgnoreCase(type)) {
-
-            youtubeUploadService.uploadToYoutube(project, accessToken)
-                    .exceptionally(ex -> {
-                        return null;
-                    });
+            youtubeUploadService.uploadToYoutube(project, accessToken);
         }
     }
 

@@ -66,7 +66,7 @@ public class SectionService {
         if (!sectionResourceRequest.alt().isEmpty()) section.setAlt(sectionResourceRequest.alt());
         if (sectionResourceRequest.multipartFile() != null && !sectionResourceRequest.multipartFile().isEmpty()) {
                 String uploadResult = storageService.upload(sectionResourceRequest.multipartFile());
-                section.setResourceUrl(uploadResult);
+                section.setContentUrl(uploadResult);
             }
             this.update(section);
             return ResourceResponse.fromEntity(section);

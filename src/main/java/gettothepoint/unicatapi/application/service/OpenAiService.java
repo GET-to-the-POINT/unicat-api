@@ -141,17 +141,12 @@ public class OpenAiService {
         Section section = sectionRepository.findById(sectionId)
                 .orElseThrow(() -> new EntityNotFoundException(SECTION_NOT_FOUND_MSG + sectionId));
 
-        section.setResourceUrl(imageUrl);
+        section.setContentUrl(imageUrl);
         section.setAlt(alt);
         sectionRepository.save(section);
     }
 
-    public CreateResourceResponse createResource(Long projectId, Long sectionId, String type, PromptRequest promptRequest, String transitionUrl) {
-
-        String finalTransitionUrl = (transitionUrl != null && !transitionUrl.isBlank())
-                ? transitionUrl
-                : "https://your-default-transition-url.mp3";
-
+    public CreateResourceResponse createContent(Long projectId, Long sectionId, String type, PromptRequest promptRequest, String transitionUrl) {
         if ("image".equalsIgnoreCase(type)) {
            return createImage(projectId, sectionId, promptRequest);
         } else if ("script".equalsIgnoreCase(type)) {
