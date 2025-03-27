@@ -52,6 +52,7 @@ public class SectionService {
         Long sortOrder = sectionRepository.findMaxSortOrderByProject(projectId);
         Section newSection = Section.builder()
                         .project(project)
+                        .voiceModel("ko-KR-Neural2-A")
                         .sortOrder(sortOrder + 1)
                         .build();
         sectionRepository.save(newSection);

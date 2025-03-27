@@ -24,20 +24,21 @@ public class Section extends BaseEntity {
     @Setter private String alt;
     @Column(columnDefinition = "TEXT")
     @Setter private String script;
-    private String voiceModel;
+    @Setter private String voiceModel;
 
     @Setter private String resourceUrl;
     @Setter private String audioUrl;
     @Setter private String videoUrl;
-    @Setter private String tansitionUrl;
+    @Setter private String transitionUrl;
 
     @ManyToOne
     @JoinColumn
     private Project project;
 
     @Builder
-    public Section(Project project, Long sortOrder) {
+    public Section(Project project, String voiceModel, Long sortOrder) {
         this.project = project;
+        this.voiceModel = voiceModel;
         this.sortOrder = sortOrder;
     }
 
