@@ -146,7 +146,7 @@ public class OpenAiService {
         sectionRepository.save(section);
     }
 
-    public CreateResourceResponse createResource(Long projectId, Long sectionId, String type, PromptRequest promptRequest, String transitionUrl) {
+    public CreateResourceResponse createResource(Long projectId, Long sectionId, String type, PromptRequest promptRequest, String transitionName) {
         if ("image".equalsIgnoreCase(type)) {
            return createImage(projectId, sectionId, promptRequest);
         } else if ("script".equalsIgnoreCase(type)) {

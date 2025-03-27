@@ -1,9 +1,7 @@
 package gettothepoint.unicatapi.application.service.project;
 
-import gettothepoint.unicatapi.application.service.media.ArtifactService;
 import gettothepoint.unicatapi.application.service.member.MemberService;
 import gettothepoint.unicatapi.application.service.storage.AssetService;
-import gettothepoint.unicatapi.application.service.storage.StorageService;
 import gettothepoint.unicatapi.domain.dto.project.ProjectResponse;
 import gettothepoint.unicatapi.domain.entity.dashboard.Project;
 import gettothepoint.unicatapi.domain.entity.member.Member;
@@ -15,7 +13,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -27,7 +24,6 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final MemberService memberService;
     private final AssetService assetService;
-    private final StorageService storageService;
 
     // 컬렉션 페이지네이션
     public Page<ProjectResponse> getAll(Pageable pageable) {

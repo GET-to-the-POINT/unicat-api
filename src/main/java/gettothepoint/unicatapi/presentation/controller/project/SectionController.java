@@ -49,8 +49,8 @@ public class SectionController {
 
     @PreAuthorize("@projectService.verifyProjectOwner(#jwt.subject, #projectId)")
     @PostMapping(value = "/{sectionId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public CreateResourceResponse createContent(@AuthenticationPrincipal Jwt jwt, @PathVariable Long projectId, @PathVariable Long sectionId, @RequestParam(required = false) String type, @Valid @RequestBody PromptRequest scriptRequest, @RequestParam(name = "transitionUrl", required = false) String transitionUrl) {
-        return openAiService.createResource(projectId, sectionId, type, scriptRequest, transitionUrl);
+    public CreateResourceResponse createContent(@AuthenticationPrincipal Jwt jwt, @PathVariable Long projectId, @PathVariable Long sectionId, @RequestParam(required = false) String type, @Valid @RequestBody PromptRequest scriptRequest, @RequestParam(required = false) String transitionName) {
+        return openAiService.createResource(projectId, sectionId, type, scriptRequest, transitionName);
     }
 
     @PostMapping("/{sectionId}/order")
