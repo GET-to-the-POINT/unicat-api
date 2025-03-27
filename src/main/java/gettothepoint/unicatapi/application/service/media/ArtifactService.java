@@ -121,6 +121,9 @@ public class ArtifactService {
     private void uploadSocial(Project project, String type, OAuth2AccessToken accessToken) {
         if ("youtube".equalsIgnoreCase(type)) {
             youtubeUploadService.uploadToYoutube(project, accessToken);
+
+            youtubeUploadService.uploadToYoutube(project, accessToken)
+                    .exceptionally(ex -> null);
         }
     }
 
