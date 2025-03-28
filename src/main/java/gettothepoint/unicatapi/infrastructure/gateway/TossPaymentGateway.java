@@ -28,7 +28,7 @@ public class TossPaymentGateway {
     public Map<String, Object> requestApproval(Order order, String billingKey, String customerKey) {
         TossApprovalRequest request = TossApprovalRequest.builder()
                 .amount(order.getAmount())
-                .orderId(order.getUUID())
+                .orderId(order.getId())
                 .orderName(order.getOrderName())
                 .customerKey(customerKey)
                 .build();

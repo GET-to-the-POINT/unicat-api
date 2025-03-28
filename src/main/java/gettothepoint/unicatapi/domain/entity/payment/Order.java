@@ -17,11 +17,8 @@ import java.util.Objects;
 public class Order extends BaseEntity implements Comparable<Order> {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
-
-    @Column(unique = true)
-    private String UUID; // 토스에서 사용할 주문 ID
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
     private String orderName;
     private Long amount;
@@ -47,7 +44,6 @@ public class Order extends BaseEntity implements Comparable<Order> {
         this.member = member;
         this.status = status;
         this.plan = plan;
-        this.UUID = java.util.UUID.randomUUID().toString();
     }
 
     public void markDone() {
