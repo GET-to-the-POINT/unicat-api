@@ -1,31 +1,29 @@
 package gettothepoint.unicatapi.infrastructure.gateway;
 
 import gettothepoint.unicatapi.common.propertie.AppProperties;
-import gettothepoint.unicatapi.common.util.ApiUtil;
 import gettothepoint.unicatapi.domain.dto.payment.PaymentApprovalRequest;
 import gettothepoint.unicatapi.domain.entity.payment.Order;
+import kong.unirest.HttpResponse;
+import kong.unirest.Unirest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Base64;
 import java.util.Map;
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
 public class TossPaymentGateway {
 
     private final AppProperties appProperties;
-    private final RestTemplate restTemplate;
-    private final ApiUtil apiUtil;
 
     public Map<String, Object> requestApproval(Order order, String billingKey, String customerKey) {
+        String url = appProperties.toss().approveUrl() + "/" + billingKey;
+        String secretKey = appProperties.toss().secretKey();
+        String base64Secret = Base64.getEncoder().encodeToString((secretKey + ":").getBytes());
+
         PaymentApprovalRequest request = PaymentApprovalRequest.builder()
                 .amount(order.getAmount())
                 .orderId(order.getId())
@@ -33,15 +31,16 @@ public class TossPaymentGateway {
                 .customerKey(customerKey)
                 .build();
 
-        HttpEntity<PaymentApprovalRequest> entity = new HttpEntity<>(request, apiUtil.createHeaders(apiUtil.encodeSecretKey()));
-        String url = appProperties.toss().approveUrl() + "/" + billingKey;
+        HttpResponse<Map> response = Unirest.post(url)
+                .header("Authorization", "Basic " + base64Secret)
+                .header("Content-Type", "application/json")
+                .body(request)
+                .asObject(Map.class);
 
-        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
-                url, HttpMethod.POST, entity, new ParameterizedTypeReference<>() {}
-        );
+        if (response.getStatus() != 200 || response.getBody() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "자동결제 승인 실패");
+        }
 
-        return Optional.ofNullable(response.getBody())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "자동결제 승인 실패"));
+        return response.getBody();
     }
 }
-
