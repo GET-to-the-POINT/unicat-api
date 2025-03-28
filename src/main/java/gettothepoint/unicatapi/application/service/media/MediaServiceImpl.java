@@ -73,7 +73,7 @@ public class MediaServiceImpl implements MediaService {
     @Override
     public File mergeImageAndAudio(File templateResource, File contentResource, File audioResource) {
 
-        File outputFile = FileUtil.createTempFile(FILE_PREFIX + "merged_with_bg_", ".mp4");
+        File outputFile = FileUtil.createTempFile(".mp4");
         double duration = getAudioDurationInSeconds(audioResource);
 
         String filter =
