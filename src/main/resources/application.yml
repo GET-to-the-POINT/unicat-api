@@ -109,7 +109,7 @@ app:
       path: ${APP_MEDIA_FFMPEG_PATH:ffmpeg}
   supertone:
     api-key: ${APP_SUPERTONE_API_KEY}
-    default-voice-id: ${APP_SUPERTONE_DEFAULT_VOICE_ID:ntYeJyLCd1PB3CEgmU7pHA}
+    default-voice-id: ${APP_SUPERTONE_DEFAULT_VOICE_ID:d9Hi4iF7HEXpGWo6cC5YbZ}
     temp-dir: ${APP_SUPERTONE_TEMP_DIR:/unicat/supertone}
 
 server:
