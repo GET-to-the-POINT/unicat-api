@@ -23,6 +23,7 @@ public class CookieUtil {
         cookie.setPath(appProperties.jwt().cookie().path());
         cookie.setSecure(appProperties.jwt().cookie().secure());
         cookie.setHttpOnly(appProperties.jwt().cookie().httpOnly());
+        cookie.setDomain(appProperties.jwt().cookie().domain());
         cookie.setMaxAge(maxAge);
         return cookie;
     }
