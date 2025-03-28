@@ -1,4 +1,4 @@
-package gettothepoint.unicatapi.application.service;
+package gettothepoint.unicatapi.application.service.scheduling;
 
 import gettothepoint.unicatapi.application.service.payment.BillingProcessingService;
 import lombok.RequiredArgsConstructor;
