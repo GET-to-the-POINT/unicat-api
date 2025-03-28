@@ -61,7 +61,7 @@ public class ArtifactService {
 
         // section build standby & upload
         for (SectionResponse sectionResponse : sectionResponses) {
-            sectionBuildAndUpload(sectionResponse.id());
+            sectionBuildAndUpload(project.getId(), sectionResponse.id());
         }
         sectionResponses = sectionService.getAll(projectId);
 
@@ -82,20 +82,17 @@ public class ArtifactService {
     }
 
 
-    private void sectionBuildAndUpload(Long sectionId) {
+    private void sectionBuildAndUpload(Long projectId, Long sectionId) {
         Section section = sectionService.getOrElseThrow(sectionId);
 
-        // video standby
+        // 비디오 체크 및 생성
         String videoUrl = section.getVideoUrl();
         if (StringUtils.hasText(videoUrl)) {
             storageService.download(videoUrl);
             return;
         }
 
-        // resource standby
-        String resourceUrl = section.getContentUrl(); // 리소스는 프로세스상 사용자가 선행하여 업로드한다.(인공지능생성도 선행되어서 진해오딘다)
-
-        // audio standby, TODO, 메서드 분리가 필요
+        // 오디오 체크 및 생성
         String audioUrl = section.getAudioUrl();
         if (!StringUtils.hasText(audioUrl)) {
             File voiceFile = ttsService.create(section.getScript(), section.getVoiceModel());
@@ -103,10 +100,18 @@ public class ArtifactService {
             section.setAudioUrl(audioUrl);
         }
 
+        // 콘텐츠 체크 및 생성
+        String contentUrl = section.getContentUrl();
+        if (!StringUtils.hasText(contentUrl)) {
+            PromptRequest promptRequest = new PromptRequest(section.getScript());
+            openAiService.createResource(projectId, sectionId, "image", promptRequest);
+            contentUrl = sectionService.getOrElseThrow(sectionId).getContentUrl();
+        }
+
         // video standby & build
         Project project = section.getProject();
         File templateResource = storageService.download(project.getTemplateUrl());
-        File contentResource = storageService.download(resourceUrl);
+        File contentResource = storageService.download(contentUrl);
         File audioResource = storageService.download(audioUrl);
 
         File titleResource = null;
