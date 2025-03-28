@@ -39,9 +39,13 @@ public class SectionService {
     }
 
     // 컬렉션 전체
-    public List<SectionResponse> getAll(Long projectId) {
+    public List<SectionResponse> getSectionResponseAll(Long projectId) {
         List<Section> sections = sectionRepository.findAllByProjectIdOrderBySortOrderAsc(projectId);
         return sections.stream().map(SectionResponse::fromEntity).toList();
+    }
+
+    public List<Section> getSectionAll(Long projectId) {
+        return sectionRepository.findAllByProjectIdOrderBySortOrderAsc(projectId);
     }
 
     // 싱글

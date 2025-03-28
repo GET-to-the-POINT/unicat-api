@@ -72,13 +72,13 @@ public class ArtifactService {
 
     private Project buildAndUpdate(Long projectId) {
         Project project = projectService.getOrElseThrow(projectId);
-        List<SectionResponse> sectionResponses = sectionService.getAll(projectId);
+        List<SectionResponse> sectionResponses = sectionService.getSectionResponseAll(projectId);
 
         // section build standby & upload
         for (SectionResponse sectionResponse : sectionResponses) {
             sectionBuildAndUpload(project.getId(), sectionResponse.id());
         }
-        sectionResponses = sectionService.getAll(projectId);
+        sectionResponses = sectionService.getSectionResponseAll(projectId);
 
         // project build standby
         List<String> sectionVideoUrls = sectionResponses.stream()

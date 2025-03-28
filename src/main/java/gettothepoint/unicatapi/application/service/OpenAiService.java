@@ -1,13 +1,12 @@
 package gettothepoint.unicatapi.application.service;
 
+import gettothepoint.unicatapi.application.service.project.ProjectService;
+import gettothepoint.unicatapi.application.service.project.SectionService;
 import gettothepoint.unicatapi.application.service.storage.StorageService;
 import gettothepoint.unicatapi.common.propertie.AppProperties;
 import gettothepoint.unicatapi.common.util.MultipartFileUtil;
 import gettothepoint.unicatapi.domain.dto.project.*;
 import gettothepoint.unicatapi.domain.entity.dashboard.Section;
-import gettothepoint.unicatapi.domain.repository.ProjectRepository;
-import gettothepoint.unicatapi.domain.repository.SectionRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.ai.chat.client.ChatClient;
@@ -34,30 +33,25 @@ import java.util.Optional;
 @Service
 public class OpenAiService {
 
-    private final SectionRepository sectionRepository;
-    private final ProjectRepository projectRepository;
     private final AppProperties appProperties;
     private final RestTemplate restTemplate;
     private final StorageService storageService;
     private final OpenAiImageModel openAiImageModel;
-    private static final String SECTION_NOT_FOUND_MSG = "Section not found with id: ";
     private final OpenAiChatModel openAiChatModel;
-    private static final String PROJECT_NOT_FOUND_MSG = "Project not found with id: ";
+    private final ProjectService projectService;
+    private final SectionService sectionService;
 
-    public CreateResourceResponse createScript(Long id, Long sectionId, PromptRequest request) {
+    public CreateResourceResponse createScript(Long projectId, Long sectionId, PromptRequest request) {
 
-        Section section = sectionRepository.findById(sectionId)
-                .orElseThrow(() -> new EntityNotFoundException(SECTION_NOT_FOUND_MSG + sectionId));
+        String tone = projectService.getOrElseThrow(projectId).getScriptTone();
 
-        String tone = projectRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(PROJECT_NOT_FOUND_MSG + id))
-                .getScriptTone();
+        Section section = sectionService.getOrElseThrow(sectionId);
 
         String scriptTone = (tone == null || tone.isBlank()) ? "default" : tone;
 
         CreateResourceResponse scriptResponse = generateScriptAI(scriptTone, request);
         section.setScript(scriptResponse.script());
-        sectionRepository.save(section);
+        sectionService.update(section);
 
         return scriptResponse;
 
@@ -94,14 +88,9 @@ public class OpenAiService {
 
     public CreateResourceResponse createImage(Long projectId, Long sectionId, PromptRequest scriptRequest) {
         log.info("createImage called with projectId: {}, sectionId: {}", projectId, sectionId);
-
-        sectionRepository.findById(sectionId)
-                .orElseThrow(() -> new EntityNotFoundException(SECTION_NOT_FOUND_MSG + sectionId));
+        String style = projectService.getOrElseThrow(projectId).getImageStyle();
+        sectionService.getOrElseThrow(sectionId);
         log.debug("Section {} validated", sectionId);
-
-        String style = projectRepository.findById(projectId)
-                .orElseThrow(() -> new EntityNotFoundException(PROJECT_NOT_FOUND_MSG + projectId))
-                .getImageStyle();
 
         String imageStyle = (style == null || style.isBlank()) ? "Photo" : style;
 
@@ -146,12 +135,11 @@ public class OpenAiService {
     }
 
     private void saveImageToSection(Long sectionId, String imageUrl, String alt) {
-        Section section = sectionRepository.findById(sectionId)
-                .orElseThrow(() -> new EntityNotFoundException(SECTION_NOT_FOUND_MSG + sectionId));
+        Section section = sectionService.getOrElseThrow(sectionId);
 
         section.setContentUrl(imageUrl);
         section.setAlt(alt);
-        sectionRepository.save(section);
+        sectionService.update(section);
     }
 
     public CreateResourceResponse createResource(Long projectId, Long sectionId, String type, PromptRequest promptRequest) {
@@ -167,11 +155,9 @@ public class OpenAiService {
     }
 
     public void oneStepCreateResource(Long projectId, PromptRequest request) {
-        List<Section> sections = sectionRepository.findAllByProjectIdOrderBySortOrderAsc(projectId);
+        List<Section> sections = sectionService.getSectionAll(projectId);
 
-        String tone = projectRepository.findById(projectId)
-                .orElseThrow(() -> new EntityNotFoundException(PROJECT_NOT_FOUND_MSG + projectId))
-                .getScriptTone();
+        String tone = projectService.getOrElseThrow(projectId).getScriptTone();
 
         String promptText = String.format(
                 appProperties.openAIAuto().prompt(),
@@ -196,7 +182,7 @@ public class OpenAiService {
             assert autoArtifact != null;
             String script = autoArtifact.scripts().get(i);
             section.setScript(script);
-            sectionRepository.save(section);
+            sectionService.update(section);
             createImage(projectId, section.getId(), new PromptRequest(script));
         }
     }
