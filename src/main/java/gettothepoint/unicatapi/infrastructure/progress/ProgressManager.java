@@ -51,17 +51,6 @@ public class ProgressManager {
         }
     }
 
-    public void send(Long projectId, String eventName, Object data) {
-        SseEmitter emitter = emitters.get(projectId);
-        if (emitter != null) {
-            try {
-                emitter.send(SseEmitter.event().name(eventName).data(data));
-            } catch (IOException e) {
-                emitters.remove(projectId);
-            }
-        }
-    }
-
     public void complete(Long projectId) {
         SseEmitter emitter = emitters.remove(projectId);
         if (emitter != null) {
