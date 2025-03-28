@@ -111,7 +111,7 @@ public class ProjectController {
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void autoBuild(@AuthenticationPrincipal Jwt jwt, PromptRequest promptRequest) {
         Long memberId = Long.valueOf(jwt.getSubject());
-        Long projectId = artifactService.oneStepAutoArtifact(memberId, promptRequest).join();
+        Long projectId = artifactService.oneStepAutoArtifact(memberId, promptRequest);
         artifactService.buildAsync(projectId,"artifact", null).join();
     }
 

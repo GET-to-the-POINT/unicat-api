@@ -155,8 +155,7 @@ public class ArtifactService {
 
 
     @Transactional
-    @Async
-    public CompletableFuture<Long> oneStepAutoArtifact(Long memberId, PromptRequest promptRequest) {
+    public Long oneStepAutoArtifact(Long memberId, PromptRequest promptRequest) {
         ProjectResponse projectResponse = projectService.create(memberId);
         Long projectId = projectResponse.id();
         for(int i = 0; i < 5; i++) {
@@ -165,6 +164,6 @@ public class ArtifactService {
         openAiService.oneStepCreateResource(projectId, promptRequest);
         Project project = projectService.getOrElseThrow(projectId);
         projectService.update(project);
-        return CompletableFuture.completedFuture(projectId);
+        return projectId;
     }
 }
