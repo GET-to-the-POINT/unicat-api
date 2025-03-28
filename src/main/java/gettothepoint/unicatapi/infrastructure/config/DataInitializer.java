@@ -13,23 +13,30 @@ public class DataInitializer implements CommandLineRunner {
     private final PlanRepository planRepository;
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
 
         if (planRepository.count() == 0) {
             Plan basicPlan = Plan.builder()
                     .name("BASIC")
-                    .description("기본 플랜")
+                    .description("BASIC 플랜")
                     .price(0L)
                     .build();
 
             Plan premiumPlan = Plan.builder()
                     .name("PREMIUM")
-                    .description("프리미엄 플랜")
-                    .price(2000L)
+                    .description("PREMIUM 플랜")
+                    .price(10000L)
+                    .build();
+
+            Plan vipPlan = Plan.builder()
+                    .name("VIP")
+                    .description("VIP 플랜")
+                    .price(20000L)
                     .build();
 
             planRepository.save(basicPlan);
             planRepository.save(premiumPlan);
+            planRepository.save(vipPlan);
         }
     }
 }

@@ -90,7 +90,6 @@ public class MemberService {
         memberRepository.save(member);
     }
 
-
     public void update(Member member) {
         memberRepository.save(member);
     }
