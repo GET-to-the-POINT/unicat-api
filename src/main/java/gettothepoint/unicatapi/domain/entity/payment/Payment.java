@@ -1,7 +1,5 @@
 package gettothepoint.unicatapi.domain.entity.payment;
 
-import gettothepoint.unicatapi.domain.constant.payment.PayType;
-import gettothepoint.unicatapi.domain.constant.payment.TossPaymentStatus;
 import gettothepoint.unicatapi.domain.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -27,13 +25,7 @@ public class Payment extends BaseEntity {
     private Long amount;
 
     @Setter
-    @Enumerated(EnumType.STRING)
-    private PayType payType;
-
-    @Setter
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TossPaymentStatus tossPaymentStatus;
+    private String method;
 
     @OneToOne
     @JoinColumn
@@ -42,13 +34,12 @@ public class Payment extends BaseEntity {
     private LocalDateTime approvedAt;
 
     @Builder
-    public Payment(Order order, String paymentKey, Long amount, TossPaymentStatus tossPaymentStatus,
-                   PayType payType, String productName, LocalDateTime approvedAt) {
+    public Payment(Order order, String paymentKey, Long amount,
+                   String method, String productName, LocalDateTime approvedAt) {
         this.order = order;
         this.paymentKey = paymentKey;
         this.amount = amount;
-        this.tossPaymentStatus = tossPaymentStatus;
-        this.payType = payType;
+        this.method = method;
         this.productName = productName;
         this.approvedAt = approvedAt;
     }

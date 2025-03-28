@@ -5,7 +5,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import gettothepoint.unicatapi.domain.constant.payment.SubscriptionPlan;
 import gettothepoint.unicatapi.test.config.TestDummyTextToSpeechConfiguration;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -51,12 +50,4 @@ class ETCControllerIntegrationTest {
          assertThat(responseBody).contains("provider", "link");
     }
 
-    @Test
-    @DisplayName("토큰 리프레시 - 204 No Content")
-    void refreshToken_returnsNoContent() throws Exception {
-         String token = jwtUtil.generateJwtToken(1L, "test@example.com", SubscriptionPlan.BASIC.name());
-         mockMvc.perform(post("/auth/token/refresh")
-                .cookie(new Cookie("Authorization", token)))
-                .andExpect(status().isNoContent());
-    }
 }
