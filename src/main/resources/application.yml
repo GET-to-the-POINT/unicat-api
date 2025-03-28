@@ -90,16 +90,17 @@ app:
     allowed-headers: [ "*" ]
     allow-credentials: true
     max-age: 3600
-  openai-script:
-    prompt: ${SCRIPT_AI_PROMPT:"다음 스크립트를 읽고, '%s'에 맞춰 문장을 자연스럽게 다듬고 필요한 보충 내용을 추가해줘.%n%n원본 스크립트:%n%s"}
-    model: ${SCRIPT_AI_MODEL:gpt-4o-mini}
-    temperature: ${SCRIPT_AI_TEMPERATURE:0.7}
-  openai-image:
-    prompt: ${IMAGE_AI_PROMPT:"다음 스크립트를 읽고, ‘%s’스타일로 아름답고 퀄리티 좋은 정밀한 이미지를 만들어줘. 부족한 부분이 있다면 알아서 채워줘. %n%n스크립트:%n%s"}
-    model: ${IMAGE_AI_MODEL:dall-e-3}
-    quality: ${IMAGE_AI_QUALITY:hd}
-  openai-auto:
-    prompt: ${AUTO_AI_PROMPT:"다음의 주제를 보고 %s에 맞춰서 5개의 섹션으로 나누어서 한 섹션마다 1~2문장의 스크립트를 만들어줘. 그걸 모두 합쳐서 짧은 영상으로 만들거야. %n%n주제:%s"}
+  openai:
+    script:
+      prompt: ${SCRIPT_AI_PROMPT:"다음 스크립트를 읽고, '%s'에 맞춰 문장을 자연스럽게 다듬고 필요한 보충 내용을 추가해줘.%n%n원본 스크립트:%n%s"}
+      model: ${SCRIPT_AI_MODEL:gpt-4o-mini}
+      temperature: ${SCRIPT_AI_TEMPERATURE:0.7}
+    image:
+      prompt: ${IMAGE_AI_PROMPT:"다음 스크립트를 읽고, ‘%s’스타일로 아름답고 퀄리티 좋은 정밀한 이미지를 만들어줘. 부족한 부분이 있다면 알아서 채워줘. %n%n스크립트:%n%s"}
+      model: ${IMAGE_AI_MODEL:dall-e-3}
+      quality: ${IMAGE_AI_QUALITY:hd}
+    auto:
+      prompt: ${AUTO_AI_PROMPT:"다음의 주제를 보고 %s에 맞춰서 5개의 섹션으로 나누어서 한 섹션마다 1~2문장의 스크립트를 만들어줘. 그걸 모두 합쳐서 짧은 영상으로 만들거야. %n%n주제:%s"}
   media:
     ffmpeg:
       path: ${APP_MEDIA_FFMPEG_PATH:ffmpeg}
