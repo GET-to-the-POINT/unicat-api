@@ -130,7 +130,7 @@ public class ProjectController {
                     emitter.send(SseEmitter.event()
                             .name("progress")
                             .data(i));
-                    Thread.sleep(3000);
+                    Thread.sleep(500);
                 }
                 emitter.complete();
             } catch (Exception e) {
