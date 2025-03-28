@@ -81,17 +81,15 @@ public class ProjectController {
     @PostMapping("/{projectId}")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void createArtifact(
-            @PathVariable("projectId") Long projectId,
-            @RequestParam(name = "type", required = false, defaultValue = "artifact") String type,
+            @PathVariable Long projectId,
+            @RequestParam(defaultValue = "artifact") String type,
             @Parameter(hidden = true) @RegisteredOAuth2AuthorizedClient("google") OAuth2AuthorizedClient authorizedClient
     ) {
-        switch (type) {
-            case "youtube", "vimeo" -> {
-                OAuth2AccessToken accessToken = authorizedClient.getAccessToken();
-                artifactService.buildAsync(projectId, type, accessToken);
-            }
-            default -> artifactService.buildAsync(projectId, "artifact", null);
+        OAuth2AccessToken token = null;
+        if ("youtube".equals(type) || "vimeo".equals(type)) {
+            token = authorizedClient.getAccessToken();
         }
+        artifactService.buildAsync(projectId, type, token);
     }
 
     @Operation(

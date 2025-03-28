@@ -11,6 +11,7 @@ import gettothepoint.unicatapi.domain.dto.project.PromptRequest;
 import gettothepoint.unicatapi.domain.dto.project.SectionResponse;
 import gettothepoint.unicatapi.domain.entity.dashboard.Project;
 import gettothepoint.unicatapi.domain.entity.dashboard.Section;
+import gettothepoint.unicatapi.infrastructure.progress.ProgressManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -33,6 +34,7 @@ public class ArtifactService {
     private final StorageService storageService;
     private final TTSService ttsService;
     private final OpenAiService openAiService;
+    private final ProgressManager progressManager;
 
 
     public void build(Long projectId) {
@@ -50,8 +52,21 @@ public class ArtifactService {
 
     @Async
     public CompletableFuture<Void> buildAsync(Long projectId, String type, OAuth2AccessToken accessToken) {
-        this.build(projectId, type, accessToken);
-        return CompletableFuture.completedFuture(null);
+        try {
+            progressManager.send(projectId, "status", "started");
+
+            Project project = buildAndUpdate(projectId);
+            if ("youtube".equals(type) && accessToken != null) {
+                uploadSocial(project, type, accessToken);
+            }
+
+            progressManager.send(projectId, "status", "completed");
+            return CompletableFuture.completedFuture(null);
+        } catch (Exception e) {
+            progressManager.send(projectId, "status", "failed");
+            progressManager.error(projectId, "Artifact build 실패: " + e.getMessage());
+            return CompletableFuture.failedFuture(e);
+        }
     }
 
 
