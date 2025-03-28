@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.infrastructure.config;
 
-import gettothepoint.unicatapi.common.propertie.AppProperties;
+import gettothepoint.unicatapi.common.propertie.CorsProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,29 +15,26 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class CorsConfig implements WebMvcConfigurer {
 
-    private final AppProperties appProperties;
+    private final CorsProperties corsProperties;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        AppProperties.Cors cors = appProperties.cors();
         registry.addMapping("/**")
-                .allowedOrigins(cors.allowedOrigins())
-                .allowedMethods(cors.allowedMethods())
-                .allowedHeaders(cors.allowedHeaders())
-                .allowCredentials(cors.allowCredentials())
-                .maxAge(cors.maxAge());
+                .allowedOrigins(corsProperties.allowedOrigins())
+                .allowedMethods(corsProperties.allowedMethods())
+                .allowedHeaders(corsProperties.allowedHeaders())
+                .allowCredentials(corsProperties.allowCredentials())
+                .maxAge(corsProperties.maxAge());
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        AppProperties.Cors cors = appProperties.cors();
-
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(Arrays.asList(cors.allowedOrigins()));
-        config.setAllowedMethods(Arrays.asList(cors.allowedMethods()));
-        config.setAllowedHeaders(Arrays.asList(cors.allowedHeaders()));
-        config.setAllowCredentials(cors.allowCredentials());
-        config.setMaxAge(cors.maxAge());
+        config.setAllowedOrigins(Arrays.asList(corsProperties.allowedOrigins()));
+        config.setAllowedMethods(Arrays.asList(corsProperties.allowedMethods()));
+        config.setAllowedHeaders(Arrays.asList(corsProperties.allowedHeaders()));
+        config.setAllowCredentials(corsProperties.allowCredentials());
+        config.setMaxAge(corsProperties.maxAge());
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

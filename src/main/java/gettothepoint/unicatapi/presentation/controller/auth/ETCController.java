@@ -5,6 +5,9 @@ import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
+import gettothepoint.unicatapi.common.propertie.ApiProperties;
+import gettothepoint.unicatapi.common.propertie.JwtProperties;
+import gettothepoint.unicatapi.domain.dto.oauth.OAuthLinkDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -18,8 +21,6 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.web.bind.annotation.*;
-import gettothepoint.unicatapi.common.propertie.AppProperties;
-import gettothepoint.unicatapi.domain.dto.oauth.OAuthLinkDto;
 
 import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
@@ -33,7 +34,8 @@ import java.util.Map;
 public class ETCController {
 
     private final ClientRegistrationRepository clientRegistrationRepository;
-    private final AppProperties appProperties;
+    private final JwtProperties jwtProperties;
+    private final ApiProperties apiProperties;
     private final RSAPublicKey publicKey;
 
     @GetMapping("/.well-known/jwks.json")
@@ -52,7 +54,7 @@ public class ETCController {
             }
             """)}))})
     public Map<String, Object> getJwks() {
-        JWK jwk = new RSAKey.Builder(publicKey).keyID(appProperties.jwt().keyId()).algorithm(JWSAlgorithm.RS256).keyUse(KeyUse.SIGNATURE).build();
+        JWK jwk = new RSAKey.Builder(publicKey).keyID(jwtProperties.keyId()).algorithm(JWSAlgorithm.RS256).keyUse(KeyUse.SIGNATURE).build();
 
         return new JWKSet(jwk).toJSONObject();
     }
@@ -64,9 +66,9 @@ public class ETCController {
 
         Iterable<ClientRegistration> registrations = ((InMemoryClientRegistrationRepository) clientRegistrationRepository);
 
-        String protocol = appProperties.api().protocol();
-        String domain = appProperties.api().domain();
-        int port = appProperties.api().port();
+        String protocol = apiProperties.protocol();
+        String domain = apiProperties.domain();
+        int port = apiProperties.port();
         String baseUrl;
         if (("http".equals(protocol) && port == 80) || ("https".equals(protocol) && port == 443)) {
             baseUrl = protocol + "://" + domain;

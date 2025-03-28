@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.presentation.controller.auth;
 
 import gettothepoint.unicatapi.application.service.AuthService;
-import gettothepoint.unicatapi.common.propertie.AppProperties;
+import gettothepoint.unicatapi.common.propertie.JwtProperties;
 import gettothepoint.unicatapi.common.schema.ErrorResponse;
 import gettothepoint.unicatapi.common.schema.UnauthorizedErrorResponse;
 import gettothepoint.unicatapi.common.util.CookieUtil;
@@ -29,7 +29,7 @@ import org.springframework.web.util.WebUtils;
 public class SignController {
 
     private final AuthService authService;
-    private final AppProperties appProperties;
+    private final JwtProperties jwtProperties;
     private final CookieUtil cookieUtil;
 
     @PostMapping(value = "/sign-up", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -111,7 +111,7 @@ public class SignController {
             }
     )
     public void signOut(HttpServletRequest request, HttpServletResponse response) {
-        Cookie jwtCookie = WebUtils.getCookie(request, appProperties.jwt().cookie().name());
+        Cookie jwtCookie = WebUtils.getCookie(request, jwtProperties.cookie().name());
         assert jwtCookie != null;
         cookieUtil.zeroAge(jwtCookie);
         response.addCookie(jwtCookie);

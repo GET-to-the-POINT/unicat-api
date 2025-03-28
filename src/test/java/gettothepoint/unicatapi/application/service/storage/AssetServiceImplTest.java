@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.application.service.storage;
 
 import gettothepoint.unicatapi.application.service.voice.GoogleTextToSpeechService;
-import gettothepoint.unicatapi.common.propertie.AppProperties;
+import gettothepoint.unicatapi.common.propertie.SupabaseProperties;
 import gettothepoint.unicatapi.domain.dto.storage.AssetItem;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,20 +16,20 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.mock;
 
 @SpringBootTest(
-        classes = {AssetServiceImpl.class, AppProperties.class, AssetServiceImplTest.TestConfig.class},
+        classes = {AssetServiceImpl.class, AssetServiceImplTest.TestConfig.class, SupabaseProperties.class},
         properties = {
                 "app.supabase.url=https://bhqvrnbzzqzqlwwrcgbm.supabase.co",
                 "app.supabase.key="
         }
 )
-@EnableConfigurationProperties(AppProperties.class)
+@EnableConfigurationProperties(SupabaseProperties.class)
 class AssetServiceImplTest {
 
     @Autowired
     private AssetServiceImpl assetService;
 
     @Autowired
-    private AppProperties appProperties;
+    private SupabaseProperties supabaseProperties;
 
     @Test
     void 템플릿_샘플_가져오기() {
@@ -39,7 +39,7 @@ class AssetServiceImplTest {
         templates.forEach(item -> {
             System.out.println("템플릿 이름: " + item.name());
             System.out.println("템플릿 URL: " + item.url());
-            assertThat(item.url()).contains(appProperties.supabase().url());
+            assertThat(item.url()).contains(supabaseProperties.url());
         });
     }
     

@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.common.util;
 
-import gettothepoint.unicatapi.common.propertie.AppProperties;
+import gettothepoint.unicatapi.common.propertie.JwtProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.jwt.*;
@@ -14,7 +14,7 @@ import java.time.temporal.ChronoUnit;
 @RequiredArgsConstructor
 public class JwtUtil {
 
-    private final AppProperties appProperties;
+    private final JwtProperties jwtProperties;
     private final JwtEncoder jwtEncoder;
     private final JwtDecoder jwtDecoder;
 
@@ -25,12 +25,12 @@ public class JwtUtil {
                 .claim("email", email)
                 .claim("plan", plan)
                 .issuedAt(now)
-                .expiresAt(now.plus(appProperties.jwt().cookie().maxAge(), ChronoUnit.SECONDS))
+                .expiresAt(now.plus(jwtProperties.cookie().maxAge(), ChronoUnit.SECONDS))
                 .build();
 
         JwtEncoderParameters parameters = JwtEncoderParameters.from(
                 JwsHeader.with(() -> "RS256")
-                        .keyId(appProperties.jwt().keyId())
+                        .keyId(jwtProperties.keyId())
                         .build(),
                 claims
         );

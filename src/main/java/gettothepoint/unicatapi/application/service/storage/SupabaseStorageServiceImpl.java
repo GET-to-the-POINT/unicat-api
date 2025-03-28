@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.application.service.storage;
 
-import gettothepoint.unicatapi.common.propertie.AppProperties;
+import gettothepoint.unicatapi.common.propertie.SupabaseProperties;
 import gettothepoint.unicatapi.common.util.FileUtil;
 import gettothepoint.unicatapi.common.util.MultipartFileUtil;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,11 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
@@ -35,7 +39,7 @@ import static gettothepoint.unicatapi.common.util.FileUtil.getTempPath;
 @Primary
 public class SupabaseStorageServiceImpl extends AbstractStorageService {
 
-    private final AppProperties appProperties;
+    private final SupabaseProperties supabaseProperties;
 
     @Override
     protected File realDownload(String url) {
@@ -85,7 +89,7 @@ public class SupabaseStorageServiceImpl extends AbstractStorageService {
             throw new UncheckedIOException("임시 파일 생성 실패", e);
         }
 
-        String supabaseKey = appProperties.supabase().key();
+        String supabaseKey = supabaseProperties.key();
         String bucket = getBucketName(file.getContentType());
         String key = "uploads/" + tmpFile.getName();
         String url = getUrl(bucket, key);
@@ -144,7 +148,7 @@ public class SupabaseStorageServiceImpl extends AbstractStorageService {
 
     private String getBucketName(String contentType) {
         if (contentType == null || contentType.isBlank()) {
-            return appProperties.supabase().storage().bucket();
+            return supabaseProperties.storage().bucket();
         }
         if (contentType.startsWith("image/")) {
             return "image";
@@ -153,19 +157,19 @@ public class SupabaseStorageServiceImpl extends AbstractStorageService {
         } else if (contentType.startsWith("video/")) {
             return "video";
         }
-        return appProperties.supabase().storage().bucket();
+        return supabaseProperties.storage().bucket();
     }
 
 
     private String getUrl(String bucket, String key) {
-        String supabaseUrl = appProperties.supabase().url();
+        String supabaseUrl = supabaseProperties.url();
         return UriComponentsBuilder.fromUriString(supabaseUrl).pathSegment("storage", "v1", "object", bucket, key).build().toUriString();
     }
 
     private void downloadToFile(String url, File targetFile) {
         try {
             if (!url.startsWith("http")) {
-                String baseUrl = appProperties.supabase().url();
+                String baseUrl = supabaseProperties.url();
                 String bucketUrlPrefix = "/storage/v1/object/";
                 String fixedPrefix = "public/assets/template/";
                 url = baseUrl + bucketUrlPrefix + fixedPrefix + url;

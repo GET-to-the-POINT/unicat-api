@@ -1,12 +1,12 @@
 package gettothepoint.unicatapi.infrastructure.security.oauth2.resourceserver;
 
+import gettothepoint.unicatapi.common.propertie.JwtProperties;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.stereotype.Component;
-import gettothepoint.unicatapi.common.propertie.AppProperties;
 
 import java.util.Arrays;
 
@@ -15,7 +15,7 @@ import java.util.Arrays;
 public class MultiBearerTokenResolver implements BearerTokenResolver {
 
     private final DefaultBearerTokenResolver defaultResolver = new DefaultBearerTokenResolver();
-    private final AppProperties appProperties;
+    private final JwtProperties jwtProperties;
 
     @Override
     public String resolve(HttpServletRequest request) {
@@ -26,7 +26,7 @@ public class MultiBearerTokenResolver implements BearerTokenResolver {
 
         if (request.getCookies() != null) {
             return Arrays.stream(request.getCookies())
-                    .filter(cookie -> appProperties.jwt().cookie().name().equals(cookie.getName()))
+                    .filter(cookie -> jwtProperties.cookie().name().equals(cookie.getName()))
                     .findFirst()
                     .map(Cookie::getValue)
                     .orElse(null);

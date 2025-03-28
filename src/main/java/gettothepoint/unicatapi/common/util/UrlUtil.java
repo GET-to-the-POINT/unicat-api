@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.common.util;
 
-import gettothepoint.unicatapi.common.propertie.AppProperties;
+import gettothepoint.unicatapi.common.propertie.ApiProperties;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -8,7 +8,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public  class UrlUtil {
 
-    public static String buildBaseUrl(AppProperties.Api api) {
+    public static String buildBaseUrl(ApiProperties api) {
         return UriComponentsBuilder.newInstance()
                 .scheme(api.protocol())
                 .host(api.domain())

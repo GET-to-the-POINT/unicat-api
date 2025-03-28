@@ -5,7 +5,7 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
-import gettothepoint.unicatapi.common.propertie.AppProperties;
+import gettothepoint.unicatapi.common.propertie.JwtProperties;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -33,7 +33,7 @@ import java.util.Base64;
 @RequiredArgsConstructor
 public class JwtConfig {
 
-    private final AppProperties appProperties;
+    private final JwtProperties jwtProperties;
 
     private RSAPrivateKey privateKey;
     private RSAPublicKey publicKey;
@@ -53,13 +53,13 @@ public class JwtConfig {
     }
 
     private RSAPrivateKey loadPrivateKey() throws Exception {
-        byte[] keyBytes = Base64.getDecoder().decode(readKey(appProperties.jwt().privateKey()));
+        byte[] keyBytes = Base64.getDecoder().decode(readKey((Resource) jwtProperties.privateKey()));
         PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
         return (RSAPrivateKey) KeyFactory.getInstance("RSA").generatePrivate(keySpec);
     }
 
     private RSAPublicKey loadPublicKey() throws Exception {
-        byte[] keyBytes = Base64.getDecoder().decode(readKey(appProperties.jwt().publicKey()));
+        byte[] keyBytes = Base64.getDecoder().decode(readKey((Resource) jwtProperties.publicKey()));
         X509EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
         return (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(keySpec);
     }
@@ -73,7 +73,7 @@ public class JwtConfig {
     public JwtEncoder jwtEncoder() {
         RSAKey rsaKey = new RSAKey.Builder(publicKey)
                 .privateKey(privateKey)
-                .keyID(appProperties.jwt().keyId())
+                .keyID(jwtProperties.keyId())
                 .build();
         JWKSource<SecurityContext> jwkSource = new ImmutableJWKSet<>(new JWKSet(rsaKey));
         return new NimbusJwtEncoder(jwkSource);

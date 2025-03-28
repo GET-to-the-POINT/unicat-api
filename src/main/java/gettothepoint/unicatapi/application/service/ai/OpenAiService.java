@@ -3,9 +3,11 @@ package gettothepoint.unicatapi.application.service.ai;
 import gettothepoint.unicatapi.application.service.project.ProjectService;
 import gettothepoint.unicatapi.application.service.project.SectionService;
 import gettothepoint.unicatapi.application.service.storage.StorageService;
-import gettothepoint.unicatapi.common.propertie.AppProperties;
+import gettothepoint.unicatapi.common.propertie.OpenAIProperties;
 import gettothepoint.unicatapi.common.util.MultipartFileUtil;
-import gettothepoint.unicatapi.domain.dto.project.*;
+import gettothepoint.unicatapi.domain.dto.project.AutoArtifact;
+import gettothepoint.unicatapi.domain.dto.project.CreateResourceResponse;
+import gettothepoint.unicatapi.domain.dto.project.PromptRequest;
 import gettothepoint.unicatapi.domain.entity.dashboard.Section;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -33,7 +35,7 @@ import java.util.Optional;
 @Service
 public class OpenAiService {
 
-    private final AppProperties appProperties;
+    private final OpenAIProperties openAIProperties;
     private final RestTemplate restTemplate;
     private final StorageService storageService;
     private final OpenAiImageModel openAiImageModel;
@@ -59,15 +61,15 @@ public class OpenAiService {
 
     private CreateResourceResponse generateScriptAI(String tone, PromptRequest request) {
         String promptText = String.format(
-                appProperties.openAIScript().prompt(),
+                openAIProperties.openAIScript().prompt(),
                 tone,
                 request.prompt()
         );
         log.debug("generateScriptAI - Prompt created: {}", promptText);
 
         OpenAiChatOptions options = OpenAiChatOptions.builder()
-                .model(appProperties.openAIScript().model())
-                .temperature(appProperties.openAIScript().temperature())
+                .model(openAIProperties.openAIScript().model())
+                .temperature(openAIProperties.openAIScript().temperature())
                 .build();
 
         Prompt prompt = new Prompt(promptText, options);
@@ -102,14 +104,14 @@ public class OpenAiService {
 
     private CreateResourceResponse generateImageAI(String imageStyle, PromptRequest request) {
         String promptText = String.format(
-                appProperties.openAIImage().prompt(),
+                openAIProperties.openAIImage().prompt(),
                 imageStyle,
                 request.prompt()
         );
 
         OpenAiImageOptions options = OpenAiImageOptions.builder()
-                .model(appProperties.openAIImage().model())
-                .quality(appProperties.openAIImage().quality())
+                .model(openAIProperties.openAIImage().model())
+                .quality(openAIProperties.openAIImage().quality())
                 .build();
 
         org.springframework.ai.image.ImageResponse response = openAiImageModel.call(
@@ -160,14 +162,14 @@ public class OpenAiService {
         String tone = projectService.getOrElseThrow(projectId).getScriptTone();
 
         String promptText = String.format(
-                appProperties.openAIAuto().prompt(),
+                openAIProperties.openAIAuto().prompt(),
                 tone,
                 request.prompt()
         );
 
         OpenAiChatOptions options = OpenAiChatOptions.builder()
-                .model(appProperties.openAIScript().model())
-                .temperature(appProperties.openAIScript().temperature())
+                .model(openAIProperties.openAIScript().model())
+                .temperature(openAIProperties.openAIScript().temperature())
                 .build();
 
         Prompt prompt = new Prompt(promptText, options);

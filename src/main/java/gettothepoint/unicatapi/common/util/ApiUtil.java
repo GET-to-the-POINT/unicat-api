@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.common.util;
 
-import gettothepoint.unicatapi.common.propertie.AppProperties;
+import gettothepoint.unicatapi.common.propertie.TossProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -12,10 +12,10 @@ import java.util.Base64;
 @RequiredArgsConstructor
 public class ApiUtil {
 
-    private final AppProperties appProperties;
+    private final TossProperties tossProperties;
 
     public String encodeSecretKey() {
-        String secretKeyWithColon = appProperties.toss().secretKey() + ":";
+        String secretKeyWithColon = tossProperties.secretKey() + ":";
         return Base64.getEncoder().encodeToString(secretKeyWithColon.getBytes());
     }
 

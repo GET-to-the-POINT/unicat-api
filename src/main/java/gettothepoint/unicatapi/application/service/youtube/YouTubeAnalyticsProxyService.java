@@ -7,10 +7,10 @@ import com.google.api.services.youtubeAnalytics.v2.YouTubeAnalytics;
 import com.google.api.services.youtubeAnalytics.v2.model.QueryResponse;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
-import gettothepoint.unicatapi.common.propertie.AppProperties;
 import gettothepoint.unicatapi.domain.entity.dashboard.Project;
 import gettothepoint.unicatapi.domain.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.stereotype.Service;
@@ -25,8 +25,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class YouTubeAnalyticsProxyService {
-
-    private final AppProperties appProperties;
+    @Value("${spring.application.name}")
+    private String applicationName;
     private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     private final ProjectRepository projectRepository;
 
@@ -41,7 +41,7 @@ public class YouTubeAnalyticsProxyService {
                     GoogleNetHttpTransport.newTrustedTransport(),
                     JSON_FACTORY,
                     new HttpCredentialsAdapter(credentials)
-            ).setApplicationName(appProperties.name()).build();
+            ).setApplicationName(applicationName).build();
         } catch (GeneralSecurityException | IOException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to initialize YouTube Analytics service", e);
         }

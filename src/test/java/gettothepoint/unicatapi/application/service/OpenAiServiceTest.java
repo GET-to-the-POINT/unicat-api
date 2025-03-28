@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.application.service;
 
 import gettothepoint.unicatapi.application.service.ai.OpenAiService;
-import gettothepoint.unicatapi.common.propertie.AppProperties;
+import gettothepoint.unicatapi.common.propertie.OpenAIProperties;
 import gettothepoint.unicatapi.domain.dto.project.CreateResourceResponse;
 import gettothepoint.unicatapi.domain.dto.project.PromptRequest;
 import gettothepoint.unicatapi.domain.entity.dashboard.Project;
@@ -46,10 +46,10 @@ class OpenAiServiceTest {
     private ProjectRepository projectRepository;
 
     @Mock
-    private AppProperties appProperties;
+    private OpenAIProperties openAIProperties;
 
     @Mock
-    private AppProperties.OpenAIScript openAI;
+    private OpenAIProperties.OpenAIScript openAI;
 
     @Mock
     private OpenAiService openAiService;
@@ -57,7 +57,7 @@ class OpenAiServiceTest {
     @BeforeEach
     void setUp() {
         when(chatClientBuilder.build()).thenReturn(chatClient);
-        when(appProperties.openAIScript()).thenReturn(openAI);
+        when(openAIProperties.openAIScript()).thenReturn(openAI);
 
     }
 

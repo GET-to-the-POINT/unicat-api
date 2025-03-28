@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.presentation.controller.payment;
 
-import gettothepoint.unicatapi.common.propertie.AppProperties;
+import gettothepoint.unicatapi.common.propertie.TossProperties;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,12 +16,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequiredArgsConstructor
 public class TossViewController {
 
-    private final AppProperties appProperties;
+    private final TossProperties tossProperties;
 
     @GetMapping
     public String showPaymentPage(Model model, @AuthenticationPrincipal Jwt jwt) {
         String email = jwt.getClaim("email");
-        model.addAttribute("clientKey", appProperties.toss().clientKey());
+        model.addAttribute("clientKey", tossProperties.clientKey());
         model.addAttribute("customerKey", email);
         return "payment";
     }

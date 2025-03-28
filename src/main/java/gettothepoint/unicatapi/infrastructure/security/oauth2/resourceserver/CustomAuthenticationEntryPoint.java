@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.infrastructure.security.oauth2.resourceserver;
 
-import gettothepoint.unicatapi.common.propertie.AppProperties;
+import gettothepoint.unicatapi.common.propertie.JwtProperties;
 import gettothepoint.unicatapi.common.util.CookieUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,12 +19,12 @@ import java.io.IOException;
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     private final MessageSource messageSource;
-    private final AppProperties appProperties;
+    private final JwtProperties jwtProperties;
     private final CookieUtil cookieUtil;
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
-        Cookie cookie = WebUtils.getCookie(request, appProperties.jwt().cookie().name());
+        Cookie cookie = WebUtils.getCookie(request, jwtProperties.cookie().name());
         if (cookie != null) {
             cookieUtil.zeroAge(cookie);
             response.addCookie(cookie);

@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.infrastructure.gateway;
 
-import gettothepoint.unicatapi.common.propertie.AppProperties;
+import gettothepoint.unicatapi.common.propertie.TossProperties;
 import gettothepoint.unicatapi.common.util.ApiUtil;
 import gettothepoint.unicatapi.domain.dto.payment.PaymentApprovalRequest;
 import gettothepoint.unicatapi.domain.entity.payment.Order;
@@ -21,7 +21,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class TossPaymentGateway {
 
-    private final AppProperties appProperties;
+    private final TossProperties tossProperties;
     private final RestTemplate restTemplate;
     private final ApiUtil apiUtil;
 
@@ -34,7 +34,7 @@ public class TossPaymentGateway {
                 .build();
 
         HttpEntity<PaymentApprovalRequest> entity = new HttpEntity<>(request, apiUtil.createHeaders(apiUtil.encodeSecretKey()));
-        String url = appProperties.toss().approveUrl() + "/" + billingKey;
+        String url = tossProperties.approveUrl() + "/" + billingKey;
 
         ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
                 url, HttpMethod.POST, entity, new ParameterizedTypeReference<>() {}

@@ -1,6 +1,7 @@
 package gettothepoint.unicatapi.application.service.email;
 
-import gettothepoint.unicatapi.common.propertie.AppProperties;
+import gettothepoint.unicatapi.common.propertie.ApiProperties;
+import gettothepoint.unicatapi.common.propertie.EmailProperties;
 import gettothepoint.unicatapi.common.util.JwtUtil;
 import gettothepoint.unicatapi.common.util.UrlUtil;
 import gettothepoint.unicatapi.domain.entity.member.Member;
@@ -23,7 +24,8 @@ import java.nio.charset.StandardCharsets;
 public class EmailService {
 
     private final JavaMailSender emailSender;
-    private final AppProperties appProperties;
+    private final EmailProperties emailProperties;
+    private final ApiProperties apiProperties;
     private final JwtUtil jwtUtil;
 
     public void send(String recipient, String subject, String content) {
@@ -34,7 +36,7 @@ public class EmailService {
             helper.setTo(recipient);
             helper.setSubject(subject);
             helper.setText(content, true);
-            helper.setFrom(new InternetAddress(appProperties.email().from(), appProperties.email().fromName()));
+            helper.setFrom(new InternetAddress(emailProperties.from(), emailProperties.fromName()));
 
             emailSender.send(message);
         } catch (MessagingException | UnsupportedEncodingException e) {
@@ -44,7 +46,7 @@ public class EmailService {
 
     public void sendVerificationEmail(Member member) {
         String verificationLink = String.format("%s/members/email?token=%s",
-                UrlUtil.buildBaseUrl(appProperties.api()),
+                UrlUtil.buildBaseUrl(apiProperties),
                 URLEncoder.encode(jwtUtil.generateJwtToken(member.getId(), member.getEmail(), member.getSubscription().getPlan().getName()), StandardCharsets.UTF_8));
 
         String content = "<h1>이메일 인증</h1><p>아래 링크를 클릭하여 이메일을 인증하세요.</p>" +

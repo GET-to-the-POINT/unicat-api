@@ -52,7 +52,6 @@ springdoc:
 
 
 app:
-  name: unicat-api
   jwt:
     private-key: ${APP_JWT_PRIVATE_KEY:classpath:unicat.day/unicat.day.key}
     public-key: ${APP_JWT_PUBLIC_KEY:classpath:unicat.day/unicat.day.pub}
@@ -91,9 +90,6 @@ app:
     allowed-headers: [ "*" ]
     allow-credentials: true
     max-age: 3600
-  tts:
-    file-path: /Users/wooyeon/Desktop/
-    file-extension: .mp3
   openai-script:
     prompt: ${SCRIPT_AI_PROMPT:"다음 스크립트를 읽고, '%s'에 맞춰 문장을 자연스럽게 다듬고 필요한 보충 내용을 추가해줘.%n%n원본 스크립트:%n%s"}
     model: ${SCRIPT_AI_MODEL:gpt-4o-mini}

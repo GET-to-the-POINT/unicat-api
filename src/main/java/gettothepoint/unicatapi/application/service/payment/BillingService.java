@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.application.service.payment;
 
 import gettothepoint.unicatapi.application.service.member.MemberService;
-import gettothepoint.unicatapi.common.propertie.AppProperties;
+import gettothepoint.unicatapi.common.propertie.TossProperties;
 import gettothepoint.unicatapi.common.util.ApiUtil;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.entity.payment.Billing;
@@ -21,7 +21,7 @@ import java.util.Optional;
 public class BillingService {
 
     private final RestTemplate restTemplate;
-    private final AppProperties appProperties;
+    private final TossProperties tossProperties;
     private final BillingRepository billingRepository;
     private final MemberService memberService;
     private final ApiUtil apiUtil;
@@ -66,7 +66,7 @@ public class BillingService {
         HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(requestBody, headers);
 
         ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
-                appProperties.toss().billingUrl(),
+                tossProperties.billingUrl(),
                 HttpMethod.POST,
                 requestEntity,
                 new ParameterizedTypeReference<>() {}

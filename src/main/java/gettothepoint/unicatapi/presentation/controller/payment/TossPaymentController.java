@@ -2,7 +2,7 @@ package gettothepoint.unicatapi.presentation.controller.payment;
 
 import gettothepoint.unicatapi.application.service.payment.BillingService;
 import gettothepoint.unicatapi.application.service.payment.PaymentService;
-import gettothepoint.unicatapi.common.propertie.AppProperties;
+import gettothepoint.unicatapi.common.propertie.FrontendProperties;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,7 +21,7 @@ public class TossPaymentController {
 
     private final BillingService billingService;
     private final PaymentService paymentService;
-    private final AppProperties appProperties;
+    private final FrontendProperties frontendProperties;
 
     @Operation(
             summary = "정기 결제 승인",
@@ -35,7 +35,7 @@ public class TossPaymentController {
         Long memberId = Long.parseLong(jwt.getSubject());
         billingService.saveBillingKey(authKey, memberId);
         paymentService.approveAutoPayment(memberId);
-        response.sendRedirect(appProperties.frontend().url());
+        response.sendRedirect(frontendProperties.url());
     }
 
     @Operation(

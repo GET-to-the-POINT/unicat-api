@@ -1,14 +1,14 @@
 package gettothepoint.unicatapi.presentation.controller.member;
 
 import gettothepoint.unicatapi.application.service.member.MemberService;
-import gettothepoint.unicatapi.common.propertie.AppProperties;
+import gettothepoint.unicatapi.common.propertie.FrontendProperties;
 import gettothepoint.unicatapi.common.util.JwtUtil;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import io.swagger.v3.oas.annotations.Operation;
 
 import java.io.IOException;
 
@@ -20,7 +20,7 @@ public class EmailController {
 
     private final MemberService memberService;
     private final JwtUtil jwtUtil;
-    private final AppProperties appProperties;
+    private final FrontendProperties frontendProperties;
 
     @GetMapping("/email")
     @Operation(
@@ -32,7 +32,7 @@ public class EmailController {
         String email = jwtUtil.getEmail(token);
         memberService.verifyEmail(email);
 
-        String frontend = appProperties.frontend().url();
+        String frontend = frontendProperties.url();
         response.sendRedirect(frontend);
     }
 }

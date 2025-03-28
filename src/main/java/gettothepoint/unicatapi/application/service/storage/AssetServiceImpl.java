@@ -3,7 +3,7 @@ package gettothepoint.unicatapi.application.service.storage;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import gettothepoint.unicatapi.common.propertie.AppProperties;
+import gettothepoint.unicatapi.common.propertie.SupabaseProperties;
 import gettothepoint.unicatapi.domain.dto.storage.AssetItem;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AssetServiceImpl implements AssetService {
 
-    private final AppProperties appProperties;
+    private final SupabaseProperties supabaseProperties;
     private final RestTemplate restTemplate;
     private final MessageSource messageSource;
 
@@ -55,7 +55,7 @@ public class AssetServiceImpl implements AssetService {
 
     private List<AssetItem> getSampleAssets(String prefix) {
         String url = getListUrl();
-        String supabaseKey = appProperties.supabase().key();
+        String supabaseKey = supabaseProperties.key();
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("apikey", supabaseKey);
@@ -111,7 +111,7 @@ public class AssetServiceImpl implements AssetService {
     }
 
     private String getListUrl() {
-        String supabaseUrl = appProperties.supabase().url();
+        String supabaseUrl = supabaseProperties.url();
         return UriComponentsBuilder.fromUriString(supabaseUrl)
                 .pathSegment("storage", "v1", "object", "list", AssetServiceImpl.BUCKET_ASSETS)
                 .build()
@@ -119,7 +119,7 @@ public class AssetServiceImpl implements AssetService {
     }
 
     private String getPublicUrl(String prefix, String fileName) {
-        String supabaseUrl = appProperties.supabase().url();
+        String supabaseUrl = supabaseProperties.url();
         return UriComponentsBuilder.fromUriString(supabaseUrl)
                 .pathSegment("storage", "v1", "object", "public", AssetServiceImpl.BUCKET_ASSETS, prefix, fileName)
                 .build()
@@ -130,8 +130,8 @@ public class AssetServiceImpl implements AssetService {
     public String getDefaultTemplateUrl() {
         final String DEFAULT_TEMPLATE_FILENAME = "back2.mp4";
 
-        // Supabase의 기본 URL (appProperties를 통해 가져온다고 가정)
-        String supabaseUrl = appProperties.supabase().url();
+        // Supabase의 기본 URL (supabaseProperties를 통해 가져온다고 가정)
+        String supabaseUrl = supabaseProperties.url();
 
         // 예: https://your-supabase-url/storage/v1/object/assets/template/black-background.jpg
         return UriComponentsBuilder.fromUriString(supabaseUrl)

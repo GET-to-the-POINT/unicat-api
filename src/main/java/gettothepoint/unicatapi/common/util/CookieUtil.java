@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.common.util;
 
-import gettothepoint.unicatapi.common.propertie.AppProperties;
+import gettothepoint.unicatapi.common.propertie.JwtProperties;
 import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -9,21 +9,21 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CookieUtil {
 
-    private final AppProperties appProperties;
+    private final JwtProperties jwtProperties;
 
     public Cookie createJwtCookie(String jwtToken) {
-        String cookieName = appProperties.jwt().cookie().name();
-        int maxAge = appProperties.jwt().cookie().maxAge();
+        String cookieName = jwtProperties.cookie().name();
+        int maxAge = jwtProperties.cookie().maxAge();
 
         return this.create(cookieName, jwtToken, maxAge);
     }
 
     public Cookie create(String name, String value, int maxAge) {
         Cookie cookie = new Cookie(name, value);
-        cookie.setPath(appProperties.jwt().cookie().path());
-        cookie.setSecure(appProperties.jwt().cookie().secure());
-        cookie.setHttpOnly(appProperties.jwt().cookie().httpOnly());
-        cookie.setDomain(appProperties.jwt().cookie().domain());
+        cookie.setPath(jwtProperties.cookie().path());
+        cookie.setSecure(jwtProperties.cookie().secure());
+        cookie.setHttpOnly(jwtProperties.cookie().httpOnly());
+        cookie.setDomain(jwtProperties.cookie().domain());
         cookie.setMaxAge(maxAge);
         return cookie;
     }
