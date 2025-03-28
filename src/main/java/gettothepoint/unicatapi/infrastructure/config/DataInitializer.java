@@ -13,7 +13,7 @@ public class DataInitializer implements CommandLineRunner {
     private final PlanRepository planRepository;
 
     @Override
-    public void run(String... args) {
+    public void run(String... args) throws Exception {
 
         if (planRepository.count() == 0) {
             Plan basicPlan = Plan.builder()

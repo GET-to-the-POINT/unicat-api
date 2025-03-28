@@ -2,6 +2,7 @@ package gettothepoint.unicatapi.application.service.email;
 
 import gettothepoint.unicatapi.common.propertie.AppProperties;
 import gettothepoint.unicatapi.common.util.JwtUtil;
+import gettothepoint.unicatapi.common.util.UrlUtil;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
@@ -11,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -43,15 +43,8 @@ public class EmailService {
     }
 
     public void sendVerificationEmail(Member member) {
-        String url =  UriComponentsBuilder.newInstance()
-                .scheme(appProperties.api().protocol())
-                .host(appProperties.api().domain())
-                .port(appProperties.api().port())
-                .build()
-                .toUriString();
-
         String verificationLink = String.format("%s/members/email?token=%s",
-                url,
+                UrlUtil.buildBaseUrl(appProperties.api()),
                 URLEncoder.encode(jwtUtil.generateJwtToken(member.getId(), member.getEmail(), member.getSubscription().getPlan().getName()), StandardCharsets.UTF_8));
 
         String content = "<h1>이메일 인증</h1><p>아래 링크를 클릭하여 이메일을 인증하세요.</p>" +

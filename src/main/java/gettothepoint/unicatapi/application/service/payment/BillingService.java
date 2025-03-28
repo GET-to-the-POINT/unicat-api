@@ -2,26 +2,29 @@ package gettothepoint.unicatapi.application.service.payment;
 
 import gettothepoint.unicatapi.application.service.member.MemberService;
 import gettothepoint.unicatapi.common.propertie.AppProperties;
+import gettothepoint.unicatapi.common.util.ApiUtil;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.entity.payment.Billing;
 import gettothepoint.unicatapi.domain.repository.BillingRepository;
-import kong.unirest.HttpResponse;
-import kong.unirest.Unirest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Base64;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class BillingService {
 
+    private final RestTemplate restTemplate;
     private final AppProperties appProperties;
     private final BillingRepository billingRepository;
     private final MemberService memberService;
+    private final ApiUtil apiUtil;
 
     public void saveBillingKey(String authKey, Long memberId) {
         Member member = memberService.getOrElseThrow(memberId);
@@ -55,23 +58,22 @@ public class BillingService {
     }
 
     private Map<String, Object> requestBillingKey(String authKey, String email) {
-        String secretKey = appProperties.toss().secretKey();
-        String base64Secret = Base64.getEncoder().encodeToString((secretKey + ":").getBytes());
+        HttpHeaders headers = apiUtil.createHeaders(apiUtil.encodeSecretKey());
+        Map<String, String> requestBody = Map.of(
+                "authKey", authKey,
+                "customerKey", email
+        );
+        HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(requestBody, headers);
 
-        HttpResponse<Map<String, Object>> response = Unirest.post(appProperties.toss().billingUrl())
-                .header("Authorization", "Basic " + base64Secret)
-                .header("Content-Type", "application/json")
-                .body(Map.of(
-                        "authKey", authKey,
-                        "customerKey", email
-                ))
-                .asObject(Map.class);
+        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+                appProperties.toss().billingUrl(),
+                HttpMethod.POST,
+                requestEntity,
+                new ParameterizedTypeReference<>() {}
+        );
 
-        if (response.getStatus() != 200 || response.getBody() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "빌링키 발급 실패");
-        }
-
-        return response.getBody();
+        return Optional.ofNullable(response.getBody())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "빌링키 발급 실패"));
     }
 
     public void applyRecurring(Billing billing) {
