@@ -2,7 +2,7 @@ package gettothepoint.unicatapi.infrastructure.gateway;
 
 import gettothepoint.unicatapi.common.propertie.TossProperties;
 import gettothepoint.unicatapi.common.util.ApiUtil;
-import gettothepoint.unicatapi.domain.dto.payment.PaymentApprovalRequest;
+import gettothepoint.unicatapi.domain.dto.payment.TossApprovalRequest;
 import gettothepoint.unicatapi.domain.entity.payment.Order;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
@@ -26,14 +26,14 @@ public class TossPaymentGateway {
     private final ApiUtil apiUtil;
 
     public Map<String, Object> requestApproval(Order order, String billingKey, String customerKey) {
-        PaymentApprovalRequest request = PaymentApprovalRequest.builder()
+        TossApprovalRequest request = TossApprovalRequest.builder()
                 .amount(order.getAmount())
                 .orderId(order.getId())
                 .orderName(order.getOrderName())
                 .customerKey(customerKey)
                 .build();
 
-        HttpEntity<PaymentApprovalRequest> entity = new HttpEntity<>(request, apiUtil.createHeaders(apiUtil.encodeSecretKey()));
+        HttpEntity<TossApprovalRequest> entity = new HttpEntity<>(request, apiUtil.createHeaders(apiUtil.encodeSecretKey()));
         String url = tossProperties.approveUrl() + "/" + billingKey;
 
         ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
