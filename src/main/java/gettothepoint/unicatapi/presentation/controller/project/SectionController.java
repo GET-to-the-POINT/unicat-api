@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.presentation.controller.project;
 
-import gettothepoint.unicatapi.application.service.OpenAiService;
+import gettothepoint.unicatapi.application.service.ai.OpenAiService;
 import gettothepoint.unicatapi.application.service.project.SectionService;
 import gettothepoint.unicatapi.domain.dto.project.*;
 import io.swagger.v3.oas.annotations.Operation;
