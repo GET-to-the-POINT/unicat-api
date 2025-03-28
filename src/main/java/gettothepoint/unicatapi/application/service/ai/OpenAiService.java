@@ -61,15 +61,15 @@ public class OpenAiService {
 
     private CreateResourceResponse generateScriptAI(String tone, PromptRequest request) {
         String promptText = String.format(
-                openAIProperties.openAIScript().prompt(),
+                openAIProperties.script().prompt(),
                 tone,
                 request.prompt()
         );
         log.debug("generateScriptAI - Prompt created: {}", promptText);
 
         OpenAiChatOptions options = OpenAiChatOptions.builder()
-                .model(openAIProperties.openAIScript().model())
-                .temperature(openAIProperties.openAIScript().temperature())
+                .model(openAIProperties.script().model())
+                .temperature(openAIProperties.script().temperature())
                 .build();
 
         Prompt prompt = new Prompt(promptText, options);
@@ -104,14 +104,14 @@ public class OpenAiService {
 
     private CreateResourceResponse generateImageAI(String imageStyle, PromptRequest request) {
         String promptText = String.format(
-                openAIProperties.openAIImage().prompt(),
+                openAIProperties.image().prompt(),
                 imageStyle,
                 request.prompt()
         );
 
         OpenAiImageOptions options = OpenAiImageOptions.builder()
-                .model(openAIProperties.openAIImage().model())
-                .quality(openAIProperties.openAIImage().quality())
+                .model(openAIProperties.image().model())
+                .quality(openAIProperties.image().quality())
                 .build();
 
         org.springframework.ai.image.ImageResponse response = openAiImageModel.call(
@@ -162,14 +162,14 @@ public class OpenAiService {
         String tone = projectService.getOrElseThrow(projectId).getScriptTone();
 
         String promptText = String.format(
-                openAIProperties.openAIAuto().prompt(),
+                openAIProperties.auto().prompt(),
                 tone,
                 request.prompt()
         );
 
         OpenAiChatOptions options = OpenAiChatOptions.builder()
-                .model(openAIProperties.openAIScript().model())
-                .temperature(openAIProperties.openAIScript().temperature())
+                .model(openAIProperties.script().model())
+                .temperature(openAIProperties.script().temperature())
                 .build();
 
         Prompt prompt = new Prompt(promptText, options);

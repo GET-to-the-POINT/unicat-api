@@ -85,11 +85,12 @@ public class ProjectController {
             @RequestParam(defaultValue = "artifact") String type,
             @Parameter(hidden = true) @RegisteredOAuth2AuthorizedClient("google") OAuth2AuthorizedClient authorizedClient
     ) {
-        OAuth2AccessToken token = null;
-        if ("youtube".equals(type) || "vimeo".equals(type)) {
-            token = authorizedClient.getAccessToken();
+        OAuth2AccessToken token = authorizedClient.getAccessToken();
+        if (token != null && "youtube".equals(type) || "vimeo".equals(type)) {
+            artifactService.build(projectId, type, token);
+        } else {
+            artifactService.build(projectId);
         }
-        artifactService.buildAsync(projectId, type, token);
     }
 
     @Operation(
@@ -112,7 +113,7 @@ public class ProjectController {
     public void autoBuild(@AuthenticationPrincipal Jwt jwt, PromptRequest promptRequest) {
         Long memberId = Long.valueOf(jwt.getSubject());
         Long projectId = artifactService.oneStepAutoArtifact(memberId, promptRequest);
-        artifactService.buildAsync(projectId,"artifact", null).join();
+        artifactService.build(projectId,"artifact", null);
     }
 
     @Operation(
