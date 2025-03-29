@@ -12,7 +12,7 @@ public class TestDummyEmailServiceConfiguration {
     @Bean
     @Primary
     public EmailService emailService() {
-        return new EmailService(null, null, null) {
+        return new EmailService(null, null, null,null) {
             @Override
             public void send(String recipient, String subject, String content) {
                 // 테스트에서는 실제 이메일 전송을 수행하지 않음
