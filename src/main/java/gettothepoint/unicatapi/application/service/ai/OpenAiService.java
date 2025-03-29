@@ -108,6 +108,7 @@ public class OpenAiService {
                 imageStyle,
                 request.prompt()
         );
+        log.info("generateImageAI - Prompt created: {}", promptText);
 
         OpenAiImageOptions options = OpenAiImageOptions.builder()
                 .model(openAIProperties.image().model())
