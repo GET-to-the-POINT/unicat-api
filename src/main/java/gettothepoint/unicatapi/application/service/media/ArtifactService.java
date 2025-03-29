@@ -50,6 +50,11 @@ public class ArtifactService {
 
     private Project buildAndUpdate(Long projectId) {
         Project project = projectService.getOrElseThrow(projectId);
+
+        if (StringUtils.hasText(project.getArtifactUrl())) {
+            return project;
+        }
+
         List<SectionResponse> sectionResponses = sectionService.getSectionResponseAll(projectId);
 
         // section build standby & upload
