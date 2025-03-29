@@ -15,7 +15,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
+
 
 import java.util.List;
 
@@ -80,6 +82,22 @@ public class SectionService {
             return ResourceResponse.fromEntity(section);
         }
 
+
+    public ResourceResponse updateResource(Long projectId, Long sectionId, SectionResourceRequest sectionResourceRequest) {
+        Section section = this.getOrElseThrow(projectId, sectionId);
+        if (StringUtils.hasText(sectionResourceRequest.script())) {
+            section.setScript(sectionResourceRequest.script());
+        }
+        if (StringUtils.hasText(sectionResourceRequest.alt())) {
+            section.setAlt(sectionResourceRequest.alt());
+        }
+        if (sectionResourceRequest.multipartFile() != null && !sectionResourceRequest.multipartFile().isEmpty()) {
+            String uploadResult = storageService.upload(sectionResourceRequest.multipartFile());
+            section.setContentUrl(uploadResult);
+        }
+        this.update(section);
+        return ResourceResponse.fromEntity(section);
+    }
 
     public Long updateSectionSortOrder(Long sectionId, int newOrder) {
         Section section = sectionRepository.findById(sectionId).orElseThrow(() -> new EntityNotFoundException(SECTION_NOT_FOUND_MSG + sectionId));

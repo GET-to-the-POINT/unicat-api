@@ -2,6 +2,7 @@ package gettothepoint.unicatapi.application.service.project;
 
 import gettothepoint.unicatapi.application.service.member.MemberService;
 import gettothepoint.unicatapi.application.service.storage.AssetService;
+import gettothepoint.unicatapi.domain.dto.project.ProjectRequest;
 import gettothepoint.unicatapi.domain.dto.project.ProjectResponse;
 import gettothepoint.unicatapi.domain.entity.dashboard.Project;
 import gettothepoint.unicatapi.domain.entity.member.Member;
@@ -34,14 +35,23 @@ public class ProjectService {
         return ProjectResponse.fromEntity(project);
     }
 
-    // 생성
     public ProjectResponse create(Long memberId) {
+        ProjectRequest emptyRequest = ProjectRequest.basic();
+        return create(memberId, emptyRequest);
+    }
+
+    // 생성
+    public ProjectResponse create(Long memberId, ProjectRequest request) {
         Member member = memberService.getOrElseThrow(memberId);
-        String templateUrl = assetService.getDefaultTemplateUrl();
 
         Project project = Project.builder()
                 .member(member)
-                .templateUrl(templateUrl)
+                .templateUrl(assetService.get("template", request.templateName()))
+                .scriptTone(request.scriptTone())
+                .imageStyle(request.imageStyle())
+                .description(request.description())
+                .title(request.title())
+                .subtitle(request.subtitle())
                 .titleUrl(null)
                 .build();
 
@@ -59,6 +69,22 @@ public class ProjectService {
 
     public Project update(Project project) {
         return projectRepository.save(project);
+    }
+
+
+    public ProjectResponse update(Long projectId, ProjectRequest request) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 프로젝트가 존재하지 않습니다."));
+
+        if (request.scriptTone() != null) project.setScriptTone(request.scriptTone());
+        if (request.imageStyle() != null) project.setImageStyle(request.imageStyle());
+        if (request.templateName() != null) project.setTemplateUrl(request.templateName());
+        if (request.description() != null) project.setDescription(request.description());
+        if (request.title() != null) project.setTitle(request.title());
+        if (request.subtitle() != null) project.setSubtitle(request.subtitle());
+
+        Project updated = projectRepository.save(project);
+        return ProjectResponse.fromEntity(updated);
     }
 
     public Project getOrElseThrow(Long projectId) {

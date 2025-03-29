@@ -7,5 +7,6 @@ import java.util.List;
 public interface AssetService {
     List<AssetItem> get();
     List<AssetItem> get(String type);
+    String get(String type, String name);
     String getDefaultTemplateUrl();
 }

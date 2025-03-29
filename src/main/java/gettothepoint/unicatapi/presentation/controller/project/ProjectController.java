@@ -4,6 +4,7 @@ import com.google.api.services.youtubeAnalytics.v2.model.QueryResponse;
 import gettothepoint.unicatapi.application.service.media.ArtifactService;
 import gettothepoint.unicatapi.application.service.project.ProjectService;
 import gettothepoint.unicatapi.application.service.youtube.YouTubeAnalyticsProxyService;
+import gettothepoint.unicatapi.domain.dto.project.ProjectRequest;
 import gettothepoint.unicatapi.domain.dto.project.ProjectResponse;
 import gettothepoint.unicatapi.domain.dto.project.PromptRequest;
 import gettothepoint.unicatapi.infrastructure.progress.ProgressManager;
@@ -60,10 +61,24 @@ public class ProjectController {
             description = "현재 로그인 사용자의 정보를 기반으로 새로운 프로젝트를 생성합니다. JWT 토큰의 subject 값을 memberId로 사용합니다."
     )
     @PostMapping()
-    public ProjectResponse create(@AuthenticationPrincipal Jwt jwt) {
+    public ProjectResponse create(@AuthenticationPrincipal Jwt jwt,
+                                  @RequestBody ProjectRequest request) {
         Long memberId = Long.valueOf(jwt.getSubject());
-        return projectService.create(memberId);
+        return projectService.create(memberId, request);
     }
+
+    @Operation(summary = "프로젝트 정보 수정", description = "아티팩트 후에 프로젝트 정보를 추가할 수 있습니다.")
+    @PatchMapping("/{projectId}")
+    public ProjectResponse updateProject(
+            @PathVariable Long projectId,
+            @RequestBody ProjectRequest request
+    ) {
+        return projectService.update(projectId, request);
+    }
+
+
+
+
 
     @Operation(
             summary = "프로젝트 상세 조회",
@@ -92,6 +107,7 @@ public class ProjectController {
             artifactService.build(projectId);
         }
     }
+
 
     @Operation(
             summary = "유튜브 분석 조회",

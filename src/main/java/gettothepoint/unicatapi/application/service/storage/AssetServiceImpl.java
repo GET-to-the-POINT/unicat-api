@@ -95,7 +95,7 @@ public class AssetServiceImpl implements AssetService {
             JsonNode root = objectMapper.readTree(responseEntity.getBody());
             for (JsonNode node : root) {
                 String fileName = node.get("name").asText();
-                String assetUrl = getPublicUrl(prefix, fileName);
+                String assetUrl = get(prefix, fileName);
                 assetItems.add(new AssetItem(fileName, assetUrl));
             }
         } catch (Exception e) {
@@ -118,7 +118,8 @@ public class AssetServiceImpl implements AssetService {
                 .toUriString();
     }
 
-    private String getPublicUrl(String prefix, String fileName) {
+    @Override
+    public String get(String prefix, String fileName) {
         String supabaseUrl = supabaseProperties.url();
         return UriComponentsBuilder.fromUriString(supabaseUrl)
                 .pathSegment("storage", "v1", "object", "public", AssetServiceImpl.BUCKET_ASSETS, prefix, fileName)

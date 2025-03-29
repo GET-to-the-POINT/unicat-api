@@ -73,6 +73,27 @@ public class SectionController {
     }
 
     @Operation(
+            summary = "섹션 리소스 수정",
+            description = "multipart/form-data 형식으로 기존 섹션 리소스를 수정합니다."
+    )
+    @PatchMapping(value = "/{sectionId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResourceResponse updateSectionResource(@PathVariable Long projectId,
+                                                  @PathVariable Long sectionId,
+                                                  @ModelAttribute SectionResourceRequest sectionUploadResourceRequest) {
+        return sectionService.updateResource(projectId, sectionId, sectionUploadResourceRequest);
+    }
+
+
+
+
+
+
+
+
+
+
+
+    @Operation(
             summary = "콘텐츠 생성 요청",
             description = "OpenAI API를 사용해 프롬프트 기반 콘텐츠를 생성하여 섹션에 추가합니다. (transitionName 및 type 옵션 제공)"
     )
