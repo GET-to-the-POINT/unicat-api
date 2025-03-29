@@ -28,7 +28,7 @@ public class SwaggerSortConfig {
         if (openApi.getTags() == null) {
             return;
         }
-        final List<String> customOrder = List.of("Auth", "Member", "Project", "Subscription", "Payment");
+        final List<String> customOrder = List.of("Auth", "Member", "Project", "Section", "Subscription", "Payment");
         openApi.setTags(openApi.getTags().stream()
                 .sorted((t1, t2) -> {
                     int i1 = customOrder.indexOf(t1.getName());
