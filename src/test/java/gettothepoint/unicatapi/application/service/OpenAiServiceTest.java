@@ -49,7 +49,7 @@ class OpenAiServiceTest {
     private OpenAIProperties openAIProperties;
 
     @Mock
-    private OpenAIProperties.OpenAIScript openAI;
+    private OpenAIProperties.Script openAI;
 
     @Mock
     private OpenAiService openAiService;
@@ -57,7 +57,7 @@ class OpenAiServiceTest {
     @BeforeEach
     void setUp() {
         when(chatClientBuilder.build()).thenReturn(chatClient);
-        when(openAIProperties.openAIScript()).thenReturn(openAI);
+        when(openAIProperties.script()).thenReturn(openAI);
 
     }
 

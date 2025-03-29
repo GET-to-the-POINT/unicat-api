@@ -6,10 +6,11 @@ import gettothepoint.unicatapi.common.util.MultipartFileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.springframework.core.io.Resource;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -18,13 +19,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URL;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -41,6 +35,8 @@ public class SupabaseStorageServiceImpl extends AbstractStorageService {
 
     private final SupabaseProperties supabaseProperties;
 
+    private final RestTemplate restTemplate;
+
     @Override
     protected File realDownload(String url) {
         File targetFile = FileUtil.getTemp(url);
@@ -53,28 +49,25 @@ public class SupabaseStorageServiceImpl extends AbstractStorageService {
         } catch (IOException e) {
             throw new UncheckedIOException("캐시 디렉토리 생성 실패: " + targetFile.getAbsolutePath(), e);
         }
-    downloadToFile(url, targetFile);
+        downloadToFile(url, targetFile);
         return targetFile;
     }
 
     @Override
     public String upload(MultipartFile file) {
         log.info("업로드 요청: {}", file.getOriginalFilename());
+
         if (file.isEmpty()) {
-            log.error("업로드할 파일이 null 이거나 비어 있습니다.");
             throw new IllegalArgumentException("업로드할 파일을 제공해주세요.");
         }
 
         Path baseDir = getTempPath();
         try {
-            log.info("임시 업로드 디렉토리 생성: {}", baseDir);
             Files.createDirectories(baseDir);
         } catch (IOException e) {
-            log.error("임시 업로드 디렉토리 생성 실패: {}", baseDir, e);
             throw new UncheckedIOException("임시 업로드 디렉토리 생성 실패", e);
         }
 
-        log.info("업로드할 파일: {}", file.getOriginalFilename());
         String extension = Optional.ofNullable(file.getOriginalFilename())
                 .filter(name -> name.lastIndexOf('.') != -1)
                 .map(name -> name.substring(name.lastIndexOf('.')))
@@ -82,7 +75,6 @@ public class SupabaseStorageServiceImpl extends AbstractStorageService {
 
         File tmpFile;
         try {
-            log.info("임시 파일 생성: {}", extension);
             tmpFile = Files.createTempFile(baseDir, "upload-", extension).toFile();
             file.transferTo(tmpFile);
         } catch (IOException e) {
@@ -94,41 +86,38 @@ public class SupabaseStorageServiceImpl extends AbstractStorageService {
         String key = "uploads/" + tmpFile.getName();
         String url = getUrl(bucket, key);
 
-        @SuppressWarnings("java:S2095")
-        HttpClient httpClient = HttpClient.newHttpClient();
-
         try {
-            log.info("업로드 요청 URL: {}", url);
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(url))
-                    .header("apikey", supabaseKey)
-                    .header("Authorization", "Bearer " + supabaseKey)
-                    .header("Content-Type", Objects.requireNonNull(file.getContentType()))
-                    .POST(HttpRequest.BodyPublishers.ofFile(tmpFile.toPath()))
-                    .build();
+            byte[] fileBytes = Files.readAllBytes(tmpFile.toPath());
 
-            log.info("업로드 요청 전송: {}", request);
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() >= 400) {
-                log.error("업로드 실패: {}", response.body());
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("apikey", supabaseKey);
+            headers.set("Authorization", "Bearer " + supabaseKey);
+            headers.setContentType(MediaType.parseMediaType(Objects.requireNonNull(file.getContentType())));
+
+            HttpEntity<byte[]> requestEntity = new HttpEntity<>(fileBytes, headers);
+
+            ResponseEntity<String> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.POST,
+                    requestEntity,
+                    String.class
+            );
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                log.info("업로드 성공: {}", response.getBody());
+                return url;
+            } else {
+                log.error("업로드 실패: {}", response.getBody());
                 throw new ResponseStatusException(
                         HttpStatus.INTERNAL_SERVER_ERROR,
-                        String.format("업로드 실패, 상태코드: %d, 메시지: %s", response.statusCode(), response.body())
+                        "업로드 실패. 상태 코드: " + response.getStatusCode()
                 );
             }
 
-            log.info("업로드 성공: {}", response.body());
-            return url;
         } catch (IOException e) {
-            log.error("업로드 요청 중 IO 오류 발생", e);
             throw new UncheckedIOException("파일 업로드 중 IO 오류 발생", e);
-        } catch (InterruptedException e) {
-            log.error("업로드 요청이 중단되었습니다.", e);
-            Thread.currentThread().interrupt();
-            throw new IllegalStateException("업로드 요청이 중단되었습니다.", e);
         }
     }
-
 
     @Override
     public String upload(File file) {
@@ -169,25 +158,18 @@ public class SupabaseStorageServiceImpl extends AbstractStorageService {
     private void downloadToFile(String url, File targetFile) {
         try {
             if (!url.startsWith("http")) {
-                String baseUrl = supabaseProperties.url();
-                String bucketUrlPrefix = "/storage/v1/object/";
-                String fixedPrefix = "public/assets/template/";
-                url = baseUrl + bucketUrlPrefix + fixedPrefix + url;
+                url = supabaseProperties.url() + "/storage/v1/object/public/assets/template/" + url;
             }
 
-            URL downloadUrl = URI.create(url).toURL();
-            HttpURLConnection connection = (HttpURLConnection) downloadUrl.openConnection();
-            connection.setRequestMethod("GET");
-            connection.connect();
-
-            int responseCode = connection.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                try (InputStream inputStream = connection.getInputStream()) {
-                    Files.copy(inputStream, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                }
-            } else {
-                throw new HttpClientErrorException(HttpStatus.valueOf(responseCode), "파일 다운로드 실패. HTTP 응답 코드: " + responseCode);
+            Resource resource = restTemplate.getForObject(url, Resource.class);
+            if (resource == null) {
+                throw new HttpClientErrorException(HttpStatus.NO_CONTENT, "리소스가 비어 있습니다.");
             }
+
+            try (InputStream in = resource.getInputStream()) {
+                Files.copy(in, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            }
+
         } catch (IOException e) {
             throw new UncheckedIOException("파일 다운로드 오류: " + url, e);
         }
