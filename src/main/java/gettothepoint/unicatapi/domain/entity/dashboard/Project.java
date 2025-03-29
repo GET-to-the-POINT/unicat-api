@@ -11,6 +11,7 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Setter
 @Getter
 @Entity
@@ -47,6 +48,11 @@ public class Project extends BaseEntity {
         this.member = member;
         this.templateUrl = templateUrl;
         this.titleUrl = titleUrl;
+        this.scriptTone = scriptTone;
+        this.imageStyle = imageStyle;
+        this.description = description;
+        this.title = title;
+        this.subtitle = subtitle;
     }
 
     public void assignUploadVideo(UploadVideo uploadVideo) {
