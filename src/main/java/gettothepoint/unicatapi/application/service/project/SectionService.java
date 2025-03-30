@@ -1,5 +1,6 @@
 package gettothepoint.unicatapi.application.service.project;
 
+import gettothepoint.unicatapi.application.service.storage.FileStorageService;
 import gettothepoint.unicatapi.application.service.storage.StorageService;
 import gettothepoint.unicatapi.domain.dto.project.ResourceResponse;
 import gettothepoint.unicatapi.domain.dto.project.SectionResourceRequest;
@@ -30,6 +31,7 @@ public class SectionService {
     private final ProjectService projectService;
     private final SectionRepository sectionRepository;
     private final StorageService storageService;
+    private final FileStorageService fileStorageService;
     private static final String SECTION_NOT_FOUND_MSG = "Section not found with id: ";
 
     // 컬렉션 페이지네이션
@@ -73,7 +75,7 @@ public class SectionService {
         if (!sectionResourceRequest.script().isEmpty()) section.setScript(sectionResourceRequest.script());
         if (!sectionResourceRequest.alt().isEmpty()) section.setAlt(sectionResourceRequest.alt());
         if (sectionResourceRequest.multipartFile() != null && !sectionResourceRequest.multipartFile().isEmpty()) {
-                String uploadResult = storageService.upload(sectionResourceRequest.multipartFile());
+                String uploadResult = fileStorageService.storeMultipartFile(sectionResourceRequest.multipartFile());
                 section.setContentUrl(uploadResult);
             }
             this.update(section);

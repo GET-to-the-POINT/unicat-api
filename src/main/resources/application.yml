@@ -83,6 +83,11 @@ app:
     key: ${SUPABASE_KEY}
     storage:
       bucket: media
+    s3:
+      endpoint: ${SUPABASE_S3_ENDPOINT}
+      region: ${SUPABASE_S3_REGION}
+      access-key-id: ${SUPABASE_S3_ACCESS_KEY_ID}
+      secret-access-key: ${SUPABASE_S3_SECRET_KEY}
   cors:
     allowed-origins:
       - ${APP_CORS_ALLOWED_ORIGINS:https://unicat.day}
