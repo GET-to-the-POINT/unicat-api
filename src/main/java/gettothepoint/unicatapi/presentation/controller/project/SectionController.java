@@ -77,10 +77,10 @@ public class SectionController {
             description = "multipart/form-data 형식으로 기존 섹션 리소스를 수정합니다."
     )
     @PatchMapping(value = "/{sectionId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResourceResponse updateSectionResource(@PathVariable Long projectId,
+    public void updateSectionResource(@PathVariable Long projectId,
                                                   @PathVariable Long sectionId,
                                                   @ModelAttribute SectionResourceRequest sectionUploadResourceRequest) {
-        return sectionService.updateResource(projectId, sectionId, sectionUploadResourceRequest);
+        sectionService.updateResource(projectId, sectionId, sectionUploadResourceRequest);
     }
 
 

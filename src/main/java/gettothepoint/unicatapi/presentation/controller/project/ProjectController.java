@@ -70,11 +70,11 @@ public class ProjectController {
 
     @Operation(summary = "프로젝트 정보 수정", description = "아티팩트 후에 프로젝트 정보를 추가할 수 있습니다.")
     @PatchMapping("/{projectId}")
-    public ProjectResponse updateProject(
+    public void updateProject(
             @PathVariable Long projectId,
             @RequestBody ProjectRequest request
     ) {
-        return projectService.update(projectId, request);
+        projectService.update(projectId, request);
     }
 
 
