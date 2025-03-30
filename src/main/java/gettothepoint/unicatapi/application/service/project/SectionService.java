@@ -4,6 +4,7 @@ import gettothepoint.unicatapi.application.service.storage.AssetService;
 import gettothepoint.unicatapi.application.service.storage.StorageService;
 import gettothepoint.unicatapi.domain.dto.project.ResourceResponse;
 import gettothepoint.unicatapi.domain.dto.project.SectionResourceRequest;
+import gettothepoint.unicatapi.domain.dto.project.SectionResourceRequestWithoutFile;
 import gettothepoint.unicatapi.domain.dto.project.SectionResponse;
 import gettothepoint.unicatapi.domain.entity.dashboard.Project;
 import gettothepoint.unicatapi.domain.entity.dashboard.Section;
@@ -58,17 +59,40 @@ public class SectionService {
         return SectionResponse.fromEntity(section);
     }
 
-    // 생성
     public SectionResponse create(Long projectId) {
         Project project = projectService.getOrElseThrow(projectId);
-        Long sortOrder = sectionRepository.findMaxSortOrderByProject(projectId);
+        Section newSection = Section.builder()
+                .project(project)
+                .build();
+        return create(newSection);
+    }
+
+    public SectionResponse create(Long projectId, SectionResourceRequestWithoutFile sectionResourceRequestWithoutFile) {
+        Project project = projectService.getOrElseThrow(projectId);
+        Section newSection = Section.builder()
+                .project(project)
+                .voiceModel(sectionResourceRequestWithoutFile.voiceModel())
+                .alt(sectionResourceRequestWithoutFile.alt())
+                .script(sectionResourceRequestWithoutFile.script())
+                .transitionUrl(assetService.get("transition", sectionResourceRequestWithoutFile.transitionName()))
+                .build();
+        return create(newSection);
+    }
+
+    // 생성
+    public SectionResponse create(Long projectId, SectionResourceRequest sectionResourceRequest) {
+        Project project = projectService.getOrElseThrow(projectId);
+        String voiceModel = sectionResourceRequest.voiceModel() == null ? supertoneDefaultVoiceId : sectionResourceRequest.voiceModel();
+
         Section newSection = Section.builder()
                         .project(project)
-                        .voiceModel(supertoneDefaultVoiceId)
-                        .sortOrder(sortOrder + 1)
+                        .voiceModel(voiceModel)
+                        .alt(sectionResourceRequest.alt())
+                        .script(sectionResourceRequest.script())
+                        .contentUrl(storageService.upload(sectionResourceRequest.multipartFile()))
+                        .transitionUrl(assetService.get("transition", sectionResourceRequest.transitionName()))
                         .build();
-        sectionRepository.save(newSection);
-        return SectionResponse.fromEntity(newSection);
+        return create(newSection);
     }
 
     public ResourceResponse update(Long projectId, Long sectionId, SectionResourceRequest sectionResourceRequest) {
@@ -86,6 +110,11 @@ public class SectionService {
         }
         this.update(section);
         return ResourceResponse.fromEntity(section);
+    }
+
+    public SectionResponse create(Section section) {
+        sectionRepository.save(section);
+        return SectionResponse.fromEntity(section);
     }
 
     public Long updateSectionSortOrder(Long sectionId, int newOrder) {

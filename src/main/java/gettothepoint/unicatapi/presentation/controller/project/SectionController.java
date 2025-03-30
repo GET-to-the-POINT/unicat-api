@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -45,13 +46,20 @@ public class SectionController {
         return sectionService.getAll(projectId, pageable);
     }
 
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    public SectionResponse createWithoutFile(@PathVariable Long projectId, @RequestBody SectionResourceRequestWithoutFile request) {
+        return sectionService.create(projectId, request);
+    }
+
     @Operation(
             summary = "섹션 생성",
             description = "지정된 프로젝트에 새로운 섹션을 생성합니다."
     )
-    @PostMapping
-    public SectionResponse create(@PathVariable Long projectId) {
-        return sectionService.create(projectId);
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    public SectionResponse create(@PathVariable Long projectId, SectionResourceRequest sectionResourceRequest) {
+        return sectionService.create(projectId, sectionResourceRequest);
     }
 
     @Operation(
@@ -87,6 +95,7 @@ public class SectionController {
             description = "요청 바디로 전달된 새로운 순서를 기준으로 섹션의 정렬 순서를 업데이트합니다."
     )
     @PostMapping("/{sectionId}/order")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public Long updateSectionOrder(@PathVariable Long sectionId, @RequestBody int newOrder) {
         return sectionService.updateSectionSortOrder(sectionId, newOrder);
     }

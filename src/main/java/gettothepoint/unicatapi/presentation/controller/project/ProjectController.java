@@ -61,6 +61,7 @@ public class ProjectController {
             description = "현재 로그인 사용자의 정보를 기반으로 새로운 프로젝트를 생성합니다. JWT 토큰의 subject 값을 memberId로 사용합니다."
     )
     @PostMapping()
+    @ResponseStatus(HttpStatus.CREATED)
     public ProjectResponse create(@AuthenticationPrincipal Jwt jwt,
                                   @RequestBody ProjectRequest request) {
         Long memberId = Long.valueOf(jwt.getSubject());
@@ -69,6 +70,7 @@ public class ProjectController {
 
     @Operation(summary = "프로젝트 정보 수정", description = "아티팩트 후에 프로젝트 정보를 추가할 수 있습니다.")
     @PatchMapping("/{projectId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateProject(
             @PathVariable Long projectId,
             @RequestBody ProjectRequest request

@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 @Tag(name = "Member", description = "멤버 관련 API")
 @RestController
@@ -36,6 +38,7 @@ public class MemberController {
             description = "사인인 한 사용자의 정보를 수정합니다. JWT에서 memberId를 추출하여 해당 사용자의 정보를 업데이트합니다."
     )
     @PatchMapping
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateMember(
             @AuthenticationPrincipal Jwt jwt,
             @Valid @RequestBody MemberUpdateDto memberUpdateDto) {
