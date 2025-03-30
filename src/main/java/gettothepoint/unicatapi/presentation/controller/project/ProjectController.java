@@ -77,10 +77,6 @@ public class ProjectController {
         projectService.update(projectId, request);
     }
 
-
-
-
-
     @Operation(
             summary = "프로젝트 상세 조회",
             description = "경로 변수 projectId를 사용해 특정 프로젝트의 상세 정보를 반환합니다."
@@ -108,7 +104,6 @@ public class ProjectController {
             artifactService.build(projectId);
         }
     }
-
 
     @Operation(
             summary = "유튜브 분석 조회",
