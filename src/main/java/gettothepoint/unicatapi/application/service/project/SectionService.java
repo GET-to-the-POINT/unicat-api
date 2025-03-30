@@ -71,7 +71,7 @@ public class SectionService {
         return SectionResponse.fromEntity(newSection);
     }
 
-    public ResourceResponse uploadResource(Long projectId, Long sectionId, SectionResourceRequest sectionResourceRequest) {
+    public ResourceResponse update(Long projectId, Long sectionId, SectionResourceRequest sectionResourceRequest) {
         Section section = this.getOrElseThrow(projectId, sectionId);
 
         if (StringUtils.hasText(sectionResourceRequest.script())) section.setScript(sectionResourceRequest.script());
