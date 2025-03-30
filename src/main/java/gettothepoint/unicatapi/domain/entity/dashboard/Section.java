@@ -36,10 +36,17 @@ public class Section extends BaseEntity {
     private Project project;
 
     @Builder
-    public Section(Project project, String voiceModel, Long sortOrder) {
+    public Section(Project project, String voiceModel, Long sortOrder, String alt, String script, String contentUrl, String audioUrl, String videoUrl, String transitionUrl) {
         this.project = project;
         this.voiceModel = voiceModel;
         this.sortOrder = sortOrder;
+        this.alt = alt;
+        this.script = script;
+        this.contentUrl = contentUrl;
+        this.audioUrl = audioUrl;
+        this.videoUrl = videoUrl;
+        this.transitionUrl = transitionUrl;
+
     }
 
 }

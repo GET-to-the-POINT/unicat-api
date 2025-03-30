@@ -1,5 +1,6 @@
 package gettothepoint.unicatapi.application.service.project;
 
+import gettothepoint.unicatapi.application.service.storage.AssetService;
 import gettothepoint.unicatapi.application.service.storage.StorageService;
 import gettothepoint.unicatapi.domain.dto.project.ResourceResponse;
 import gettothepoint.unicatapi.domain.dto.project.SectionResourceRequest;
@@ -32,6 +33,7 @@ public class SectionService {
     private final ProjectService projectService;
     private final SectionRepository sectionRepository;
     private final StorageService storageService;
+    private final AssetService assetService;
     private static final String SECTION_NOT_FOUND_MSG = "Section not found with id: ";
 
     // 컬렉션 페이지네이션
@@ -72,12 +74,16 @@ public class SectionService {
     public ResourceResponse uploadResource(Long projectId, Long sectionId, SectionResourceRequest sectionResourceRequest) {
         Section section = this.getOrElseThrow(projectId, sectionId);
 
-        if (!sectionResourceRequest.script().isEmpty()) section.setScript(sectionResourceRequest.script());
-        if (!sectionResourceRequest.alt().isEmpty()) section.setAlt(sectionResourceRequest.alt());
+        if (StringUtils.hasText(sectionResourceRequest.script())) section.setScript(sectionResourceRequest.script());
+        if (StringUtils.hasText(sectionResourceRequest.alt())) section.setAlt(sectionResourceRequest.alt());
         if (sectionResourceRequest.multipartFile() != null && !sectionResourceRequest.multipartFile().isEmpty()) {
                 String uploadResult = storageService.upload(sectionResourceRequest.multipartFile());
                 section.setContentUrl(uploadResult);
             }
+        if (StringUtils.hasText(sectionResourceRequest.transitionName())) {
+            String transitionUrl = assetService.get("transition", sectionResourceRequest.transitionName());
+            section.setTransitionUrl(transitionUrl);
+        }
             this.update(section);
             return ResourceResponse.fromEntity(section);
         }

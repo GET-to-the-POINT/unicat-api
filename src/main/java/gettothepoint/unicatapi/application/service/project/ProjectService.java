@@ -59,7 +59,6 @@ public class ProjectService {
                 .build();
 
         projectRepository.save(project);
-        Project saved = projectRepository.save(project);
         return ProjectResponse.fromEntity(project);
     }
 
