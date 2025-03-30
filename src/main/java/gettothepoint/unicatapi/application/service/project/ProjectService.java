@@ -2,6 +2,7 @@ package gettothepoint.unicatapi.application.service.project;
 
 import gettothepoint.unicatapi.application.service.member.MemberService;
 import gettothepoint.unicatapi.application.service.storage.AssetService;
+import gettothepoint.unicatapi.common.propertie.SupabaseProperties;
 import gettothepoint.unicatapi.domain.dto.project.ProjectRequest;
 import gettothepoint.unicatapi.domain.dto.project.ProjectResponse;
 import gettothepoint.unicatapi.domain.entity.dashboard.Project;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -23,6 +25,7 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final MemberService memberService;
     private final AssetService assetService;
+    private final SupabaseProperties supabaseProperties;
 
     public Page<ProjectResponse> getAll(Pageable pageable) {
         Page<Project> projectPage = projectRepository.findAll(pageable);
@@ -72,22 +75,21 @@ public class ProjectService {
         return projectRepository.save(project);
     }
 
-
     public ProjectResponse update(Long projectId, ProjectRequest request) {
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 프로젝트가 존재하지 않습니다."));
-
-        if (request.scriptTone() != null) project.setScriptTone(request.scriptTone());
-        if (request.imageStyle() != null) project.setImageStyle(request.imageStyle());
-        if (request.templateName() != null) project.setTemplateUrl(request.templateName());
-        if (request.description() != null) project.setDescription(request.description());
-        if (request.title() != null) project.setTitle(request.title());
-        if (request.subtitle() != null) project.setSubtitle(request.subtitle());
+        Project project = getOrElseThrow(projectId);
+        if (StringUtils.hasText(request.scriptTone())) project.setScriptTone(request.scriptTone());
+        if (StringUtils.hasText(request.imageStyle())) project.setImageStyle(request.imageStyle());
+        if (StringUtils.hasText(request.templateName())) {
+            String templateUrl = assetService.get("template", request.templateName());
+            project.setTemplateUrl(templateUrl);
+        }
+        if (StringUtils.hasText(request.description())) project.setDescription(request.description());
+        if (StringUtils.hasText(request.title())) project.setTitle(request.title());
+        if (StringUtils.hasText(request.subtitle())) project.setSubtitle(request.subtitle());
 
         Project updated = projectRepository.save(project);
         return ProjectResponse.fromEntity(updated);
     }
-
     public Project getOrElseThrow(Long projectId) {
         return projectRepository.findById(projectId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "프로젝트를 찾을 수 없습니다."));
     }
