@@ -11,8 +11,7 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3Configuration;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -165,10 +164,19 @@ public class SupabaseFileStorageRepository implements FileStorageRepository {
             return supabaseProperties.storage().bucket();
         }
         return switch (contentType) {
-            case ".png", ".jpg", ".jpeg" -> "image";
+            case ".png", ".jpg", ".jpeg", ".webp" -> "image";
             case ".mp3", ".wav" -> "voice";
             case ".mp4", ".avi" -> "video";
             default -> supabaseProperties.storage().bucket();
         };
+    }
+
+    public ListObjectsV2Response getFolderListInBucket(String bucketName, String prefix) {
+        ListObjectsV2Request request = ListObjectsV2Request.builder()
+                .bucket(bucketName)
+                .prefix(prefix + "/")
+                .build();
+
+        return s3Client.listObjectsV2(request);
     }
 }
