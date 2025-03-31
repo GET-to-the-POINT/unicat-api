@@ -4,10 +4,11 @@ import gettothepoint.unicatapi.application.service.storage.AssetService;
 import gettothepoint.unicatapi.application.service.storage.FileStorageService;
 import gettothepoint.unicatapi.application.service.storage.StorageService;
 import gettothepoint.unicatapi.domain.dto.project.ResourceResponse;
-import gettothepoint.unicatapi.domain.dto.project.SectionResourceRequest;
-import gettothepoint.unicatapi.domain.dto.project.SectionResponse;
-import gettothepoint.unicatapi.domain.entity.dashboard.Project;
-import gettothepoint.unicatapi.domain.entity.dashboard.Section;
+import gettothepoint.unicatapi.domain.dto.project.section.SectionResourceRequest;
+import gettothepoint.unicatapi.domain.dto.project.section.SectionResourceRequestWithoutFile;
+import gettothepoint.unicatapi.domain.dto.project.section.SectionResponse;
+import gettothepoint.unicatapi.domain.entity.project.Project;
+import gettothepoint.unicatapi.domain.entity.project.Section;
 import gettothepoint.unicatapi.domain.repository.SectionRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Slf4j
