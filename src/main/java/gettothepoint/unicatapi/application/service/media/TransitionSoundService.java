@@ -25,14 +25,14 @@ public class TransitionSoundService {
 
         for (int i = 1; i < sections.size(); i++) {
             Section section = sections.get(i);
-            String url = section.getTransitionUrl();
+            String transitionKey = section.getTransitionKey();
 
-            if (StringUtils.hasText(url)) {
+            if (StringUtils.hasText(transitionKey)) {
                 try {
-                    File soundFile = storageService.download(url);
+                    File soundFile = storageService.get(transitionKey);
                     transitionSoundFiles.add(soundFile);
                 } catch (Exception e) {
-                    log.warn("⚠️ 트랜지션 사운드 다운로드 실패 (sectionId: {}, url: {}): {}", section.getId(), url, e.getMessage());
+                    log.warn("⚠️ 트랜지션 사운드 다운로드 실패 (sectionId: {}, url: {}): {}", section.getId(), transitionKey, e.getMessage());
                     transitionSoundFiles.add(null);
                 }
             } else {

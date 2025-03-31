@@ -35,7 +35,7 @@ public class YoutubeUploadService {
 
         try {
             progressManager.send(projectId, 10);
-            File video = storageService.download(project.getArtifactUrl());
+            File video = storageService.get(project.getArtifactKey());
 
             progressManager.send(projectId, 30);
             YouTube youtubeService = youtubeoAuth2Service.getYouTubeService(accessToken);

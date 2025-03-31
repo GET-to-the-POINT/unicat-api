@@ -17,7 +17,7 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:validate}
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:create}
     open-in-view: false
 
   profiles:
@@ -81,8 +81,6 @@ app:
   supabase:
     url: ${SUPABASE_URL}
     key: ${SUPABASE_KEY}
-    storage:
-      bucket: media
     s3:
       endpoint: ${SUPABASE_S3_ENDPOINT}
       region: ${SUPABASE_S3_REGION}

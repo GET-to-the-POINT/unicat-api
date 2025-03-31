@@ -6,9 +6,8 @@ import gettothepoint.unicatapi.application.service.project.SectionService;
 import gettothepoint.unicatapi.application.service.storage.StorageService;
 import gettothepoint.unicatapi.application.service.video.YoutubeUploadService;
 import gettothepoint.unicatapi.application.service.voice.TTSService;
-import gettothepoint.unicatapi.domain.dto.project.project.ProjectResponse;
 import gettothepoint.unicatapi.domain.dto.project.PromptRequest;
-import gettothepoint.unicatapi.domain.dto.project.section.SectionResponse;
+import gettothepoint.unicatapi.domain.dto.project.project.ProjectResponse;
 import gettothepoint.unicatapi.domain.entity.project.Project;
 import gettothepoint.unicatapi.domain.entity.project.Section;
 import lombok.RequiredArgsConstructor;
@@ -50,31 +49,31 @@ public class ArtifactService {
     private Project buildAndUpdate(Long projectId) {
         Project project = projectService.getOrElseThrow(projectId);
 
-        if (StringUtils.hasText(project.getArtifactUrl())) {
+        if (StringUtils.hasText(project.getArtifactKey())) {
             return project;
         }
 
-        List<SectionResponse> sectionResponses = sectionService.getSectionResponseAll(projectId);
+        List<Section> sections = sectionService.getSectionAll(projectId);
 
         // section build standby & upload
-        for (SectionResponse sectionResponse : sectionResponses) {
-            sectionBuildAndUpload(project.getId(), sectionResponse.id());
+        for (Section section : sections) {
+            sectionBuildAndUpload(project.getId(), section.getId());
         }
-        sectionResponses = sectionService.getSectionResponseAll(projectId);
+        sections = sectionService.getSectionAll(projectId);
 
         // project build standby
-        List<String> sectionVideoUrls = sectionResponses.stream()
-                .map(SectionResponse::videoUrl)
+        List<String> sectionKeys = sections.stream()
+                .map(Section::getFrameKey)
                 .toList();
-        List<File> sectionVideos = storageService.downloads(sectionVideoUrls);
+        List<File> sectionVideos = storageService.getAll(sectionKeys);
         List<Section> sectionEntities = sectionService.getSectionAll(projectId);
         List<File> transitionSounds = transitionSoundService.downloadTransitionSoundsFromSections(sectionEntities);
 
         File artifactFile = mediaService.mergeVideosAndExtractVFR(sectionVideos, transitionSounds);
 
         // artifact upload
-        String uploadedUrl = storageService.upload(artifactFile);
-        project.setArtifactUrl(uploadedUrl);
+        String uploadedUrl = storageService.save(artifactFile);
+        project.setArtifactKey(uploadedUrl);
 
         return projectService.update(project);
     }
@@ -83,37 +82,37 @@ public class ArtifactService {
         Section section = sectionService.getOrElseThrow(sectionId);
 
         // 비디오 체크 및 생성
-        String videoUrl = section.getVideoUrl();
-        if (StringUtils.hasText(videoUrl)) {
-            storageService.download(videoUrl);
+        String videoKey = section.getFrameKey();
+        if (StringUtils.hasText(videoKey)) {
+            storageService.get(videoKey);
             return;
         }
 
         // 오디오 체크 및 생성
-        String audioUrl = section.getAudioUrl();
-        if (!StringUtils.hasText(audioUrl)) {
+        String audioKey = section.getAudioKey();
+        if (!StringUtils.hasText(audioKey)) {
             File voiceFile = ttsService.create(section.getScript(), section.getVoiceModel());
-            audioUrl = storageService.upload(voiceFile);
-            section.setAudioUrl(audioUrl);
+            audioKey = storageService.save(voiceFile);
+            section.setAudioKey(audioKey);
         }
 
         // 콘텐츠 체크 및 생성
-        String contentUrl = section.getContentUrl();
-        if (!StringUtils.hasText(contentUrl)) {
+        String contentKey = section.getContentKey();
+        if (!StringUtils.hasText(contentKey)) {
             PromptRequest promptRequest = new PromptRequest(section.getScript());
             openAiService.createResource(projectId, sectionId, "image", promptRequest);
-            contentUrl = sectionService.getOrElseThrow(sectionId).getContentUrl();
+            contentKey = sectionService.getOrElseThrow(sectionId).getContentKey();
         }
 
         // video standby & build
         Project project = section.getProject();
-        File templateResource = storageService.download(project.getTemplateUrl());
-        File contentResource = storageService.download(contentUrl);
-        File audioResource = storageService.download(audioUrl);
+        File templateResource = storageService.get(project.getTemplateKey());
+        File contentResource = storageService.get(contentKey);
+        File audioResource = storageService.get(audioKey);
 
         File titleResource = null;
-        if (project.getTitleUrl() != null && !project.getTitleUrl().isBlank()) {
-            titleResource = storageService.download(project.getTitleUrl());
+        if (project.getTitleImageKey() != null && !project.getTitleImageKey().isBlank()) {
+            titleResource = storageService.get(project.getTitleImageKey());
         }
 
         File sectionVideoFile;
@@ -124,8 +123,8 @@ public class ArtifactService {
         }
 
         // video upload process
-        String sectionVideoUrl = storageService.upload(sectionVideoFile);
-        section.setVideoUrl(sectionVideoUrl);
+        String sectionVideoUrl = storageService.save(sectionVideoFile);
+        section.setFrameKey(sectionVideoUrl);
         sectionService.update(section);
     }
 

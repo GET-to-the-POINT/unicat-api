@@ -134,13 +134,13 @@ public class OpenAiService {
         }
 
         MultipartFile multipartFile = new MultipartFileUtil(imageBytes, "download", "image/jpeg");
-        return storageService.upload(multipartFile);
+        return storageService.save(multipartFile);
     }
 
     private void saveImageToSection(Long sectionId, String imageUrl, String alt) {
         Section section = sectionService.getOrElseThrow(sectionId);
 
-        section.setContentUrl(imageUrl);
+        section.setContentKey(imageUrl);
         section.setAlt(alt);
         sectionService.update(section);
     }

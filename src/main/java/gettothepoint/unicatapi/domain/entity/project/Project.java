@@ -26,11 +26,11 @@ public class Project extends BaseEntity {
     private String subtitle;
     private String description;
     private String thumbnailUrl;
-    private String artifactUrl;
+    private String artifactKey;
     private String scriptTone;
     private String imageStyle;
-    private String templateUrl;
-    private String titleUrl;
+    private String templateKey;
+    private String titleImageKey;
 
     @ManyToOne
     @JoinColumn
@@ -44,10 +44,10 @@ public class Project extends BaseEntity {
     private final List<Section> sections = new ArrayList<>();
 
     @Builder
-    public Project(Member member, String templateUrl, String titleUrl, String scriptTone, String imageStyle, String description, String title, String subtitle) {
+    public Project(Member member, String templateKey, String titleImageKey, String scriptTone, String imageStyle, String description, String title, String subtitle) {
         this.member = member;
-        this.templateUrl = templateUrl;
-        this.titleUrl = titleUrl;
+        this.templateKey = templateKey;
+        this.titleImageKey = titleImageKey;
         this.scriptTone = scriptTone;
         this.imageStyle = imageStyle;
         this.description = description;

@@ -9,6 +9,6 @@ public record SectionResourceRequestWithoutFile(
     @Schema(description = "스크립트에 적용할 음성 톤을 지정합니다.", example = "kbwmGExKNkzJPdZeyZVATm") String voiceModel,
     @Schema(description = "이미지의 대체 설명입니다.", example = "Image alt text") String alt,
     @Schema(description = "스크립트 텍스트입니다.", example = "Script for the section") String script,
-    @Schema(description = "섹션 전환 효과 사운드를 지정합니다.", example = "Paper2.mp3") String transitionName
+    @Schema(description = "섹션 전환 효과 사운드를 지정합니다.", example = "Paper2.mp3") String transitionKey
 ) {
 }

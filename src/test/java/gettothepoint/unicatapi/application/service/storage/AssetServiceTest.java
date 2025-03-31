@@ -16,17 +16,17 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.mock;
 
 @SpringBootTest(
-        classes = {AssetServiceImpl.class, AssetServiceImplTest.TestConfig.class, SupabaseProperties.class},
+        classes = {AssetService.class, AssetServiceTest.TestConfig.class, SupabaseProperties.class},
         properties = {
                 "app.supabase.url=https://bhqvrnbzzqzqlwwrcgbm.supabase.co",
                 "app.supabase.key="
         }
 )
 @EnableConfigurationProperties(SupabaseProperties.class)
-class AssetServiceImplTest {
+class AssetServiceTest {
 
     @Autowired
-    private AssetServiceImpl assetService;
+    private AssetService assetService;
 
     @Autowired
     private SupabaseProperties supabaseProperties;

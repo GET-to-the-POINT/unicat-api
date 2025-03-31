@@ -13,7 +13,7 @@ public record ProjectRequest(
         String imageStyle,
 
         @Schema(description = "/assets?type=template 요청시 나오는 name값을 넣어주세요", example = "back2.mp4", defaultValue = "back2.mp4", nullable = true)
-        String templateName,
+        String templateKey,
 
         @Schema(description = "프로젝트 설명", example = "이 프로젝트는 동화에 관한 동영상입니다.", nullable = true)
         String description,
@@ -31,7 +31,7 @@ public record ProjectRequest(
         return ProjectRequest.builder()
                 .scriptTone(request.scriptTone())
                 .imageStyle(request.imageStyle())
-                .templateName(request.templateName())
+                .templateKey(request.templateName())
                 .description(request.description())
                 .title(request.title())
                 .subtitle(request.subtitle())

@@ -75,7 +75,7 @@ public class SectionService {
                 .voiceModel(sectionResourceRequestWithoutFile.voiceModel())
                 .alt(sectionResourceRequestWithoutFile.alt())
                 .script(sectionResourceRequestWithoutFile.script())
-                .transitionUrl(assetService.get("transition", sectionResourceRequestWithoutFile.transitionName()))
+                .transitionKey(sectionResourceRequestWithoutFile.transitionKey())
                 .build();
         return create(newSection);
     }
@@ -86,10 +86,9 @@ public class SectionService {
         Project project = projectService.getOrElseThrow(projectId);
 
         String voiceModel = StringUtils.hasText(sectionResourceRequest.voiceModel()) ? sectionResourceRequest.voiceModel() : supertoneDefaultVoiceId;
-        String transitionUrl = StringUtils.hasText(sectionResourceRequest.transitionName()) ? assetService.get("transition", sectionResourceRequest.transitionName()) : null;
-        String contentUrl = null;
+        String contentKey = null;
         if (sectionResourceRequest.multipartFile() != null) {
-            contentUrl = storageService.upload(sectionResourceRequest.multipartFile());
+            contentKey = storageService.save(sectionResourceRequest.multipartFile());
         }
 
         Section newSection = Section.builder()
@@ -97,8 +96,8 @@ public class SectionService {
                         .voiceModel(voiceModel)
                         .alt(sectionResourceRequest.alt())
                         .script(sectionResourceRequest.script())
-                        .contentUrl(contentUrl)
-                        .transitionUrl(transitionUrl)
+                        .contentKey(contentKey)
+                        .transitionKey(sectionResourceRequest.transitionKey())
                         .build();
         return create(newSection);
     }
@@ -110,17 +109,33 @@ public class SectionService {
 
     public ResourceResponse update(Long projectId, Long sectionId, SectionResourceRequest sectionResourceRequest) {
         Section section = this.getOrElseThrow(projectId, sectionId);
+        boolean changed = false;
 
-        if (sectionResourceRequest.script() != null) section.setScript(sectionResourceRequest.script());
-        if (sectionResourceRequest.alt() != null) section.setAlt(sectionResourceRequest.alt());
+        if (sectionResourceRequest.script() != null) {
+            section.setScript(sectionResourceRequest.script());
+            changed = true;
+        }
+        if (sectionResourceRequest.alt() != null) {
+            section.setAlt(sectionResourceRequest.alt());
+            changed = true;
+        }
         if (sectionResourceRequest.multipartFile() != null && !sectionResourceRequest.multipartFile().isEmpty()) {
-            String uploadResult = storageService.upload(sectionResourceRequest.multipartFile());
-            section.setContentUrl(uploadResult);
+            String uploadedKey = storageService.save(sectionResourceRequest.multipartFile());
+            section.setContentKey(uploadedKey);
+            changed = true;
         }
-        if (sectionResourceRequest.transitionName() != null) {
-            String transitionUrl = assetService.get("transition", sectionResourceRequest.transitionName());
-            section.setTransitionUrl(transitionUrl);
+        if (sectionResourceRequest.transitionKey() != null) {
+            section.setTransitionKey(sectionResourceRequest.transitionKey());
+            changed = true;
         }
+
+        if (changed) {
+            // 섹션 데이터가 변경되면 새로 빌드되어야하기 때문에 널이 되어야 한다.
+            section.setFrameKey(null);
+            section.getProject().setArtifactKey(null);
+            projectService.update(section.getProject());
+        }
+
         this.update(section);
         return ResourceResponse.fromEntity(section);
     }

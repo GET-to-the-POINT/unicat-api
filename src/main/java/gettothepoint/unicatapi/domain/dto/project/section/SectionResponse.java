@@ -42,12 +42,12 @@ public record SectionResponse(
                 section.getId(),
                 section.getScript(),
                 section.getSortOrder(),
-                section.getContentUrl(),
-                section.getAudioUrl(),
-                section.getVideoUrl(),
+                section.getContentKey(),
+                section.getAudioKey(),
+                section.getFrameKey(),
                 section.getAlt(),
                 section.getVoiceModel(),
-                section.getTransitionUrl()
+                section.getTransitionKey()
         );
     }
 }

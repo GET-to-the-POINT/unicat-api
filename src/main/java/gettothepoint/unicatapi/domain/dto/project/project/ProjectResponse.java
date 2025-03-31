@@ -19,9 +19,9 @@ public record ProjectResponse(
     @Schema(description = "프로젝트 설명", example = "이 프로젝트는 동화에 관한 동영상입니다.") String description,
     @Schema(description = "스크립트 톤", example = "friendly") String scriptTone,
     @Schema(description = "이미지 스타일", example = "DigitalArt") String imageStyle,
-    @Schema(description = "썸네일 URL", example = "http://example.com/thumbnail.png") String thumbnailUrl,
-    @Schema(description = "산출물 URL", example = "http://example.com/artifact.zip") String artifactUrl,
-    @Schema(description = "제목 URL", example = "http://example.com/title.png") String titleUrl,
+    @Schema(description = "썸네일 URL", example = "https://unicat.com/thumbnail.png") String thumbnailUrl,
+    @Schema(description = "산출물 URL", example = "https://unicat.com/artifact.zip") String artifactUrl,
+    @Schema(description = "제목 URL", example = "https://unicat.com/title.png") String titleUrl,
     @Schema(description = "생성일시", example = "2025-03-31T12:00:00") LocalDateTime createdAt
 ) {
     /**
@@ -37,8 +37,8 @@ public record ProjectResponse(
                 .subtitle(project.getSubtitle())
                 .description(project.getDescription())
                 .thumbnailUrl(project.getThumbnailUrl())
-                .titleUrl(project.getTitleUrl())
-                .artifactUrl(project.getArtifactUrl())
+                .titleUrl(project.getTitleImageKey())
+                .artifactUrl(project.getArtifactKey())
                 .scriptTone(project.getScriptTone())
                 .imageStyle(project.getImageStyle())
                 .createdAt(project.getCreatedAt())

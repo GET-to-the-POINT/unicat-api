@@ -3,16 +3,16 @@ package gettothepoint.unicatapi.presentation.controller;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import gettothepoint.unicatapi.application.service.storage.AssetService;
 import gettothepoint.unicatapi.domain.dto.asset.AssetItem;
+import gettothepoint.unicatapi.domain.repository.storage.S3Repository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -23,6 +23,12 @@ import java.util.List;
 public class AssetsController {
 
     private final AssetService assetService;
+    private final S3Repository s3Repository;
+
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public String test(@RequestParam("file") MultipartFile file) {
+        return s3Repository.save(file);
+    }
 
     @Operation(
             summary = "샘플 에셋 조회",
@@ -43,7 +49,7 @@ public class AssetsController {
             )
             @RequestParam(required = false) String type
     ) {
-        return type == null ? assetService.get() : assetService.get(type);
+        return type == null ? assetService.getAll() : assetService.getAll(type);
     }
 
     @GetMapping("/image-styles")

@@ -58,26 +58,26 @@ public class Section extends BaseEntity {
      * 콘텐츠 URL입니다.
      */
     @Setter
-    @Schema(description = "콘텐츠 URL입니다.", example = "http://example.com/content")
-    private String contentUrl;
+    @Schema(description = "콘텐츠 URL입니다.", example = "https://unicat.com/content")
+    private String contentKey;
     /**
      * 오디오 URL입니다.
      */
     @Setter
-    @Schema(description = "오디오 URL입니다.", example = "http://example.com/audio")
-    private String audioUrl;
+    @Schema(description = "오디오 URL입니다.", example = "https://unicat.com/audio")
+    private String audioKey;
     /**
      * 비디오 URL입니다.
      */
     @Setter
-    @Schema(description = "비디오 URL입니다.", example = "http://example.com/video")
-    private String videoUrl;
+    @Schema(description = "비디오 URL입니다.", example = "https://unicat.com/video")
+    private String frameKey;
     /**
      * 전환 효과 URL입니다.
      */
     @Setter
-    @Schema(description = "전환 효과 URL입니다.", example = "http://example.com/transition")
-    private String transitionUrl;
+    @Schema(description = "전환 효과 URL입니다.", example = "https://unicat.com/transition")
+    private String transitionKey;
 
     /**
      * 연관된 프로젝트입니다.
@@ -94,22 +94,22 @@ public class Section extends BaseEntity {
      * @param voiceModel 음성 모델
      * @param alt 대체 텍스트
      * @param script 스크립트 텍스트
-     * @param contentUrl 콘텐츠 URL
-     * @param audioUrl 오디오 URL
-     * @param videoUrl 비디오 URL
-     * @param transitionUrl 전환 효과 URL
+     * @param contentKey 콘텐츠 URL
+     * @param audioKey 오디오 URL
+     * @param frameKey 비디오 URL
+     * @param transitionKey 전환 효과 URL
      */
     @Builder
-    public Section(Project project, String voiceModel, String alt, String script, String contentUrl, String audioUrl, String videoUrl, String transitionUrl) {
+    public Section(Project project, String voiceModel, String alt, String script, String contentKey, String audioKey, String frameKey, String transitionKey) {
         this.project = project;
         this.voiceModel = voiceModel;
         this.sortOrder = project.getSections().size() + 1L;
         this.alt = alt;
         this.script = script;
-        this.contentUrl = contentUrl;
-        this.audioUrl = audioUrl;
-        this.videoUrl = videoUrl;
-        this.transitionUrl = transitionUrl;
+        this.contentKey = contentKey;
+        this.audioKey = audioKey;
+        this.frameKey = frameKey;
+        this.transitionKey = transitionKey;
     }
 
 }

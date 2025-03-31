@@ -53,14 +53,9 @@ public class ProjectService {
     public ProjectResponse create(Long memberId, ProjectRequest request) {
         Member member = memberService.getOrElseThrow(memberId);
 
-        String titleUrl = null;
+        String titleImageKey = null;
         if (request.titleImage() != null) {
-            titleUrl = storageService.upload(request.titleImage());
-        }
-
-        String templateUrl = null;
-        if (StringUtils.hasText(request.templateName())) {
-            templateUrl = assetService.get("template", request.templateName());
+            titleImageKey = storageService.save(request.titleImage());
         }
 
         Project project = Project.builder()
@@ -70,8 +65,8 @@ public class ProjectService {
                 .description(request.description())
                 .title(request.title())
                 .subtitle(request.subtitle())
-                .titleUrl(titleUrl)
-                .templateUrl(templateUrl)
+                .templateKey(request.templateKey())
+                .titleImageKey(titleImageKey)
                 .build();
 
         projectRepository.save(project);
@@ -103,14 +98,13 @@ public class ProjectService {
             project.setImageStyle(request.imageStyle());
             changed = true;
         }
-        if (request.templateName() != null) {
-            String templateUrl = assetService.get("template", request.templateName());
-            project.setTemplateUrl(templateUrl);
+        if (request.templateKey() != null) {
+            project.setTemplateKey(request.templateKey());
             changed = true;
         }
         if (request.titleImage() != null) {
-            String titleUrl = storageService.upload(request.titleImage());
-            project.setTitleUrl(titleUrl);
+            String titleUrl = storageService.save(request.titleImage());
+            project.setTitleImageKey(titleUrl);
             changed = true;
         }
 
@@ -119,7 +113,7 @@ public class ProjectService {
         if (StringUtils.hasText(request.subtitle())) project.setSubtitle(request.subtitle());
 
         if (changed) {
-            project.setArtifactUrl(null);
+            project.setArtifactKey(null);
         }
 
         update(project);
