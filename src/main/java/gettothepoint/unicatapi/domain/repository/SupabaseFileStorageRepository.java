@@ -15,6 +15,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.File;
 import java.net.URI;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @Repository("supabaseS3FileStorageRepository")
@@ -44,21 +45,11 @@ public class SupabaseFileStorageRepository implements FileStorageRepository {
     @Override
     public String saveFile(String filepath) {
 
-        int slashIndex = filepath.lastIndexOf('/');
-        String key;
-        if (slashIndex != -1) {
-            key = filepath.substring(slashIndex + 1);
-        } else {
-            key = filepath;
-        }
+        Path path = Paths.get(filepath);
+        String key = path.getFileName().toString();
 
-        int dotIndex = filepath.lastIndexOf('.');
-        String contentType;
-        if (dotIndex != -1) {
-            contentType = filepath.substring(dotIndex);
-        } else {
-            contentType = "";
-        }
+        int dotIndex = key.lastIndexOf('.');
+        String contentType = (dotIndex != -1) ? key.substring(dotIndex) : "";
 
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(getBucketName(contentType))
@@ -66,7 +57,7 @@ public class SupabaseFileStorageRepository implements FileStorageRepository {
                 .acl("public-read")
                 .build();
 
-        s3Client.putObject(putObjectRequest, RequestBody.fromFile(Paths.get(filepath)));
+        s3Client.putObject(putObjectRequest, RequestBody.fromFile(path));
 
         String publicEndpoint = supabaseProperties.s3().endpoint().replace("/s3", "");
         return String.format("%s/object/%s/%s",
