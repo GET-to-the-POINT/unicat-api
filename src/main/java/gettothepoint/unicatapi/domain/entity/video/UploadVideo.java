@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.domain.entity.video;
 
 import gettothepoint.unicatapi.domain.entity.BaseEntity;
-import gettothepoint.unicatapi.domain.entity.dashboard.Project;
+import gettothepoint.unicatapi.domain.entity.project.Project;
 import jakarta.persistence.*;
 import lombok.*;
 

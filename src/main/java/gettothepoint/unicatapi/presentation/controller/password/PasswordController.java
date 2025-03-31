@@ -1,11 +1,11 @@
-package gettothepoint.unicatapi.presentation.controller.member.password;
+package gettothepoint.unicatapi.presentation.controller.password;
 
 import gettothepoint.unicatapi.application.service.member.MemberService;
 import gettothepoint.unicatapi.application.service.member.password.PasswordService;
 import gettothepoint.unicatapi.common.util.JwtUtil;
-import gettothepoint.unicatapi.domain.dto.password.AnonymousChangePasswordRequest;
-import gettothepoint.unicatapi.domain.dto.password.AuthorizedChangePasswordRequest;
-import gettothepoint.unicatapi.domain.dto.password.PasswordResetEmailRequest;
+import gettothepoint.unicatapi.domain.dto.member.password.AnonymousChangePasswordRequest;
+import gettothepoint.unicatapi.domain.dto.member.password.AuthorizedChangePasswordRequest;
+import gettothepoint.unicatapi.domain.dto.member.password.PasswordResetEmailRequest;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;

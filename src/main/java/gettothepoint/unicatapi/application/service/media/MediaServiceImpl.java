@@ -4,12 +4,14 @@ import gettothepoint.unicatapi.common.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,14 +20,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MediaServiceImpl implements MediaService {
 
+    private static final String VIDEO_CODEC = "libx264";
+
     @Value("${app.media.ffmpeg.path}")
     private String ffmpegPath;
 
-    private static final String FILE_PREFIX = "unicat_artifact_";
-    private static final String VIDEO_CODEC = "libx264";
-
-    private static final String TRANSITION_AUDIO_CLASSPATH = "assets/audio/transition/transition1.mp3";
-    private static final String TRANSITION_AUDIO_PREFIX = "transition";
+    private final TransitionSoundService transitionSoundService;
 
     public static class MediaProcessingException extends RuntimeException {
         public MediaProcessingException(String message, Throwable cause) {
@@ -74,7 +74,7 @@ public class MediaServiceImpl implements MediaService {
     public File mergeImageAndAudio(File templateResource, File contentResource, File audioResource) {
 
         File outputFile = FileUtil.createTempFile(".mp4");
-        double duration = getAudioDurationInSeconds(audioResource);
+        double duration = transitionSoundService.getAudioDurationInSeconds(audioResource);
 
         String filter =
                 "[1:v]scale='if(gt(iw,1080),1080,iw)':'-1'," +
@@ -102,7 +102,7 @@ public class MediaServiceImpl implements MediaService {
     public File mergeImageAndAudio(File templateResource, File contentResource, File titleResource, File audioResource) {
 
         File outputFile = FileUtil.createTempFile(".mp4");
-        double duration = getAudioDurationInSeconds(audioResource);
+        double duration = transitionSoundService.getAudioDurationInSeconds(audioResource);
 
         String filter =
                 "[1:v]scale='if(gt(iw,1080),1080,iw)':'-1'," +
@@ -127,54 +127,57 @@ public class MediaServiceImpl implements MediaService {
         return outputFile;
     }
 
-    @Override
-    public File mergeVideosAndExtractVFR(List<File> files) {
-
+    public File mergeVideosAndExtractVFR(List<File> videos, List<File> transitionSounds) {
         File outputFile = FileUtil.createTempFile(".mp4");
 
-        // 총 길이 계산
+        // 총 영상 길이 계산
         long totalMs = 0;
-        for (File f : files) totalMs += getVideoDurationInMs(f);
+        for (File f : videos) totalMs += transitionSoundService.getVideoDurationInMs(f);
         double totalSec = totalMs / 1000.0;
-
-        // transition 사운드
-        File transitionSound = loadTransitionSoundFile();
 
         List<String> command = new ArrayList<>();
         command.add(ffmpegPath);
-        for (File f : files) {
+
+        // 입력 영상
+        for (File f : videos) {
             command.add("-i");
             command.add(f.getAbsolutePath());
         }
-        command.add("-i");
-        command.add(transitionSound.getAbsolutePath());
+
+        // 입력 효과음
+        for (File sound : transitionSounds) {
+            command.add("-i");
+            command.add(sound.getAbsolutePath());
+        }
 
         // 필터 생성
         StringBuilder filter = new StringBuilder();
 
-        for (int i = 0; i < files.size(); i++) {
+        for (int i = 0; i < videos.size(); i++) {
             filter.append("[").append(i).append(":v:0][").append(i).append(":a:0]");
         }
+        filter.append("concat=n=").append(videos.size()).append(":v=1:a=1[outv][outa];");
 
-        filter.append("concat=n=").append(files.size()).append(":v=1:a=1[outv][outa];");
-
-        long delay = 0;
-        for (int i = 1; i < files.size(); i++) {
-            delay += getVideoDurationInMs(files.get(i - 1));
-            filter.append("[").append(files.size()).append(":a:0]adelay=")
-                    .append(delay).append("|").append(delay)
+        // 트랜지션 효과음 딜레이 삽입
+        long delayMs = 0;
+        for (int i = 1; i < videos.size(); i++) {
+            delayMs += transitionSoundService.getVideoDurationInMs(videos.get(i - 1));
+            int transitionInputIndex = videos.size() + (i - 1); // transitionSounds input 위치
+            filter.append("[")
+                    .append(transitionInputIndex).append(":a:0]")
+                    .append("adelay=").append(delayMs).append("|").append(delayMs)
                     .append(",volume=0.3[sfx").append(i).append("];");
         }
 
+        // 효과음 믹싱
         filter.append("[outa]");
-        for (int i = 1; i < files.size(); i++) {
+        for (int i = 1; i < videos.size(); i++) {
             filter.append("[sfx").append(i).append("]");
         }
-
-        filter.append("amix=inputs=")
-                .append(1 + (files.size() - 1))
+        filter.append("amix=inputs=").append(1 + (videos.size() - 1))
                 .append(":duration=longest:dropout_transition=0:normalize=0[out_mixed];");
 
+        //  최종 볼륨 조절
         filter.append("[out_mixed]volume=0.8[out_finala]");
 
         command.add("-filter_complex");
@@ -193,58 +196,6 @@ public class MediaServiceImpl implements MediaService {
 
         executeFfmpegCommand(new ProcessBuilder(command));
         return outputFile;
-    }
-
-    private File loadTransitionSoundFile() {
-        try {
-            ClassPathResource resource = new ClassPathResource(TRANSITION_AUDIO_CLASSPATH);
-            File tempFile = FileUtil.createTempFile(".mp3");
-            try (InputStream in = resource.getInputStream();
-                 OutputStream out = new FileOutputStream(tempFile)) {
-                in.transferTo(out);
-            }
-            return tempFile;
-        } catch (IOException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "클래스패스 리소스 로딩 실패: " + TRANSITION_AUDIO_CLASSPATH, e);
-        }
-    }
-
-    private double getAudioDurationInSeconds(File file) {
-        try {
-            ProcessBuilder pb = new ProcessBuilder(
-                    "ffprobe", "-v", "error", "-show_entries", "format=duration",
-                    "-of", "default=noprint_wrappers=1:nokey=1",
-                    file.getAbsolutePath()
-            );
-            Process p = pb.start();
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
-                String line = reader.readLine();
-                p.waitFor();
-                return Double.parseDouble(line.trim());
-            }
-        } catch (Exception e) {
-            throw new MediaProcessingException("음성 길이 가져오기 실패", e);
-        }
-    }
-
-    private long getVideoDurationInMs(File file) {
-        try {
-            ProcessBuilder pb = new ProcessBuilder(
-                    "ffprobe", "-v", "error", "-select_streams", "v:0",
-                    "-show_entries", "format=duration",
-                    "-of", "default=noprint_wrappers=1:nokey=1",
-                    file.getAbsolutePath()
-            );
-            Process p = pb.start();
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
-                String line = reader.readLine();
-                p.waitFor();
-                return (long) (Double.parseDouble(line.trim()) * 1000);
-            }
-        } catch (Exception e) {
-            throw new MediaProcessingException("비디오 길이 가져오기 실패", e);
-        }
     }
 
     public File extractThumbnail(File file) {

@@ -1,4 +1,4 @@
-package gettothepoint.unicatapi.domain.dto.password;
+package gettothepoint.unicatapi.domain.dto.member.password;
 
 import gettothepoint.unicatapi.common.validation.fieldcompare.CompareResult;
 import gettothepoint.unicatapi.common.validation.fieldcompare.CompareTarget;

@@ -1,4 +1,4 @@
-package gettothepoint.unicatapi.domain.entity.dashboard;
+package gettothepoint.unicatapi.domain.entity.project;
 
 import gettothepoint.unicatapi.domain.entity.BaseEntity;
 import gettothepoint.unicatapi.domain.entity.member.Member;
@@ -11,6 +11,8 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
+
+@Setter
 @Getter
 @Entity
 @NoArgsConstructor
@@ -23,17 +25,10 @@ public class Project extends BaseEntity {
     private String title;
     private String subtitle;
     private String description;
-    @Setter
     private String thumbnailUrl;
-    @Setter
     private String artifactUrl;
-
-    @Setter
     private String scriptTone;
-
     private String imageStyle;
-
-
     private String templateUrl;
     private String titleUrl;
 
@@ -49,13 +44,15 @@ public class Project extends BaseEntity {
     private final List<Section> sections = new ArrayList<>();
 
     @Builder
-    public Project(Member member, String templateUrl, String titleUrl) {
+    public Project(Member member, String templateUrl, String titleUrl, String scriptTone, String imageStyle, String description, String title, String subtitle) {
         this.member = member;
         this.templateUrl = templateUrl;
         this.titleUrl = titleUrl;
+        this.scriptTone = scriptTone;
+        this.imageStyle = imageStyle;
+        this.description = description;
+        this.title = title;
+        this.subtitle = subtitle;
     }
 
-    public void assignUploadVideo(UploadVideo uploadVideo) {
-        this.uploadVideo = uploadVideo;
-    }
 }

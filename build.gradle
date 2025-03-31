@@ -30,7 +30,6 @@ dependencies {
 	// ===== Spring Boot Core =====
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
@@ -57,13 +56,11 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 	testImplementation 'com.h2database:h2'
 
-	// ===== Youtube  =====
+	// ===== Google  =====
 	implementation 'com.google.api-client:google-api-client:2.7.2'
 	implementation 'com.google.apis:google-api-services-youtube:v3-rev20250224-2.0.0'
 	implementation 'com.google.apis:google-api-services-youtubeAnalytics:v2-rev20230704-2.0.0'
 	implementation 'com.google.auth:google-auth-library-oauth2-http:1.33.1'
-
-	// ===== TTS =====
 	implementation 'com.google.cloud:google-cloud-texttospeech:2.61.0'
 
 	// ===== AI =====
@@ -73,7 +70,6 @@ dependencies {
 
 	// ===== ETC =====
 	implementation 'com.github.loki4j:loki-logback-appender:1.6.0'
-	implementation 'com.konghq:unirest-java:4.0.0-RC2'
 	implementation "software.amazon.awssdk:s3:2.20.35"
 	runtimeOnly 'io.netty:netty-resolver-dns-native-macos:4.1.76.Final:osx-aarch_64' // for Silicon Mac
 }

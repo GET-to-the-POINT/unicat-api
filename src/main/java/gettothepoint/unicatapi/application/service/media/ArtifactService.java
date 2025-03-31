@@ -6,12 +6,11 @@ import gettothepoint.unicatapi.application.service.project.SectionService;
 import gettothepoint.unicatapi.application.service.storage.StorageService;
 import gettothepoint.unicatapi.application.service.video.YoutubeUploadService;
 import gettothepoint.unicatapi.application.service.voice.TTSService;
-import gettothepoint.unicatapi.domain.dto.project.ProjectResponse;
+import gettothepoint.unicatapi.domain.dto.project.project.ProjectResponse;
 import gettothepoint.unicatapi.domain.dto.project.PromptRequest;
-import gettothepoint.unicatapi.domain.dto.project.SectionResponse;
-import gettothepoint.unicatapi.domain.entity.dashboard.Project;
-import gettothepoint.unicatapi.domain.entity.dashboard.Section;
-import gettothepoint.unicatapi.infrastructure.progress.ProgressManager;
+import gettothepoint.unicatapi.domain.dto.project.section.SectionResponse;
+import gettothepoint.unicatapi.domain.entity.project.Project;
+import gettothepoint.unicatapi.domain.entity.project.Section;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.stereotype.Service;
@@ -32,7 +31,7 @@ public class ArtifactService {
     private final StorageService storageService;
     private final TTSService ttsService;
     private final OpenAiService openAiService;
-    private final ProgressManager progressManager;
+    private final TransitionSoundService transitionSoundService;
 
 
     public void build(Long projectId) {
@@ -50,6 +49,11 @@ public class ArtifactService {
 
     private Project buildAndUpdate(Long projectId) {
         Project project = projectService.getOrElseThrow(projectId);
+
+        if (StringUtils.hasText(project.getArtifactUrl())) {
+            return project;
+        }
+
         List<SectionResponse> sectionResponses = sectionService.getSectionResponseAll(projectId);
 
         // section build standby & upload
@@ -63,9 +67,10 @@ public class ArtifactService {
                 .map(SectionResponse::videoUrl)
                 .toList();
         List<File> sectionVideos = storageService.downloads(sectionVideoUrls);
+        List<Section> sectionEntities = sectionService.getSectionAll(projectId);
+        List<File> transitionSounds = transitionSoundService.downloadTransitionSoundsFromSections(sectionEntities);
 
-        // artifact build
-        File artifactFile = mediaService.mergeVideosAndExtractVFR(sectionVideos);
+        File artifactFile = mediaService.mergeVideosAndExtractVFR(sectionVideos, transitionSounds);
 
         // artifact upload
         String uploadedUrl = storageService.upload(artifactFile);
@@ -73,7 +78,6 @@ public class ArtifactService {
 
         return projectService.update(project);
     }
-
 
     private void sectionBuildAndUpload(Long projectId, Long sectionId) {
         Section section = sectionService.getOrElseThrow(sectionId);

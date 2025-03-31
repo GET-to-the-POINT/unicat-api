@@ -4,8 +4,8 @@ import gettothepoint.unicatapi.application.service.ai.OpenAiService;
 import gettothepoint.unicatapi.common.propertie.OpenAIProperties;
 import gettothepoint.unicatapi.domain.dto.project.CreateResourceResponse;
 import gettothepoint.unicatapi.domain.dto.project.PromptRequest;
-import gettothepoint.unicatapi.domain.entity.dashboard.Project;
-import gettothepoint.unicatapi.domain.entity.dashboard.Section;
+import gettothepoint.unicatapi.domain.entity.project.Project;
+import gettothepoint.unicatapi.domain.entity.project.Section;
 import gettothepoint.unicatapi.domain.repository.ProjectRepository;
 import gettothepoint.unicatapi.domain.repository.SectionRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,7 +49,7 @@ class OpenAiServiceTest {
     private OpenAIProperties openAIProperties;
 
     @Mock
-    private OpenAIProperties.OpenAIScript openAI;
+    private OpenAIProperties.Script openAI;
 
     @Mock
     private OpenAiService openAiService;
@@ -57,7 +57,7 @@ class OpenAiServiceTest {
     @BeforeEach
     void setUp() {
         when(chatClientBuilder.build()).thenReturn(chatClient);
-        when(openAIProperties.openAIScript()).thenReturn(openAI);
+        when(openAIProperties.script()).thenReturn(openAI);
 
     }
 

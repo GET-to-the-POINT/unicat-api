@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MediaServiceImplTest {
 
-    private final MediaServiceImpl mediaServiceImpl = new MediaServiceImpl();
+    private final MediaServiceImpl mediaServiceImpl = new MediaServiceImpl(null);
 
     private static final String VALID_FFMPEG_PATH = "/opt/homebrew/bin/ffmpeg";
 
@@ -123,7 +123,7 @@ class MediaServiceImplTest {
             Files.write(video1.toPath(), Files.readAllBytes(path));
             Files.write(video2.toPath(), Files.readAllBytes(path));
 
-            File outputVideo = mediaServiceImpl.mergeVideosAndExtractVFR(List.of(video1, video2));
+            File outputVideo = mediaServiceImpl.mergeVideosAndExtractVFR(List.of(video1, video2), null);
 
             assertNotNull(outputVideo, "Output file should not be null");
             assertTrue(outputVideo.exists(), "Output file should be created");
@@ -145,7 +145,7 @@ class MediaServiceImplTest {
             Files.write(video2.toPath(), Files.readAllBytes(Path.of(videoPath)));
 
             Exception exception = assertThrows(ResponseStatusException.class, () ->
-                    mediaServiceImpl.mergeVideosAndExtractVFR(List.of(video1, video2))
+                    mediaServiceImpl.mergeVideosAndExtractVFR(List.of(video1, video2), null)
             );
 
             System.out.println("❗FFmpeg 환경 변수 오류 예외 발생: " + exception.getMessage());
@@ -158,7 +158,7 @@ class MediaServiceImplTest {
             System.setProperty("FFMPEG_PATH", VALID_FFMPEG_PATH);
 
             Exception exception = assertThrows(ResponseStatusException.class, () ->
-                    mediaServiceImpl.mergeVideosAndExtractVFR(List.of(new File("non_existent.mp4")))
+                    mediaServiceImpl.mergeVideosAndExtractVFR(List.of(new File("non_existent.mp4")), null)
             );
 
             System.out.println("❗ 비디오 파일 없음 예외 발생: " + exception.getMessage());
@@ -175,7 +175,7 @@ class MediaServiceImplTest {
             Files.write(invalidVideo.toPath(), new byte[1024]); // 임시 더미 파일 생성
 
             Exception exception = assertThrows(ResponseStatusException.class, () ->
-                    mediaServiceImpl.mergeVideosAndExtractVFR(List.of(invalidVideo))
+                    mediaServiceImpl.mergeVideosAndExtractVFR(List.of(invalidVideo), null)
             );
 
             System.out.println("❗ 지원되지 않는 형식의 비디오 파일 예외 발생: " + exception.getMessage());
