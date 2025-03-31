@@ -121,6 +121,8 @@ public class ProjectService {
         if (changed) {
             project.setArtifactUrl(null);
         }
+
+        update(project);
     }
 
     public Project update(Project project) {
