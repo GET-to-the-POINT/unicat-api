@@ -47,7 +47,7 @@ public class ProjectController {
 
     @Operation(
             summary = "프로젝트 목록 조회",
-            description = "페이지 번호, 사이즈, 정렬 옵션을 사용하여 모든 프로젝트를 페이징 단위로 조회하는 API입니다."
+            description = "페이지, 정렬 옵션을 활용하여 모든 프로젝트를 리스트 형태로 조회합니다. (예: 최신순 정렬)"
     )
     @GetMapping
     public Page<ProjectResponse> getAll(
@@ -59,8 +59,8 @@ public class ProjectController {
     }
 
     @Operation(
-            summary = "프로젝트 생성",
-            description = "현재 로그인 사용자의 정보를 기반으로 새로운 프로젝트를 생성합니다. JWT 토큰의 subject 값을 memberId로 사용합니다."
+            summary = "프로젝트 생성 (파일 포함)",
+            description = "multipart/form-data를 사용해 새 프로젝트를 생성합니다. 파일을 포함한 다양한 정보를 함께 전달하세요."
     )
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
@@ -71,8 +71,8 @@ public class ProjectController {
     }
 
     @Operation(
-            summary = "프로젝트 생성",
-            description = "현재 로그인 사용자의 정보를 기반으로 새로운 프로젝트를 생성합니다. JWT 토큰의 subject 값을 memberId로 사용합니다."
+            summary = "프로젝트 생성 (파일 제외)",
+            description = "JSON 형식의 요청 바디로 새로운 프로젝트를 생성합니다. 파일 없이 텍스트 정보만 제공됩니다."
     )
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
@@ -84,7 +84,7 @@ public class ProjectController {
 
     @Operation(
             summary = "프로젝트 상세 조회",
-            description = "경로 변수 projectId를 사용해 특정 프로젝트의 상세 정보를 반환합니다."
+            description = "프로젝트 ID를 통해 해당 프로젝트의 상세 정보를 반환합니다. 모든 세부 정보가 포함되어 있습니다."
     )
     @PreAuthorize("@projectService.verifyProjectOwner(#jwt.subject, #projectId)")
     @GetMapping("/{projectId}")
@@ -94,7 +94,7 @@ public class ProjectController {
 
     @Operation(
             summary = "아티팩트 생성",
-            description = "프로젝트에 대해 아티팩트를 생성합니다. type이 'youtube' 또는 'vimeo'인 경우 인증된 액세스 토큰을 사용하며, 기본 타입은 'artifact'입니다."
+            description = "프로젝트 아티팩트를 생성합니다. 요청 파라미터 'type'에 따라 유튜브 또는 비디오 업로드 기능을 제공합니다."
     )
     @PreAuthorize("@projectService.verifyProjectOwner(#jwt.subject, #projectId)")
     @PostMapping("/{projectId}")
@@ -111,7 +111,10 @@ public class ProjectController {
         }
     }
 
-    @Operation(summary = "프로젝트 정보 수정", description = "아티팩트 후에 프로젝트 정보를 추가할 수 있습니다.")
+    @Operation(
+            summary = "프로젝트 정보 수정 (파일 포함)",
+            description = "프로젝트 정보를 업데이트합니다. multipart/form-data 형식을 ���용하여 파일 및 텍스트 정보를 함께 전달할 수 있습니다."
+    )
     @PreAuthorize("@projectService.verifyProjectOwner(#jwt.subject, #projectId)")
     @PatchMapping(value = "/{projectId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -121,7 +124,10 @@ public class ProjectController {
         projectService.update(projectId, request);
     }
 
-    @Operation(summary = "프로젝트 정보 수정", description = "아티팩트 후에 프로젝트 정보를 추가할 수 있습니다.")
+    @Operation(
+            summary = "프로젝트 정보 수정 (파일 제외)",
+            description = "JSON 형식의 요청 바디로 프로젝트 정보를 수정합니다. 파일 없이 텍스트만 업데이트됩니다."
+    )
     @PreAuthorize("@projectService.verifyProjectOwner(#jwt.subject, #projectId)")
     @PatchMapping(value = "/{projectId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -132,8 +138,8 @@ public class ProjectController {
     }
 
     @Operation(
-            summary = "유튜브 분석 조회",
-            description = "현재 인증된 사용자의 유튜브 분석 데이터를 추가 쿼리 파라미터와 함께 조회합니다."
+            summary = "유튜브 분석 데이터 조회",
+            description = "현재 인증된 사용자의 유튜브 분석 데이터를 쿼리 파라미터와 함께 조회합니다. (예: startDate, endDate, metrics)"
     )
     @GetMapping("/youtube-analytics")
     @PreAuthorize("isAuthenticated()")
@@ -144,7 +150,7 @@ public class ProjectController {
 
     @Operation(
             summary = "원스탭 아티팩트 생성",
-            description = "프롬프트 정보를 기반으로 OpenAI를 사용해 콘텐츠를 자동 생성하고, 이를 기반으로 프로젝트 아티팩트를 생성하는 API입니다."
+            description = "프롬프트 정보를 기반으로 OpenAI를 사용해 자동으로 콘텐츠를 생성하고 프로젝트 아티팩트를 만듭니다. 간편하게 전체 콘텐츠를 구성할 수 있습니다."
     )
     @PostMapping("/one-step")
     @ResponseStatus(HttpStatus.ACCEPTED)
@@ -155,8 +161,8 @@ public class ProjectController {
     }
 
     @Operation(
-            summary = "샘플 진행률 SSE 테스트",
-            description = "샘플 데이터를 사용하여 SSE 방식으로 진행률 이벤트(0~100%)를 테스트하는 API입니다."
+            summary = "진행률 SSE 테스트",
+            description = "샘플 데이터를 사용해 0~100%까지 진행률을 SSE 방식으로 전달합니다. 프론트엔드에서 진행률 UI를 테스트할 수 있습니다."
     )
     @PreAuthorize("@projectService.verifyProjectOwner(#jwt.subject, #projectId)")
     @GetMapping("/{projectId}/progress")

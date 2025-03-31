@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import gettothepoint.unicatapi.application.service.storage.AssetService;
 import gettothepoint.unicatapi.domain.dto.asset.AssetItem;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -30,11 +32,17 @@ public class AssetsController {
                 - voice: 텍스트를 음성으로 읽어주는 샘플 보이스 목록
                 - transition: 영상 전환 시 사용할 수 있는 효과음
                 - template: 영상 배경으로 사용할 수 있는 템플릿 배경화면
-                - “type이 없으면 전부 반환됩니다
+                - type이 없으면 전부 반환됩니다
                 """
     )
     @GetMapping
-    public List<AssetItem> getAssets(@RequestParam(required = false) String type) {
+    public List<AssetItem> getAssets(
+            @Parameter(
+                    description = "에셋 타입 (허용값: voice, transition, template)",
+                    schema = @Schema(allowableValues = {"voice", "transition", "template"})
+            )
+            @RequestParam(required = false) String type
+    ) {
         return type == null ? assetService.get() : assetService.get(type);
     }
 
