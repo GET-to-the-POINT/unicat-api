@@ -159,7 +159,8 @@ public class SupabaseFileStorageRepository implements FileStorageRepository {
         String key = remainder.substring(slashIndex + 1);
 
         String tempDir = FileUtil.getTempPath().toString();
-        String localFilePath = Paths.get(tempDir, key).toString();
+        String tempFileName = key.substring(key.lastIndexOf("/") + 1);
+        String localFilePath = Paths.get(tempDir, tempFileName).toString();
 
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                 .bucket(bucket)
