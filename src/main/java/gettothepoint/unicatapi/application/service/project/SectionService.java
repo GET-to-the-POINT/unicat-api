@@ -1,7 +1,6 @@
 package gettothepoint.unicatapi.application.service.project;
 
 import gettothepoint.unicatapi.application.service.storage.AssetService;
-import gettothepoint.unicatapi.application.service.storage.FileStorageService;
 import gettothepoint.unicatapi.application.service.storage.StorageService;
 import gettothepoint.unicatapi.domain.dto.project.ResourceResponse;
 import gettothepoint.unicatapi.domain.dto.project.section.SectionResourceRequest;
@@ -36,7 +35,6 @@ public class SectionService {
     private final ProjectService projectService;
     private final SectionRepository sectionRepository;
     private final StorageService storageService;
-    private final FileStorageService fileStorageService;
     private final AssetService assetService;
     private static final String SECTION_NOT_FOUND_MSG = "Section not found with id: ";
 
@@ -116,7 +114,7 @@ public class SectionService {
         if (sectionResourceRequest.script() != null) section.setScript(sectionResourceRequest.script());
         if (sectionResourceRequest.alt() != null) section.setAlt(sectionResourceRequest.alt());
         if (sectionResourceRequest.multipartFile() != null && !sectionResourceRequest.multipartFile().isEmpty()) {
-            String uploadResult = fileStorageService.storeMultipartFile(sectionResourceRequest.multipartFile());
+            String uploadResult = storageService.upload(sectionResourceRequest.multipartFile());
             section.setContentUrl(uploadResult);
         }
         if (sectionResourceRequest.transitionName() != null) {
@@ -132,7 +130,7 @@ public class SectionService {
         return SectionResponse.fromEntity(section);
     }
 
-    public Long updateSectionSortOrder(Long sectionId, int newOrder) {
+    public void updateSectionSortOrder(Long sectionId, int newOrder) {
         Section section = sectionRepository.findById(sectionId).orElseThrow(() -> new EntityNotFoundException(SECTION_NOT_FOUND_MSG + sectionId));
         Project project = section.getProject();
 
@@ -156,7 +154,6 @@ public class SectionService {
             sectionRepository.save(s);
         }
 
-        return section.getSortOrder();
     }
 
     public Section getOrElseThrow(Long projectId, Long sectionId) {
