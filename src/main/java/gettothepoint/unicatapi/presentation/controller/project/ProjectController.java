@@ -115,9 +115,9 @@ public class ProjectController {
     @PreAuthorize("@projectService.verifyProjectOwner(#jwt.subject, #projectId)")
     @PatchMapping(value = "/{projectId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateProject(@AuthenticationPrincipal Jwt jwt,
-                              @PathVariable Long projectId,
-                              @RequestBody ProjectRequest request) {
+    public void update(@AuthenticationPrincipal Jwt jwt,
+                       @PathVariable Long projectId,
+                       @ModelAttribute ProjectRequest request) {
         projectService.update(projectId, request);
     }
 
@@ -125,9 +125,9 @@ public class ProjectController {
     @PreAuthorize("@projectService.verifyProjectOwner(#jwt.subject, #projectId)")
     @PatchMapping(value = "/{projectId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateProject(@AuthenticationPrincipal Jwt jwt,
-                              @PathVariable Long projectId,
-                              @RequestBody ProjectRequestWithoutFile request) {
+    public void update(@AuthenticationPrincipal Jwt jwt,
+                       @PathVariable Long projectId,
+                       @RequestBody ProjectRequestWithoutFile request) {
         projectService.update(projectId, request);
     }
 
