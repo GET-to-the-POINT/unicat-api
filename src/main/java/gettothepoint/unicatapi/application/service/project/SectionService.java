@@ -88,7 +88,7 @@ public class SectionService {
         Project project = projectService.getOrElseThrow(projectId);
 
         String voiceModel = StringUtils.hasText(sectionResourceRequest.voiceModel()) ? sectionResourceRequest.voiceModel() : supertoneDefaultVoiceId;
-        String transitionUrl = StringUtils.hasText(sectionResourceRequest.transitionName()) ? assetService.get("transition", sectionResourceRequest.transitionName()) : "Paper2.mp3";
+        String transitionUrl = StringUtils.hasText(sectionResourceRequest.transitionName()) ? assetService.get("transition", sectionResourceRequest.transitionName()) : null;
         String contentUrl = null;
         if (sectionResourceRequest.multipartFile() != null) {
             contentUrl = storageService.upload(sectionResourceRequest.multipartFile());
