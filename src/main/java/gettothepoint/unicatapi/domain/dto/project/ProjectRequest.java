@@ -22,8 +22,8 @@ public record ProjectRequest(
 ) {
     public static ProjectRequest basic() {
         return new ProjectRequest(
-                null,
-                null,
+                "friendly",
+                "Photo",
                 "back2.mp4",
                 null,
                 null,

@@ -52,7 +52,6 @@ public class AssetServiceImpl implements AssetService {
         };
     }
 
-
     private List<AssetItem> getSampleAssets(String prefix) {
         String url = getListUrl();
         String supabaseKey = supabaseProperties.key();
@@ -77,7 +76,7 @@ public class AssetServiceImpl implements AssetService {
             requestBody = objectMapper.writeValueAsString(bodyNode);
         } catch (Exception e) {
             throwInternalError();
-            return List.of(); // 불필요하지만 예외처리용
+            return List.of();
         }
 
         HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
@@ -123,20 +122,6 @@ public class AssetServiceImpl implements AssetService {
         String supabaseUrl = supabaseProperties.url();
         return UriComponentsBuilder.fromUriString(supabaseUrl)
                 .pathSegment("storage", "v1", "object", "public", AssetServiceImpl.BUCKET_ASSETS, prefix, fileName)
-                .build()
-                .toUriString();
-    }
-
-    @Override
-    public String getDefaultTemplateUrl() {
-        final String DEFAULT_TEMPLATE_FILENAME = "back2.mp4";
-
-        // Supabase의 기본 URL (supabaseProperties를 통해 가져온다고 가정)
-        String supabaseUrl = supabaseProperties.url();
-
-        // 예: https://your-supabase-url/storage/v1/object/assets/template/black-background.jpg
-        return UriComponentsBuilder.fromUriString(supabaseUrl)
-                .pathSegment("storage", "v1", "object", "assets", "template", DEFAULT_TEMPLATE_FILENAME)
                 .build()
                 .toUriString();
     }
