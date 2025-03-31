@@ -4,6 +4,7 @@ import gettothepoint.unicatapi.common.propertie.SupabaseProperties;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -14,6 +15,7 @@ import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -40,6 +42,69 @@ public class SupabaseFileStorageRepository implements FileStorageRepository {
                                 .build()
                 )
                 .build();
+    }
+
+    public String save(File file) {
+        // 파일명 추출
+        String key = file.getName();
+
+        // 확장자(컨텐츠 타입 결정)
+        int dotIndex = key.lastIndexOf('.');
+        String contentType = (dotIndex != -1) ? key.substring(dotIndex) : "";
+
+        // 파일 타입에 따른 버킷 결정
+        String bucket = getBucketName(contentType);
+
+        // PutObjectRequest 생성 (public-read ACL 적용)
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucket)
+                .key(key)
+                .acl("public-read")
+                .build();
+
+        // 파일 업로드 (파일의 경로로부터 RequestBody 생성)
+        s3Client.putObject(putObjectRequest, RequestBody.fromFile(file.toPath()));
+
+        // 공개 URL 생성
+        String publicEndpoint = supabaseProperties.s3().endpoint().replace("/s3", "");
+        return String.format("%s/object/%s/%s", publicEndpoint, bucket, key);
+    }
+
+    public String save(MultipartFile file) {
+        // Obtain the original file name
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null || originalFilename.isBlank()) {
+            throw new IllegalArgumentException("파일 이름이 비어 있습니다.");
+        }
+
+        // Extract key from the original filename
+        int slashIndex = originalFilename.lastIndexOf('/');
+        String key = (slashIndex != -1) ? originalFilename.substring(slashIndex + 1) : originalFilename;
+
+        // Determine file extension for content type
+        int dotIndex = key.lastIndexOf('.');
+        String contentType = (dotIndex != -1) ? key.substring(dotIndex) : "";
+
+        // Get bucket name based on content type
+        String bucket = getBucketName(contentType);
+
+        // Build the PutObjectRequest with public-read ACL
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucket)
+                .key(key)
+                .acl("public-read")
+                .build();
+
+        // Upload the file using the input stream from the MultipartFile
+        try {
+            s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+        } catch (IOException e) {
+            throw new RuntimeException("파일 업로드 실패", e);
+        }
+
+        // Construct the public URL
+        String publicEndpoint = supabaseProperties.s3().endpoint().replace("/s3", "");
+        return String.format("%s/object/%s/%s", publicEndpoint, bucket, key);
     }
 
     @Override

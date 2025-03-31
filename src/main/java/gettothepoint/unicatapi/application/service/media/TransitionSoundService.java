@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.application.service.media;
 
-import gettothepoint.unicatapi.application.service.storage.SupabaseStorageServiceImpl;
+import gettothepoint.unicatapi.application.service.storage.StorageService;
 import gettothepoint.unicatapi.domain.entity.project.Section;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TransitionSoundService {
 
-    private final SupabaseStorageServiceImpl supabaseStorageService;
+    private final StorageService storageService;
 
     public List<File> downloadTransitionSoundsFromSections(List<Section> sections) {
         List<File> transitionSoundFiles = new ArrayList<>();
@@ -29,7 +29,7 @@ public class TransitionSoundService {
 
             if (StringUtils.hasText(url)) {
                 try {
-                    File soundFile = supabaseStorageService.download(url);
+                    File soundFile = storageService.download(url);
                     transitionSoundFiles.add(soundFile);
                 } catch (Exception e) {
                     log.warn("⚠️ 트랜지션 사운드 다운로드 실패 (sectionId: {}, url: {}): {}", section.getId(), url, e.getMessage());
