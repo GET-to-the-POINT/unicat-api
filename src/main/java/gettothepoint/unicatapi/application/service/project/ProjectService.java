@@ -95,15 +95,15 @@ public class ProjectService {
         Project project = getOrElseThrow(projectId);
         boolean changed = false;
 
-        if (StringUtils.hasText(request.scriptTone())) {
+        if (request.scriptTone() != null) {
             project.setScriptTone(request.scriptTone());
             changed = true;
         }
-        if (StringUtils.hasText(request.imageStyle())) {
+        if (request.imageStyle() != null) {
             project.setImageStyle(request.imageStyle());
             changed = true;
         }
-        if (StringUtils.hasText(request.templateName())) {
+        if (request.templateName() != null) {
             String templateUrl = assetService.get("template", request.templateName());
             project.setTemplateUrl(templateUrl);
             changed = true;

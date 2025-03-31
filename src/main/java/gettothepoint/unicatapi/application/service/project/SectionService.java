@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -80,17 +81,24 @@ public class SectionService {
     }
 
     // 생성
+    @Transactional
     public SectionResponse create(Long projectId, SectionResourceRequest sectionResourceRequest) {
         Project project = projectService.getOrElseThrow(projectId);
-        String voiceModel = sectionResourceRequest.voiceModel() == null ? supertoneDefaultVoiceId : sectionResourceRequest.voiceModel();
+
+        String voiceModel = StringUtils.hasText(sectionResourceRequest.voiceModel()) ? sectionResourceRequest.voiceModel() : supertoneDefaultVoiceId;
+        String transitionUrl = StringUtils.hasText(sectionResourceRequest.transitionName()) ? assetService.get("transition", sectionResourceRequest.transitionName()) : "Paper2.mp3";
+        String contentUrl = null;
+        if (sectionResourceRequest.multipartFile() != null) {
+            contentUrl = storageService.upload(sectionResourceRequest.multipartFile());
+        }
 
         Section newSection = Section.builder()
                         .project(project)
                         .voiceModel(voiceModel)
                         .alt(sectionResourceRequest.alt())
                         .script(sectionResourceRequest.script())
-                        .contentUrl(storageService.upload(sectionResourceRequest.multipartFile()))
-                        .transitionUrl(assetService.get("transition", sectionResourceRequest.transitionName()))
+                        .contentUrl(contentUrl)
+                        .transitionUrl(transitionUrl)
                         .build();
         return create(newSection);
     }
@@ -103,13 +111,13 @@ public class SectionService {
     public ResourceResponse update(Long projectId, Long sectionId, SectionResourceRequest sectionResourceRequest) {
         Section section = this.getOrElseThrow(projectId, sectionId);
 
-        if (StringUtils.hasText(sectionResourceRequest.script())) section.setScript(sectionResourceRequest.script());
-        if (StringUtils.hasText(sectionResourceRequest.alt())) section.setAlt(sectionResourceRequest.alt());
+        if (sectionResourceRequest.script() != null) section.setScript(sectionResourceRequest.script());
+        if (sectionResourceRequest.alt() != null) section.setAlt(sectionResourceRequest.alt());
         if (sectionResourceRequest.multipartFile() != null && !sectionResourceRequest.multipartFile().isEmpty()) {
             String uploadResult = storageService.upload(sectionResourceRequest.multipartFile());
             section.setContentUrl(uploadResult);
         }
-        if (StringUtils.hasText(sectionResourceRequest.transitionName())) {
+        if (sectionResourceRequest.transitionName() != null) {
             String transitionUrl = assetService.get("transition", sectionResourceRequest.transitionName());
             section.setTransitionUrl(transitionUrl);
         }

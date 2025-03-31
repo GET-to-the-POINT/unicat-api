@@ -55,14 +55,14 @@ public class SectionController {
     @PreAuthorize("@projectService.verifyProjectOwner(#jwt.subject, #projectId)")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public SectionResponse create(@AuthenticationPrincipal Jwt jwt, @PathVariable Long projectId, SectionResourceRequest request) {
+    public SectionResponse create(@AuthenticationPrincipal Jwt jwt, @PathVariable Long projectId, @ModelAttribute SectionResourceRequest request) {
         return sectionService.create(projectId, request);
     }
 
     @PreAuthorize("@projectService.verifyProjectOwner(#jwt.subject, #projectId)")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public SectionResponse createWithoutFile(@AuthenticationPrincipal Jwt jwt, @PathVariable Long projectId, SectionResourceRequestWithoutFile request) {
+    public SectionResponse createWithoutFile(@AuthenticationPrincipal Jwt jwt, @PathVariable Long projectId, @RequestBody SectionResourceRequestWithoutFile request) {
         return sectionService.create(projectId, request);
     }
 
