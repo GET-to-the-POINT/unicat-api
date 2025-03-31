@@ -31,7 +31,7 @@ public class ArtifactService {
     private final StorageService storageService;
     private final TTSService ttsService;
     private final OpenAiService openAiService;
-    private final TransitionSoundService transitionSoundService;
+    private final MediaFilterService mediaFilterService;
 
 
     public void build(Long projectId) {
@@ -68,7 +68,7 @@ public class ArtifactService {
                 .toList();
         List<File> sectionVideos = storageService.downloads(sectionVideoUrls);
         List<Section> sectionEntities = sectionService.getSectionAll(projectId);
-        List<File> transitionSounds = transitionSoundService.downloadTransitionSoundsFromSections(sectionEntities);
+        List<File> transitionSounds = mediaFilterService.downloadTransitionSoundsFromSections(sectionEntities);
 
         File artifactFile = mediaService.mergeVideosAndExtractVFR(sectionVideos, transitionSounds);
 

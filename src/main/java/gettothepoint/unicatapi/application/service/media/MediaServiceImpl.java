@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 @Slf4j
 @Service
@@ -26,7 +25,7 @@ public class MediaServiceImpl implements MediaService {
     @Value("${app.media.ffmpeg.path}")
     private String ffmpegPath;
 
-    private final TransitionSoundService transitionSoundService;
+    private final MediaFilterService mediaFilterService;
 
     public static class MediaProcessingException extends RuntimeException {
         public MediaProcessingException(String message, Throwable cause) {
@@ -56,10 +55,10 @@ public class MediaServiceImpl implements MediaService {
     @Override
     public File mergeImageAndAudio(File templateResource, File contentResource, File audioResource) {
         File outputFile = FileUtil.createTempFile(".mp4");
-        double duration = transitionSoundService.getAudioDurationInSeconds(audioResource);
+        double duration = mediaFilterService.getAudioDurationInSeconds(audioResource);
         int frameRate = 30;
         int totalFrames = (int) (duration * frameRate);
-        String zoompanFilter = generateRandomZoompanFilter(totalFrames, frameRate);
+        String zoompanFilter = mediaFilterService.generateRandomZoompanFilter(totalFrames, frameRate);
 
         String filter = zoompanFilter + ";" +
                 "[0:v][content]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2[outv]";
@@ -85,10 +84,10 @@ public class MediaServiceImpl implements MediaService {
     public File mergeImageAndAudio(File templateResource, File contentResource, File titleResource, File audioResource) {
 
         File outputFile = FileUtil.createTempFile(".mp4");
-        double duration = transitionSoundService.getAudioDurationInSeconds(audioResource);
+        double duration = mediaFilterService.getAudioDurationInSeconds(audioResource);
         int frameRate = 30;
         int totalFrames = (int) (duration * frameRate);
-        String zoompanFilter = generateSimpleZoompanFilter(totalFrames, frameRate);
+        String zoompanFilter = mediaFilterService.generateRandomZoompanFilter(totalFrames, frameRate);
 
         String filter =
                 zoompanFilter + ";" +
@@ -118,7 +117,7 @@ public class MediaServiceImpl implements MediaService {
         // 총 영상 길이 계산
         long totalMs = 0;
         for (File f : videos) {
-            totalMs += transitionSoundService.getVideoDurationInMs(f);
+            totalMs += mediaFilterService.getVideoDurationInMs(f);
         }
         double totalSec = totalMs / 1000.0;
 
@@ -153,7 +152,7 @@ public class MediaServiceImpl implements MediaService {
         int actualSfxCount = 0;
 
         for (int i = 1; i < videos.size(); i++) {
-            delayMs += transitionSoundService.getVideoDurationInMs(videos.get(i - 1));
+            delayMs += mediaFilterService.getVideoDurationInMs(videos.get(i - 1));
             File transition = transitionSounds.get(i - 1); // section 1 기준이므로 i-1
 
             if (transition != null) {
@@ -195,48 +194,5 @@ public class MediaServiceImpl implements MediaService {
 
         executeFfmpegCommand(new ProcessBuilder(command));
         return outputFile;
-    }
-    public File extractThumbnail(File file) {
-        if (!MediaValidationUtil.hasValidImageExtension(file.getName())) {
-            throw new IllegalArgumentException("썸네일은 이미지 파일만 지원됩니다.");
-        }
-        return file;
-    }
-
-    private String generateRandomZoompanFilter(int totalFrames, int frameRate) {
-        boolean zoomIn = new Random().nextBoolean();
-
-        String zoomExpr = zoomIn
-                ? "zoom+0.001"
-                : "if(lte(zoom,1.0),1.5,max(1.001,zoom-0.0015))";
-
-        // 랜덤 위치 선택
-        String[][] positions = {
-                {"iw/2-(iw/zoom/2)", "ih/2-(ih/zoom/2)"}, // center
-                {"0", "0"},                              // top-left
-                {"iw-(iw/zoom)", "0"},                   // top-right
-                {"0", "ih-(ih/zoom)"},                   // bottom-left
-                {"iw-(iw/zoom)", "ih-(ih/zoom)"}         // bottom-right
-        };
-
-        String[] selected = positions[new Random().nextInt(positions.length)];
-        String x = selected[0];
-        String y = selected[1];
-
-        return "[1:v]scale=4000:-1," +
-                "zoompan=z='" + zoomExpr + "':x='" + x + "':y='" + y + "':" +
-                "d=" + totalFrames + ":s=1080x1080:fps=" + frameRate + "[content]";
-    }
-
-    private String generateSimpleZoompanFilter(int totalFrames, int frameRate) {
-        boolean zoomIn = new Random().nextBoolean();
-        String zoomExpr = zoomIn
-                ? "zoom+0.001"
-                : "if(lte(zoom,1.5),zoom-0.001,zoom)";
-
-        return "[1:v]scale=4000:-1," +
-                "zoompan=z='" + zoomExpr + "':" +
-                "x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':" +
-                "d=" + totalFrames + ":s=1080x1080:fps=" + frameRate + "[content]";
     }
 }
