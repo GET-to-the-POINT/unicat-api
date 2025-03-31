@@ -1,20 +1,12 @@
 package gettothepoint.unicatapi.application.service.storage;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import gettothepoint.unicatapi.common.propertie.SupabaseProperties;
 import gettothepoint.unicatapi.domain.dto.asset.AssetItem;
+import gettothepoint.unicatapi.domain.repository.SupabaseFileStorageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.util.UriComponentsBuilder;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,8 +17,8 @@ import java.util.List;
 public class AssetServiceImpl implements AssetService {
 
     private final SupabaseProperties supabaseProperties;
-    private final RestTemplate restTemplate;
-    private final MessageSource messageSource;
+    private final SupabaseFileStorageRepository supabaseFileStorageRepository;
+
 
     public static final String TYPE_TEMPLATE = "template";
     public static final String TYPE_TRANSITION = "transition";
@@ -34,12 +26,12 @@ public class AssetServiceImpl implements AssetService {
     public static final String BUCKET_ASSETS = "assets";
 
     @Override
-    public List<AssetItem> get(){
-            List<AssetItem> all = new ArrayList<>();
-            all.addAll(get(TYPE_TEMPLATE));
-            all.addAll(get(TYPE_TRANSITION));
-            all.addAll(get(TYPE_VOICE));
-            return all;
+    public List<AssetItem> get() {
+        List<AssetItem> all = new ArrayList<>();
+        all.addAll(get(TYPE_TEMPLATE));
+        all.addAll(get(TYPE_TRANSITION));
+        all.addAll(get(TYPE_VOICE));
+        return all;
     }
 
     @Override
@@ -53,76 +45,21 @@ public class AssetServiceImpl implements AssetService {
     }
 
     private List<AssetItem> getSampleAssets(String prefix) {
-        String url = getListUrl();
-        String supabaseKey = supabaseProperties.key();
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("apikey", supabaseKey);
-        headers.set("Authorization", "Bearer " + supabaseKey);
-        headers.setContentType(MediaType.APPLICATION_JSON);
+        ListObjectsV2Response response = supabaseFileStorageRepository.getFolderListInBucket(BUCKET_ASSETS, prefix);
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        String requestBody;
-        try {
-            ObjectNode bodyNode = objectMapper.createObjectNode()
-                    .put("prefix", prefix + "/")
-                    .put("search", "");
+        String publicEndpoint = supabaseProperties.s3().endpoint().replace("/s3", "");
 
-            ObjectNode sortByNode = objectMapper.createObjectNode();
-            sortByNode.put("column", "name");
-            sortByNode.put("order", "asc");
-            bodyNode.set("sortBy", sortByNode);
-
-            requestBody = objectMapper.writeValueAsString(bodyNode);
-        } catch (Exception e) {
-            throwInternalError();
-            return List.of();
-        }
-
-        HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
-        ResponseEntity<String> responseEntity;
-
-        try {
-            responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
-        } catch (RestClientException e) {
-            log.error("샘플 에셋 조회 중 오류 발생: {}", e.getMessage());
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "샘플 에셋 목록을 가져오지 못했습니다.");
-        }
-
-        List<AssetItem> assetItems = new ArrayList<>();
-        try {
-            JsonNode root = objectMapper.readTree(responseEntity.getBody());
-            for (JsonNode node : root) {
-                String fileName = node.get("name").asText();
-                String assetUrl = get(prefix, fileName);
-                assetItems.add(new AssetItem(fileName, assetUrl));
-            }
-        } catch (Exception e) {
-            throwInternalError();
-        }
-
-        return assetItems;
-    }
-
-    private void throwInternalError() {
-        String errorMessage = messageSource.getMessage("error.unknown", null, "", LocaleContextHolder.getLocale());
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, errorMessage);
-    }
-
-    private String getListUrl() {
-        String supabaseUrl = supabaseProperties.url();
-        return UriComponentsBuilder.fromUriString(supabaseUrl)
-                .pathSegment("storage", "v1", "object", "list", AssetServiceImpl.BUCKET_ASSETS)
-                .build()
-                .toUriString();
+        return response.contents().stream().map(s3Object -> {
+            String name = s3Object.key().substring(prefix.length() + 1);
+            String assetUrl = String.format("%s/object/%s/%s/%s", publicEndpoint, BUCKET_ASSETS, prefix, name);
+            return new AssetItem(name, assetUrl);
+        }).toList();
     }
 
     @Override
     public String get(String prefix, String fileName) {
-        String supabaseUrl = supabaseProperties.url();
-        return UriComponentsBuilder.fromUriString(supabaseUrl)
-                .pathSegment("storage", "v1", "object", "public", AssetServiceImpl.BUCKET_ASSETS, prefix, fileName)
-                .build()
-                .toUriString();
+        String publicEndpoint = supabaseProperties.s3().endpoint().replace("/s3", "");
+        return String.format("%s/object/%s/%s/%s", publicEndpoint, BUCKET_ASSETS, prefix, fileName);
     }
 }
