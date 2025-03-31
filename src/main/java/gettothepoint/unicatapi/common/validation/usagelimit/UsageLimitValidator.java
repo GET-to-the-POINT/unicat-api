@@ -26,7 +26,7 @@ public class UsageLimitValidator {
 
         Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long memberId = Long.valueOf(jwt.getSubject());
-        String plan = jwt.getClaim("subscription");
+        String plan = jwt.getClaim("plan");
 
         String usageType;
 
