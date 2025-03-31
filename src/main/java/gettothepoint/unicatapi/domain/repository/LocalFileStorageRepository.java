@@ -10,7 +10,7 @@ import java.io.File;
 public class LocalFileStorageRepository implements FileStorageRepository{
 
     @Override
-    public String saveFile(String filepath) {
+    public String save(String filepath) {
         File file = new File(filepath);
         if (!file.exists()) {
             throw new RuntimeException("저장된 파일을 찾을 수 없습니다: " + filepath);

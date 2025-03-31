@@ -8,14 +8,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 @Primary
-public class S3StorageServiceImpl implements StorageService {
+public class S3StorageServiceImpl extends AbstractStorageService {
 
     private final SupabaseFileStorageRepository supabaseFileStorageRepository;
 
@@ -36,16 +34,8 @@ public class S3StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public File download(String fileUrl) {
+    protected File realDownload(String fileUrl) {
         return supabaseFileStorageRepository.getFile(fileUrl);
     }
 
-    @Override
-    public List<File> downloads(List<String> fileUrls) {
-        List<File> files = new ArrayList<>();
-        for (String fileUrl : fileUrls) {
-            files.add(supabaseFileStorageRepository.getFile(fileUrl));
-        }
-        return files;
-    }
 }

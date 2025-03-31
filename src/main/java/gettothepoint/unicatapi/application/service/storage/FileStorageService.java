@@ -37,7 +37,7 @@ public class FileStorageService {
             try {
                 tmpFile = Files.createTempFile(baseDir, "upload-", extension).toFile();
                 file.transferTo(tmpFile);
-                return fileStorageRepository.saveFile(tmpFile.getAbsolutePath());
+                return fileStorageRepository.save(tmpFile.getAbsolutePath());
             } catch (IOException e) {
                 throw new UncheckedIOException("임시 파일 생성 실패", e);
             }

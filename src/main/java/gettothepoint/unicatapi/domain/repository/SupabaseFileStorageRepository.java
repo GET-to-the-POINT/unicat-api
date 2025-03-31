@@ -1,6 +1,7 @@
 package gettothepoint.unicatapi.domain.repository;
 
 import gettothepoint.unicatapi.common.propertie.SupabaseProperties;
+import gettothepoint.unicatapi.common.util.FileUtil;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -17,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -108,7 +110,7 @@ public class SupabaseFileStorageRepository implements FileStorageRepository {
     }
 
     @Override
-    public String saveFile(String filepath) {
+    public String save(String filepath) {
 
         Path path = Paths.get(filepath);
         String key = path.getFileName().toString();
@@ -156,7 +158,7 @@ public class SupabaseFileStorageRepository implements FileStorageRepository {
         String bucket = remainder.substring(0, slashIndex);
         String key = remainder.substring(slashIndex + 1);
 
-        String tempDir = System.getProperty("java.io.tmpdir");
+        String tempDir = FileUtil.getTempPath().toString();
         String localFilePath = Paths.get(tempDir, key).toString();
 
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
@@ -164,7 +166,16 @@ public class SupabaseFileStorageRepository implements FileStorageRepository {
                 .key(key)
                 .build();
 
-        s3Client.getObject(getObjectRequest, Paths.get(localFilePath));
+        Path localPath = Paths.get(localFilePath);
+
+        // 부모 디렉토리가 없으면 생성
+        try {
+            Files.createDirectories(localPath.getParent());
+        } catch (IOException e) {
+            throw new RuntimeException("로컬 디렉토리 생성 실패: " + localPath.getParent(), e);
+        }
+
+        s3Client.getObject(getObjectRequest, localPath);
         return new File(localFilePath);
     }
 

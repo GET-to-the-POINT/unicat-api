@@ -32,6 +32,7 @@ public class FileUtil {
 
     public static File getTemp(String url) {
         String fileName = url.substring(url.lastIndexOf("/") + 1);
-        return new File(System.getProperty("java.io.tmpdir"), fileName);
+        Path tempPath = getTempPath();
+        return new File(tempPath.toString(), fileName);
     }
 }
