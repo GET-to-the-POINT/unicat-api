@@ -16,6 +16,7 @@ import java.io.File;
 public class S3StorageServiceImpl extends AbstractStorageService {
 
     private final SupabaseFileStorageRepository supabaseFileStorageRepository;
+    private final FileStorageService fileStorageService;
 
     @Override
     public String upload(MultipartFile file) {
@@ -25,7 +26,7 @@ public class S3StorageServiceImpl extends AbstractStorageService {
             throw new IllegalArgumentException("업로드할 파일을 제공해주세요.");
         }
 
-        return supabaseFileStorageRepository.save(file);
+        return fileStorageService.storeMultipartFile(file);
     }
 
     @Override
