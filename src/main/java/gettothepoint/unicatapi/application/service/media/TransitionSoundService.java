@@ -1,14 +1,11 @@
 package gettothepoint.unicatapi.application.service.media;
 
-import gettothepoint.unicatapi.application.service.storage.AssetService;
 import gettothepoint.unicatapi.application.service.storage.SupabaseStorageServiceImpl;
-import gettothepoint.unicatapi.domain.entity.project.Section;
+import gettothepoint.unicatapi.domain.entity.dashboard.Section;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -22,32 +19,30 @@ import java.util.List;
 public class TransitionSoundService {
 
     private final SupabaseStorageServiceImpl supabaseStorageService;
-    private final AssetService assetService;
 
     public List<File> downloadTransitionSoundsFromSections(List<Section> sections) {
         List<File> transitionSoundFiles = new ArrayList<>();
 
-        for (Section section : sections) {
+        for (int i = 1; i < sections.size(); i++) {
+            Section section = sections.get(i);
             String url = section.getTransitionUrl();
-
-            File soundFile;
 
             if (StringUtils.hasText(url)) {
                 try {
-                    soundFile = supabaseStorageService.download(url);
+                    File soundFile = supabaseStorageService.download(url);
+                    transitionSoundFiles.add(soundFile);
                 } catch (Exception e) {
                     log.warn("⚠️ 트랜지션 사운드 다운로드 실패 (sectionId: {}, url: {}): {}", section.getId(), url, e.getMessage());
-                    soundFile = loadDefaultTransitionSound();
+                    transitionSoundFiles.add(null);
                 }
             } else {
-                log.info("ℹ️ sectionId {} 는 트랜지션 사운드가 없음, 기본 효과음으로 대체", section.getId());
-                soundFile = loadDefaultTransitionSound();
+                log.info("ℹ️ sectionId {} 는 트랜지션 사운드가 없음, null 추가", section.getId());
+                transitionSoundFiles.add(null);
             }
-            transitionSoundFiles.add(soundFile);
         }
+
         return transitionSoundFiles;
     }
-
     public double getAudioDurationInSeconds(File file) {
         try {
             ProcessBuilder pb = new ProcessBuilder(
@@ -82,14 +77,6 @@ public class TransitionSoundService {
             }
         } catch (Exception e) {
             throw new MediaServiceImpl.MediaProcessingException("비디오 길이 가져오기 실패", e);
-        }
-    }
-    private File loadDefaultTransitionSound() {
-        try {
-            String defaultUrl = assetService.get("transition", "transition1.mp3"); // Supabase public URL
-            return supabaseStorageService.download(defaultUrl);
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "기본 트랜지션 사운드 다운로드 실패", e);
         }
     }
 }

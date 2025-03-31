@@ -132,7 +132,9 @@ public class MediaServiceImpl implements MediaService {
 
         // 총 영상 길이 계산
         long totalMs = 0;
-        for (File f : videos) totalMs += transitionSoundService.getVideoDurationInMs(f);
+        for (File f : videos) {
+            totalMs += transitionSoundService.getVideoDurationInMs(f);
+        }
         double totalSec = totalMs / 1000.0;
 
         List<String> command = new ArrayList<>();
@@ -144,40 +146,52 @@ public class MediaServiceImpl implements MediaService {
             command.add(f.getAbsolutePath());
         }
 
-        // 입력 효과음
+        // 입력 효과음 (null인 경우 제외하고 add)
         for (File sound : transitionSounds) {
-            command.add("-i");
-            command.add(sound.getAbsolutePath());
+            if (sound != null) {
+                command.add("-i");
+                command.add(sound.getAbsolutePath());
+            }
         }
 
-        // 필터 생성
         StringBuilder filter = new StringBuilder();
 
+        // 영상 concat 필터
         for (int i = 0; i < videos.size(); i++) {
             filter.append("[").append(i).append(":v:0][").append(i).append(":a:0]");
         }
         filter.append("concat=n=").append(videos.size()).append(":v=1:a=1[outv][outa];");
 
-        // 트랜지션 효과음 딜레이 삽입
+        // 효과음 필터 (skip nulls)
         long delayMs = 0;
+        int transitionInputOffset = videos.size(); // 효과음 input 시작 인덱스
+        int actualSfxCount = 0;
+
         for (int i = 1; i < videos.size(); i++) {
             delayMs += transitionSoundService.getVideoDurationInMs(videos.get(i - 1));
-            int transitionInputIndex = videos.size() + (i - 1); // transitionSounds input 위치
-            filter.append("[")
-                    .append(transitionInputIndex).append(":a:0]")
-                    .append("adelay=").append(delayMs).append("|").append(delayMs)
-                    .append(",volume=0.3[sfx").append(i).append("];");
+            File transition = transitionSounds.get(i - 1); // section 1 기준이므로 i-1
+
+            if (transition != null) {
+                int transitionInputIndex = transitionInputOffset + actualSfxCount;
+                filter.append("[")
+                        .append(transitionInputIndex).append(":a:0]")
+                        .append("adelay=").append(delayMs).append("|").append(delayMs)
+                        .append(",volume=0.3[sfx").append(actualSfxCount).append("];");
+                actualSfxCount++;
+            }
         }
 
-        // 효과음 믹싱
+        // 믹싱
         filter.append("[outa]");
-        for (int i = 1; i < videos.size(); i++) {
-            filter.append("[sfx").append(i).append("]");
+        for (int j = 0; j < actualSfxCount; j++) {
+            filter.append("[sfx").append(j).append("]");
         }
-        filter.append("amix=inputs=").append(1 + (videos.size() - 1))
+
+        filter.append("amix=inputs=")
+                .append(1 + actualSfxCount)
                 .append(":duration=longest:dropout_transition=0:normalize=0[out_mixed];");
 
-        //  최종 볼륨 조절
+        // 최종 볼륨 조절
         filter.append("[out_mixed]volume=0.8[out_finala]");
 
         command.add("-filter_complex");
@@ -197,7 +211,6 @@ public class MediaServiceImpl implements MediaService {
         executeFfmpegCommand(new ProcessBuilder(command));
         return outputFile;
     }
-
     public File extractThumbnail(File file) {
         if (!MediaValidationUtil.hasValidImageExtension(file.getName())) {
             throw new IllegalArgumentException("썸네일은 이미지 파일만 지원됩니다.");
