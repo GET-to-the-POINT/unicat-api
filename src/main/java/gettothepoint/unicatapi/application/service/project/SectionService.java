@@ -121,7 +121,14 @@ public class SectionService {
             String transitionUrl = assetService.get("transition", sectionResourceRequest.transitionName());
             section.setTransitionUrl(transitionUrl);
         }
+        section.setAudioUrl(null);
+        section.setVideoUrl(null);
         this.update(section);
+
+        Project project = projectService.getOrElseThrow(projectId);
+        project.setArtifactUrl(null);
+        projectService.update(project);
+
         return ResourceResponse.fromEntity(section);
     }
 
