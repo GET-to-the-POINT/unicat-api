@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.application.service.media;
 
 import gettothepoint.unicatapi.application.service.storage.SupabaseStorageServiceImpl;
-import gettothepoint.unicatapi.domain.entity.dashboard.Section;
+import gettothepoint.unicatapi.domain.entity.project.Section;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
