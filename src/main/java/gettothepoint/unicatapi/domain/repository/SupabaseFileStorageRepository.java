@@ -16,6 +16,7 @@ import software.amazon.awssdk.services.s3.model.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -124,10 +125,18 @@ public class SupabaseFileStorageRepository implements FileStorageRepository {
         s3Client.putObject(putObjectRequest, RequestBody.fromFile(path));
 
         String publicEndpoint = supabaseProperties.s3().endpoint().replace("/s3", "");
-        return String.format("%s/object/%s/%s",
-                publicEndpoint,
-                getBucketName(contentType),
-                key);
+
+        URI uri = null;
+        try {
+            uri = new URI(String.format("%s/object/%s/%s",
+                    publicEndpoint,
+                    getBucketName(contentType),
+                    key));
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("올바르지 않은 URL 형식입니다: " + uri);
+        }
+
+        return uri.toASCIIString();
     }
 
     public File getFile(String fileUrl) {
