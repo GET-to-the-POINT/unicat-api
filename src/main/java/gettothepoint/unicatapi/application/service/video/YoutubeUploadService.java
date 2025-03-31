@@ -7,7 +7,7 @@ import com.google.api.services.youtube.model.Video;
 import com.google.api.services.youtube.model.VideoSnippet;
 import com.google.api.services.youtube.model.VideoStatus;
 import gettothepoint.unicatapi.application.service.storage.StorageService;
-import gettothepoint.unicatapi.domain.entity.dashboard.Project;
+import gettothepoint.unicatapi.domain.entity.project.Project;
 import gettothepoint.unicatapi.infrastructure.progress.ProgressManager;
 import gettothepoint.unicatapi.infrastructure.security.youtube.YoutubeOAuth2Service;
 import lombok.RequiredArgsConstructor;

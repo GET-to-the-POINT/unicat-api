@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.application.service.storage;
 
-import gettothepoint.unicatapi.domain.dto.storage.AssetItem;
+import gettothepoint.unicatapi.domain.dto.asset.AssetItem;
 
 import java.util.List;
 

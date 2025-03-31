@@ -2,17 +2,17 @@ package gettothepoint.unicatapi.application.service.media;
 
 import gettothepoint.unicatapi.application.service.storage.AssetService;
 import gettothepoint.unicatapi.application.service.storage.SupabaseStorageServiceImpl;
-import gettothepoint.unicatapi.common.util.FileUtil;
-import gettothepoint.unicatapi.domain.entity.dashboard.Section;
+import gettothepoint.unicatapi.domain.entity.project.Section;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 

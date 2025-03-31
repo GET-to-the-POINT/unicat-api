@@ -2,7 +2,7 @@ package gettothepoint.unicatapi.presentation.controller;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import gettothepoint.unicatapi.application.service.storage.AssetService;
-import gettothepoint.unicatapi.domain.dto.storage.AssetItem;
+import gettothepoint.unicatapi.domain.dto.asset.AssetItem;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Getter;

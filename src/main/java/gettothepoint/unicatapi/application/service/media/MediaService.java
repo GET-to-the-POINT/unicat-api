@@ -1,7 +1,5 @@
 package gettothepoint.unicatapi.application.service.media;
 
-import gettothepoint.unicatapi.domain.entity.dashboard.Section;
-
 import java.io.File;
 import java.util.List;
 

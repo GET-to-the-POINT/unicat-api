@@ -7,7 +7,7 @@ import com.google.api.services.youtubeAnalytics.v2.YouTubeAnalytics;
 import com.google.api.services.youtubeAnalytics.v2.model.QueryResponse;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
-import gettothepoint.unicatapi.domain.entity.dashboard.Project;
+import gettothepoint.unicatapi.domain.entity.project.Project;
 import gettothepoint.unicatapi.domain.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

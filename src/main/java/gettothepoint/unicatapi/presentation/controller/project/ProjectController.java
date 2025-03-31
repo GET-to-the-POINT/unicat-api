@@ -4,8 +4,9 @@ import com.google.api.services.youtubeAnalytics.v2.model.QueryResponse;
 import gettothepoint.unicatapi.application.service.media.ArtifactService;
 import gettothepoint.unicatapi.application.service.project.ProjectService;
 import gettothepoint.unicatapi.application.service.youtube.YouTubeAnalyticsProxyService;
-import gettothepoint.unicatapi.domain.dto.project.ProjectRequest;
-import gettothepoint.unicatapi.domain.dto.project.ProjectResponse;
+import gettothepoint.unicatapi.domain.dto.project.project.ProjectRequest;
+import gettothepoint.unicatapi.domain.dto.project.project.ProjectRequestWithoutFile;
+import gettothepoint.unicatapi.domain.dto.project.project.ProjectResponse;
 import gettothepoint.unicatapi.domain.dto.project.PromptRequest;
 import gettothepoint.unicatapi.infrastructure.progress.ProgressManager;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
@@ -60,30 +62,33 @@ public class ProjectController {
             summary = "프로젝트 생성",
             description = "현재 로그인 사용자의 정보를 기반으로 새로운 프로젝트를 생성합니다. JWT 토큰의 subject 값을 memberId로 사용합니다."
     )
-    @PostMapping()
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public ProjectResponse create(@AuthenticationPrincipal Jwt jwt,
-                                  @RequestBody ProjectRequest request) {
+                                  @ModelAttribute ProjectRequest request) {
         Long memberId = Long.valueOf(jwt.getSubject());
         return projectService.create(memberId, request);
     }
 
-    @Operation(summary = "프로젝트 정보 수정", description = "아티팩트 후에 프로젝트 정보를 추가할 수 있습니다.")
-    @PatchMapping("/{projectId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateProject(
-            @PathVariable Long projectId,
-            @RequestBody ProjectRequest request
-    ) {
-        projectService.update(projectId, request);
+    @Operation(
+            summary = "프로젝트 생성",
+            description = "현재 로그인 사용자의 정보를 기반으로 새로운 프로젝트를 생성합니다. JWT 토큰의 subject 값을 memberId로 사용합니다."
+    )
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    public ProjectResponse create(@AuthenticationPrincipal Jwt jwt,
+                                  @RequestBody ProjectRequestWithoutFile request) {
+        Long memberId = Long.valueOf(jwt.getSubject());
+        return projectService.create(memberId, request);
     }
 
     @Operation(
             summary = "프로젝트 상세 조회",
             description = "경로 변수 projectId를 사용해 특정 프로젝트의 상세 정보를 반환합니다."
     )
+    @PreAuthorize("@projectService.verifyProjectOwner(#jwt.subject, #projectId)")
     @GetMapping("/{projectId}")
-    public ProjectResponse get(@PathVariable Long projectId) {
+    public ProjectResponse get(@AuthenticationPrincipal Jwt jwt, @PathVariable Long projectId) {
         return projectService.get(projectId);
     }
 
@@ -91,19 +96,39 @@ public class ProjectController {
             summary = "아티팩트 생성",
             description = "프로젝트에 대해 아티팩트를 생성합니다. type이 'youtube' 또는 'vimeo'인 경우 인증된 액세스 토큰을 사용하며, 기본 타입은 'artifact'입니다."
     )
+    @PreAuthorize("@projectService.verifyProjectOwner(#jwt.subject, #projectId)")
     @PostMapping("/{projectId}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void createArtifact(
-            @PathVariable Long projectId,
-            @RequestParam(defaultValue = "artifact") String type,
-            @Parameter(hidden = true) @RegisteredOAuth2AuthorizedClient("google") OAuth2AuthorizedClient authorizedClient
-    ) {
+    public void createArtifact(@AuthenticationPrincipal Jwt jwt,
+                               @PathVariable Long projectId,
+                               @RequestParam(defaultValue = "artifact") String type,
+                               @Parameter(hidden = true) @RegisteredOAuth2AuthorizedClient("google") OAuth2AuthorizedClient authorizedClient) {
         OAuth2AccessToken token = authorizedClient.getAccessToken();
         if (token != null && "youtube".equals(type) || "vimeo".equals(type)) {
             artifactService.build(projectId, type, token);
         } else {
             artifactService.build(projectId);
         }
+    }
+
+    @Operation(summary = "프로젝트 정보 수정", description = "아티팩트 후에 프로젝트 정보를 추가할 수 있습니다.")
+    @PreAuthorize("@projectService.verifyProjectOwner(#jwt.subject, #projectId)")
+    @PatchMapping(value = "/{projectId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateProject(@AuthenticationPrincipal Jwt jwt,
+                              @PathVariable Long projectId,
+                              @RequestBody ProjectRequest request) {
+        projectService.update(projectId, request);
+    }
+
+    @Operation(summary = "프로젝트 정보 수정", description = "아티팩트 후에 프로젝트 정보를 추가할 수 있습니다.")
+    @PreAuthorize("@projectService.verifyProjectOwner(#jwt.subject, #projectId)")
+    @PatchMapping(value = "/{projectId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateProject(@AuthenticationPrincipal Jwt jwt,
+                              @PathVariable Long projectId,
+                              @RequestBody ProjectRequestWithoutFile request) {
+        projectService.update(projectId, request);
     }
 
     @Operation(
@@ -133,8 +158,9 @@ public class ProjectController {
             summary = "샘플 진행률 SSE 테스트",
             description = "샘플 데이터를 사용하여 SSE 방식으로 진행률 이벤트(0~100%)를 테스트하는 API입니다."
     )
+    @PreAuthorize("@projectService.verifyProjectOwner(#jwt.subject, #projectId)")
     @GetMapping("/{projectId}/progress")
-    public SseEmitter progress(@PathVariable String projectId) {
+    public SseEmitter progress(@AuthenticationPrincipal Jwt jwt, @PathVariable String projectId) {
         SseEmitter emitter = new SseEmitter(3 * 60 * 1000L);
         Executors.newSingleThreadExecutor().submit(() -> {
             try {

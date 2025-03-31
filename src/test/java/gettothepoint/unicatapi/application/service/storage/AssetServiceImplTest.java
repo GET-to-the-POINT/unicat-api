@@ -2,7 +2,7 @@ package gettothepoint.unicatapi.application.service.storage;
 
 import gettothepoint.unicatapi.application.service.voice.GoogleTextToSpeechService;
 import gettothepoint.unicatapi.common.propertie.SupabaseProperties;
-import gettothepoint.unicatapi.domain.dto.storage.AssetItem;
+import gettothepoint.unicatapi.domain.dto.asset.AssetItem;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

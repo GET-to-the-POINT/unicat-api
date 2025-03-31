@@ -1,4 +1,4 @@
-package gettothepoint.unicatapi.presentation.controller.member;
+package gettothepoint.unicatapi.presentation.controller;
 
 import gettothepoint.unicatapi.application.service.member.MemberService;
 import gettothepoint.unicatapi.common.propertie.FrontendProperties;

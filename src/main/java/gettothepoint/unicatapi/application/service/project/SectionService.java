@@ -3,11 +3,11 @@ package gettothepoint.unicatapi.application.service.project;
 import gettothepoint.unicatapi.application.service.storage.AssetService;
 import gettothepoint.unicatapi.application.service.storage.StorageService;
 import gettothepoint.unicatapi.domain.dto.project.ResourceResponse;
-import gettothepoint.unicatapi.domain.dto.project.SectionResourceRequest;
-import gettothepoint.unicatapi.domain.dto.project.SectionResourceRequestWithoutFile;
-import gettothepoint.unicatapi.domain.dto.project.SectionResponse;
-import gettothepoint.unicatapi.domain.entity.dashboard.Project;
-import gettothepoint.unicatapi.domain.entity.dashboard.Section;
+import gettothepoint.unicatapi.domain.dto.project.section.SectionResourceRequest;
+import gettothepoint.unicatapi.domain.dto.project.section.SectionResourceRequestWithoutFile;
+import gettothepoint.unicatapi.domain.dto.project.section.SectionResponse;
+import gettothepoint.unicatapi.domain.entity.project.Project;
+import gettothepoint.unicatapi.domain.entity.project.Section;
 import gettothepoint.unicatapi.domain.repository.SectionRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +21,9 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 @Slf4j
@@ -95,6 +98,11 @@ public class SectionService {
         return create(newSection);
     }
 
+    public ResourceResponse update(Long productId, Long sectionId, SectionResourceRequestWithoutFile sectionResourceRequestWithoutFile) {
+        SectionResourceRequest request = SectionResourceRequest.fromSectionResourceRequestWithoutFile(sectionResourceRequestWithoutFile);
+        return update(productId, sectionId, request);
+    }
+
     public ResourceResponse update(Long projectId, Long sectionId, SectionResourceRequest sectionResourceRequest) {
         Section section = this.getOrElseThrow(projectId, sectionId);
 
@@ -156,5 +164,20 @@ public class SectionService {
     public void update(Section section) {
         sectionRepository.save(section);
         sectionRepository.flush();
+    }
+
+    public void delete(Long projectId, Long sectionId) {
+        Section section = this.getOrElseThrow(projectId, sectionId);
+        Project project = projectService.getOrElseThrow(projectId);
+        sectionRepository.delete(section);
+        reSortOrder(project.getSections());
+    }
+
+    private void reSortOrder(List<Section> sections) {
+    sections.sort(Comparator.comparing(Section::getSortOrder));
+        for (int i = 0; i < sections.size(); i++) {
+            Section section = sections.get(i);
+            section.setSortOrder(i + 1L);
+        }
     }
 }

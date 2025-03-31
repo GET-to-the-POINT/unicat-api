@@ -8,7 +8,7 @@ import gettothepoint.unicatapi.common.util.MultipartFileUtil;
 import gettothepoint.unicatapi.domain.dto.project.AutoArtifact;
 import gettothepoint.unicatapi.domain.dto.project.CreateResourceResponse;
 import gettothepoint.unicatapi.domain.dto.project.PromptRequest;
-import gettothepoint.unicatapi.domain.entity.dashboard.Section;
+import gettothepoint.unicatapi.domain.entity.project.Section;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.ai.chat.client.ChatClient;

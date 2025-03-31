@@ -1,8 +1,8 @@
-package gettothepoint.unicatapi.presentation.controller.member;
+package gettothepoint.unicatapi.presentation.controller;
 
 import gettothepoint.unicatapi.application.service.member.MemberService;
-import gettothepoint.unicatapi.domain.dto.member.MemberResponse;
-import gettothepoint.unicatapi.domain.dto.member.MemberUpdateDto;
+import gettothepoint.unicatapi.domain.dto.member.member.MemberResponse;
+import gettothepoint.unicatapi.domain.dto.member.member.MemberUpdateDto;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

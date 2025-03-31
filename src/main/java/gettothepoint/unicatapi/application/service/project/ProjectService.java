@@ -2,9 +2,11 @@ package gettothepoint.unicatapi.application.service.project;
 
 import gettothepoint.unicatapi.application.service.member.MemberService;
 import gettothepoint.unicatapi.application.service.storage.AssetService;
-import gettothepoint.unicatapi.domain.dto.project.ProjectRequest;
-import gettothepoint.unicatapi.domain.dto.project.ProjectResponse;
-import gettothepoint.unicatapi.domain.entity.dashboard.Project;
+import gettothepoint.unicatapi.application.service.storage.StorageService;
+import gettothepoint.unicatapi.domain.dto.project.project.ProjectRequest;
+import gettothepoint.unicatapi.domain.dto.project.project.ProjectRequestWithoutFile;
+import gettothepoint.unicatapi.domain.dto.project.project.ProjectResponse;
+import gettothepoint.unicatapi.domain.entity.project.Project;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.repository.ProjectRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -24,6 +26,7 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final MemberService memberService;
     private final AssetService assetService;
+    private final StorageService storageService;
 
     public Page<ProjectResponse> getAll(Pageable pageable) {
         Page<Project> projectPage = projectRepository.findAll(pageable);
@@ -37,23 +40,38 @@ public class ProjectService {
     }
 
     public ProjectResponse create(Long memberId) {
-        ProjectRequest emptyRequest = ProjectRequest.basic();
+        ProjectRequestWithoutFile emptyRequest = ProjectRequestWithoutFile.basic();
         return create(memberId, emptyRequest);
     }
 
     // 생성
+    public ProjectResponse create(Long memberId, ProjectRequestWithoutFile request) {
+        ProjectRequest projectRequest = ProjectRequest.fromProjectRequestWithoutFile(request);
+        return create(memberId, projectRequest);
+    }
+
     public ProjectResponse create(Long memberId, ProjectRequest request) {
         Member member = memberService.getOrElseThrow(memberId);
 
+        String titleUrl = null;
+        if (request.titleImage() != null) {
+            titleUrl = storageService.upload(request.titleImage());
+        }
+
+        String templateUrl = null;
+        if (StringUtils.hasText(request.templateName())) {
+            templateUrl = assetService.get("template", request.templateName());
+        }
+
         Project project = Project.builder()
                 .member(member)
-                .templateUrl(assetService.get("template", request.templateName()))
                 .scriptTone(request.scriptTone())
                 .imageStyle(request.imageStyle())
                 .description(request.description())
                 .title(request.title())
                 .subtitle(request.subtitle())
-                .titleUrl(null)
+                .titleUrl(titleUrl)
+                .templateUrl(templateUrl)
                 .build();
 
         projectRepository.save(project);
@@ -66,6 +84,11 @@ public class ProjectService {
         if (!project.getMember().getId().equals(memberId)) {
             throw new AccessDeniedException("접근 권한이 없습니다.");
         }
+    }
+
+    public void update(Long projectId, ProjectRequestWithoutFile request) {
+        ProjectRequest projectRequest = ProjectRequest.fromProjectRequestWithoutFile(request);
+        update(projectId, projectRequest);
     }
 
     public void update(Long projectId, ProjectRequest request) {
@@ -85,6 +108,12 @@ public class ProjectService {
             project.setTemplateUrl(templateUrl);
             changed = true;
         }
+        if (request.titleImage() != null) {
+            String titleUrl = storageService.upload(request.titleImage());
+            project.setTitleUrl(titleUrl);
+            changed = true;
+        }
+
         if (StringUtils.hasText(request.description())) project.setDescription(request.description());
         if (StringUtils.hasText(request.title())) project.setTitle(request.title());
         if (StringUtils.hasText(request.subtitle())) project.setSubtitle(request.subtitle());
@@ -92,7 +121,6 @@ public class ProjectService {
         if (changed) {
             project.setArtifactUrl(null);
         }
-        update(project);
     }
 
     public Project update(Project project) {

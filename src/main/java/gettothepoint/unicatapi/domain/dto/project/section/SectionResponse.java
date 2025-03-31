@@ -1,6 +1,6 @@
-package gettothepoint.unicatapi.domain.dto.project;
+package gettothepoint.unicatapi.domain.dto.project.section;
 
-import gettothepoint.unicatapi.domain.entity.dashboard.Section;
+import gettothepoint.unicatapi.domain.entity.project.Section;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record SectionResponse(

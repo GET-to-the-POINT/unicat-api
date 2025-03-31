@@ -1,4 +1,4 @@
-package gettothepoint.unicatapi.domain.dto.member;
+package gettothepoint.unicatapi.domain.dto.member.member;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;

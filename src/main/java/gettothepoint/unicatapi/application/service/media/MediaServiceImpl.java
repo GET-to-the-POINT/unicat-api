@@ -20,11 +20,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MediaServiceImpl implements MediaService {
 
+    private static final String VIDEO_CODEC = "libx264";
+
     @Value("${app.media.ffmpeg.path}")
     private String ffmpegPath;
 
     private final TransitionSoundService transitionSoundService;
-    private static final String VIDEO_CODEC = "libx264";
 
     public static class MediaProcessingException extends RuntimeException {
         public MediaProcessingException(String message, Throwable cause) {

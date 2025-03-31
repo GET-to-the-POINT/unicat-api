@@ -18,6 +18,18 @@ src/main/java/gettothepoint/unicatapi/UnicatApiApplication.java \
 | tr -d '\n' | tr -d ' ' | pbcopy
 ```
 
+```shell
+(echo "롤: 너는 자바 선생님이야
+SOLID 원칙을 위배하는 코드를 알려주고 클린코드와 클린아키텍처의 시각으로 코드를 개선해줘
+개선해야할 클래스: MediaServiceImpl
+그리고 연관된 클래스도 같이 개선이 필요하면 알려줘
+"; \
+find \
+src/main/java/gettothepoint/unicatapi/domain \
+-type f -name "*.java" -exec grep -v '^import ' {} +) \
+| tr -d '\n' | tr -d ' ' | pbcopy
+```
+
 ## 코드 클립보드에 넣기
 
 클리보드로 복사할 디렉토리로 먼저 이동합니다.

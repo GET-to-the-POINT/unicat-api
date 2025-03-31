@@ -1,4 +1,4 @@
-package gettothepoint.unicatapi.domain.entity.dashboard;
+package gettothepoint.unicatapi.domain.entity.project;
 
 import gettothepoint.unicatapi.domain.entity.BaseEntity;
 import gettothepoint.unicatapi.domain.entity.member.Member;
@@ -55,7 +55,4 @@ public class Project extends BaseEntity {
         this.subtitle = subtitle;
     }
 
-    public void assignUploadVideo(UploadVideo uploadVideo) {
-        this.uploadVideo = uploadVideo;
-    }
 }

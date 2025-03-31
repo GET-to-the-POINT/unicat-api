@@ -1,4 +1,4 @@
-package gettothepoint.unicatapi.domain.dto.member;
+package gettothepoint.unicatapi.domain.dto.member.member;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import gettothepoint.unicatapi.domain.entity.member.Member;
