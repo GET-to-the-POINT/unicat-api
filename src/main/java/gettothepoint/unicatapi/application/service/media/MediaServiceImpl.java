@@ -77,8 +77,8 @@ public class MediaServiceImpl implements MediaService {
         double duration = transitionSoundService.getAudioDurationInSeconds(audioResource);
 
         String filter =
-                "[1:v]scale=1080:-1,setsar=1," +
-                        "crop=1080:if(gt(ih,1080),1080,ih):0:if(gt(ih,1080),(ih-1080)/2,0)[content];" +
+                "[1:v]scale='if(gt(iw,1080),1080,iw)':'-1'," +
+                        "crop='if(gt(in_w,1080),1080,in_w)':'if(gt(in_h,1080),1080,in_h)',setsar=1[content];" +
                         "[0:v][content]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2[tmp];";
 
         List<String> command = List.of(
@@ -105,8 +105,8 @@ public class MediaServiceImpl implements MediaService {
         double duration = transitionSoundService.getAudioDurationInSeconds(audioResource);
 
         String filter =
-                "[1:v]scale=1080:-1,setsar=1," +
-                        "crop=1080:if(gte(ih\\,1080)\\,1080\\,ih):0:if(gte(ih\\,1080)\\,(ih-1080)/2\\,0)[content];" +
+                "[1:v]scale='if(gt(iw,1080),1080,iw)':'-1'," +
+                        "crop='if(gt(in_w,1080),1080,in_w)':'if(gt(in_h,1080),1080,in_h)',setsar=1[content];" +
                         "[2:v]scale=600:-1[title];" +
                         "[0:v][content]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2[tmp];" +
                         "[tmp][title]overlay=(main_w-overlay_w)/2:100[outv]";
