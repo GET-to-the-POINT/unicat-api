@@ -68,6 +68,7 @@ public class SectionService {
         return create(newSection);
     }
 
+    @Transactional
     public SectionResponse create(Long projectId, SectionResourceRequestWithoutFile sectionResourceRequestWithoutFile) {
         Project project = projectService.getOrElseThrow(projectId);
         Section newSection = Section.builder()
