@@ -78,7 +78,7 @@ public class MediaServiceImpl implements MediaService {
 
         String filter =
                 "[1:v]scale=1080:-1,setsar=1," +
-                        "crop=1080:if(gte(ih\\,1080)\\,1080\\,ih):0:if(gte(ih\\,1080)\\,(ih-1080)/2\\,0)[content];" +
+                        "crop=1080:if(gt(ih,1080),1080,ih):0:if(gt(ih,1080),(ih-1080)/2,0)[content];" +
                         "[0:v][content]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2[tmp];";
 
         List<String> command = List.of(
