@@ -64,6 +64,14 @@ public class SupabaseFileStorageRepository implements FileStorageRepository {
                 .acl("public-read")
                 .build();
 
+        // 버킷이 존재하지 않으면 생성
+        try {
+            HeadBucketRequest headBucketRequest = HeadBucketRequest.builder().bucket(bucket).build();
+            s3Client.headBucket(headBucketRequest);
+        } catch (NoSuchBucketException e) {
+            CreateBucketRequest createBucketRequest = CreateBucketRequest.builder().bucket(bucket).build();
+            s3Client.createBucket(createBucketRequest);
+        }
         // 파일 업로드 (파일의 경로로부터 RequestBody 생성)
         s3Client.putObject(putObjectRequest, RequestBody.fromFile(file.toPath()));
 
@@ -97,6 +105,14 @@ public class SupabaseFileStorageRepository implements FileStorageRepository {
                 .acl("public-read")
                 .build();
 
+        // 버킷이 존재하지 않으면 생성
+        try {
+            HeadBucketRequest headBucketRequest = HeadBucketRequest.builder().bucket(bucket).build();
+            s3Client.headBucket(headBucketRequest);
+        } catch (NoSuchBucketException e) {
+            CreateBucketRequest createBucketRequest = CreateBucketRequest.builder().bucket(bucket).build();
+            s3Client.createBucket(createBucketRequest);
+        }
         // Upload the file using the input stream from the MultipartFile
         try {
             s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
@@ -117,12 +133,22 @@ public class SupabaseFileStorageRepository implements FileStorageRepository {
 
         int dotIndex = key.lastIndexOf('.');
         String contentType = (dotIndex != -1) ? key.substring(dotIndex) : "";
+        String bucket = getBucketName(contentType);
 
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                .bucket(getBucketName(contentType))
+                .bucket(bucket)
                 .key(key)
                 .acl("public-read")
                 .build();
+
+        // 버킷이 존재하지 않으면 생성
+        try {
+            HeadBucketRequest headBucketRequest = HeadBucketRequest.builder().bucket(bucket).build();
+            s3Client.headBucket(headBucketRequest);
+        } catch (NoSuchBucketException e) {
+            CreateBucketRequest createBucketRequest = CreateBucketRequest.builder().bucket(bucket).build();
+            s3Client.createBucket(createBucketRequest);
+        }
 
         s3Client.putObject(putObjectRequest, RequestBody.fromFile(path));
 
