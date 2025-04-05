@@ -17,7 +17,7 @@ public record ProjectResponse(
     @Schema(description = "프로젝트 제목", example = "백설공주") String title,
     @Schema(description = "프로젝트 부제목", example = "마녀의 이야기") String subtitle,
     @Schema(description = "프로젝트 설명", example = "이 프로젝트는 동화에 관한 동영상입니다.") String description,
-    @Schema(description = "스크립트 톤", example = "friendly") String scriptTone,
+    @Schema(description = "스크립트 톤", example = "Friendly") String scriptTone,
     @Schema(description = "이미지 스타일", example = "DigitalArt") String imageStyle,
     @Schema(description = "썸네일 URL", example = "http://example.com/thumbnail.png") String thumbnailUrl,
     @Schema(description = "산출물 URL", example = "http://example.com/artifact.zip") String artifactUrl,

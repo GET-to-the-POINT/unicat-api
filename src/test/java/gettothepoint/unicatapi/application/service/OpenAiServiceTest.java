@@ -71,14 +71,14 @@ class OpenAiServiceTest {
         when(sectionRepository.findById(sectionId)).thenReturn(Optional.of(section));
 
         Project project = new Project();
-        project.setScriptTone("friendly");
+        project.setScriptTone("Friendly");
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
 
         when(openAI.prompt()).thenReturn("Tone: %s, Script: %s");
         when(openAI.model()).thenReturn("gpt-4o-mini");
         when(openAI.temperature()).thenReturn(0.7);
 
-        String expectedPrompt = String.format("Tone: %s, Script: %s", "friendly", scriptRequest.prompt());
+        String expectedPrompt = String.format("Tone: %s, Script: %s", "Friendly", scriptRequest.prompt());
 
         when(chatClient.prompt()).thenReturn(chatClientRequestSpec);
         when(chatClientRequestSpec.user(expectedPrompt)).thenReturn(chatClientRequestSpec);
