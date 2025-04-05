@@ -34,6 +34,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-aop'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
 	// ===== Database Driver =====
 	runtimeOnly 'org.postgresql:postgresql'
@@ -47,14 +48,19 @@ dependencies {
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5'
 
 	// ===== Lombok =====
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
+	compileOnly 'org.projectlombok:lombok:1.18.38'
+	annotationProcessor 'org.projectlombok:lombok:1.18.38'
 
 	// ===== Testing =====
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.assertj:assertj-core:4.0.0-M1'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testImplementation 'com.h2database:h2'
+	testImplementation "org.testcontainers:minio:1.20.6"
+	implementation 'io.minio:minio:8.5.17'
+	testImplementation 'org.testcontainers:junit-jupiter'
+	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+	testImplementation 'org.testcontainers:postgresql'
 
 	// ===== Google  =====
 	implementation 'com.google.api-client:google-api-client:2.7.2'
@@ -70,8 +76,8 @@ dependencies {
 
 	// ===== ETC =====
 	implementation 'com.github.loki4j:loki-logback-appender:1.6.0'
-	implementation "software.amazon.awssdk:s3:2.20.35"
-	runtimeOnly 'io.netty:netty-resolver-dns-native-macos:4.1.76.Final:osx-aarch_64' // for Silicon Mac
+	implementation "software.amazon.awssdk:s3:2.31.16"
+	runtimeOnly 'io.netty:netty-resolver-dns-native-macos:4.2.0.Final:osx-aarch_64' // for Silicon Mac
 }
 
 tasks.named('test') {

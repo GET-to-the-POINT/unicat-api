@@ -59,7 +59,7 @@ public class ProjectController {
     }
 
     @Operation(
-            summary = "프로젝트 생성 (파일 포함)",
+            summary = "프로젝트 생성",
             description = "multipart/form-data를 사용해 새 프로젝트를 생성합니다. 파일을 포함한 다양한 정보를 함께 전달하세요."
     )
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -71,7 +71,7 @@ public class ProjectController {
     }
 
     @Operation(
-            summary = "프로젝트 생성 (파일 제외)",
+            summary = "프로젝트 생성",
             description = "JSON 형식의 요청 바디로 새로운 프로젝트를 생성합니다. 파일 없이 텍스트 정보만 제공됩니다."
     )
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -112,7 +112,7 @@ public class ProjectController {
     }
 
     @Operation(
-            summary = "프로젝트 정보 수정 (파일 포함)",
+            summary = "프로젝트 정보 수정",
             description = "프로젝트 정보를 업데이트합니다. multipart/form-data 형식을 ���용하여 파일 및 텍스트 정보를 함께 전달할 수 있습니다."
     )
     @PreAuthorize("@projectService.verifyProjectOwner(#jwt.subject, #projectId)")
@@ -125,7 +125,7 @@ public class ProjectController {
     }
 
     @Operation(
-            summary = "프로젝트 정보 수정 (파일 제외)",
+            summary = "프로젝트 정보 수정",
             description = "JSON 형식의 요청 바디로 프로젝트 정보를 수정합니다. 파일 없이 텍스트만 업데이트됩니다."
     )
     @PreAuthorize("@projectService.verifyProjectOwner(#jwt.subject, #projectId)")

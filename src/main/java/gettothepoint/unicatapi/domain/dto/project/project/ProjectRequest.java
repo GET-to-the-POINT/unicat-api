@@ -6,7 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Builder(access = lombok.AccessLevel.PRIVATE)
 public record ProjectRequest(
-        @Schema(description = "스크립트 말투 (예: friendly, FORMAL)", example = "friendly", defaultValue = "friendly", nullable = true)
+        @Schema(description = "스크립트 말투 (예: Friendly, Formal)", example = "Friendly", defaultValue = "Friendly", nullable = true)
         String scriptTone,
 
         @Schema(description = "이미지 스타일 (예: Anime, Digital Art)", example = "Illustration", defaultValue = "Photo", nullable = true)

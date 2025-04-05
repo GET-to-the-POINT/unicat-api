@@ -2,7 +2,7 @@ package gettothepoint.unicatapi.domain.dto.project.project;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record ProjectRequestWithoutFile(
-        @Schema(description = "스크립트 말투 (예: friendly, FORMAL)", example = "friendly", defaultValue = "friendly", nullable = true, requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+        @Schema(description = "스크립트 말투 (예: Friendly, Formal)", example = "Friendly", defaultValue = "Friendly", nullable = true, requiredMode = Schema.RequiredMode.NOT_REQUIRED)
         String scriptTone,
 
         @Schema(description = "이미지 스타일 (예: Anime, Digital Art)", example = "Illustration", defaultValue = "Photo", nullable = true, requiredMode = Schema.RequiredMode.NOT_REQUIRED)

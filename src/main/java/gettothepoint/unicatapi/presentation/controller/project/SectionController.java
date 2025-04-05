@@ -49,7 +49,7 @@ public class SectionController {
     }
 
     @Operation(
-            summary = "섹션 생성 (파일 포함)",
+            summary = "섹션 생성",
             description = "multipart/form-data 형식으로 파일과 함께 섹션 리소스를 생성합니다. 필요한 필드와 파일을 함께 전송하세요."
     )
     @PreAuthorize("@projectService.verifyProjectOwner(#jwt.subject, #projectId)")
@@ -60,7 +60,7 @@ public class SectionController {
     }
 
     @Operation(
-            summary = "섹션 생성 (파일 제외)",
+            summary = "섹션 생성",
             description = "JSON 형식의 요청 바디를 사용하여 섹션 리소스를 생성합니다. 파일 없이 텍스트 데이터만 전달합니다."
     )
     @PreAuthorize("@projectService.verifyProjectOwner(#jwt.subject, #projectId)")
@@ -81,7 +81,7 @@ public class SectionController {
     }
 
     @Operation(
-            summary = "섹션 리소스 수정 (파일 포함)",
+            summary = "섹션 리소스 수정",
             description = "multipart/form-data 형식으로 섹션의 리소스(스크립트, 이미지 등)를 수정합니다. 요청 시 필요한 항목을 전달하세요."
     )
     @PreAuthorize("@projectService.verifyProjectOwner(#jwt.subject, #projectId)")
@@ -92,7 +92,7 @@ public class SectionController {
     }
 
     @Operation(
-            summary = "섹션 리소스 수정 (파일 제외)",
+            summary = "섹션 리소스 수정",
             description = "JSON 형식의 요청 바디를 통해 섹션의 리소스를 수정합니다. 파일 없이 텍스트 정보를 업데이트 합니다."
     )
     @PreAuthorize("@projectService.verifyProjectOwner(#jwt.subject, #projectId)")

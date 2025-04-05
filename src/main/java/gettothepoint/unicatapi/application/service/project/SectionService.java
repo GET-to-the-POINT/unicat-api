@@ -137,6 +137,11 @@ public class SectionService {
         }
 
         this.update(section);
+
+        Project project = section.getProject();
+        project.setArtifactUrl(null);
+        projectService.update(project);
+
         return ResourceResponse.fromEntity(section);
     }
 

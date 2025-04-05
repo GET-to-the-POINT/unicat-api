@@ -48,7 +48,7 @@ public class SuperToneService implements TTSService {
                 "voice_settings", Map.of(
                         "pitch_shift", 0,
                         "pitch_variance", 1,
-                        "speed", 1
+                        "speed", 1.2
                 )
         );
 
