@@ -29,7 +29,7 @@ public class TransitionSoundService {
 
             if (StringUtils.hasText(transitionKey)) {
                 try {
-                    File soundFile = storageService.get(transitionKey);
+                    File soundFile = storageService.getFile(transitionKey);
                     transitionSoundFiles.add(soundFile);
                 } catch (Exception e) {
                     log.warn("⚠️ 트랜지션 사운드 다운로드 실패 (sectionId: {}, url: {}): {}", section.getId(), transitionKey, e.getMessage());

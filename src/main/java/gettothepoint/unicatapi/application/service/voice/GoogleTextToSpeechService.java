@@ -17,10 +17,6 @@ public class GoogleTextToSpeechService implements TTSService {
 
     private final TextToSpeechClient textToSpeechClient;
 
-    public GoogleTextToSpeechService() throws IOException {
-        this.textToSpeechClient = TextToSpeechClient.create();
-    }
-
     @Override
     public File create(String script, String voiceModel) {
 
@@ -47,7 +43,7 @@ public class GoogleTextToSpeechService implements TTSService {
         File outputFile;
         try {
             log.info("TTS 응답: {}", response);
-            outputFile = FileUtil.createTempFile(".mp3");
+            outputFile = FileUtil.getUniqueFilePath(".mp3").toFile();
             try (FileOutputStream fos = new FileOutputStream(outputFile)) {
                 log.info("TTS 파일 생성: {}", outputFile.getAbsolutePath());
                 response.getAudioContent().writeTo(fos);

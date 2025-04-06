@@ -17,6 +17,7 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -35,7 +36,8 @@ public class YoutubeUploadService {
 
         try {
             progressManager.send(projectId, 10);
-            File video = storageService.get(project.getArtifactKey());
+            Path pathProject = Path.of(projectId.toString());
+            File video = storageService.getFile(pathProject);
 
             progressManager.send(projectId, 30);
             YouTube youtubeService = youtubeoAuth2Service.getYouTubeService(accessToken);

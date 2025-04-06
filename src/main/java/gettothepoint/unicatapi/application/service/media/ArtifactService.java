@@ -62,9 +62,7 @@ public class ArtifactService {
         sections = sectionService.getSectionAll(projectId);
 
         // project build standby
-        List<String> sectionKeys = sections.stream()
-                .map(Section::getFrameKey)
-                .toList();
+        List<String> sectionKeys = sections.stream().map(Section::getFrameKey).toList();
         List<File> sectionVideos = storageService.getAll(sectionKeys);
         List<Section> sectionEntities = sectionService.getSectionAll(projectId);
         List<File> transitionSounds = transitionSoundService.downloadTransitionSoundsFromSections(sectionEntities);
@@ -72,8 +70,8 @@ public class ArtifactService {
         File artifactFile = mediaService.mergeVideosAndExtractVFR(sectionVideos, transitionSounds);
 
         // artifact upload
-        String uploadedUrl = storageService.save(artifactFile);
-        project.setArtifactKey(uploadedUrl);
+        String uploadedKey = storageService.save(artifactFile);
+        project.setArtifactKey(uploadedKey);
 
         return projectService.update(project);
     }
@@ -82,11 +80,8 @@ public class ArtifactService {
         Section section = sectionService.getOrElseThrow(sectionId);
 
         // 비디오 체크 및 생성
-        String videoKey = section.getFrameKey();
-        if (StringUtils.hasText(videoKey)) {
-            storageService.get(videoKey);
-            return;
-        }
+        String frameKey = section.getFrameKey();
+        if (StringUtils.hasText(frameKey)) return;
 
         // 오디오 체크 및 생성
         String audioKey = section.getAudioKey();
@@ -106,13 +101,13 @@ public class ArtifactService {
 
         // video standby & build
         Project project = section.getProject();
-        File templateResource = storageService.get(project.getTemplateKey());
-        File contentResource = storageService.get(contentKey);
-        File audioResource = storageService.get(audioKey);
+        File templateResource = storageService.getFile(project.getTemplateKey());
+        File contentResource = storageService.getFile(contentKey);
+        File audioResource = storageService.getFile(audioKey);
 
         File titleResource = null;
         if (project.getTitleImageKey() != null && !project.getTitleImageKey().isBlank()) {
-            titleResource = storageService.get(project.getTitleImageKey());
+            titleResource = storageService.getFile(project.getTitleImageKey());
         }
 
         File sectionVideoFile;
@@ -123,8 +118,8 @@ public class ArtifactService {
         }
 
         // video upload process
-        String sectionVideoUrl = storageService.save(sectionVideoFile);
-        section.setFrameKey(sectionVideoUrl);
+        String savedFrameKey = storageService.save(sectionVideoFile);
+        section.setFrameKey(savedFrameKey);
         sectionService.update(section);
     }
 
@@ -139,7 +134,7 @@ public class ArtifactService {
     public Long oneStepAutoArtifact(Long memberId, PromptRequest promptRequest) {
         ProjectResponse projectResponse = projectService.create(memberId);
         Long projectId = projectResponse.id();
-        for(int i = 0; i < 5; i++) {
+        for (int i = 0; i < 5; i++) {
             sectionService.create(projectId);
         }
         openAiService.oneStepCreateResource(projectId, promptRequest);

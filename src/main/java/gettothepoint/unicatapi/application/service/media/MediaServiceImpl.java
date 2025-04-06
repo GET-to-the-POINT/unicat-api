@@ -55,7 +55,7 @@ public class MediaServiceImpl implements MediaService {
     @Override
     public File mergeImageAndAudio(File imageFile, File soundFile) {
 
-        File outputFile = FileUtil.createTempFile(".mp4");
+        File outputFile = FileUtil.getUniqueFilePath("mp4").toFile();
         List<String> command = List.of(
                 ffmpegPath,
                 "-loop", "1",
@@ -73,7 +73,7 @@ public class MediaServiceImpl implements MediaService {
     @Override
     public File mergeImageAndAudio(File templateResource, File contentResource, File audioResource) {
 
-        File outputFile = FileUtil.createTempFile(".mp4");
+        File outputFile = FileUtil.getUniqueFilePath("mp4").toFile();
         double duration = transitionSoundService.getAudioDurationInSeconds(audioResource);
 
         String filter =
@@ -101,7 +101,7 @@ public class MediaServiceImpl implements MediaService {
     @Override
     public File mergeImageAndAudio(File templateResource, File contentResource, File titleResource, File audioResource) {
 
-        File outputFile = FileUtil.createTempFile(".mp4");
+        File outputFile = FileUtil.getUniqueFilePath("mp4").toFile();
         double duration = transitionSoundService.getAudioDurationInSeconds(audioResource);
 
         String filter =
@@ -128,7 +128,7 @@ public class MediaServiceImpl implements MediaService {
     }
 
     public File mergeVideosAndExtractVFR(List<File> videos, List<File> transitionSounds) {
-        File outputFile = FileUtil.createTempFile(".mp4");
+        File outputFile = FileUtil.getUniqueFilePath("mp4").toFile();
 
         // 총 영상 길이 계산
         long totalMs = 0;

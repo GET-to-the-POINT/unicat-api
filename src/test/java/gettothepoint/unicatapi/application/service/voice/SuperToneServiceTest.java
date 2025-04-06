@@ -1,6 +1,14 @@
 package gettothepoint.unicatapi.application.service.voice;
 
+import gettothepoint.unicatapi.common.propertie.SupertoneProperties;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
@@ -8,24 +16,32 @@ import java.io.File;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = {SuperToneServiceTest.TestConfig.class, SuperToneService.class})
 class SuperToneServiceTest {
 
-    private final String apiKey = System.getenv("SPRING_SUPERTONE_API_KEY");
-    private final String defaultVoiceId = System.getenv("SPRING_SUPERTONE_DEFAULT_VOICE");
+    @Autowired
+    SuperToneService superToneService;
 
-    private final String ttsFilePath = System.getProperty("user.dir") + "/build/tmp/test-tts/";
+    @TestConfiguration
+    static class TestConfig {
+        @Bean
+        public SupertoneProperties supertoneProperties(@Value("${app.supertone.api-key:default-api-key}") String apiKey,
+                                                       @Value("${app.supertone.default-voice-id:d9Hi4iF7HEXpGWo6cC5YbZ}") String voiceId) {
+            return new SupertoneProperties(apiKey, voiceId);
+        }
 
-    private final RestTemplate restTemplate = new RestTemplate();
-    /**
-     * 실제 Supertone API를 호출하여 음성 파일을 생성하는 통합 테스트.
-     * 테스트 환경에 맞게 아래 값들을 실제 값으로 수정하세요.
-     */
+        @Bean
+        public RestTemplate restTemplate() {
+            return new RestTemplate();
+        }
+    }
+
     @Test
     void testCreateIntegration() {
 
-        SuperToneService service = new SuperToneService(apiKey, defaultVoiceId, ttsFilePath, restTemplate);
         String script = "안녕하세요, 테스트입니다.";
-        File resultFile = service.create(script, null);
+        File resultFile = superToneService.create(script, null);
 
         assertNotNull(resultFile, "생성된 파일이 null이어서는 안 됩니다.");
         assertTrue(resultFile.exists(), "파일이 실제로 존재해야 합니다.");

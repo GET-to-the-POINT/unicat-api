@@ -53,6 +53,9 @@ springdoc:
 
 
 app:
+  etc:
+    temp-dir: ${APP_TEMP_DIR:${java.io.tmpdir}}
+    bucket: ${APP_TEMP_BUCKET:unicat}
   jwt:
     private-key: ${APP_JWT_PRIVATE_KEY:classpath:unicat.day/unicat.day.key}
     public-key: ${APP_JWT_PUBLIC_KEY:classpath:unicat.day/unicat.day.pub}
@@ -82,11 +85,11 @@ app:
   supabase:
     url: ${SUPABASE_URL}
     key: ${SUPABASE_KEY}
-    s3:
-      endpoint: ${SUPABASE_S3_ENDPOINT}
-      region: ${SUPABASE_S3_REGION}
-      access-key-id: ${SUPABASE_S3_ACCESS_KEY_ID}
-      secret-access-key: ${SUPABASE_S3_SECRET_KEY}
+  s3:
+    endpoint: ${SUPABASE_S3_ENDPOINT}
+    region: ${SUPABASE_S3_REGION}
+    access-key-id: ${SUPABASE_S3_ACCESS_KEY_ID}
+    secret-access-key: ${SUPABASE_S3_SECRET_KEY}
   cors:
     allowed-origins:
       - ${APP_CORS_ALLOWED_ORIGINS:https://unicat.day}
@@ -111,7 +114,6 @@ app:
   supertone:
     api-key: ${APP_SUPERTONE_API_KEY}
     default-voice-id: ${APP_SUPERTONE_DEFAULT_VOICE_ID:d9Hi4iF7HEXpGWo6cC5YbZ}
-    temp-dir: ${APP_SUPERTONE_TEMP_DIR:/unicat/supertone}
 
 server:
   port: 443
