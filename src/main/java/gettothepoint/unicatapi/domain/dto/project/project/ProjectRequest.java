@@ -12,7 +12,7 @@ public record ProjectRequest(
         @Schema(description = "이미지 스타일 (예: Anime, Digital Art)", example = "Illustration", defaultValue = "Photo", nullable = true)
         String imageStyle,
 
-        @Schema(description = "/assets?type=template 요청시 나오는 name값을 넣어주세요", example = "back2.mp4", defaultValue = "back2.mp4", nullable = true)
+        @Schema(description = "/assets?type=template 요청시 나오는 name값을 넣어주세요", example = "unicat/assets/template/new2.mp4", defaultValue = "unicat/assets/template/new2.mp4", nullable = true)
         String templateKey,
 
         @Schema(description = "프로젝트 설명", example = "이 프로젝트는 동화에 관한 동영상입니다.", nullable = true)
