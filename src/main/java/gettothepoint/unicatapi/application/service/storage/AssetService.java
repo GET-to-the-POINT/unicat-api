@@ -15,9 +15,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AssetService {
 
-    public static final String TYPE_TEMPLATE = "template";
-    public static final String TYPE_TRANSITION = "transition";
-    public static final String TYPE_VOICE = "voice";
+    private static final String DEFAULT_BUCKET = "assets";
+    private static final String TYPE_TEMPLATE = "template";
+    private static final String TYPE_TRANSITION = "transition";
+    private static final String TYPE_VOICE = "voice";
 
     private final S3Repository s3Repository; // 추가된 의존성
 
@@ -30,7 +31,7 @@ public class AssetService {
     }
 
     public List<AssetItem> getAll(String type) {
-        String prefix = "assets";
-        return s3Repository.listAssets(prefix);
+        String bucket = DEFAULT_BUCKET + "/" + type;
+        return s3Repository.assets(bucket);
     }
 }

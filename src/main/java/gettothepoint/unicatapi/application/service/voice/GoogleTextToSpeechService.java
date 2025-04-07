@@ -4,12 +4,13 @@ import com.google.cloud.texttospeech.v1.*;
 import gettothepoint.unicatapi.common.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Path;
 
+@Primary
 @Log4j2
 @Service
 @RequiredArgsConstructor
@@ -40,19 +41,18 @@ public class GoogleTextToSpeechService implements TTSService {
         log.info("TTS 요청: {}, {}, {}", input, voice, audioConfig);
         SynthesizeSpeechResponse response = textToSpeechClient.synthesizeSpeech(input, voice, audioConfig);
 
-        File outputFile;
-        try {
-            log.info("TTS 응답: {}", response);
-            outputFile = FileUtil.getUniqueFilePath(".mp3").toFile();
+        byte[] audioBytes = response.getAudioContent().toByteArray();
+        try (InputStream inputStream = new ByteArrayInputStream(audioBytes)) {
+            Path filePath = FileUtil.getHashedFilePath(inputStream, ".mp3");
+            File outputFile = filePath.toFile();
             try (FileOutputStream fos = new FileOutputStream(outputFile)) {
                 log.info("TTS 파일 생성: {}", outputFile.getAbsolutePath());
                 response.getAudioContent().writeTo(fos);
+                return outputFile;
             }
         } catch (IOException e) {
             log.error("TTS 파일 생성 중 오류 발생: {}", e.getMessage());
             throw new RuntimeException("TTS 파일 생성 중 오류가 발생했습니다.", e);
         }
-
-        return outputFile;
     }
 }

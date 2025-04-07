@@ -17,7 +17,7 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:create}
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
     open-in-view: false
 
   profiles:
@@ -51,11 +51,7 @@ springdoc:
   swagger-ui:
     path: /
 
-
 app:
-  etc:
-    temp-dir: ${APP_TEMP_DIR:${java.io.tmpdir}}
-    bucket: ${APP_TEMP_BUCKET:unicat}
   jwt:
     private-key: ${APP_JWT_PRIVATE_KEY:classpath:unicat.day/unicat.day.key}
     public-key: ${APP_JWT_PUBLIC_KEY:classpath:unicat.day/unicat.day.pub}
@@ -82,14 +78,12 @@ app:
   email:
     from: ${APP_MAIL_MAIL_FROM}
     from-name: ${APP_MAIL_MAIL_FROM_NAME}
-  supabase:
-    url: ${SUPABASE_URL}
-    key: ${SUPABASE_KEY}
   s3:
     endpoint: ${SUPABASE_S3_ENDPOINT}
-    region: ${SUPABASE_S3_REGION}
+    region: ${SUPABASE_S3_REGION:us-west-rack-2}
     access-key-id: ${SUPABASE_S3_ACCESS_KEY_ID}
     secret-access-key: ${SUPABASE_S3_SECRET_KEY}
+    bucket: ${SUPABASE_S3_BUCKET:unicat}
   cors:
     allowed-origins:
       - ${APP_CORS_ALLOWED_ORIGINS:https://unicat.day}

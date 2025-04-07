@@ -8,8 +8,8 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 public interface FileRepository {
-    Optional<File> findFileByKey(Path relativePath);
-    Optional<URI> findUriByKey(Path relativePath);
+    Optional<File> findFileByRelativePath(Path relativePath);
+    Optional<URI> findUriByRelativePath(Path relativePath);
     Path save(MultipartFile file);
     Path save(File file);
 }

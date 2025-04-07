@@ -33,6 +33,16 @@ class S3RepositoryTest {
     @Autowired
     S3Repository s3Repository;
 
+    @TestConfiguration
+    static class TestConfig {
+
+        @Bean
+        public S3Properties s3Properties() {
+            String endpoint = container.getS3URL();
+            return new S3Properties("unicat", endpoint, "us-east-1", container.getUserName(), container.getPassword());
+        }
+    }
+
     @ParameterizedTest
     @ValueSource(strings = {
             "samples/image/sample.png",
@@ -52,18 +62,33 @@ class S3RepositoryTest {
         assertNotNull(savedPath, "저장된 경로가 null이 아닙니다");
 
         // 저장된 파일을 S3에서 찾아 검증합니다.
-        Optional<File> foundFile = s3Repository.findFileByKey(savedPath);
+        Optional<File> foundFile = s3Repository.findFileByRelativePath(savedPath);
         assertTrue(foundFile.isPresent(), "저장된 파일을 S3에서 찾을 수 있어야 합니다");
         assertTrue(foundFile.get().exists(), "찾은 파일이 실제로 존재해야 합니다");
     }
 
-    @TestConfiguration
-    static class TestConfig {
+    // Test method to be added in S3RepositoryTest.java
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "samples/image/sample.png",
+            "samples/audio/sample01.mp3"
+    })
+    void assetsListTest(String classpathResource) {
+        ClassLoader classLoader = getClass().getClassLoader();
+        var resourceUrl = classLoader.getResource(classpathResource);
+        assertNotNull(resourceUrl, "리소스가 클래스패스에서 발견되지 않았습니다: " + classpathResource);
 
-        @Bean
-        public S3Properties s3Properties() {
-            String endpoint = container.getS3URL();
-            return new S3Properties("unicat-test", endpoint, "us-east-1", container.getUserName(), container.getPassword());
-        }
+        File originalFile = new File(resourceUrl.getFile());
+        assertTrue(originalFile.exists(), "리소스 파일이 존재해야 합니다");
+
+        Path savedPath = s3Repository.save(originalFile);
+        assertNotNull(savedPath, "저장된 경로가 null이 아닙니다");
+
+        var assets = s3Repository.assets();
+
+        assertNotNull(assets, "assets 결과는 null이 아니어야 합니다");
+        assertTrue(assets.stream().anyMatch(asset -> asset.key().endsWith(savedPath.getFileName().toString())),
+                "저장된 파일이 assets 목록에 존재해야 합니다");
     }
+
 }

@@ -6,6 +6,7 @@ import gettothepoint.unicatapi.application.service.storage.StorageService;
 import gettothepoint.unicatapi.domain.dto.project.project.ProjectRequest;
 import gettothepoint.unicatapi.domain.dto.project.project.ProjectRequestWithoutFile;
 import gettothepoint.unicatapi.domain.dto.project.project.ProjectResponse;
+import gettothepoint.unicatapi.domain.dto.project.project.ProjectResponseFactory;
 import gettothepoint.unicatapi.domain.entity.project.Project;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.repository.ProjectRepository;
@@ -25,18 +26,18 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
     private final MemberService memberService;
-    private final AssetService assetService;
     private final StorageService storageService;
+    private final ProjectResponseFactory projectResponseFactory;
 
     public Page<ProjectResponse> getAll(Pageable pageable) {
         Page<Project> projectPage = projectRepository.findAll(pageable);
-        return projectPage.map(ProjectResponse::fromEntity);
+        return projectPage.map(projectResponseFactory::fromEntity);
     }
 
     // 싱글
     public ProjectResponse get(Long projectId) {
         Project project = this.getOrElseThrow(projectId);
-        return ProjectResponse.fromEntity(project);
+        return projectResponseFactory.fromEntity(project);
     }
 
     public ProjectResponse create(Long memberId) {
@@ -69,8 +70,9 @@ public class ProjectService {
                 .titleImageKey(titleImageKey)
                 .build();
 
-        projectRepository.save(project);
-        return ProjectResponse.fromEntity(project);
+        this.update(project);
+        return projectResponseFactory.fromEntity(project);
+//        return ProjectResponse.fromEntity(project);
     }
 
     public void verifyProjectOwner(Long memberId, Long projectId) {

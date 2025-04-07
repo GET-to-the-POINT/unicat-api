@@ -4,18 +4,18 @@ import gettothepoint.unicatapi.common.propertie.SupertoneProperties;
 import gettothepoint.unicatapi.common.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.context.annotation.Primary;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 
-@Primary
 @Service
 @Log4j2
 @RequiredArgsConstructor
@@ -46,14 +46,12 @@ public class SuperToneService implements TTSService {
             throw new RuntimeException(errorMsg);
         }
 
-
-        Path tempFilePath = FileUtil.getUniqueFilePath(".mp3");
-        try {
-            Files.write(tempFilePath, response.getBody());
+        try (InputStream inputStream = new ByteArrayInputStream(response.getBody())) {
+            Path hashedPath = FileUtil.getHashedFilePath(inputStream, ".mp3");
+            Files.write(hashedPath, response.getBody());
+            return hashedPath.toFile();
         } catch (IOException e) {
             throw new RuntimeException("TTS 파일 저장 실패", e);
         }
-
-        return tempFilePath.toFile();
     }
 }

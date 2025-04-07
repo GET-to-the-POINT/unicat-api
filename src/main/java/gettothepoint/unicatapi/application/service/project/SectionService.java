@@ -3,6 +3,7 @@ package gettothepoint.unicatapi.application.service.project;
 import gettothepoint.unicatapi.application.service.storage.AssetService;
 import gettothepoint.unicatapi.application.service.storage.StorageService;
 import gettothepoint.unicatapi.domain.dto.project.ResourceResponse;
+import gettothepoint.unicatapi.domain.dto.project.section.SectionResponseFactory;
 import gettothepoint.unicatapi.domain.dto.project.section.SectionResourceRequest;
 import gettothepoint.unicatapi.domain.dto.project.section.SectionResourceRequestWithoutFile;
 import gettothepoint.unicatapi.domain.dto.project.section.SectionResponse;
@@ -35,19 +36,19 @@ public class SectionService {
     private final ProjectService projectService;
     private final SectionRepository sectionRepository;
     private final StorageService storageService;
-    private final AssetService assetService;
+    private final SectionResponseFactory sectionResponseFactory;
     private static final String SECTION_NOT_FOUND_MSG = "Section not found with id: ";
 
     // 컬렉션 페이지네이션
     public Page<SectionResponse> getAll(Long projectId, Pageable pageable) {
         Page<Section> sections = sectionRepository.findAllByProjectIdOrderBySortOrderAsc(projectId, pageable);
-        return sections.map(SectionResponse::fromEntity);
+        return sections.map(sectionResponseFactory::fromEntity);
     }
 
     // 컬렉션 전체
     public List<SectionResponse> getSectionResponseAll(Long projectId) {
         List<Section> sections = sectionRepository.findAllByProjectIdOrderBySortOrderAsc(projectId);
-        return sections.stream().map(SectionResponse::fromEntity).toList();
+        return sections.stream().map(sectionResponseFactory::fromEntity).toList();
     }
 
     public List<Section> getSectionAll(Long projectId) {
@@ -57,7 +58,7 @@ public class SectionService {
     // 싱글
     public SectionResponse get(Long projectId, Long sectionId) {
         Section section = this.getOrElseThrow(projectId, sectionId);
-        return SectionResponse.fromEntity(section);
+        return sectionResponseFactory.fromEntity(section);
     }
 
     public SectionResponse create(Long projectId) {
@@ -146,8 +147,8 @@ public class SectionService {
     }
 
     public SectionResponse create(Section section) {
-        sectionRepository.save(section);
-        return SectionResponse.fromEntity(section);
+        update(section);
+        return sectionResponseFactory.fromEntity(section);
     }
 
     public void updateSectionSortOrder(Long sectionId, int newOrder) {

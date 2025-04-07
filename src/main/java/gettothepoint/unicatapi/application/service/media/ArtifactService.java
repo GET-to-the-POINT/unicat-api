@@ -32,7 +32,6 @@ public class ArtifactService {
     private final OpenAiService openAiService;
     private final TransitionSoundService transitionSoundService;
 
-
     public void build(Long projectId) {
         this.build(projectId, "artifact", null);
     }
@@ -63,7 +62,7 @@ public class ArtifactService {
 
         // project build standby
         List<String> sectionKeys = sections.stream().map(Section::getFrameKey).toList();
-        List<File> sectionVideos = storageService.getAll(sectionKeys);
+        List<File> sectionVideos = sectionKeys.stream().map(storageService::getFile).toList();
         List<Section> sectionEntities = sectionService.getSectionAll(projectId);
         List<File> transitionSounds = transitionSoundService.downloadTransitionSoundsFromSections(sectionEntities);
 

@@ -19,7 +19,7 @@ import java.util.Optional;
 public class LocalRepository implements FileRepository {
 
     @Override
-    public Optional<File> findFileByKey(Path relativePath) {
+    public Optional<File> findFileByRelativePath(Path relativePath) {
         Path absolutePath = FileUtil.getAbsolutePath(relativePath);
         File file = absolutePath.toFile();
         if (file.exists()) {
@@ -30,34 +30,24 @@ public class LocalRepository implements FileRepository {
     }
 
     @Override
-    public Optional<URI> findUriByKey(Path relativePath) {
-        return Optional.empty();
+    public Optional<URI> findUriByRelativePath(Path relativePath) {
+        return Optional.of(FileUtil.getAbsolutePath(relativePath).toUri());
     }
 
     public Path save(MultipartFile file) {
-        String contentType = file.getContentType(); // "image/png"
-        String extension = "";
-        if (contentType != null && contentType.contains("/")) {
-            extension = contentType.substring(contentType.indexOf("/") + 1); // → "png"
-        }
-        Path filePath = FileUtil.getUniqueFilePath(extension);
+        Path hashedAbsolutePath = FileUtil.getAbsoluteHashedPath(file);
         try (InputStream inputStream = file.getInputStream()) {
-            Files.createDirectories(filePath.getParent());
-            Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+            Files.createDirectories(hashedAbsolutePath.getParent());
+            Files.copy(inputStream, hashedAbsolutePath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             throw new RuntimeException("파일 저장 실패", e);
         }
-        return FileUtil.getRelativePath(filePath);
+        return FileUtil.getRelativePath(hashedAbsolutePath);
     }
 
     @Override
     public Path save(File file) {
-        String originalFilename = file.getName();
-        String extension = "";
-        if (originalFilename.contains(".")) {
-            extension = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
-        }
-        Path filePath = FileUtil.getUniqueFilePath(extension);
+        Path filePath = FileUtil.getAbsoluteHashedPath(file);
 
         try {
             Files.createDirectories(filePath.getParent());

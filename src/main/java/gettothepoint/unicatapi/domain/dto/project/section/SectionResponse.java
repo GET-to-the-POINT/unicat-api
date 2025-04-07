@@ -1,8 +1,10 @@
 package gettothepoint.unicatapi.domain.dto.project.section;
 
-import gettothepoint.unicatapi.domain.entity.project.Section;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AccessLevel;
+import lombok.Builder;
 
+@Builder(access = AccessLevel.PACKAGE)
 public record SectionResponse(
         @Schema(description = "섹션의 고유 ID입니다.", example = "1")
         Long id,
@@ -20,7 +22,7 @@ public record SectionResponse(
         String audioUrl,
 
         @Schema(description = "비디오 URL입니다.", example = "https://example.com/video")
-        String videoUrl,
+        String frameUrl,
 
         @Schema(description = "대체 텍스트입니다.", example = "대체 텍스트입니다.")
         String alt,
@@ -30,24 +32,4 @@ public record SectionResponse(
 
         @Schema(description = "전환 효과 URL입니다.", example = "https://example.com/transition")
         String transitionUrl
-) {
-    /**
-     * Section 엔티티로부터 SectionResponse DTO를 생성합니다.
-     *
-     * @param section 변환할 섹션 엔티티
-     * @return SectionResponse DTO
-     */
-    public static SectionResponse fromEntity(Section section) {
-        return new SectionResponse(
-                section.getId(),
-                section.getScript(),
-                section.getSortOrder(),
-                section.getContentKey(),
-                section.getAudioKey(),
-                section.getFrameKey(),
-                section.getAlt(),
-                section.getVoiceModel(),
-                section.getTransitionKey()
-        );
-    }
-}
+) { }
