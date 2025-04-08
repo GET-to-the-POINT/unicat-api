@@ -16,12 +16,12 @@ public class StorageService {
     private final FileRepository fileRepository;
 
     public File getFile(String key) {
-        return fileRepository.findFileByRelativePath(Path.of(key))
+        return fileRepository.findFileByKey(Path.of(key))
                 .orElseThrow(() -> new IllegalArgumentException("File not found: " + key));
     }
 
     public URI getUri(String key) {
-        return fileRepository.findUriByRelativePath(Path.of(key))
+        return fileRepository.findUriByKey(Path.of(key))
                 .orElseThrow(() -> new IllegalArgumentException("URI not found: " + key));
     }
 

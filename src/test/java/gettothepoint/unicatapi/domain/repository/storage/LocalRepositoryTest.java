@@ -36,7 +36,7 @@ class LocalRepositoryTest {
         Path savedPath = localRepository.save(originalFile);
         assertNotNull(savedPath);
 
-        Optional<File> foundFile = localRepository.findFileByRelativePath(savedPath);
+        Optional<File> foundFile = localRepository.findFileByKey(savedPath);
         assertTrue(foundFile.isPresent());
         assertTrue(foundFile.get().exists());
     }

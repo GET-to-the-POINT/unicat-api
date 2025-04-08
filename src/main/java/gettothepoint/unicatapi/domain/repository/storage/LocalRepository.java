@@ -19,8 +19,8 @@ import java.util.Optional;
 public class LocalRepository implements FileRepository {
 
     @Override
-    public Optional<File> findFileByRelativePath(Path relativePath) {
-        Path absolutePath = FileUtil.getAbsolutePath(relativePath);
+    public Optional<File> findFileByKey(Path keyPath) {
+        Path absolutePath = FileUtil.getAbsolutePath(keyPath);
         File file = absolutePath.toFile();
         if (file.exists()) {
             return Optional.of(file);
@@ -30,32 +30,35 @@ public class LocalRepository implements FileRepository {
     }
 
     @Override
-    public Optional<URI> findUriByRelativePath(Path relativePath) {
-        return Optional.of(FileUtil.getAbsolutePath(relativePath).toUri());
+    public Optional<URI> findUriByKey(Path keyPath) {
+        throw new UnsupportedOperationException("Local repository does not support URI retrieval");
     }
 
     public Path save(MultipartFile file) {
-        Path hashedAbsolutePath = FileUtil.getAbsoluteHashedPath(file);
+        Path absoluteHashedPath = FileUtil.getAbsoluteHashedPath(file);
         try (InputStream inputStream = file.getInputStream()) {
-            Files.createDirectories(hashedAbsolutePath.getParent());
-            Files.copy(inputStream, hashedAbsolutePath, StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(inputStream, absoluteHashedPath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             throw new RuntimeException("파일 저장 실패", e);
         }
-        return FileUtil.getRelativePath(hashedAbsolutePath);
+        return FileUtil.getRelativePath(absoluteHashedPath);
     }
 
     @Override
     public Path save(File file) {
-        Path filePath = FileUtil.getAbsoluteHashedPath(file);
-
-        try {
-            Files.createDirectories(filePath.getParent());
-            Files.copy(file.toPath(), filePath, StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            throw new RuntimeException("파일 저장 실패", e);
+        Path absoluteHashedPath = FileUtil.getAbsoluteHashedPath(file);
+        if (absoluteHashedPath.toFile().exists()) {
+            return FileUtil.getRelativePath(absoluteHashedPath);
         }
 
-        return FileUtil.getRelativePath(filePath);
+        if (!file.renameTo(absoluteHashedPath.toFile())) {
+            try {
+                Files.copy(file.toPath(), absoluteHashedPath, StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e) {
+                throw new RuntimeException("파일 저장 실패", e);
+            }
+        }
+
+        return FileUtil.getRelativePath(absoluteHashedPath);
     }
 }

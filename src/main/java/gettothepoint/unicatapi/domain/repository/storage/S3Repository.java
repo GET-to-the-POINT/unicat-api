@@ -35,21 +35,20 @@ public class S3Repository implements FileRepository {
     private final S3Client s3Client;
 
     @Override
-    public Optional<File> findFileByRelativePath(Path relativePath) {
-        String bucket = relativePath.getName(0).toString();
-        String key = relativePath.subpath(1, relativePath.getNameCount()).toString();
-        GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucket).key(key).build();
+    public Optional<File> findFileByKey(Path keyPath) {
+        String bucket = keyPath.getName(0).toString();
+        String bucketKey = keyPath.subpath(1, keyPath.getNameCount()).toString();
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(bucket).key(bucketKey).build();
 
-        Path path = FileUtil.getAbsolutePath(relativePath);
+        Path absolutePath = FileUtil.getAbsolutePath(keyPath);
         try {
-            File file = path.toFile();
+            File file = absolutePath.toFile();
             if (file.exists()) {
                 return Optional.of(file);
             }
 
-            Files.createDirectories(path.getParent());
-            s3Client.getObject(getObjectRequest, path);
-            return Optional.of(path.toFile());
+            s3Client.getObject(getObjectRequest, absolutePath);
+            return Optional.of(absolutePath.toFile());
         } catch (NoSuchKeyException e) {
             return Optional.empty();
         } catch (S3Exception e) {
@@ -57,15 +56,13 @@ public class S3Repository implements FileRepository {
                 return Optional.empty();
             }
             throw new RuntimeException("S3 오류 발생: " + e.awsErrorDetails().errorMessage(), e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
 
     @Override
-    public Optional<URI> findUriByRelativePath(Path relativePath) {
-        String bucket = relativePath.getName(0).toString();
-        String key = relativePath.subpath(1, relativePath.getNameCount()).toString();
+    public Optional<URI> findUriByKey(Path keyPath) {
+        String bucket = keyPath.getName(0).toString();
+        String bucketKey = keyPath.subpath(1, keyPath.getNameCount()).toString();
 
         try {
             S3Presigner presigner = S3Presigner.builder()
@@ -75,14 +72,14 @@ public class S3Repository implements FileRepository {
                 .endpointOverride(URI.create(s3Properties.endpoint()))
                 .build();
 
-            String contentType = FileUtil.guessContentTypeFromKey(key); // 확장자 기반 추론
+            String contentType = FileUtil.guessContentTypeFromKey(keyPath);
 
             GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
                     .signatureDuration(Duration.ofHours(24))
                     .getObjectRequest(
                             GetObjectRequest.builder()
                                     .bucket(bucket)
-                                    .key(key)
+                                    .key(bucketKey)
                                     .responseContentDisposition("inline")
                                     .responseContentType(contentType)
                                     .build()
@@ -107,31 +104,31 @@ public class S3Repository implements FileRepository {
     @Override
     public Path save(MultipartFile file) {
         Path absoluteHashedPath = FileUtil.getAbsoluteHashedPath(file);
-        Path relativePath = FileUtil.getRelativePath(absoluteHashedPath);
-        PutObjectRequest putObjectRequest = getObjectRequest(relativePath);
+        Path keyPath = FileUtil.getRelativePath(absoluteHashedPath);
+        PutObjectRequest putObjectRequest = getObjectRequest(keyPath);
 
         try (InputStream inputStream = file.getInputStream()) {
             s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(inputStream, file.getSize()));
         } catch (Exception e) {
             throw new RuntimeException("파일 저장 실패", e);
         }
-        return relativePath;
+        return keyPath;
     }
 
     @Override
     public Path save(File file) {
         Path absoluteHashedPath = FileUtil.getAbsoluteHashedPath(file);
-        Path relativePath = FileUtil.getRelativePath(absoluteHashedPath);
-        PutObjectRequest putObjectRequest = getObjectRequest(relativePath);
+        Path keyPath = FileUtil.getRelativePath(absoluteHashedPath);
+        PutObjectRequest putObjectRequest = getObjectRequest(keyPath);
         s3Client.putObject(putObjectRequest, RequestBody.fromFile(file));
-        return relativePath;
+        return keyPath;
     }
 
     private PutObjectRequest getObjectRequest(Path relativePath) {
         String bucket = relativePath.getName(0).toString();
-        String key = relativePath.subpath(1, relativePath.getNameCount()).toString();
+        String bucketKey = relativePath.subpath(1, relativePath.getNameCount()).toString();
 
-        return PutObjectRequest.builder().bucket(bucket).key(key).acl("public-read").build();
+        return PutObjectRequest.builder().bucket(bucket).key(bucketKey).acl("public-read").build();
     }
 
     public List<AssetItem> assets() {
@@ -168,16 +165,17 @@ public class S3Repository implements FileRepository {
                 .build();
 
         for (S3Object s3Object : listResponse.contents()) {
-            String key = s3Object.key();
-            String name = Path.of(key).getFileName().toString();
+            String bucketKey = s3Object.key();
+            Path bucketPathKey = Path.of(bucketKey);
+            String name = bucketPathKey.getFileName().toString();
 
-            String contentType = FileUtil.guessContentTypeFromKey(key);
+            String contentType = FileUtil.guessContentTypeFromKey(bucketPathKey);
 
             GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
                     .signatureDuration(Duration.ofHours(24))
                     .getObjectRequest(GetObjectRequest.builder()
                             .bucket(s3Properties.bucket())
-                            .key(key)
+                            .key(bucketKey)
                             .responseContentDisposition("inline")
                             .responseContentType(contentType)
                             .build())
@@ -189,7 +187,7 @@ public class S3Repository implements FileRepository {
             } catch (URISyntaxException e) {
                 throw new RuntimeException("프리사인 URL 생성 실패", e);
             }
-            assets.add(new AssetItem(name, s3Properties.bucket() + "/" + key, presignedUrl.toString()));
+            assets.add(new AssetItem(name, s3Properties.bucket() + "/" + bucketKey, presignedUrl.toString()));
         }
 
         presigner.close();

@@ -65,7 +65,7 @@ class CacheRepositoryTest {
         assertNotNull(savedPath, "저장된 경로가 null이 아닙니다");
 
         // 저장된 파일을 S3에서 찾아 검증합니다.
-        Optional<File> foundFile = cacheRepository.findFileByRelativePath(savedPath);
+        Optional<File> foundFile = cacheRepository.findFileByKey(savedPath);
         assertTrue(foundFile.isPresent(), "저장된 파일을 S3에서 찾을 수 있어야 합니다");
         assertTrue(foundFile.get().exists(), "찾은 파일이 실제로 존재해야 합니다");
     }
@@ -90,12 +90,12 @@ class CacheRepositoryTest {
 
         // cacheRepository를 통해 동일 key로 파일을 조회 -> 캐시에서 잘 가져오는지 확인
         // 실제 구현체에 따라 캐시에 없으면 S3에서 가져와 캐싱하는 로직이 들어있다고 가정
-        Optional<File> cachedFile = cacheRepository.findFileByRelativePath(s3SavedPath);
+        Optional<File> cachedFile = cacheRepository.findFileByKey(s3SavedPath);
         assertTrue(cachedFile.isPresent(), "캐시에서 파일을 찾을 수 있어야 합니다");
         assertTrue(cachedFile.get().exists(), "찾은 파일이 실제로 존재해야 합니다");
 
         // 이후 다시 한 번 findFileByKey 호출하여, 두 번째 호출 시에도 문제 없이 캐시에서 가져오는지 확인
-        Optional<File> cachedFileAgain = cacheRepository.findFileByRelativePath(s3SavedPath);
+        Optional<File> cachedFileAgain = cacheRepository.findFileByKey(s3SavedPath);
         assertTrue(cachedFileAgain.isPresent(), "두 번째 캐시 조회도 성공해야 합니다");
         assertTrue(cachedFileAgain.get().exists(), "두 번째 조회한 파일도 실제로 존재해야 합니다");
     }

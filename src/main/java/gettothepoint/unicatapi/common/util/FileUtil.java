@@ -34,7 +34,7 @@ public class FileUtil {
         return getTempPath().resolve(relativePath);
     }
 
-    public static Path getAbsoluteUniquePath(String extension) {
+    private static Path getAbsoluteUniquePath(String extension) {
         if (extension.indexOf('.') != 0) {
             extension = "." + extension;
         }
@@ -44,7 +44,7 @@ public class FileUtil {
     }
 
     public static Path getAbsoluteHashedPath(File file) {
-        String extension = getExtension(file.getName());
+        String extension = guessContentTypeFromKey(file.toPath());
         try (InputStream inputStream = Files.newInputStream(file.toPath())) {
             return getHashedFilePath(inputStream, extension);
         } catch (IOException e) {
@@ -54,7 +54,7 @@ public class FileUtil {
     }
 
     public static Path getAbsoluteHashedPath(MultipartFile file) {
-        String extension = getExtension(file.getOriginalFilename());
+        String extension = guessContentTypeFromKey(Path.of(file.getOriginalFilename()));
         try (InputStream inputStream = file.getInputStream()) {
             return getHashedFilePath(inputStream, extension);
         } catch (IOException e) {
@@ -76,20 +76,15 @@ public class FileUtil {
         }
     }
 
-    public static String guessContentTypeFromKey(String key) {
+    public static String guessContentTypeFromKey(Path key) {
         try {
-            return Files.probeContentType(Path.of(key));
+            return Files.probeContentType(key);
         } catch (IOException e) {
-            return "application/octet-stream"; // fallback
+            return "application/octet-stream";
         }
     }
 
-    private static String getExtension(String fileName) {
-        int dotIndex = fileName.lastIndexOf('.');
-        return (dotIndex != -1) ? fileName.substring(dotIndex) : "";
-    }
-
-    public static File generateWithHashedNaming(String extension, Function<Path, File> writeLogic) {
+    public static File createFileWithHashedName(String extension, Function<Path, File> writeLogic) {
         Path absoluteUniquePath = getAbsoluteUniquePath(extension);
         File tempFile = writeLogic.apply(absoluteUniquePath);
         Path absoluteHashedPath = getAbsoluteHashedPath(tempFile);

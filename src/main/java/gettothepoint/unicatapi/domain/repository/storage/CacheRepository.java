@@ -24,35 +24,33 @@ public class CacheRepository implements FileRepository {
     }
 
     @Override
-    public Optional<File> findFileByRelativePath(Path relativePath) {
-        return primary.findFileByRelativePath(relativePath)
-                .or(() -> secondary.findFileByRelativePath(relativePath));
+    public Optional<File> findFileByKey(Path keyPath) {
+        return primary.findFileByKey(keyPath)
+                .or(() -> secondary.findFileByKey(keyPath));
     }
 
     @Override
-    public Optional<URI> findUriByRelativePath(Path relativePath) {
-        String activeProfile = System.getProperty("spring.profiles.active", "");
-        if (activeProfile.isEmpty() || activeProfile.contains("local")) {
-            return primary.findUriByRelativePath(relativePath);
-        }
-        return secondary.findUriByRelativePath(relativePath)
-                .or(() -> primary.findUriByRelativePath(relativePath));
+    public Optional<URI> findUriByKey(Path keyPath) {
+        return secondary.findUriByKey(keyPath);
     }
 
     @Override
     public Path save(MultipartFile file) {
-        Path key = primary.save(file);
-        Path key2 = secondary.save(file);
-        if (!key.equals(key2)) {
+        Path keyPath = primary.save(file);
+        Path keyPath2 = secondary.save(file);
+        if (!keyPath.equals(keyPath2)) {
             throw new RuntimeException("파일 저장 실패: 키가 일치하지 않음");
         }
-        return key;
+        return keyPath;
     }
 
     @Override
     public Path save(File file) {
-        Path key = primary.save(file);
-        secondary.save(file);
-        return key;
+        Path keyPath = primary.save(file);
+        Path keyPath2 = secondary.save(file);
+        if (!keyPath.equals(keyPath2 )) {
+            throw new RuntimeException("파일 저장 실패: 키가 일치하지 않음");
+        }
+        return keyPath;
     }
 }

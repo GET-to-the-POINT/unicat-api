@@ -62,7 +62,7 @@ class S3RepositoryTest {
         assertNotNull(savedPath, "저장된 경로가 null이 아닙니다");
 
         // 저장된 파일을 S3에서 찾아 검증합니다.
-        Optional<File> foundFile = s3Repository.findFileByRelativePath(savedPath);
+        Optional<File> foundFile = s3Repository.findFileByKey(savedPath);
         assertTrue(foundFile.isPresent(), "저장된 파일을 S3에서 찾을 수 있어야 합니다");
         assertTrue(foundFile.get().exists(), "찾은 파일이 실제로 존재해야 합니다");
     }
