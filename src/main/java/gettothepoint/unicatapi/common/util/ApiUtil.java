@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.common.util;
 
-import gettothepoint.unicatapi.common.propertie.TossProperties;
+import gettothepoint.unicatapi.common.properties.TossProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;

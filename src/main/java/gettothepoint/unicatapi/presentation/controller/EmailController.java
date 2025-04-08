@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.presentation.controller;
 
 import gettothepoint.unicatapi.application.service.member.MemberService;
-import gettothepoint.unicatapi.common.propertie.FrontendProperties;
+import gettothepoint.unicatapi.common.properties.FrontendProperties;
 import gettothepoint.unicatapi.common.util.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

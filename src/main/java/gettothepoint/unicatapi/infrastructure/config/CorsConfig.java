@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.infrastructure.config;
 
-import gettothepoint.unicatapi.common.propertie.CorsProperties;
+import gettothepoint.unicatapi.common.properties.CorsProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

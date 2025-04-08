@@ -1,4 +1,4 @@
-package gettothepoint.unicatapi.common.propertie;
+package gettothepoint.unicatapi.common.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

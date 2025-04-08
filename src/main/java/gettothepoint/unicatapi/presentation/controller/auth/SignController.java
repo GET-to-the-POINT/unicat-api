@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.presentation.controller.auth;
 
 import gettothepoint.unicatapi.application.service.AuthService;
-import gettothepoint.unicatapi.common.propertie.JwtProperties;
+import gettothepoint.unicatapi.common.properties.JwtProperties;
 import gettothepoint.unicatapi.common.schema.ErrorResponse;
 import gettothepoint.unicatapi.common.schema.UnauthorizedErrorResponse;
 import gettothepoint.unicatapi.common.util.CookieUtil;

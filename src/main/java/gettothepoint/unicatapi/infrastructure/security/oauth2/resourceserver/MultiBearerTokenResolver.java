@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.infrastructure.security.oauth2.resourceserver;
 
-import gettothepoint.unicatapi.common.propertie.JwtProperties;
+import gettothepoint.unicatapi.common.properties.JwtProperties;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;

@@ -2,7 +2,7 @@ package gettothepoint.unicatapi.presentation.controller.payment;
 
 import gettothepoint.unicatapi.application.service.payment.BillingService;
 import gettothepoint.unicatapi.application.service.payment.PaymentService;
-import gettothepoint.unicatapi.common.propertie.FrontendProperties;
+import gettothepoint.unicatapi.common.properties.FrontendProperties;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;

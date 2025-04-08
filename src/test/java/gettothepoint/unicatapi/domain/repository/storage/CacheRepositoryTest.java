@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.domain.repository.storage;
 
-import gettothepoint.unicatapi.common.propertie.S3Properties;
+import gettothepoint.unicatapi.common.properties.S3Properties;
 import gettothepoint.unicatapi.infrastructure.config.S3ClientConfig;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;

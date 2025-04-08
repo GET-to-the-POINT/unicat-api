@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.presentation.controller.payment;
 
-import gettothepoint.unicatapi.common.propertie.TossProperties;
+import gettothepoint.unicatapi.common.properties.TossProperties;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

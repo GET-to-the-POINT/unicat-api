@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.application.service.voice;
 
-import gettothepoint.unicatapi.common.propertie.SupertoneProperties;
+import gettothepoint.unicatapi.common.properties.SupertoneProperties;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;

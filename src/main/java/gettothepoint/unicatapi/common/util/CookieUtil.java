@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.common.util;
 
-import gettothepoint.unicatapi.common.propertie.JwtProperties;
+import gettothepoint.unicatapi.common.properties.JwtProperties;
 import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

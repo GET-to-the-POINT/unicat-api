@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.infrastructure.gateway;
 
-import gettothepoint.unicatapi.common.propertie.TossProperties;
+import gettothepoint.unicatapi.common.properties.TossProperties;
 import gettothepoint.unicatapi.common.util.ApiUtil;
 import gettothepoint.unicatapi.domain.dto.payment.TossApprovalRequest;
 import gettothepoint.unicatapi.domain.entity.payment.Order;

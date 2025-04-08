@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.domain.repository.storage;
 
-import gettothepoint.unicatapi.common.propertie.S3Properties;
+import gettothepoint.unicatapi.common.properties.S3Properties;
 import gettothepoint.unicatapi.common.util.FileUtil;
 import gettothepoint.unicatapi.domain.dto.asset.AssetItem;
 import lombok.RequiredArgsConstructor;

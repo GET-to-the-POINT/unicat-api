@@ -3,7 +3,7 @@ package gettothepoint.unicatapi.application.service.ai;
 import gettothepoint.unicatapi.application.service.project.ProjectService;
 import gettothepoint.unicatapi.application.service.project.SectionService;
 import gettothepoint.unicatapi.application.service.storage.StorageService;
-import gettothepoint.unicatapi.common.propertie.OpenAIProperties;
+import gettothepoint.unicatapi.common.properties.OpenAIProperties;
 import gettothepoint.unicatapi.common.util.MultipartFileUtil;
 import gettothepoint.unicatapi.domain.dto.project.AutoArtifact;
 import gettothepoint.unicatapi.domain.dto.project.CreateResourceResponse;

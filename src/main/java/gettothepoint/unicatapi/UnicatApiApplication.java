@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-@ConfigurationPropertiesScan("gettothepoint.unicatapi.common.propertie")
+@ConfigurationPropertiesScan("gettothepoint.unicatapi.common.properties")
 public class UnicatApiApplication {
 
 	public static void main(String[] args) {

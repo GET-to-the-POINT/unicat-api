@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.common.util;
 
-import gettothepoint.unicatapi.common.propertie.ApiProperties;
+import gettothepoint.unicatapi.common.properties.ApiProperties;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.web.util.UriComponentsBuilder;

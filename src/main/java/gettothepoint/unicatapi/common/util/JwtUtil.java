@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.common.util;
 
-import gettothepoint.unicatapi.common.propertie.JwtProperties;
+import gettothepoint.unicatapi.common.properties.JwtProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.jwt.*;

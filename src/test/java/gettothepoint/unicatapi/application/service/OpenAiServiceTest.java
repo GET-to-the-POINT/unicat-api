@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.application.service;
 
 import gettothepoint.unicatapi.application.service.ai.OpenAiService;
-import gettothepoint.unicatapi.common.propertie.OpenAIProperties;
+import gettothepoint.unicatapi.common.properties.OpenAIProperties;
 import gettothepoint.unicatapi.domain.dto.project.CreateResourceResponse;
 import gettothepoint.unicatapi.domain.dto.project.PromptRequest;
 import gettothepoint.unicatapi.domain.entity.project.Project;

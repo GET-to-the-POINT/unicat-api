@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.application.service.voice;
 
-import gettothepoint.unicatapi.common.propertie.SupertoneProperties;
+import gettothepoint.unicatapi.common.properties.SupertoneProperties;
 import gettothepoint.unicatapi.common.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;

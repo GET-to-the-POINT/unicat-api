@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.application.service.payment;
 
 import gettothepoint.unicatapi.application.service.member.MemberService;
-import gettothepoint.unicatapi.common.propertie.TossProperties;
+import gettothepoint.unicatapi.common.properties.TossProperties;
 import gettothepoint.unicatapi.common.util.ApiUtil;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.entity.payment.Billing;

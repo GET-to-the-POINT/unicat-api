@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.application.service.email;
 
-import gettothepoint.unicatapi.common.propertie.ApiProperties;
-import gettothepoint.unicatapi.common.propertie.EmailProperties;
+import gettothepoint.unicatapi.common.properties.ApiProperties;
+import gettothepoint.unicatapi.common.properties.EmailProperties;
 import gettothepoint.unicatapi.common.util.JwtUtil;
 import gettothepoint.unicatapi.common.util.UrlUtil;
 import gettothepoint.unicatapi.domain.entity.member.Member;
