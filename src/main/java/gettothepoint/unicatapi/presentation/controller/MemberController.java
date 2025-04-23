@@ -26,7 +26,7 @@ public class MemberController {
             summary = "멤버 정보 조회",
             description = "사인인 한 사용자의 정보를 조회하는 API입니다. JWT의 subject 값을 이용하여 memberId를 확인합니다."
     )
-    @GetMapping
+    @GetMapping("/me")
     public MemberResponse getMember(@AuthenticationPrincipal Jwt jwt) {
         Long memberId = Long.valueOf(jwt.getSubject());
         Member member = memberService.getOrElseThrow(memberId);
