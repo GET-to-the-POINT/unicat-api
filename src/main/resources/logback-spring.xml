@@ -8,6 +8,10 @@
         </encoder>
     </appender>
 
+    <root level="${ROOT_LOG_LEVEL}">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
     <springProfile name="prod">
         <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
             <http>
@@ -15,7 +19,7 @@
             </http>
             <format>
                 <label>
-                    <pattern>app=unidcat-api,level=%level</pattern>
+                    <pattern>app=unicat-api,level=%level</pattern>
                 </label>
                 <message>
                     <pattern>l=%level c=%logger{20} t=%thread | %msg %ex</pattern>
@@ -26,12 +30,6 @@
         <root level="${ROOT_LOG_LEVEL}">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="LOKI"/>
-        </root>
-    </springProfile>
-
-    <springProfile name="dev">
-        <root level="${ROOT_LOG_LEVEL}">
-            <appender-ref ref="CONSOLE"/>
         </root>
     </springProfile>
 </configuration>
