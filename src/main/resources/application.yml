@@ -81,9 +81,16 @@ app:
   s3:
     endpoint: ${SUPABASE_S3_ENDPOINT:http://localhost:9000}
     region: ${SUPABASE_S3_REGION:us-west-rack-2}
-    access-key-id: ${SUPABASE_S3_ACCESS_KEY_ID:unicat-minio}
-    secret-access-key: ${SUPABASE_S3_SECRET_KEY:unicat-minio}
+    access-key-id: ${SUPABASE_S3_ACCESS_KEY_ID:test-minio}
+    secret-access-key: ${SUPABASE_S3_SECRET_KEY:test-minio}
     bucket: ${SUPABASE_S3_BUCKET:unicat}
+  minio:
+    endpoint: ${SUPABASE_S3_ENDPOINT:http://localhost:9000}
+    access-key-id: ${SUPABASE_S3_ACCESS_KEY_ID:test-minio}
+    secret-access-key: ${SUPABASE_S3_SECRET_KEY:test-minio}
+    bucket: ${SUPABASE_S3_BUCKET:unicat}
+  filestorage:
+    local-root: ${APP_FILESTORAGE_LOCAL_ROOT:${user.home}/unicat}
   cors:
     allowed-origins:
       - ${APP_CORS_ALLOWED_ORIGINS:https://unicat.day}
