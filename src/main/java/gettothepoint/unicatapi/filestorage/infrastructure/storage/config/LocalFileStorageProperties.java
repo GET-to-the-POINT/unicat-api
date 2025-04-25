@@ -1,4 +1,4 @@
-package gettothepoint.unicatapi.filestorage.config;
+package gettothepoint.unicatapi.filestorage.infrastructure.storage.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
