@@ -1,41 +1,46 @@
-package gettothepoint.unicatapi.filestorage.infrastructure.storage.composite;
+package gettothepoint.unicatapi.filestorage.infrastructure.storage.local;
 
 import gettothepoint.unicatapi.filestorage.config.LocalTestConfig;
 import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageCommand;
 import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageRepository;
-import gettothepoint.unicatapi.filestorage.infrastructure.storage.config.CompositeFileStorageConfig;
 import gettothepoint.unicatapi.filestorage.infrastructure.storage.config.LocalFileStorageConfig;
-import gettothepoint.unicatapi.filestorage.infrastructure.storage.config.MinioFileStorageConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.UrlResource;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Optional;
 
+import static gettothepoint.unicatapi.filestorage.config.CommonTestConfig.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
-        CompositeFileStorageConfig.class,
-        MinioFileStorageConfig.class,
         LocalFileStorageConfig.class,
         LocalTestConfig.class,
 })
-@DisplayName("컴포지트 파일 저장소 테스트")
-class CompositeFileStorageRepositoryTest {
+@DisplayName("로컬 파일 저장소 테스트")
+class LocalFileStorageRepositoryIntegrationTest {
 
     @Autowired
     private FileStorageRepository repository;
 
-    private static final String TEST_FILENAME = "test.txt";
-    private static final String TEST_CONTENT = "hello world";
-    private static final String TEST_CONTENT_TYPE = "text/plain";
+    @TempDir
+    private static Path tempDir;
+
+    @DynamicPropertySource
+    static void overrideProps(DynamicPropertyRegistry registry) {
+        registry.add("app.filestorage.local-root", tempDir::toAbsolutePath);
+    }
 
     @Test
     @DisplayName("파일 저장 성공 테스트")
@@ -87,4 +92,60 @@ class CompositeFileStorageRepositoryTest {
         Optional<UrlResource> resource = repository.load("nonexistent.txt");
         assertFalse(resource.isPresent());
     }
+
+    @Test
+    @DisplayName("로드된 파일의 스킴이 file로 시작해야 함")
+    void loadedFileShouldHaveFileScheme() {
+        FileStorageCommand command = new FileStorageCommand(
+                TEST_FILENAME,
+                new ByteArrayInputStream(TEST_CONTENT.getBytes()),
+                TEST_CONTENT.getBytes().length,
+                TEST_CONTENT_TYPE
+        );
+        String key = repository.store(command);
+
+        Optional<UrlResource> resource = repository.load(key);
+
+        assertTrue(resource.isPresent());
+        assertEquals("file", resource.get().getURL().getProtocol());
+    }
+
+    @Test
+    @DisplayName("빈 파일 저장 후 로드 테스트")
+    void loadEmptyFileShouldSucceed() throws IOException {
+        String emptyContent = "";
+        FileStorageCommand command = new FileStorageCommand(
+                "empty.txt",
+                new ByteArrayInputStream(emptyContent.getBytes()),
+                emptyContent.getBytes().length,
+                "text/plain"
+        );
+        String key = repository.store(command);
+
+        Optional<UrlResource> resource = repository.load(key);
+
+        assertTrue(resource.isPresent());
+        String loadedContent = new String(resource.get().getInputStream().readAllBytes());
+        assertEquals(emptyContent, loadedContent);
+    }
+
+    @Test
+    @DisplayName("특수 문자 파일 이름 저장 및 로드 테스트")
+    void loadFileWithSpecialCharactersInNameShouldSucceed() throws IOException {
+        String specialFilename = "특수문자_파일@이름!.txt";
+        FileStorageCommand command = new FileStorageCommand(
+                specialFilename,
+                new ByteArrayInputStream(TEST_CONTENT.getBytes()),
+                TEST_CONTENT.getBytes().length,
+                TEST_CONTENT_TYPE
+        );
+        String key = repository.store(command);
+
+        Optional<UrlResource> resource = repository.load(key);
+
+        assertTrue(resource.isPresent());
+        String loadedContent = new String(resource.get().getInputStream().readAllBytes());
+        assertEquals(TEST_CONTENT, loadedContent);
+    }
+
 }

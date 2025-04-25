@@ -1,33 +1,34 @@
-package gettothepoint.unicatapi.filestorage.application;// ...existing imports...
+package gettothepoint.unicatapi.filestorage.application;
 
-import gettothepoint.unicatapi.filestorage.config.LocalTestConfig;
 import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageRepository;
 import gettothepoint.unicatapi.filestorage.infrastructure.storage.config.CompositeFileStorageConfig;
 import gettothepoint.unicatapi.filestorage.infrastructure.storage.config.LocalFileStorageConfig;
-import gettothepoint.unicatapi.filestorage.infrastructure.storage.config.MinioFileStorageConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
+import java.nio.file.Path;
 
+import static gettothepoint.unicatapi.filestorage.config.CommonTestConfig.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
         FileUploadUseCase.class,
         CompositeFileStorageConfig.class,
-        MinioFileStorageConfig.class,
         LocalFileStorageConfig.class,
-        LocalTestConfig.class,
 })
 @DisplayName("파일 업로드 유스케이스 통합 테스트")
-class FileUploadUseCaseIntegrationTest {
+class FileUploadUseCaseLocalIntegrationTest {
 
     @Autowired
     private FileUploadUseCase fileUploadUseCase;
@@ -35,9 +36,13 @@ class FileUploadUseCaseIntegrationTest {
     @Autowired
     private FileStorageRepository fileStorageRepository;
 
-    private static final String TEST_FILENAME = "test.txt";
-    private static final String TEST_CONTENT = "hello world";
-    private static final String TEST_CONTENT_TYPE = "text/plain";
+    @TempDir
+    static Path tempDir;
+
+    @DynamicPropertySource
+    static void overrideProps(DynamicPropertyRegistry registry) {
+        registry.add("app.filestorage.local-root", tempDir::toAbsolutePath);
+    }
 
     @Test
     @DisplayName("파일 업로드 성공 테스트")
