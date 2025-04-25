@@ -1,10 +1,10 @@
 package gettothepoint.unicatapi.filestorage.application;// ...existing imports...
 
-import gettothepoint.unicatapi.filestorage.config.CompositeFileStorageConfig;
-import gettothepoint.unicatapi.filestorage.config.LocalFileStorageConfig;
 import gettothepoint.unicatapi.filestorage.config.LocalTestConfig;
-import gettothepoint.unicatapi.filestorage.config.MinioFileStorageConfig;
 import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageRepository;
+import gettothepoint.unicatapi.filestorage.infrastructure.storage.config.CompositeFileStorageConfig;
+import gettothepoint.unicatapi.filestorage.infrastructure.storage.config.LocalFileStorageConfig;
+import gettothepoint.unicatapi.filestorage.infrastructure.storage.config.MinioFileStorageConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,8 +17,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
