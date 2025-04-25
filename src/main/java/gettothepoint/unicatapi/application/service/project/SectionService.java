@@ -1,15 +1,14 @@
 package gettothepoint.unicatapi.application.service.project;
 
-import gettothepoint.unicatapi.application.service.storage.AssetService;
-import gettothepoint.unicatapi.application.service.storage.StorageService;
 import gettothepoint.unicatapi.domain.dto.project.ResourceResponse;
-import gettothepoint.unicatapi.domain.dto.project.section.SectionResponseFactory;
 import gettothepoint.unicatapi.domain.dto.project.section.SectionResourceRequest;
 import gettothepoint.unicatapi.domain.dto.project.section.SectionResourceRequestWithoutFile;
 import gettothepoint.unicatapi.domain.dto.project.section.SectionResponse;
+import gettothepoint.unicatapi.domain.dto.project.section.SectionResponseFactory;
 import gettothepoint.unicatapi.domain.entity.project.Project;
 import gettothepoint.unicatapi.domain.entity.project.Section;
 import gettothepoint.unicatapi.domain.repository.SectionRepository;
+import gettothepoint.unicatapi.filestorage.application.FileUploadUseCase;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +34,7 @@ public class SectionService {
 
     private final ProjectService projectService;
     private final SectionRepository sectionRepository;
-    private final StorageService storageService;
+    private final FileUploadUseCase fileUploadUseCase;
     private final SectionResponseFactory sectionResponseFactory;
     private static final String SECTION_NOT_FOUND_MSG = "Section not found with id: ";
 
@@ -89,7 +88,7 @@ public class SectionService {
         String voiceModel = StringUtils.hasText(sectionResourceRequest.voiceModel()) ? sectionResourceRequest.voiceModel() : supertoneDefaultVoiceId;
         String contentKey = null;
         if (sectionResourceRequest.multipartFile() != null) {
-            contentKey = storageService.save(sectionResourceRequest.multipartFile());
+            contentKey = fileUploadUseCase.uploadFile(sectionResourceRequest.multipartFile());
         }
 
         Section newSection = Section.builder()
@@ -121,7 +120,7 @@ public class SectionService {
             changed = true;
         }
         if (sectionResourceRequest.multipartFile() != null && !sectionResourceRequest.multipartFile().isEmpty()) {
-            String uploadedKey = storageService.save(sectionResourceRequest.multipartFile());
+            String uploadedKey = fileUploadUseCase.uploadFile(sectionResourceRequest.multipartFile());
             section.setContentKey(uploadedKey);
             changed = true;
         }

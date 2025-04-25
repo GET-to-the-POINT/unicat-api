@@ -1,15 +1,14 @@
 package gettothepoint.unicatapi.application.service.project;
 
 import gettothepoint.unicatapi.application.service.member.MemberService;
-import gettothepoint.unicatapi.application.service.storage.AssetService;
-import gettothepoint.unicatapi.application.service.storage.StorageService;
 import gettothepoint.unicatapi.domain.dto.project.project.ProjectRequest;
 import gettothepoint.unicatapi.domain.dto.project.project.ProjectRequestWithoutFile;
 import gettothepoint.unicatapi.domain.dto.project.project.ProjectResponse;
 import gettothepoint.unicatapi.domain.dto.project.project.ProjectResponseFactory;
-import gettothepoint.unicatapi.domain.entity.project.Project;
 import gettothepoint.unicatapi.domain.entity.member.Member;
+import gettothepoint.unicatapi.domain.entity.project.Project;
 import gettothepoint.unicatapi.domain.repository.ProjectRepository;
+import gettothepoint.unicatapi.filestorage.application.FileUploadUseCase;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,7 +25,7 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
     private final MemberService memberService;
-    private final StorageService storageService;
+    private final FileUploadUseCase fileUploadUseCase;
     private final ProjectResponseFactory projectResponseFactory;
 
     public Page<ProjectResponse> getAll(Pageable pageable) {
@@ -56,7 +55,7 @@ public class ProjectService {
 
         String titleImageKey = null;
         if (request.titleImage() != null) {
-            titleImageKey = storageService.save(request.titleImage());
+            titleImageKey = fileUploadUseCase.uploadFile(request.titleImage());
         }
 
         Project project = Project.builder()
@@ -105,7 +104,7 @@ public class ProjectService {
             changed = true;
         }
         if (request.titleImage() != null) {
-            String titleUrl = storageService.save(request.titleImage());
+            String titleUrl = fileUploadUseCase.uploadFile(request.titleImage());
             project.setTitleImageKey(titleUrl);
             changed = true;
         }
