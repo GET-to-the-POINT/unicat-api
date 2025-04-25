@@ -14,22 +14,19 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
+import static gettothepoint.unicatapi.filestorage.config.CommonTestConfig.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("파일 업로드 유스케이스 테스트")
-class FileUploadUseCaseTest {
+class FileUploadUseCaseModuleTest {
 
     @Mock
     private FileStorageRepository fileStorageRepository;
 
     @InjectMocks
     private FileUploadUseCase fileUploadUseCase;
-
-    private static final String TEST_FILENAME = "test.txt";
-    private static final String TEST_CONTENT = "hello world";
-    private static final String TEST_CONTENT_TYPE = "text/plain";
 
     @Test
     @DisplayName("파일 업로드 성공 테스트")
