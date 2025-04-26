@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.UrlResource;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
@@ -25,12 +24,6 @@ public class MinioFileStorageRepository implements FileStorageRepository {
 
     @Override
     public String store(FileStorageCommand c) {
-        // 파일 이름에 ../ 같은 경로 조작이 포함되어 있는지 확인
-        Path p = Path.of(c.filename()).normalize();
-        if (!p.getFileName().toString().equals(c.filename())) {
-            throw new IllegalArgumentException("잘못된 경로: " + c.filename());
-        }
-
         try {
             minioClient.putObject(
                     PutObjectArgs.builder()

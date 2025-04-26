@@ -3,11 +3,20 @@ package gettothepoint.unicatapi.filestorage.infrastructure.storage.minio;
 import gettothepoint.unicatapi.filestorage.config.MinioTestConfig;
 import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageCommand;
 import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageRepository;
+import gettothepoint.unicatapi.filestorage.infrastructure.storage.FileStorageRepositoryIntegrationTestBase;
 import gettothepoint.unicatapi.filestorage.infrastructure.storage.config.MinioFileStorageConfig;
+import io.minio.BucketExistsArgs;
+import io.minio.GetObjectArgs;
+import io.minio.MinioClient;
+import io.minio.StatObjectArgs;
+import io.minio.errors.MinioException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.UrlResource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -18,145 +27,117 @@ import org.testcontainers.containers.MinIOContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
+import java.util.UUID;
 
-import static gettothepoint.unicatapi.filestorage.config.CommonTestConfig.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static gettothepoint.unicatapi.filestorage.config.CommonTestConfig.TEST_CONTENT;
+import static gettothepoint.unicatapi.filestorage.config.CommonTestConfig.TEST_CONTENT_TYPE;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {MinioFileStorageConfig.class, MinioTestConfig.class})
 @DisplayName("Minio 파일 저장소 테스트")
-@ActiveProfiles("dev") // dev, prod 모드에서만 테스트 실행
+@ActiveProfiles("dev")
 @Testcontainers
-class MinioFileStorageRepositoryIntegrationTest {
+class MinioFileStorageRepositoryIntegrationTest extends FileStorageRepositoryIntegrationTestBase {
+
+    private static final String TEST_BUCKET = "test-bucket-" + UUID.randomUUID();
 
     @Container
-    static final MinIOContainer minio = new MinIOContainer("minio/minio:latest");
+    static final MinIOContainer minio = new MinIOContainer("minio/minio:latest")
+            .withEnv("MINIO_ROOT_USER", "minioadmin")
+            .withEnv("MINIO_ROOT_PASSWORD", "minioadmin");
 
     @Autowired
-    FileStorageRepository repository;
+    private FileStorageRepository repository;
+    
+    @Autowired
+    private MinioClient minioClient;
+    
+    @Value("${app.minio.bucket}")
+    private String bucketName;
 
     @DynamicPropertySource
-    static void overrideMailProps(DynamicPropertyRegistry registry) {
-        minio.start();
-        registry.add("app.minio.bucket", () -> "test-bucket");
+    static void configureMinioProperties(DynamicPropertyRegistry registry) {
+        registry.add("app.minio.bucket", () -> TEST_BUCKET);
         registry.add("app.minio.endpoint", minio::getS3URL);
         registry.add("app.minio.accessKeyId", minio::getUserName);
         registry.add("app.minio.secretAccessKey", minio::getPassword);
     }
-
-    @Test
-    @DisplayName("파일 저장 성공 테스트")
-    void storeFileShouldSucceed() {
-        // Given
-        FileStorageCommand command = new FileStorageCommand(TEST_FILENAME, new ByteArrayInputStream(TEST_CONTENT.getBytes()), TEST_CONTENT.getBytes().length, TEST_CONTENT_TYPE);
-
-        // When
-        String key = repository.store(command);
-
-        // Then
-        assertEquals(TEST_FILENAME, key);
+    
+    @Override
+    protected String getExpectedUrlProtocol() {
+        return "http";
+    }
+    
+    @Override
+    protected String getProtocolAssertionMessage() {
+        return "Minio 저장소는 http 프로토콜을 사용해야 함";
+    }
+    
+    @Override
+    protected FileStorageRepository getRepository() {
+        return repository;
     }
 
-    @Test
-    @DisplayName("파일 저장 실패 테스트")
-    void storeFileShouldFailWithInvalidBucket() {
-        String maliciousFilename = "../malicious.txt";
-        FileStorageCommand command = new FileStorageCommand(maliciousFilename, new ByteArrayInputStream(TEST_CONTENT.getBytes()), TEST_CONTENT.getBytes().length, TEST_CONTENT_TYPE);
-
-        // When
-        RuntimeException exception = assertThrows(IllegalArgumentException.class, () -> repository.store(command));
-        assertTrue(exception.getMessage().contains("잘못된 경로"));
-    }
-
-    @Test
-    @DisplayName("저장된 파일 로드 성공 테스트")
-    void loadExistingFileShouldSucceed() {
-        // Given
-        // First store the file
-        FileStorageCommand command = new FileStorageCommand(TEST_FILENAME, new ByteArrayInputStream(TEST_CONTENT.getBytes()), TEST_CONTENT.getBytes().length, TEST_CONTENT_TYPE);
-        repository.store(command);
-
-        // When
-        Optional<UrlResource> resource = repository.load(TEST_FILENAME);
-
-        // Then
-        assertTrue(resource.isPresent(), "파일을 찾을 수 없음");
-        assertTrue(resource.get().getURL().toString().contains(TEST_FILENAME));
-    }
-
-    @Test
-    @DisplayName("파일 로드 실패 테스트")
-    void loadFileShouldReturnEmptyWhenFileDoesNotExist() {
-        // When
-        Optional<UrlResource> resource = repository.load("non-existent-file.txt");
-
-        // Then
-        assertFalse(resource.isPresent(), "존재하지 않는 파일에 대해 결과가 반환됨");
-    }
-
-    @Test
-    @DisplayName("로드된 파일의 스킴이 http로 시작해야 함")
-    void loadedFileShouldHaveHttpScheme() {
-        // Given
-        FileStorageCommand command = new FileStorageCommand(
-                TEST_FILENAME,
-                new ByteArrayInputStream(TEST_CONTENT.getBytes()),
-                TEST_CONTENT.getBytes().length,
-                TEST_CONTENT_TYPE
-        );
-        String key = repository.store(command);
-
-        // When
-        Optional<UrlResource> resource = repository.load(key);
-
-        // Then
-        assertTrue(resource.isPresent());
-        assertEquals("http", resource.get().getURL().getProtocol());
-    }
-
-    @Test
-    @DisplayName("빈 파일 저장 후 로드 테스트")
-    void loadEmptyFileShouldSucceed() throws Exception {
-        // Given
-        String emptyContent = "";
-        FileStorageCommand command = new FileStorageCommand(
-                "empty.txt",
-                new ByteArrayInputStream(emptyContent.getBytes()),
-                emptyContent.getBytes().length,
-                "text/plain"
-        );
-        String key = repository.store(command);
-
-        // When
-        Optional<UrlResource> resource = repository.load(key);
-
-        // Then
-        assertTrue(resource.isPresent());
-        String loadedContent = new String(resource.get().getInputStream().readAllBytes());
-        assertEquals(emptyContent, loadedContent);
-    }
-
-    @Test
-    @DisplayName("특수 문자 파일 이름 저장 및 로드 테스트")
-    void loadFileWithSpecialCharactersInNameShouldSucceed() throws Exception {
-        // Given
-        String specialFilename = "특수문자_파일@이름!.txt";
-        FileStorageCommand command = new FileStorageCommand(
-                specialFilename,
-                new ByteArrayInputStream(TEST_CONTENT.getBytes()),
-                TEST_CONTENT.getBytes().length,
-                TEST_CONTENT_TYPE
-        );
-        String key = repository.store(command);
-
-        // When
-        Optional<UrlResource> resource = repository.load(key);
-
-        // Then
-        assertTrue(resource.isPresent());
-        String loadedContent = new String(resource.get().getInputStream().readAllBytes());
-        assertEquals(TEST_CONTENT, loadedContent);
+    @Nested
+    @DisplayName("Minio 특화 테스트")
+    class MinioSpecificTests {
+        
+        @Test
+        @DisplayName("파일 메타데이터 검증")
+        void fileMetadataShouldBeCorrect() {
+            // Given
+            String filename = "metadata-test-" + UUID.randomUUID() + ".txt";
+            FileStorageCommand command = createTestFileCommand(filename, TEST_CONTENT);
+            String key = repository.store(command);
+            
+            // When/Then - Minio API를 직접 사용하여 메타데이터 검증
+            try {
+                // 객체 정보 조회
+                var statObjectResponse = minioClient.statObject(
+                        StatObjectArgs.builder()
+                                .bucket(bucketName)
+                                .object(key)
+                                .build()
+                );
+                
+                // 메타데이터 검증
+                assertThat(statObjectResponse.contentType()).isEqualTo(TEST_CONTENT_TYPE);
+                assertThat(statObjectResponse.size()).isEqualTo(TEST_CONTENT.getBytes(StandardCharsets.UTF_8).length);
+            } catch (Exception e) {
+                fail("Minio 객체 정보 조회 실패: " + e.getMessage(), e);
+            }
+        }
+        
+        @Test
+        @DisplayName("S3 API로 직접 파일 내용 확인")
+        void contentReadDirectlyWithS3Api() {
+            // Given
+            String filename = "direct-access-test-" + UUID.randomUUID() + ".txt";
+            String content = "직접 S3 API로 확인하는 콘텐츠";
+            FileStorageCommand command = createTestFileCommand(filename, content);
+            String key = repository.store(command);
+            
+            // When - Minio API를 직접 사용하여 파일 로드
+            try (InputStream stream = minioClient.getObject(
+                    GetObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(key)
+                            .build()
+            )) {
+                // Then
+                String loadedContent = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+                assertThat(loadedContent).isEqualTo(content);
+            } catch (MinioException | IOException | NoSuchAlgorithmException | InvalidKeyException e) {
+                fail("Minio에서 직접 파일 읽기 실패: " + e.getMessage(), e);
+            }
+        }
     }
 }
