@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.email.infrastructure.email;
 
-import gettothepoint.unicatapi.email.config.AsyncMailSenderManualTestConfig;
+import gettothepoint.unicatapi.email.config.SyncTaskExecutorTestConfig;
 import gettothepoint.unicatapi.email.domain.MailMessage;
 import gettothepoint.unicatapi.email.domain.MailSender;
 import org.junit.jupiter.api.DisplayName;
@@ -16,12 +16,16 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static gettothepoint.unicatapi.email.config.CommonConfig.*;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
+/**
+ * 비동기 메일 전송 수동 통합 테스트
+ * 실제 SMTP 서버를 통한 비동기 메일 전송을 검증합니다.
+ * 주의: 실행하려면 @Tag("manual")를 주석 처리해야 합니다.
+ */
 @Tag("manual") // 이 테스트는 이 태그를 주석 처리하고 테스트를 실행해야합니다.
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {MailSenderAutoConfiguration.class, AsyncMailSender.class, SyncMailSender.class, MailEventListener.class, AsyncMailSenderManualTestConfig.class})
+@ContextConfiguration(classes = {MailSenderAutoConfiguration.class, AsyncMailSender.class, SyncMailSender.class, MailEventListener.class, SyncTaskExecutorTestConfig.class})
 @TestPropertySource(properties = {
         "spring.mail.host=smtp.gmail.com",
         "spring.mail.port=587",
@@ -36,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 })
 @EnableAsync
 @DisplayName("비동기 메일 전송 수동 통합 테스트")
-class AsyncMailSenderManualIntegrationTest {
+class AsyncMailSenderManualIntegrationTest extends AbstractMailSenderTest {
 
     @Autowired
     MailSender mailSender;
@@ -50,12 +54,10 @@ class AsyncMailSenderManualIntegrationTest {
     @Test
     @DisplayName("실제 SMTP 서버로 비동기 메일 전송 시 예외가 발생하지 않는다")
     void shouldSendMailAsynchronouslyWithoutException() {
-        MailMessage mailMessage = MailMessage.builder()
-                .recipient(RECIPIENT)
-                .subject(SUBJECT)
-                .content(CONTENT)
-                .isHtml(false)
-                .build();
+        // 테스트용 메일 메시지 생성
+        MailMessage mailMessage = createTestMailMessage();
+        
+        // 예외 없이 메일이 전송되는지 확인
         assertDoesNotThrow(() -> mailSender.send(mailMessage), "메일 전송 시 예외가 발생했습니다");
     }
 }

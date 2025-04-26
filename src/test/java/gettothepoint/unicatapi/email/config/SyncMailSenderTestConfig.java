@@ -1,44 +1,14 @@
 package gettothepoint.unicatapi.email.config;
 
-import gettothepoint.unicatapi.email.domain.MailSender;
 import gettothepoint.unicatapi.email.infrastructure.email.SyncMailSender;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.context.annotation.Import;
 
-import java.util.Properties;
-
+/**
+ * 동기식 메일 발송 테스트를 위한 설정 클래스.
+ * 메일 발송이 즉시 처리되는 환경을 시뮬레이션합니다.
+ */
 @TestConfiguration
+@Import({CommonMailConfig.class, SyncMailSender.class})
 public class SyncMailSenderTestConfig {
-
-    @Value("${spring.mail.host}")
-    private String host;
-
-    @Value("${spring.mail.port}")
-    private int port;
-
-    @Bean
-    public JavaMailSender javaMailSender() {
-        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        mailSender.setHost(host);
-        mailSender.setPort(port);
-        mailSender.setUsername("");
-        mailSender.setPassword("");
-
-        Properties props = new Properties();
-        props.setProperty("mail.smtp.auth", "false");
-        props.setProperty("mail.smtp.starttls.enable", "false");
-        props.setProperty("mail.debug", "true");
-        mailSender.setJavaMailProperties(props);
-
-        return mailSender;
-    }
-
-    @Bean
-    public MailSender syncMailSender(JavaMailSender javaMailSender) {
-        return new SyncMailSender(javaMailSender);
-    }
-
 }

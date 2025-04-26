@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("FileStorageCommand 도메인 테스트")
 class FileStorageCommandTest {
 
-    private static final String VALID_FILENAME = "test.txt";
+    private static final String VALID_FILENAME = "abc/test.txt";
     private static final byte[] TEST_CONTENT_BYTES = "test content".getBytes();
     private static final InputStream VALID_CONTENT = new ByteArrayInputStream(TEST_CONTENT_BYTES);
     private static final long VALID_SIZE = TEST_CONTENT_BYTES.length;

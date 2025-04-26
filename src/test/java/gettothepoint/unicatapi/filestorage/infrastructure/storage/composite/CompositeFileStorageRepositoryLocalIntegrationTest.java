@@ -1,6 +1,5 @@
 package gettothepoint.unicatapi.filestorage.infrastructure.storage.composite;
 
-import gettothepoint.unicatapi.filestorage.config.LocalTestConfig;
 import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageRepository;
 import gettothepoint.unicatapi.filestorage.infrastructure.storage.FileStorageRepositoryIntegrationTestBase;
 import gettothepoint.unicatapi.filestorage.infrastructure.storage.config.CompositeFileStorageConfig;
@@ -16,11 +15,21 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.nio.file.Path;
 
+/**
+ * <p>통합 저장소(Composite) – <b>Local Profile</b> 환경 통합 테스트.</p>
+ *
+ * <ul>
+ *   <li>활성화 모듈 : Local File Storage 만</li>
+ *   <li>예상 프로토콜 : {@code file}</li>
+ *   <li>공통 테스트 로직 : {@link FileStorageRepositoryIntegrationTestBase}</li>
+ * </ul>
+ *
+ * <p>※ 공통 테스트 톤 &amp; 형식을 {@link FileStorageRepositoryIntegrationTestBase}와 동일하게 맞춘다.</p>
+ */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
         CompositeFileStorageConfig.class,
-        LocalFileStorageConfig.class,
-        LocalTestConfig.class
+        LocalFileStorageConfig.class
 })
 @DisplayName("컴포지트 파일 저장소 Local 환경 통합 테스트")
 class CompositeFileStorageRepositoryLocalIntegrationTest extends FileStorageRepositoryIntegrationTestBase {
@@ -36,18 +45,13 @@ class CompositeFileStorageRepositoryLocalIntegrationTest extends FileStorageRepo
     @Autowired
     private FileStorageRepository repository;
 
-    @Override
-    protected String getExpectedUrlProtocol() {
-        return "file";
-    }
-    
-    @Override
-    protected String getProtocolAssertionMessage() {
-        return "Local 환경에서는 로컬 파일 저장소만 활성화되므로 file 프로토콜이어야 함";
-    }
-    
-    @Override
-    protected FileStorageRepository getRepository() {
-        return repository;
-    }
+    // ======= FileStorageRepositoryIntegrationTestBase 구현 =======
+
+    private static final String EXPECTED_PROTOCOL = "file";
+    private static final String PROTOCOL_MESSAGE =
+            "Local 환경에서는 로컬 파일 저장소만 활성화되므로 file 프로토콜이어야 함";
+
+    @Override protected String getExpectedUrlProtocol()   { return EXPECTED_PROTOCOL; }
+    @Override protected String getProtocolAssertionMessage() { return PROTOCOL_MESSAGE; }
+    @Override protected FileStorageRepository getRepository() { return repository; }
 }

@@ -7,13 +7,14 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
 /**
- * Testcontainers implementation for MailPit.
+ * Testcontainers 기반 MailPit 컨테이너 구현.
+ * 테스트에서 실제 메일 서버처럼 동작하는 격리된 환경을 제공합니다.
  *
- * Supported image: {@code axllent/mailpit}
+ * 지원 이미지: {@code axllent/mailpit}
  *
- * Exposed ports:
+ * 노출된 포트:
  * <li>SMTP: 1025</li>
- * <li>Web: 8025</li>
+ * <li>웹 UI: 8025</li>
  */
 public class MailContainer extends GenericContainer<MailContainer> {
 
@@ -22,15 +23,18 @@ public class MailContainer extends GenericContainer<MailContainer> {
     private static final int WEB_PORT = 8025;
 
     /**
-     * Constructs a MailContainer with the default image.
+     * 기본 이미지로 MailContainer를 생성합니다.
+     * 
+     * @param dockerImageName 사용할 도커 이미지 이름
      */
     public MailContainer(final String dockerImageName) {
         this(DockerImageName.parse(dockerImageName));
     }
 
     /**
-     * Constructs a MailContainer with a custom image.
-     * @param dockerImageName the full image name to use
+     * 커스텀 이미지로 MailContainer를 생성합니다.
+     * 
+     * @param dockerImageName 사용할 도커 이미지 이름
      */
     public MailContainer(final DockerImageName dockerImageName) {
         super(dockerImageName);
@@ -42,21 +46,21 @@ public class MailContainer extends GenericContainer<MailContainer> {
     }
 
     /**
-     * @return the SMTP host URL
+     * @return SMTP 호스트 URL
      */
     public String getSmtpHost() {
         return getHost();
     }
 
     /**
-     * @return the mapped SMTP port
+     * @return 매핑된 SMTP 포트
      */
     public int getSmtpPort() {
         return getMappedPort(SMTP_PORT);
     }
 
     /**
-     * @return the Web UI URL
+     * @return 웹 UI URL
      */
     public String getWebUrl() {
         return String.format("http://%s:%d", getHost(), getMappedPort(WEB_PORT));
