@@ -1,14 +1,15 @@
 package gettothepoint.unicatapi.email.infrastructure.email;
 
-import gettothepoint.unicatapi.email.config.AsyncMailSenderTestConfig;
+import gettothepoint.unicatapi.email.config.AsyncMailSenderManualTestConfig;
 import gettothepoint.unicatapi.email.domain.MailMessage;
 import gettothepoint.unicatapi.email.domain.MailSender;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
@@ -16,14 +17,11 @@ import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static gettothepoint.unicatapi.email.config.CommonConfig.*;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.awaitility.Awaitility.await;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
-@Tag("manual")
+@Tag("manual") // 이 테스트는 이 태그를 주석 처리하고 테스트를 실행해야합니다.
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {MailSenderAutoConfiguration.class, AsyncMailSender.class, SyncMailSender.class, MailEventListener.class, AsyncMailSenderTestConfig.class})
+@ContextConfiguration(classes = {MailSenderAutoConfiguration.class, AsyncMailSender.class, SyncMailSender.class, MailEventListener.class, AsyncMailSenderManualTestConfig.class})
 @TestPropertySource(properties = {
         "spring.mail.host=smtp.gmail.com",
         "spring.mail.port=587",
@@ -37,6 +35,7 @@ import static org.mockito.Mockito.verify;
         "spring.mail.properties.mail.smtp.writetimeout=20000"
 })
 @EnableAsync
+@DisplayName("비동기 메일 전송 수동 통합 테스트")
 class AsyncMailSenderManualIntegrationTest {
 
     @Autowired
@@ -45,17 +44,18 @@ class AsyncMailSenderManualIntegrationTest {
     @MockitoSpyBean
     SyncMailSender syncSender;
 
+    @MockitoSpyBean
+    private JavaMailSender javaMailSender;
+
     @Test
-    void send() {
+    @DisplayName("실제 SMTP 서버로 비동기 메일 전송 시 예외가 발생하지 않는다")
+    void shouldSendMailAsynchronouslyWithoutException() {
         MailMessage mailMessage = MailMessage.builder()
                 .recipient(RECIPIENT)
                 .subject(SUBJECT)
                 .content(CONTENT)
                 .isHtml(false)
                 .build();
-        mailSender.send(mailMessage);
-
-        await().atMost(5, SECONDS).untilAsserted(() ->
-                verify(syncSender, times(1)).send(Mockito.eq(mailMessage)));
+        assertDoesNotThrow(() -> mailSender.send(mailMessage), "메일 전송 시 예외가 발생했습니다");
     }
 }

@@ -1,10 +1,12 @@
 package gettothepoint.unicatapi.email.infrastructure.email;
 
+import gettothepoint.unicatapi.email.config.AsyncMailSenderManualTestConfig;
 import gettothepoint.unicatapi.email.config.AsyncMailSenderTestConfig;
 import gettothepoint.unicatapi.email.config.MailContainer;
 import gettothepoint.unicatapi.email.domain.MailMessage;
 import gettothepoint.unicatapi.email.domain.MailSender;
 import gettothepoint.unicatapi.email.infrastructure.config.AsyncConfig;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,9 +32,11 @@ import static org.awaitility.Awaitility.await;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
     AsyncMailSenderTestConfig.class,
-    AsyncConfig.class
+    AsyncConfig.class,
+    AsyncMailSenderManualTestConfig.class
 })
 @Testcontainers
+@DisplayName("비동기 메일 전송 통합 테스트")
 class AsyncMailSenderIntegrationTest {
 
     @Container
@@ -49,7 +53,8 @@ class AsyncMailSenderIntegrationTest {
     MailSender mailSender;
 
     @Test
-    void sendMailAndVerifyWithTestContainer() {
+    @DisplayName("비동기 메일이 올바르게 전송되고 수신되는지 검증한다")
+    void shouldSendMailAsynchronouslyAndVerifyDelivery() {
         MailMessage mailMessage = MailMessage.builder()
                         .recipient(RECIPIENT)
                         .subject(SUBJECT)
