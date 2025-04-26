@@ -1,24 +1,30 @@
 package gettothepoint.unicatapi.email.infrastructure.email;
 
-import gettothepoint.unicatapi.email.config.MailSenderTestConfig;
 import gettothepoint.unicatapi.email.domain.MailMessage;
 import gettothepoint.unicatapi.email.domain.MailSender;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.Mockito;
 import org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import static gettothepoint.unicatapi.email.config.CommonConfig.*;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.await;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @Tag("manual")
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {MailSenderAutoConfiguration.class, MailSenderImpl.class})
+@ContextConfiguration(classes = {MailSenderAutoConfiguration.class, SyncMailSender.class})
 @TestPropertySource(properties = {
         "spring.mail.host=smtp.gmail.com",
         "spring.mail.port=587",
-        "spring.mail.username=test@gmail.com",
+        "spring.mail.username=test@test.com",
         "spring.mail.password=test",
         "spring.mail.properties.mail.smtp.auth=true",
         "spring.mail.properties.mail.smtp.starttls.enable=true",
@@ -27,21 +33,22 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
         "spring.mail.properties.mail.smtp.timeout=20000",
         "spring.mail.properties.mail.smtp.writetimeout=20000"
 })
-class MailSenderImplManualIntegrationTest {
+class SyncMailSenderManualIntegrationTest {
 
-    @Autowired
-    private MailSender mailSender;
+    @MockitoSpyBean
+    MailSender mailSender;
 
     @Test
-    void sendMailWithRealSmtp() {
+    void send() {
         MailMessage mailMessage = MailMessage.builder()
-                .recipient(MailSenderTestConfig.RECIPIENT)
-                .subject(MailSenderTestConfig.SUBJECT)
-                .content(MailSenderTestConfig.CONTENT)
+                .recipient(RECIPIENT)
+                .subject(SUBJECT)
+                .content(CONTENT)
                 .isHtml(false)
                 .build();
-
         mailSender.send(mailMessage);
-        System.out.println("실제 SMTP 서버를 통해 메일이 전송되었습니다. 받은 편지함을 확인해주세요.");
+
+        await().atMost(5, SECONDS).untilAsserted(() ->
+                verify(mailSender, times(1)).send(Mockito.eq(mailMessage)));
     }
 }

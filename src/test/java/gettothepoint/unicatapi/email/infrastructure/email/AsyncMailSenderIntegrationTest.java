@@ -1,9 +1,10 @@
 package gettothepoint.unicatapi.email.infrastructure.email;
 
+import gettothepoint.unicatapi.email.config.AsyncMailSenderTestConfig;
 import gettothepoint.unicatapi.email.config.MailContainer;
-import gettothepoint.unicatapi.email.config.MailSenderTestConfig;
 import gettothepoint.unicatapi.email.domain.MailMessage;
 import gettothepoint.unicatapi.email.domain.MailSender;
+import gettothepoint.unicatapi.email.infrastructure.config.AsyncConfig;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,18 +19,21 @@ import org.springframework.web.client.RestTemplate;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
+import static gettothepoint.unicatapi.email.config.CommonConfig.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
-import java.time.Duration;
-
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {MailSenderTestConfig.class})
+@ContextConfiguration(classes = {
+    AsyncMailSenderTestConfig.class,
+    AsyncConfig.class
+})
 @Testcontainers
-class MailSenderImplIntegrationTest {
+class AsyncMailSenderIntegrationTest {
 
     @Container
     static MailContainer mailpit = new MailContainer("axllent/mailpit");
@@ -37,8 +41,8 @@ class MailSenderImplIntegrationTest {
     @DynamicPropertySource
     static void overrideMailProps(DynamicPropertyRegistry registry) {
         mailpit.start();
-        registry.add("test.mail.host", mailpit::getHost);
-        registry.add("test.mail.port", mailpit::getSmtpPort);
+        registry.add("spring.mail.host", mailpit::getHost);
+        registry.add("spring.mail.port", mailpit::getSmtpPort);
     }
 
     @Autowired
@@ -47,9 +51,9 @@ class MailSenderImplIntegrationTest {
     @Test
     void sendMailAndVerifyWithTestContainer() {
         MailMessage mailMessage = MailMessage.builder()
-                        .recipient(MailSenderTestConfig.RECIPIENT)
-                        .subject(MailSenderTestConfig.SUBJECT)
-                        .content(MailSenderTestConfig.CONTENT)
+                        .recipient(RECIPIENT)
+                        .subject(SUBJECT)
+                        .content(CONTENT)
                         .isHtml(false)
                         .build();
 

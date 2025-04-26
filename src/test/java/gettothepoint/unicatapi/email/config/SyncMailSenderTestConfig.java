@@ -1,9 +1,8 @@
 package gettothepoint.unicatapi.email.config;
 
 import gettothepoint.unicatapi.email.domain.MailSender;
-import gettothepoint.unicatapi.email.infrastructure.email.MailSenderImpl;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import gettothepoint.unicatapi.email.infrastructure.email.SyncMailSender;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -12,21 +11,19 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import java.util.Properties;
 
 @TestConfiguration
-@EnableConfigurationProperties(MailProperties.class)
-public class MailSenderTestConfig {
+public class SyncMailSenderTestConfig {
 
-    @Autowired
-    MailProperties mailProperties;
+    @Value("${spring.mail.host}")
+    private String host;
 
-    public static final String RECIPIENT = "recipient@test.com";
-    public static final String SUBJECT = "Test Subject";
-    public static final String CONTENT = "Test Content";
+    @Value("${spring.mail.port}")
+    private int port;
 
     @Bean
     public JavaMailSender javaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        mailSender.setHost(mailProperties.host());
-        mailSender.setPort(mailProperties.port());
+        mailSender.setHost(host);
+        mailSender.setPort(port);
         mailSender.setUsername("");
         mailSender.setPassword("");
 
@@ -40,7 +37,8 @@ public class MailSenderTestConfig {
     }
 
     @Bean
-    public MailSender mailSender(JavaMailSender javaMailSender) {
-        return new MailSenderImpl(javaMailSender);
+    public MailSender syncMailSender(JavaMailSender javaMailSender) {
+        return new SyncMailSender(javaMailSender);
     }
+
 }
