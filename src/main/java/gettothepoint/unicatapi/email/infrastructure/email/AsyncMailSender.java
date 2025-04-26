@@ -2,7 +2,6 @@ package gettothepoint.unicatapi.email.infrastructure.email;
 
 import gettothepoint.unicatapi.email.domain.MailMessage;
 import gettothepoint.unicatapi.email.domain.MailSender;
-import gettothepoint.unicatapi.email.domain.event.SendMailEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Primary;
@@ -17,6 +16,6 @@ public class AsyncMailSender implements MailSender {
 
     @Override
     public void send(MailMessage message) {
-        publisher.publishEvent(new SendMailEvent(message));
+        publisher.publishEvent(message);
     }
 }

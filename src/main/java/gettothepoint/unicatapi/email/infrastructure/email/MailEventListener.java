@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.email.infrastructure.email;
 
-import gettothepoint.unicatapi.email.domain.event.SendMailEvent;
+import gettothepoint.unicatapi.email.domain.MailMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -16,12 +16,12 @@ public class MailEventListener {
 
     @Async
     @EventListener
-    public void handleSendMailEvent(SendMailEvent event) {
+    public void handleSendMailEvent(MailMessage mailMessage) {
         try {
-            syncMailSender.send(event.mailMessage());
-            log.info("비동기 메일 전송 완료: {}", event.mailMessage().recipient());
+            syncMailSender.send(mailMessage);
+            log.info("비동기 메일 전송 완료: {}", mailMessage.recipient());
         } catch (Exception e) {
-            log.error("비동기 메일 전송 실패: {}", event.mailMessage().recipient(), e);
+            log.error("비동기 메일 전송 실패: {}", mailMessage.recipient(), e);
         }
     }
 }
