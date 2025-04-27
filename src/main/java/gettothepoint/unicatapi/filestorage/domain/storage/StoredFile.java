@@ -20,7 +20,12 @@ public class StoredFile {
     private final String contentType;
 
     public FileStorageCommand toCommand() {
-        return new FileStorageCommand(filename, content, size, contentType);
+        return FileStorageCommand.builder()
+                .filename(filename)
+                .content(content)
+                .size(size)
+                .contentType(contentType)
+                .build();
     }
 
     public static StoredFile fromRaw(InputStream input, String originalFilename, long size, String contentType, Path path) {

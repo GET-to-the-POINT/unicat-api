@@ -14,26 +14,15 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.testcontainers.containers.MinIOContainer;
 import org.testcontainers.junit.jupiter.Container;
 
 import java.nio.file.Path;
 import java.util.UUID;
 
-/**
- * <p>통합 저장소(Composite) – <b>Dev Profile</b> 환경 통합 테스트.</p>
- *
- * <ul>
- *   <li>활성화 모듈 : Minio + Local File Storage</li>
- *   <li>우선순위   : Minio (S3 HTTP)</li>
- *   <li>예상 프로토콜 : {@code http}</li>
- *   <li>공통 테스트 로직 : {@link FileStorageRepositoryIntegrationTestBase}</li>
- * </ul>
- *
- * <p>※ 주석과 어조는 공통 베이스 테스트와 일치하게 유지.</p>
- */
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {
+
+@SpringJUnitConfig(classes = {
         CompositeFileStorageConfig.class,
         MinioFileStorageConfig.class,
         LocalFileStorageConfig.class

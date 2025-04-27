@@ -11,6 +11,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.testcontainers.containers.MinIOContainer;
 import org.testcontainers.junit.jupiter.Container;
 
@@ -27,8 +28,7 @@ import java.util.UUID;
  *
  * <p>※ 공통 테스트 톤 &amp; 형식을 {@link FileStorageRepositoryIntegrationTestBase}와 동일하게 맞춘다.</p>
  */
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {MinioFileStorageConfig.class})
+@SpringJUnitConfig(classes = {MinioFileStorageConfig.class})
 @ActiveProfiles("dev")
 @DisplayName("Minio 파일 저장소 통합 테스트 - Dev 프로파일")
 class MinioFileStorageRepositoryIntegrationTest extends FileStorageRepositoryIntegrationTestBase {

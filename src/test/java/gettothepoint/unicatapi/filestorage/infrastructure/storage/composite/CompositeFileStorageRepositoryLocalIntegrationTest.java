@@ -12,6 +12,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.nio.file.Path;
 
@@ -26,8 +27,7 @@ import java.nio.file.Path;
  *
  * <p>※ 공통 테스트 톤 &amp; 형식을 {@link FileStorageRepositoryIntegrationTestBase}와 동일하게 맞춘다.</p>
  */
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {
+@SpringJUnitConfig(classes = {
         CompositeFileStorageConfig.class,
         LocalFileStorageConfig.class
 })

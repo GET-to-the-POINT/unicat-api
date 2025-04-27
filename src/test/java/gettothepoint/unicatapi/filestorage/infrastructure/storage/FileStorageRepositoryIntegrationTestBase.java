@@ -2,6 +2,7 @@ package gettothepoint.unicatapi.filestorage.infrastructure.storage;
 
 import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageCommand;
 import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageRepository;
+import gettothepoint.unicatapi.filestorage.domain.storage.config.FileStorageCommandConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -9,6 +10,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.UrlResource;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -26,6 +28,11 @@ import static org.junit.jupiter.api.Assertions.*;
  * 모든 파일 저장소 구현체는 이 클래스를 상속받아 공통 테스트를 수행해야 합니다.
  */
 @DisplayName("공통 파일 저장소 테스트")
+@SpringJUnitConfig(classes = {
+        FileStorageCommandConfig.class,
+        DefaultFileStorageCommandValidator.class,
+        DefaultFileNameTransformer.class
+})
 public abstract class FileStorageRepositoryIntegrationTestBase {
 
     // 상수 정의 영역
@@ -113,12 +120,14 @@ public abstract class FileStorageRepositoryIntegrationTestBase {
             byte[] largeContent = new byte[LARGE_FILE_SIZE];
             random.nextBytes(largeContent); // 랜덤 데이터로 채웁니다
 
-            FileStorageCommand command = new FileStorageCommand(
-                    "large_file.txt",
-                    new ByteArrayInputStream(largeContent),
-                    largeContent.length,
-                    "text/plain"
-            );
+
+
+            FileStorageCommand command = FileStorageCommand.builder()
+            .filename("large_file.txt")
+            .content(new ByteArrayInputStream(largeContent))
+            .size(LARGE_FILE_SIZE)
+            .contentType("text/plain")
+            .build();
 
             // When: 대용량 파일을 저장합니다
             String key = repository.store(command);
@@ -261,11 +270,11 @@ public abstract class FileStorageRepositoryIntegrationTestBase {
      */
     protected FileStorageCommand createTestFileCommand(String filename, String content) {
         byte[] bytes = content.getBytes(StandardCharsets.UTF_8);
-        return new FileStorageCommand(
-                filename,
-                new ByteArrayInputStream(bytes),
-                bytes.length,
-                TEST_CONTENT_TYPE
-        );
+        return FileStorageCommand.builder()
+                .filename(filename)
+                .content(new ByteArrayInputStream(bytes))
+                .size(bytes.length)
+                .contentType(TEST_CONTENT_TYPE)
+                .build();
     }
 }

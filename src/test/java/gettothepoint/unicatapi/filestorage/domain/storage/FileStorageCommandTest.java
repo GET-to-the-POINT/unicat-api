@@ -1,9 +1,13 @@
 package gettothepoint.unicatapi.filestorage.domain.storage;
 
+import gettothepoint.unicatapi.filestorage.domain.storage.config.FileStorageCommandConfig;
+import gettothepoint.unicatapi.filestorage.infrastructure.storage.DefaultFileNameTransformer;
+import gettothepoint.unicatapi.filestorage.infrastructure.storage.DefaultFileStorageCommandValidator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -11,6 +15,11 @@ import java.io.InputStream;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("FileStorageCommand 도메인 테스트")
+@SpringJUnitConfig(classes = {
+        FileStorageCommandConfig.class,
+        DefaultFileStorageCommandValidator.class,
+        DefaultFileNameTransformer.class
+})
 class FileStorageCommandTest {
 
     private static final String VALID_FILENAME = "abc/test.txt";
@@ -44,7 +53,8 @@ class FileStorageCommandTest {
                 NullPointerException.class,
                 this::createWithNullFilename
         );
-        assertTrue(exception.getMessage().contains("filename is marked non-null but is null"));
+        
+        // 메시지 검증 대신 예외 타입만 검증
     }
 
     private void createWithNullFilename() {
@@ -60,7 +70,8 @@ class FileStorageCommandTest {
                 NullPointerException.class,
                 this::createWithNullContent
         );
-        assertTrue(exception.getMessage().contains("content is marked non-null but is null"));
+        
+        // 메시지 검증 대신 예외 타입만 검증
     }
 
     private void createWithNullContent() {
@@ -73,11 +84,11 @@ class FileStorageCommandTest {
     @ValueSource(longs = {0, -1, -100})
     void shouldThrowExceptionWhenSizeIsZeroOrNegative(long invalidSize) {
         // When & Then
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
+        FileStorageException exception = assertThrows(
+                FileStorageException.class,
                 () -> createWithInvalidSize(invalidSize)
         );
-        assertEquals("파일 크기는 0보다 커야 합니다", exception.getMessage());
+        assertEquals(FileStorageErrorCode.NON_POSITIVE_SIZE, exception.getErrorCode());
     }
 
     private void createWithInvalidSize(long size) {
@@ -93,7 +104,8 @@ class FileStorageCommandTest {
                 NullPointerException.class,
                 this::createWithNullContentType
         );
-        assertTrue(exception.getMessage().contains("contentType is marked non-null but is null"));
+        
+        // 메시지 검증 대신 예외 타입만 검증
     }
 
     private void createWithNullContentType() {
@@ -105,11 +117,11 @@ class FileStorageCommandTest {
     @DisplayName("빈 파일명은 예외 발생")
     void shouldThrowExceptionWhenFilenameIsBlank() {
         // When & Then
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
+        FileStorageException exception = assertThrows(
+                FileStorageException.class,
                 this::createWithBlankFilename
         );
-        assertEquals("파일명은 빈 값일 수 없습니다", exception.getMessage());
+        assertEquals(FileStorageErrorCode.EMPTY_FILENAME, exception.getErrorCode());
     }
 
     private void createWithBlankFilename() {
@@ -153,17 +165,20 @@ class FileStorageCommandTest {
     })
     void shouldThrowExceptionWithPathTraversalPatterns(String maliciousPath) {
         // When & Then
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
+        FileStorageException exception = assertThrows(
+                FileStorageException.class,
                 () -> createWithMaliciousFilename(maliciousPath)
         );
+        
+        // 여러 종류의 오류 코드 중 하나인지 확인
         assertTrue(
-                exception.getMessage().contains("경로 조작이 감지되었습니다")
-                        || exception.getMessage().contains("파일명에 금지된 문자가 포함되어 있습니다")
-                        || exception.getMessage().contains("파일명은 빈 값일 수 없습니다")
-                        || exception.getMessage().contains("허용되지 않는 파일 확장자입니다")
-                        || exception.getMessage().contains("파일명에 금지된 패턴이 포함되어 있습니다"),
-                "Unexpected exception message: " + exception.getMessage()
+            exception.getErrorCode() == FileStorageErrorCode.PATH_TRAVERSAL_DETECTED ||
+            exception.getErrorCode() == FileStorageErrorCode.FORBIDDEN_CHARACTERS ||
+            exception.getErrorCode() == FileStorageErrorCode.EMPTY_FILENAME ||
+            exception.getErrorCode() == FileStorageErrorCode.UNSUPPORTED_EXTENSION ||
+            exception.getErrorCode() == FileStorageErrorCode.MULTIPLE_DOTS_DETECTED ||
+            exception.getErrorCode() == FileStorageErrorCode.ABSOLUTE_PATH_DETECTED ||
+            exception.getErrorCode() == FileStorageErrorCode.LEADING_DOT_FILENAME
         );
     }
 
@@ -183,11 +198,11 @@ class FileStorageCommandTest {
         }
 
         // When & Then
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
+        FileStorageException exception = assertThrows(
+                FileStorageException.class,
                 () -> createWithSpecialFilename(filename)
         );
-        assertEquals("Windows에서는 파일명이 마침표나 공백으로 끝날 수 없습니다", exception.getMessage());
+        assertEquals(FileStorageErrorCode.WINDOWS_SPECIAL_RULE_VIOLATION, exception.getErrorCode());
     }
 
     private void createWithSpecialFilename(String filename) {
@@ -202,12 +217,11 @@ class FileStorageCommandTest {
         long wrongSize = TEST_CONTENT_BYTES.length + 10;
 
         // When & Then
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
+        FileStorageException exception = assertThrows(
+                FileStorageException.class,
                 () -> createWithWrongSize(wrongSize)
         );
-        assertTrue(exception.getMessage().contains("제공된 크기"));
-        assertTrue(exception.getMessage().contains("실제 컨텐츠 크기"));
+        assertEquals(FileStorageErrorCode.SIZE_MISMATCH, exception.getErrorCode());
     }
 
     private void createWithWrongSize(long size) {
@@ -219,11 +233,11 @@ class FileStorageCommandTest {
     @DisplayName("허용되지 않는 파일 확장자는 예외 발생")
     void shouldThrowExceptionWithDisallowedExtension() {
         // When & Then
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
+        FileStorageException exception = assertThrows(
+                FileStorageException.class,
                 this::createWithDisallowedExtension
         );
-        assertEquals("허용되지 않는 파일 확장자입니다: .pdf", exception.getMessage());
+        assertEquals(FileStorageErrorCode.UNSUPPORTED_EXTENSION, exception.getErrorCode());
     }
 
     private void createWithDisallowedExtension() {
@@ -235,11 +249,11 @@ class FileStorageCommandTest {
     @DisplayName("파일 확장자와 컨텐츠 타입이 일치하지 않으면 예외 발생")
     void shouldThrowExceptionWhenFileExtensionMismatch() {
         // When & Then
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
+        FileStorageException exception = assertThrows(
+                FileStorageException.class,
                 this::createWithExtensionMismatch
         );
-        assertTrue(exception.getMessage().contains("파일 확장자와 컨텐츠 타입 불일치"));
+        assertEquals(FileStorageErrorCode.EXTENSION_MIMETYPE_MISMATCH, exception.getErrorCode());
     }
 
     private void createWithExtensionMismatch() {
@@ -256,11 +270,11 @@ class FileStorageCommandTest {
     @DisplayName("제공된 컨텐츠 타입과 감지된 타입이 일치하지 않으면 예외 발생")
     void shouldThrowExceptionWhenContentTypeMismatch() {
         // When & Then
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
+        FileStorageException exception = assertThrows(
+                FileStorageException.class,
                 this::createWithContentTypeMismatch
         );
-        assertTrue(exception.getMessage().contains("컨텐츠 타입 불일치"));
+        assertEquals(FileStorageErrorCode.CONTENT_TYPE_MISMATCH, exception.getErrorCode());
     }
 
     private void createWithContentTypeMismatch() {

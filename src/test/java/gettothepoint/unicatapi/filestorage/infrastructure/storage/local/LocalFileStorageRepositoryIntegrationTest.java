@@ -4,18 +4,15 @@ import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageRepository;
 import gettothepoint.unicatapi.filestorage.infrastructure.storage.FileStorageRepositoryIntegrationTestBase;
 import gettothepoint.unicatapi.filestorage.infrastructure.storage.config.LocalFileStorageConfig;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.nio.file.Path;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {
+@SpringJUnitConfig(classes = {
         LocalFileStorageConfig.class
 })
 @DisplayName("Local 파일 저장소 통합 테스트")

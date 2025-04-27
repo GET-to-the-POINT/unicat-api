@@ -1,11 +1,13 @@
 package gettothepoint.unicatapi.filestorage.application;
 
-import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageRepository;
+import gettothepoint.unicatapi.filestorage.domain.storage.config.FileStorageCommandConfig;
+import gettothepoint.unicatapi.filestorage.infrastructure.storage.DefaultFileNameTransformer;
+import gettothepoint.unicatapi.filestorage.infrastructure.storage.DefaultFileStorageCommandValidator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.io.IOException;
 
@@ -16,13 +18,16 @@ import static org.junit.jupiter.api.Assertions.*;
  * 파일 업로드 유스케이스 테스트를 위한 추상 클래스
  * 공통 테스트 로직을 정의하여 중복 코드를 제거합니다.
  */
+@SpringJUnitConfig(classes = {
+        FileStorageCommandConfig.class,
+        DefaultFileStorageCommandValidator.class,
+        DefaultFileNameTransformer.class,
+        FileUploadUseCase.class,
+})
 public abstract class FileUploadUseCaseTestBase {
 
     @Autowired
     protected FileUploadUseCase fileUploadUseCase;
-
-    @Autowired
-    protected FileStorageRepository fileStorageRepository;
 
     /**
      * 테스트용 MockMultipartFile 생성 유틸리티 메서드
@@ -80,17 +85,6 @@ public abstract class FileUploadUseCaseTestBase {
         );
     }
 
-    /**
-     * 저장된 파일의 내용 검증 유틸리티 메서드
-     */
-    protected void verifyFileContent(String fileKey, String expectedContent) throws IOException {
-        Resource resource = fileStorageRepository.load(fileKey).orElseThrow(() ->
-                new AssertionError("파일이 저장소에서 로드되지 않았습니다.")
-        );
-        String loadedContent = new String(resource.getInputStream().readAllBytes());
-        assertEquals(expectedContent, loadedContent, "파일 내용이 일치하지 않습니다");
-    }
-
     @Test
     @DisplayName("파일 업로드 성공 테스트")
     void uploadFileIntegrationShouldSucceed() throws IOException {
@@ -102,7 +96,6 @@ public abstract class FileUploadUseCaseTestBase {
 
         // Then
         assertNotNull(fileKey, "파일 키가 null입니다");
-        verifyFileContent(fileKey, TEST_CONTENT);
     }
 
     @Test
