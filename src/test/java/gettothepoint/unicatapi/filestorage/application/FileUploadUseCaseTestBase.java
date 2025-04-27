@@ -9,8 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-import java.io.IOException;
-
 import static gettothepoint.unicatapi.filestorage.config.CommonTestConfig.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -87,7 +85,7 @@ public abstract class FileUploadUseCaseTestBase {
 
     @Test
     @DisplayName("파일 업로드 성공 테스트")
-    void uploadFileIntegrationShouldSucceed() throws IOException {
+    void uploadFileIntegrationShouldSucceed() {
         // Given
         MockMultipartFile mockFile = createDefaultMockFile();
 
