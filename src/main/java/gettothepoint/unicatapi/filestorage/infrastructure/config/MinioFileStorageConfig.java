@@ -1,7 +1,7 @@
-package gettothepoint.unicatapi.filestorage.infrastructure.storage.config;
+package gettothepoint.unicatapi.filestorage.infrastructure.config;
 
 import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageRepository;
-import gettothepoint.unicatapi.filestorage.infrastructure.storage.minio.MinioFileStorageRepository;
+import gettothepoint.unicatapi.filestorage.infrastructure.persistence.minio.MinioFileStorageRepository;
 import io.minio.BucketExistsArgs;
 import io.minio.MinioClient;
 import io.minio.MakeBucketArgs;

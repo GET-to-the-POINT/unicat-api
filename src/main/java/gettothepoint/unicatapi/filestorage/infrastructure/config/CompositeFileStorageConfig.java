@@ -1,7 +1,7 @@
-package gettothepoint.unicatapi.filestorage.infrastructure.storage.config;
+package gettothepoint.unicatapi.filestorage.infrastructure.config;
 
 import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageRepository;
-import gettothepoint.unicatapi.filestorage.infrastructure.storage.composite.CompositeFileStorageRepository;
+import gettothepoint.unicatapi.filestorage.infrastructure.persistence.composite.CompositeFileStorageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;

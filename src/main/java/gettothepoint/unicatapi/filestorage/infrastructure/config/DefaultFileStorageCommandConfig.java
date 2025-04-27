@@ -1,4 +1,4 @@
-package gettothepoint.unicatapi.filestorage.infrastructure.storage.config;
+package gettothepoint.unicatapi.filestorage.infrastructure.config;
 
 import gettothepoint.unicatapi.filestorage.domain.storage.FileNameTransformer;
 import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageCommandValidator;

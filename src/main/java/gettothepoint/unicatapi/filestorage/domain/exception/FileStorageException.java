@@ -1,4 +1,4 @@
-package gettothepoint.unicatapi.filestorage.domain.storage;
+package gettothepoint.unicatapi.filestorage.domain.exception;
 
 import lombok.Getter;
 

@@ -1,7 +1,7 @@
-package gettothepoint.unicatapi.filestorage.infrastructure.storage.config;
+package gettothepoint.unicatapi.filestorage.infrastructure.config;
 
 import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageRepository;
-import gettothepoint.unicatapi.filestorage.infrastructure.storage.local.LocalFileStorageRepository;
+import gettothepoint.unicatapi.filestorage.infrastructure.persistence.local.LocalFileStorageRepository;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

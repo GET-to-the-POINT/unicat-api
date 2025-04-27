@@ -1,4 +1,4 @@
-package gettothepoint.unicatapi.filestorage.infrastructure.storage.composite;
+package gettothepoint.unicatapi.filestorage.infrastructure.persistence.composite;
 
 import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageCommand;
 import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageRepository;

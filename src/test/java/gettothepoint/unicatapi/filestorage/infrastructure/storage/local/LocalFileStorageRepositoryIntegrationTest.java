@@ -1,8 +1,8 @@
 package gettothepoint.unicatapi.filestorage.infrastructure.storage.local;
 
 import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageRepository;
+import gettothepoint.unicatapi.filestorage.infrastructure.config.LocalFileStorageConfig;
 import gettothepoint.unicatapi.filestorage.infrastructure.storage.FileStorageRepositoryIntegrationTestBase;
-import gettothepoint.unicatapi.filestorage.infrastructure.storage.config.LocalFileStorageConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,8 +1,8 @@
 package gettothepoint.unicatapi.filestorage.infrastructure.storage;
 
 import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageCommandValidator;
-import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageErrorCode;
-import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageException;
+import gettothepoint.unicatapi.filestorage.domain.exception.FileStorageErrorCode;
+import gettothepoint.unicatapi.filestorage.domain.exception.FileStorageException;
 import org.apache.tika.Tika;
 import org.springframework.stereotype.Component;
 

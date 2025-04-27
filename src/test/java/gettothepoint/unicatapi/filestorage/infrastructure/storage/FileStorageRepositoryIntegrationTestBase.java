@@ -2,7 +2,7 @@ package gettothepoint.unicatapi.filestorage.infrastructure.storage;
 
 import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageCommand;
 import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageRepository;
-import gettothepoint.unicatapi.filestorage.infrastructure.storage.config.DefaultFileStorageCommandConfig;
+import gettothepoint.unicatapi.filestorage.infrastructure.config.DefaultFileStorageCommandConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

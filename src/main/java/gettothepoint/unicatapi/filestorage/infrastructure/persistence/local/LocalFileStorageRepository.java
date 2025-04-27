@@ -1,4 +1,4 @@
-package gettothepoint.unicatapi.filestorage.infrastructure.storage.local;
+package gettothepoint.unicatapi.filestorage.infrastructure.persistence.local;
 
 import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageCommand;
 import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageRepository;

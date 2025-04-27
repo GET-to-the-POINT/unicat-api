@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.filestorage.application;
 
-import gettothepoint.unicatapi.filestorage.infrastructure.storage.config.DefaultFileStorageCommandConfig;
+import gettothepoint.unicatapi.filestorage.infrastructure.config.DefaultFileStorageCommandConfig;
 import gettothepoint.unicatapi.filestorage.infrastructure.storage.DefaultFileNameTransformer;
 import gettothepoint.unicatapi.filestorage.infrastructure.storage.DefaultFileStorageCommandValidator;
 import org.junit.jupiter.api.DisplayName;
