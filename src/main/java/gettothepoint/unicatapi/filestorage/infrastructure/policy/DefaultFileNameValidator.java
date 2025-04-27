@@ -1,8 +1,8 @@
-package gettothepoint.unicatapi.filestorage.infrastructure.storage;
+package gettothepoint.unicatapi.filestorage.infrastructure.policy;
 
 import gettothepoint.unicatapi.filestorage.domain.exception.FileStorageErrorCode;
 import gettothepoint.unicatapi.filestorage.domain.exception.FileStorageException;
-import gettothepoint.unicatapi.filestorage.domain.storage.FileNameValidator;
+import gettothepoint.unicatapi.filestorage.domain.policy.FileNameValidator;
 import org.springframework.stereotype.Component;
 
 import java.util.regex.Pattern;

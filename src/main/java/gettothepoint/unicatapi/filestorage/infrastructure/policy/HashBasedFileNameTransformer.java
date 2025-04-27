@@ -1,6 +1,6 @@
-package gettothepoint.unicatapi.filestorage.infrastructure.storage;
+package gettothepoint.unicatapi.filestorage.infrastructure.policy;
 
-import gettothepoint.unicatapi.filestorage.domain.storage.FileNameTransformer;
+import gettothepoint.unicatapi.filestorage.domain.policy.FileNameTransformer;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;

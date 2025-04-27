@@ -1,6 +1,6 @@
-package gettothepoint.unicatapi.filestorage.application;
+package gettothepoint.unicatapi.filestorage.application.port.in;
 
-import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageRepository;
+import gettothepoint.unicatapi.filestorage.application.port.out.FileStorageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;

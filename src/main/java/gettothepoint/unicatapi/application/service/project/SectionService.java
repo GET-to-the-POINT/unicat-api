@@ -8,7 +8,7 @@ import gettothepoint.unicatapi.domain.dto.project.section.SectionResponseFactory
 import gettothepoint.unicatapi.domain.entity.project.Project;
 import gettothepoint.unicatapi.domain.entity.project.Section;
 import gettothepoint.unicatapi.domain.repository.SectionRepository;
-import gettothepoint.unicatapi.filestorage.application.FileUploadUseCase;
+import gettothepoint.unicatapi.filestorage.application.port.in.FileUploadUseCase;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

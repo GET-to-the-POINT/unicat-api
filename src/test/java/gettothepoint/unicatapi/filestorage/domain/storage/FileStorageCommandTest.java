@@ -2,11 +2,12 @@ package gettothepoint.unicatapi.filestorage.domain.storage;
 
 import gettothepoint.unicatapi.filestorage.domain.exception.FileStorageErrorCode;
 import gettothepoint.unicatapi.filestorage.domain.exception.FileStorageException;
-import gettothepoint.unicatapi.filestorage.infrastructure.config.DefaultFileStorageCommandConfig;
-import gettothepoint.unicatapi.filestorage.infrastructure.storage.DefaultFileNameValidator;
-import gettothepoint.unicatapi.filestorage.infrastructure.storage.DefaultFileStorageCommand;
-import gettothepoint.unicatapi.filestorage.infrastructure.storage.DefaultFileStorageCommandValidator;
-import gettothepoint.unicatapi.filestorage.infrastructure.storage.HashBasedFileNameTransformer;
+import gettothepoint.unicatapi.filestorage.domain.model.StoredFile;
+import gettothepoint.unicatapi.filestorage.infrastructure.command.StoredFileFactory;
+import gettothepoint.unicatapi.filestorage.infrastructure.config.StoredFileConfig;
+import gettothepoint.unicatapi.filestorage.infrastructure.policy.DefaultFileNameValidator;
+import gettothepoint.unicatapi.filestorage.infrastructure.policy.DefaultStoredFileValidator;
+import gettothepoint.unicatapi.filestorage.infrastructure.policy.HashBasedFileNameTransformer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,8 +21,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("FileStorageCommand 도메인 테스트")
 @SpringJUnitConfig(classes = {
-        DefaultFileStorageCommandConfig.class,
-        DefaultFileStorageCommandValidator.class,
+        StoredFileConfig.class,
+        DefaultStoredFileValidator.class,
         DefaultFileNameValidator.class,
         HashBasedFileNameTransformer.class
 })
@@ -41,12 +42,12 @@ class FileStorageCommandTest {
     void shouldCreateWithValidInput() {
         // When
         InputStream contentStream = new ByteArrayInputStream(TEST_CONTENT_BYTES);
-        FileStorageCommand command = buildCommand(VALID_FILENAME, contentStream, VALID_SIZE, VALID_CONTENT_TYPE);
+        StoredFile command = StoredFileFactory.create(VALID_FILENAME, contentStream, VALID_SIZE, VALID_CONTENT_TYPE);
 
         // Then
-        assertEquals(contentStream, command.getContent());
-        assertEquals(VALID_SIZE, command.getSize());
-        assertEquals(VALID_CONTENT_TYPE, command.getContentType());
+        assertEquals(contentStream, command.content());
+        assertEquals(VALID_SIZE, command.size());
+        assertEquals(VALID_CONTENT_TYPE, command.contentType());
     }
 
     /** null filename should trigger NullPointerException */
@@ -63,7 +64,7 @@ class FileStorageCommandTest {
     }
 
     private void createWithNullGetFilename() {
-        buildCommand(null, VALID_CONTENT, VALID_SIZE, VALID_CONTENT_TYPE);
+        StoredFileFactory.create(null, VALID_CONTENT, VALID_SIZE, VALID_CONTENT_TYPE);
     }
 
     /** null content should trigger NullPointerException */
@@ -80,7 +81,7 @@ class FileStorageCommandTest {
     }
 
     private void createWithNullGetContent() {
-        buildCommand(VALID_FILENAME, null, VALID_SIZE, VALID_CONTENT_TYPE);
+        StoredFileFactory.create(VALID_FILENAME, null, VALID_SIZE, VALID_CONTENT_TYPE);
     }
 
     /** size가 0 이하일 때 IllegalArgumentException 발생을 검증 */
@@ -97,7 +98,7 @@ class FileStorageCommandTest {
     }
 
     private void createWithInvalidGetSize(long size) {
-        buildCommand(VALID_FILENAME, VALID_CONTENT, size, VALID_CONTENT_TYPE);
+        StoredFileFactory.create(VALID_FILENAME, VALID_CONTENT, size, VALID_CONTENT_TYPE);
     }
 
     /** null contentType should trigger NullPointerException */
@@ -114,7 +115,7 @@ class FileStorageCommandTest {
     }
 
     private void createWithNullGetGetContentType() {
-        buildCommand(VALID_FILENAME, VALID_CONTENT, VALID_SIZE, null);
+        StoredFileFactory.create(VALID_FILENAME, VALID_CONTENT, VALID_SIZE, null);
     }
 
     /** blank filename should trigger IllegalArgumentException */
@@ -130,7 +131,7 @@ class FileStorageCommandTest {
     }
 
     private void createWithBlankGetFilename() {
-        buildCommand("  ", VALID_CONTENT, VALID_SIZE, VALID_CONTENT_TYPE);
+        StoredFileFactory.create("  ", VALID_CONTENT, VALID_SIZE, VALID_CONTENT_TYPE);
     }
 
     /** 허용 가능한 경로/파일명은 예외 없이 통과해야 한다 */
@@ -145,7 +146,7 @@ class FileStorageCommandTest {
     })
     void shouldNotThrowForValidPaths(String validPath) {
         assertDoesNotThrow(() ->
-                buildCommand(validPath, VALID_CONTENT, VALID_SIZE, VALID_CONTENT_TYPE)
+                StoredFileFactory.create(validPath, VALID_CONTENT, VALID_SIZE, VALID_CONTENT_TYPE)
         );
     }
 
@@ -188,7 +189,7 @@ class FileStorageCommandTest {
     }
 
     private void createWithMaliciousGetFilename(String filename) {
-        buildCommand(filename, VALID_CONTENT, VALID_SIZE, VALID_CONTENT_TYPE);
+        StoredFileFactory.create(filename, VALID_CONTENT, VALID_SIZE, VALID_CONTENT_TYPE);
     }
 
     /** Windows 특수 규칙(마침표/공백 끝 파일명) 예외 발생 검증 */
@@ -211,7 +212,7 @@ class FileStorageCommandTest {
     }
 
     private void createWithSpecialGetFilename(String filename) {
-        buildCommand(filename, VALID_CONTENT, VALID_SIZE, VALID_CONTENT_TYPE);
+        StoredFileFactory.create(filename, VALID_CONTENT, VALID_SIZE, VALID_CONTENT_TYPE);
     }
 
     /** 제공된 사이즈와 컨텐츠 실제 크기 불일치 시 IllegalArgumentException 발생 검증 */
@@ -230,7 +231,7 @@ class FileStorageCommandTest {
     }
 
     private void createWithWrongGetSize(long size) {
-        buildCommand(VALID_FILENAME, VALID_CONTENT, size, VALID_CONTENT_TYPE);
+        StoredFileFactory.create(VALID_FILENAME, VALID_CONTENT, size, VALID_CONTENT_TYPE);
     }
 
     /** 허용되지 않는 파일 확장자 입력 시 IllegalArgumentException 발생 검증 */
@@ -246,7 +247,7 @@ class FileStorageCommandTest {
     }
 
     private void createWithDisallowedExtension() {
-        buildCommand("file.pdf", VALID_CONTENT, VALID_SIZE, "application/pdf");
+        StoredFileFactory.create("file.pdf", VALID_CONTENT, VALID_SIZE, "application/pdf");
     }
 
     /** 파일 확장자와 컨텐츠 타입 불일치 시 IllegalArgumentException 발생 검증 */
@@ -267,7 +268,7 @@ class FileStorageCommandTest {
                 (byte) 0x89, 'P', 'N', 'G', '\r', '\n', 0x1a, '\n', 0, 0, 0, 0, 'I', 'H', 'D', 'R'
         };
         InputStream pngContent = new ByteArrayInputStream(pngBytes);
-        buildCommand("image.txt", pngContent, pngBytes.length, "text/plain");
+        StoredFileFactory.create("image.txt", pngContent, pngBytes.length, "text/plain");
     }
 
     /** 제공된 컨텐츠 타입과 감지된 타입 불일치 시 IllegalArgumentException 발생 검증 */
@@ -285,21 +286,7 @@ class FileStorageCommandTest {
     private void createWithGetGetContentTypeMismatch() {
         // 텍스트 내용이지만 이미지 컨텐츠 타입으로 제공
         String wrongContentType = "image/png";
-        buildCommand(VALID_FILENAME, VALID_CONTENT, VALID_SIZE, wrongContentType);
+        StoredFileFactory.create(VALID_FILENAME, VALID_CONTENT, VALID_SIZE, wrongContentType);
     }
 
-    /**
-     * 헬퍼: 주어진 파라미터로 FileStorageCommand 빌더를 완성해 반환한다.
-     */
-    private FileStorageCommand buildCommand(String filename,
-                                            InputStream content,
-                                            long size,
-                                            String contentType) {
-        return DefaultFileStorageCommand.builder()
-                .filename(filename)
-                .content(content)
-                .size(size)
-                .contentType(contentType)
-                .build();
-    }
 }

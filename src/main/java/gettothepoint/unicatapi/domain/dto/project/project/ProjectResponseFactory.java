@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.domain.dto.project.project;
 
 import gettothepoint.unicatapi.domain.entity.project.Project;
-import gettothepoint.unicatapi.filestorage.application.FileDownloadUseCase;
+import gettothepoint.unicatapi.filestorage.application.port.in.FileDownloadUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

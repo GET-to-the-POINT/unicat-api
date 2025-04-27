@@ -1,5 +1,6 @@
 package gettothepoint.unicatapi.filestorage.application;
 
+import gettothepoint.unicatapi.filestorage.application.port.in.FileUploadUseCase;
 import gettothepoint.unicatapi.filestorage.infrastructure.config.CompositeFileStorageConfig;
 import gettothepoint.unicatapi.filestorage.infrastructure.config.LocalFileStorageConfig;
 import gettothepoint.unicatapi.filestorage.infrastructure.config.MinioFileStorageConfig;

@@ -8,7 +8,7 @@ import gettothepoint.unicatapi.domain.dto.project.AutoArtifact;
 import gettothepoint.unicatapi.domain.dto.project.CreateResourceResponse;
 import gettothepoint.unicatapi.domain.dto.project.PromptRequest;
 import gettothepoint.unicatapi.domain.entity.project.Section;
-import gettothepoint.unicatapi.filestorage.application.FileUploadUseCase;
+import gettothepoint.unicatapi.filestorage.application.port.in.FileUploadUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.ai.chat.client.ChatClient;

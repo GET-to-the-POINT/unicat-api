@@ -1,7 +1,8 @@
 package gettothepoint.unicatapi.filestorage.application;
 
-import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageCommand;
-import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageRepository;
+import gettothepoint.unicatapi.filestorage.application.port.in.FileUploadUseCase;
+import gettothepoint.unicatapi.filestorage.application.port.out.FileStorageRepository;
+import gettothepoint.unicatapi.filestorage.domain.model.StoredFile;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,13 +41,13 @@ class FileUploadUseCaseModuleTest {
 
         fileUploadUseCase.uploadFile(mockFile);
 
-        ArgumentCaptor<FileStorageCommand> captor = ArgumentCaptor.forClass(FileStorageCommand.class);
+        ArgumentCaptor<StoredFile> captor = ArgumentCaptor.forClass(StoredFile.class);
         verify(fileStorageRepository, times(1)).store(captor.capture());
-        FileStorageCommand command = captor.getValue();
-        try (ByteArrayInputStream inputStream = (ByteArrayInputStream) command.getContent()) {
+        StoredFile storedFile = captor.getValue();
+        try (ByteArrayInputStream inputStream = (ByteArrayInputStream) storedFile.content()) {
             assertArrayEquals(TEST_CONTENT.getBytes(), inputStream.readAllBytes());
-            assertEquals(TEST_CONTENT.length(), command.getSize());
-            assertEquals(TEST_CONTENT_TYPE, command.getContentType());
+            assertEquals(TEST_CONTENT.length(), storedFile.size());
+            assertEquals(TEST_CONTENT_TYPE, storedFile.contentType());
         }
     }
 
@@ -103,6 +104,7 @@ class FileUploadUseCaseModuleTest {
         MultipartFile mockFile = mock(MultipartFile.class);
         when(mockFile.isEmpty()).thenReturn(false);
         when(mockFile.getInputStream()).thenReturn(new ByteArrayInputStream(TEST_CONTENT.getBytes()));
+        when(mockFile.getOriginalFilename()).thenReturn("malicious.sh");
         when(mockFile.getSize()).thenReturn((long) TEST_CONTENT.length());
         when(mockFile.getContentType()).thenReturn("application/x-sh");
 

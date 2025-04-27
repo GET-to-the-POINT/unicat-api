@@ -1,4 +1,4 @@
-package gettothepoint.unicatapi.filestorage.domain.storage;
+package gettothepoint.unicatapi.filestorage.domain.policy;
 
 /**
  * 파일명의 유효성을 검증하는 인터페이스입니다.

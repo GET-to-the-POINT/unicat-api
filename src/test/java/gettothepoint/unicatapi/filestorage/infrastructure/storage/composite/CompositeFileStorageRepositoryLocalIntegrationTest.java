@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.filestorage.infrastructure.storage.composite;
 
-import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageRepository;
+import gettothepoint.unicatapi.filestorage.application.port.out.FileStorageRepository;
 import gettothepoint.unicatapi.filestorage.infrastructure.config.CompositeFileStorageConfig;
 import gettothepoint.unicatapi.filestorage.infrastructure.config.LocalFileStorageConfig;
 import gettothepoint.unicatapi.filestorage.infrastructure.storage.FileStorageRepositoryIntegrationTestBase;

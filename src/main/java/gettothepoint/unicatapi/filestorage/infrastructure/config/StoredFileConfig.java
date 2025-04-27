@@ -1,8 +1,8 @@
 package gettothepoint.unicatapi.filestorage.infrastructure.config;
 
-import gettothepoint.unicatapi.filestorage.domain.storage.FileNameTransformer;
-import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageCommandValidator;
-import gettothepoint.unicatapi.filestorage.infrastructure.storage.DefaultFileStorageCommand;
+import gettothepoint.unicatapi.filestorage.domain.policy.FileNameTransformer;
+import gettothepoint.unicatapi.filestorage.domain.policy.StoredFileValidator;
+import gettothepoint.unicatapi.filestorage.infrastructure.command.StoredFileFactory;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -13,14 +13,14 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @RequiredArgsConstructor
-public class DefaultFileStorageCommandConfig {
+public class StoredFileConfig {
 
-    private final FileStorageCommandValidator fileStorageCommandValidator;
+    private final StoredFileValidator storedFileValidator;
     private final FileNameTransformer fileNameTransformer;
 
     @PostConstruct
     public void init() {
-        DefaultFileStorageCommand.configure(fileStorageCommandValidator, fileNameTransformer);
+        StoredFileFactory.configure(storedFileValidator, fileNameTransformer);
     }
 
 }

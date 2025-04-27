@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.filestorage.infrastructure.persistence.composite;
 
-import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageCommand;
-import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageRepository;
+import gettothepoint.unicatapi.filestorage.application.port.out.FileStorageRepository;
+import gettothepoint.unicatapi.filestorage.domain.model.StoredFile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.UrlResource;
 
@@ -14,9 +14,9 @@ public class CompositeFileStorageRepository implements FileStorageRepository {
     private final List<FileStorageRepository> delegates;
 
     @Override
-    public String store(FileStorageCommand c) {
+    public String store(StoredFile c) {
         delegates.forEach(delegate -> delegate.store(c));
-        return c.getFilename();
+        return c.filename();
     }
 
     @Override

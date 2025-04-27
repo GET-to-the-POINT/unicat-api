@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.filestorage.infrastructure.storage.minio;
 
-import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageRepository;
+import gettothepoint.unicatapi.filestorage.application.port.out.FileStorageRepository;
 import gettothepoint.unicatapi.filestorage.infrastructure.config.MinioFileStorageConfig;
 import gettothepoint.unicatapi.filestorage.infrastructure.storage.FileStorageRepositoryIntegrationTestBase;
 import org.junit.jupiter.api.DisplayName;

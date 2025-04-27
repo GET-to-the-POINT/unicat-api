@@ -8,7 +8,7 @@ import gettothepoint.unicatapi.domain.dto.project.project.ProjectResponseFactory
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.entity.project.Project;
 import gettothepoint.unicatapi.domain.repository.ProjectRepository;
-import gettothepoint.unicatapi.filestorage.application.FileUploadUseCase;
+import gettothepoint.unicatapi.filestorage.application.port.in.FileUploadUseCase;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

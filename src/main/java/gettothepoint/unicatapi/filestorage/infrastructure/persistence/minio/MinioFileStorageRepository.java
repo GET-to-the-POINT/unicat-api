@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.filestorage.infrastructure.persistence.minio;
 
-import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageCommand;
-import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageRepository;
+import gettothepoint.unicatapi.filestorage.application.port.out.FileStorageRepository;
+import gettothepoint.unicatapi.filestorage.domain.model.StoredFile;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
@@ -23,19 +23,19 @@ public class MinioFileStorageRepository implements FileStorageRepository {
     private final String bucket;
 
     @Override
-    public String store(FileStorageCommand c) {
+    public String store(StoredFile c) {
         try {
             minioClient.putObject(
                     PutObjectArgs.builder()
                             .bucket(bucket)
-                            .object(c.getFilename())
-                            .stream(c.getContent(), c.getSize(), -1)
-                            .contentType(c.getContentType())
+                            .object(c.filename())
+                            .stream(c.content(), c.size(), -1)
+                            .contentType(c.contentType())
                             .build()
             );
-            return c.getFilename();
+            return c.filename();
         } catch (MinioException | IOException | InvalidKeyException | NoSuchAlgorithmException e) {
-            throw new RuntimeException("파일 저장 실패: " + c.getFilename(), e);
+            throw new RuntimeException("파일 저장 실패: " + c.filename(), e);
         }
     }
 

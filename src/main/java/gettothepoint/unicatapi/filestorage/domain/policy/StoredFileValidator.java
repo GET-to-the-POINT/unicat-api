@@ -1,7 +1,7 @@
-package gettothepoint.unicatapi.filestorage.domain.storage;
+package gettothepoint.unicatapi.filestorage.domain.policy;
 
 import java.io.InputStream;
 
-public interface FileStorageCommandValidator {
+public interface StoredFileValidator {
     void validate(String filename, InputStream content, long size, String contentType);
 }

@@ -1,5 +1,6 @@
-package gettothepoint.unicatapi.filestorage.domain.storage;
+package gettothepoint.unicatapi.filestorage.application.port.out;
 
+import gettothepoint.unicatapi.filestorage.domain.model.StoredFile;
 import org.springframework.core.io.UrlResource;
 
 import java.util.Optional;
@@ -16,8 +17,8 @@ public interface FileStorageRepository {
     /**
      * 파일 저장 ―> 저장소 내부 식별자(key) 반환
      */
-    String store(FileStorageCommand command);
-
+    String store(StoredFile file);
+    
     /**
      * key로 파일을 읽어 Resource 로 반환
      */

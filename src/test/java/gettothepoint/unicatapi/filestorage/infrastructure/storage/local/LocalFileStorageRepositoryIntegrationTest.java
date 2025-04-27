@@ -1,8 +1,7 @@
 package gettothepoint.unicatapi.filestorage.infrastructure.storage.local;
 
-import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageRepository;
+import gettothepoint.unicatapi.filestorage.application.port.out.FileStorageRepository;
 import gettothepoint.unicatapi.filestorage.infrastructure.config.LocalFileStorageConfig;
-import gettothepoint.unicatapi.filestorage.infrastructure.persistence.local.LocalFileStorageRepository;
 import gettothepoint.unicatapi.filestorage.infrastructure.storage.FileStorageRepositoryIntegrationTestBase;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.io.TempDir;

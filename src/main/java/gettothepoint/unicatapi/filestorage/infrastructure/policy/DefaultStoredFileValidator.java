@@ -1,7 +1,7 @@
-package gettothepoint.unicatapi.filestorage.infrastructure.storage;
+package gettothepoint.unicatapi.filestorage.infrastructure.policy;
 
-import gettothepoint.unicatapi.filestorage.domain.storage.FileNameValidator;
-import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageCommandValidator;
+import gettothepoint.unicatapi.filestorage.domain.policy.FileNameValidator;
+import gettothepoint.unicatapi.filestorage.domain.policy.StoredFileValidator;
 import gettothepoint.unicatapi.filestorage.domain.exception.FileStorageErrorCode;
 import gettothepoint.unicatapi.filestorage.domain.exception.FileStorageException;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ import java.util.Map;
  */
 @Component
 @RequiredArgsConstructor
-public class DefaultFileStorageCommandValidator implements FileStorageCommandValidator {
+public class DefaultStoredFileValidator implements StoredFileValidator {
 
     private static final Tika tika = new Tika();
     private static final Map<String, String> ALLOWED_MIME_TYPES = Map.of(
