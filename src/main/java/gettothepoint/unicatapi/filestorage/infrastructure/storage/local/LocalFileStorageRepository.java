@@ -22,17 +22,17 @@ public class LocalFileStorageRepository implements FileStorageRepository {
 
     @Override
     public String store(FileStorageCommand c) {
-        Path target = root.resolve(c.filename()).normalize();
+        Path target = root.resolve(c.getFilename()).normalize();
         try {
             Files.createDirectories(target.getParent());
 
-            try (InputStream is = c.content(); OutputStream os = Files.newOutputStream(target)) {
+            try (InputStream is = c.getContent(); OutputStream os = Files.newOutputStream(target)) {
                 is.transferTo(os);
             }
         } catch (IOException e) {
             throw new RuntimeException("저장 실패", e);
         }
-        return c.filename();
+        return c.getFilename();
     }
 
     @Override

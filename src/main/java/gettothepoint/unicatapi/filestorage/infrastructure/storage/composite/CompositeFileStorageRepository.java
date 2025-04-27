@@ -16,7 +16,7 @@ public class CompositeFileStorageRepository implements FileStorageRepository {
     @Override
     public String store(FileStorageCommand c) {
         delegates.forEach(delegate -> delegate.store(c));
-        return c.filename();
+        return c.getFilename();
     }
 
     @Override

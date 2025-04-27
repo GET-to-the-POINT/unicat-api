@@ -43,10 +43,10 @@ class FileUploadUseCaseModuleTest {
         ArgumentCaptor<FileStorageCommand> captor = ArgumentCaptor.forClass(FileStorageCommand.class);
         verify(fileStorageRepository, times(1)).store(captor.capture());
         FileStorageCommand command = captor.getValue();
-        try (ByteArrayInputStream inputStream = (ByteArrayInputStream) command.content()) {
+        try (ByteArrayInputStream inputStream = (ByteArrayInputStream) command.getContent()) {
             assertArrayEquals(TEST_CONTENT.getBytes(), inputStream.readAllBytes());
-            assertEquals(TEST_CONTENT.length(), command.size());
-            assertEquals(TEST_CONTENT_TYPE, command.contentType());
+            assertEquals(TEST_CONTENT.length(), command.getSize());
+            assertEquals(TEST_CONTENT_TYPE, command.getContentType());
         }
     }
 

@@ -40,42 +40,42 @@ class FileStorageCommandTest {
         FileStorageCommand command = buildCommand(VALID_FILENAME, contentStream, VALID_SIZE, VALID_CONTENT_TYPE);
 
         // Then
-        assertEquals(contentStream, command.content());
-        assertEquals(VALID_SIZE, command.size());
-        assertEquals(VALID_CONTENT_TYPE, command.contentType());
+        assertEquals(contentStream, command.getContent());
+        assertEquals(VALID_SIZE, command.getSize());
+        assertEquals(VALID_CONTENT_TYPE, command.getContentType());
     }
 
     /** null filename should trigger NullPointerException */
     @Test
     @DisplayName("filename이 null이면 예외 발생")
-    void shouldThrowExceptionWhenFilenameIsNull() {
+    void shouldThrowExceptionWhenGetFilenameIsNull() {
         // When & Then
         NullPointerException exception = assertThrows(
                 NullPointerException.class,
-                this::createWithNullFilename
+                this::createWithNullGetFilename
         );
         
         // 메시지 검증 대신 예외 타입만 검증
     }
 
-    private void createWithNullFilename() {
+    private void createWithNullGetFilename() {
         buildCommand(null, VALID_CONTENT, VALID_SIZE, VALID_CONTENT_TYPE);
     }
 
     /** null content should trigger NullPointerException */
     @Test
     @DisplayName("content가 null이면 예외 발생")
-    void shouldThrowExceptionWhenContentIsNull() {
+    void shouldThrowExceptionWhenGetContentIsNull() {
         // When & Then
         NullPointerException exception = assertThrows(
                 NullPointerException.class,
-                this::createWithNullContent
+                this::createWithNullGetContent
         );
         
         // 메시지 검증 대신 예외 타입만 검증
     }
 
-    private void createWithNullContent() {
+    private void createWithNullGetContent() {
         buildCommand(VALID_FILENAME, null, VALID_SIZE, VALID_CONTENT_TYPE);
     }
 
@@ -83,49 +83,49 @@ class FileStorageCommandTest {
     @ParameterizedTest
     @DisplayName("size가 0 이하면 예외 발생")
     @ValueSource(longs = {0, -1, -100})
-    void shouldThrowExceptionWhenSizeIsZeroOrNegative(long invalidSize) {
+    void shouldThrowExceptionWhenGetSizeIsZeroOrNegative(long invalidSize) {
         // When & Then
         FileStorageException exception = assertThrows(
                 FileStorageException.class,
-                () -> createWithInvalidSize(invalidSize)
+                () -> createWithInvalidGetSize(invalidSize)
         );
         assertEquals(FileStorageErrorCode.NON_POSITIVE_SIZE, exception.getErrorCode());
     }
 
-    private void createWithInvalidSize(long size) {
+    private void createWithInvalidGetSize(long size) {
         buildCommand(VALID_FILENAME, VALID_CONTENT, size, VALID_CONTENT_TYPE);
     }
 
     /** null contentType should trigger NullPointerException */
     @Test
     @DisplayName("contentType이 null이면 예외 발생")
-    void shouldThrowExceptionWhenContentTypeIsNull() {
+    void shouldThrowExceptionWhenGetGetContentTypeIsNull() {
         // When & Then
         NullPointerException exception = assertThrows(
                 NullPointerException.class,
-                this::createWithNullContentType
+                this::createWithNullGetGetContentType
         );
         
         // 메시지 검증 대신 예외 타입만 검증
     }
 
-    private void createWithNullContentType() {
+    private void createWithNullGetGetContentType() {
         buildCommand(VALID_FILENAME, VALID_CONTENT, VALID_SIZE, null);
     }
 
     /** blank filename should trigger IllegalArgumentException */
     @Test
     @DisplayName("빈 파일명은 예외 발생")
-    void shouldThrowExceptionWhenFilenameIsBlank() {
+    void shouldThrowExceptionWhenGetFilenameIsBlank() {
         // When & Then
         FileStorageException exception = assertThrows(
                 FileStorageException.class,
-                this::createWithBlankFilename
+                this::createWithBlankGetFilename
         );
         assertEquals(FileStorageErrorCode.EMPTY_FILENAME, exception.getErrorCode());
     }
 
-    private void createWithBlankFilename() {
+    private void createWithBlankGetFilename() {
         buildCommand("  ", VALID_CONTENT, VALID_SIZE, VALID_CONTENT_TYPE);
     }
 
@@ -168,7 +168,7 @@ class FileStorageCommandTest {
         // When & Then
         FileStorageException exception = assertThrows(
                 FileStorageException.class,
-                () -> createWithMaliciousFilename(maliciousPath)
+                () -> createWithMaliciousGetFilename(maliciousPath)
         );
         
         // 여러 종류의 오류 코드 중 하나인지 확인
@@ -183,7 +183,7 @@ class FileStorageCommandTest {
         );
     }
 
-    private void createWithMaliciousFilename(String filename) {
+    private void createWithMaliciousGetFilename(String filename) {
         buildCommand(filename, VALID_CONTENT, VALID_SIZE, VALID_CONTENT_TYPE);
     }
 
@@ -201,31 +201,31 @@ class FileStorageCommandTest {
         // When & Then
         FileStorageException exception = assertThrows(
                 FileStorageException.class,
-                () -> createWithSpecialFilename(filename)
+                () -> createWithSpecialGetFilename(filename)
         );
         assertEquals(FileStorageErrorCode.WINDOWS_SPECIAL_RULE_VIOLATION, exception.getErrorCode());
     }
 
-    private void createWithSpecialFilename(String filename) {
+    private void createWithSpecialGetFilename(String filename) {
         buildCommand(filename, VALID_CONTENT, VALID_SIZE, VALID_CONTENT_TYPE);
     }
 
     /** 제공된 사이즈와 컨텐츠 실제 크기 불일치 시 IllegalArgumentException 발생 검증 */
     @Test
     @DisplayName("제공된 사이즈와 실제 컨텐츠 사이즈가 불일치하면 예외 발생")
-    void shouldThrowExceptionWhenSizeMismatch() {
+    void shouldThrowExceptionWhenGetSizeMismatch() {
         // 실제 크기는 TEST_CONTENT_BYTES.length 이지만 다른 크기로 요청하면 예외 발생
         long wrongSize = TEST_CONTENT_BYTES.length + 10;
 
         // When & Then
         FileStorageException exception = assertThrows(
                 FileStorageException.class,
-                () -> createWithWrongSize(wrongSize)
+                () -> createWithWrongGetSize(wrongSize)
         );
         assertEquals(FileStorageErrorCode.SIZE_MISMATCH, exception.getErrorCode());
     }
 
-    private void createWithWrongSize(long size) {
+    private void createWithWrongGetSize(long size) {
         buildCommand(VALID_FILENAME, VALID_CONTENT, size, VALID_CONTENT_TYPE);
     }
 
@@ -269,16 +269,16 @@ class FileStorageCommandTest {
     /** 제공된 컨텐츠 타입과 감지된 타입 불일치 시 IllegalArgumentException 발생 검증 */
     @Test
     @DisplayName("제공된 컨텐츠 타입과 감지된 타입이 일치하지 않으면 예외 발생")
-    void shouldThrowExceptionWhenContentTypeMismatch() {
+    void shouldThrowExceptionWhenGetGetContentTypeMismatch() {
         // When & Then
         FileStorageException exception = assertThrows(
                 FileStorageException.class,
-                this::createWithContentTypeMismatch
+                this::createWithGetGetContentTypeMismatch
         );
         assertEquals(FileStorageErrorCode.CONTENT_TYPE_MISMATCH, exception.getErrorCode());
     }
 
-    private void createWithContentTypeMismatch() {
+    private void createWithGetGetContentTypeMismatch() {
         // 텍스트 내용이지만 이미지 컨텐츠 타입으로 제공
         String wrongContentType = "image/png";
         buildCommand(VALID_FILENAME, VALID_CONTENT, VALID_SIZE, wrongContentType);

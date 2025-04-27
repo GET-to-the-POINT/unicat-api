@@ -28,14 +28,14 @@ public class MinioFileStorageRepository implements FileStorageRepository {
             minioClient.putObject(
                     PutObjectArgs.builder()
                             .bucket(bucket)
-                            .object(c.filename())
-                            .stream(c.content(), c.size(), -1)
-                            .contentType(c.contentType())
+                            .object(c.getFilename())
+                            .stream(c.getContent(), c.getSize(), -1)
+                            .contentType(c.getContentType())
                             .build()
             );
-            return c.filename();
+            return c.getFilename();
         } catch (MinioException | IOException | InvalidKeyException | NoSuchAlgorithmException e) {
-            throw new RuntimeException("파일 저장 실패: " + c.filename(), e);
+            throw new RuntimeException("파일 저장 실패: " + c.getFilename(), e);
         }
     }
 
