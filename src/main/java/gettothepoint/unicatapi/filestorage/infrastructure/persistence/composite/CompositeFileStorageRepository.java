@@ -3,6 +3,7 @@ package gettothepoint.unicatapi.filestorage.infrastructure.persistence.composite
 import gettothepoint.unicatapi.filestorage.application.port.out.FileStorageRepository;
 import gettothepoint.unicatapi.filestorage.domain.model.StoredFile;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.core.io.UrlResource;
 
 import java.util.List;
@@ -20,7 +21,7 @@ public class CompositeFileStorageRepository implements FileStorageRepository {
     }
 
     @Override
-    public Optional<UrlResource> load(String key) {
+    public Optional<UrlResource> load(@NotNull String key) {
         for (FileStorageRepository delegate : delegates) {
             Optional<UrlResource> resource = delegate.load(key);
             if (resource.isPresent()) {

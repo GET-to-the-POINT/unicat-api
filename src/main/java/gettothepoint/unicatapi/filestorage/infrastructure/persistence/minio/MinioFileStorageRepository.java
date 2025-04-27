@@ -7,6 +7,7 @@ import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.errors.MinioException;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.core.io.UrlResource;
 
 import java.io.IOException;
@@ -40,7 +41,7 @@ public class MinioFileStorageRepository implements FileStorageRepository {
     }
 
     @Override
-    public Optional<UrlResource> load(String key) {
+    public Optional<UrlResource> load(@NotNull String key) {
         try {
             // 존재 여부 확인
             minioClient.statObject(

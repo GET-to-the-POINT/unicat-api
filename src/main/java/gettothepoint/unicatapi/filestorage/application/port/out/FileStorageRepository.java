@@ -1,6 +1,7 @@
 package gettothepoint.unicatapi.filestorage.application.port.out;
 
 import gettothepoint.unicatapi.filestorage.domain.model.StoredFile;
+import lombok.NonNull;
 import org.springframework.core.io.UrlResource;
 
 import java.util.Optional;
@@ -22,5 +23,5 @@ public interface FileStorageRepository {
     /**
      * key로 파일을 읽어 Resource 로 반환
      */
-    Optional<UrlResource> load(String key);
+    Optional<UrlResource> load(@NonNull String key);
 }

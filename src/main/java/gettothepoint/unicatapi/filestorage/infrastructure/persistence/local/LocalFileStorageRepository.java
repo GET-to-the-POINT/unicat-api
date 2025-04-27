@@ -2,11 +2,8 @@ package gettothepoint.unicatapi.filestorage.infrastructure.persistence.local;
 
 import gettothepoint.unicatapi.filestorage.application.port.out.FileStorageRepository;
 import gettothepoint.unicatapi.filestorage.domain.model.StoredFile;
-import lombok.Value;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.core.io.UrlResource;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,7 +43,7 @@ public class LocalFileStorageRepository implements FileStorageRepository {
     }
 
     @Override
-    public Optional<UrlResource> load(String key) {
+    public Optional<UrlResource> load(@NotNull String key) {
         try {
             Path file = root.resolve(key);
             UrlResource resource = new UrlResource(file.toUri());

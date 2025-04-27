@@ -54,10 +54,9 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
-	testImplementation "org.testcontainers:minio:1.21.0"
 	testImplementation 'org.testcontainers:junit-jupiter'
+	testImplementation "org.testcontainers:minio:1.21.0"
 	testImplementation 'org.testcontainers:postgresql:1.21.0'
-	testImplementation 'org.assertj:assertj-core:4.0.0-M1'
 	testImplementation 'com.h2database:h2'
 
 	// ===== Google  =====

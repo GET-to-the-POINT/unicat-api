@@ -1,6 +1,8 @@
 package gettothepoint.unicatapi.filestorage.application.port.in;
 
 import gettothepoint.unicatapi.filestorage.application.port.out.FileStorageRepository;
+import gettothepoint.unicatapi.filestorage.application.exception.FileUploadErrorCode;
+import gettothepoint.unicatapi.filestorage.application.exception.FileUploadException;
 import gettothepoint.unicatapi.filestorage.domain.model.StoredFile;
 import gettothepoint.unicatapi.filestorage.infrastructure.command.StoredFileFactory;
 import lombok.NonNull;
@@ -24,7 +26,7 @@ public class FileUploadUseCase {
 
     public String uploadFile(@NonNull MultipartFile file, @NonNull Path path) {
         if (file.isEmpty() || file.getSize() == 0) {
-            throw new IllegalArgumentException("업로드할 파일이 비어 있습니다.");
+            throw new FileUploadException(FileUploadErrorCode.EMPTY_FILE);
         }
 
         // 간소화된 StoredFile 생성 및 저장
@@ -38,7 +40,7 @@ public class FileUploadUseCase {
 
     private String uploadFile(@NonNull File file, @NonNull Path path) {
         if (!file.exists() || file.length() == 0 || !file.canRead()) {
-            throw new IllegalArgumentException("업로드할 파일이 유효하지 않습니다.");
+            throw new FileUploadException(FileUploadErrorCode.INVALID_FILE);
         }
 
         // 간소화된 StoredFile 생성 및 저장
