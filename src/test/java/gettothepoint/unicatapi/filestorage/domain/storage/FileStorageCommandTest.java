@@ -1,6 +1,7 @@
 package gettothepoint.unicatapi.filestorage.domain.storage;
 
-import gettothepoint.unicatapi.filestorage.domain.storage.config.FileStorageCommandConfig;
+import gettothepoint.unicatapi.filestorage.infrastructure.storage.DefaultFileStorageCommand;
+import gettothepoint.unicatapi.filestorage.infrastructure.storage.config.DefaultFileStorageCommandConfig;
 import gettothepoint.unicatapi.filestorage.infrastructure.storage.DefaultFileNameTransformer;
 import gettothepoint.unicatapi.filestorage.infrastructure.storage.DefaultFileStorageCommandValidator;
 import org.junit.jupiter.api.DisplayName;
@@ -16,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("FileStorageCommand 도메인 테스트")
 @SpringJUnitConfig(classes = {
-        FileStorageCommandConfig.class,
+        DefaultFileStorageCommandConfig.class,
         DefaultFileStorageCommandValidator.class,
         DefaultFileNameTransformer.class
 })
@@ -290,7 +291,7 @@ class FileStorageCommandTest {
                                             InputStream content,
                                             long size,
                                             String contentType) {
-        return FileStorageCommand.builder()
+        return DefaultFileStorageCommand.builder()
                 .filename(filename)
                 .content(content)
                 .size(size)

@@ -2,7 +2,7 @@ package gettothepoint.unicatapi.filestorage.infrastructure.storage;
 
 import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageCommand;
 import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageRepository;
-import gettothepoint.unicatapi.filestorage.domain.storage.config.FileStorageCommandConfig;
+import gettothepoint.unicatapi.filestorage.infrastructure.storage.config.DefaultFileStorageCommandConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @DisplayName("공통 파일 저장소 테스트")
 @SpringJUnitConfig(classes = {
-        FileStorageCommandConfig.class,
+        DefaultFileStorageCommandConfig.class,
         DefaultFileStorageCommandValidator.class,
         DefaultFileNameTransformer.class
 })
@@ -122,7 +122,7 @@ public abstract class FileStorageRepositoryIntegrationTestBase {
 
 
 
-            FileStorageCommand command = FileStorageCommand.builder()
+            FileStorageCommand command = DefaultFileStorageCommand.builder()
             .filename("large_file.txt")
             .content(new ByteArrayInputStream(largeContent))
             .size(LARGE_FILE_SIZE)
@@ -270,7 +270,7 @@ public abstract class FileStorageRepositoryIntegrationTestBase {
      */
     protected FileStorageCommand createTestFileCommand(String filename, String content) {
         byte[] bytes = content.getBytes(StandardCharsets.UTF_8);
-        return FileStorageCommand.builder()
+        return DefaultFileStorageCommand.builder()
                 .filename(filename)
                 .content(new ByteArrayInputStream(bytes))
                 .size(bytes.length)

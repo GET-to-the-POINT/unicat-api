@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.filestorage.application;
 
-import gettothepoint.unicatapi.filestorage.domain.storage.config.FileStorageCommandConfig;
+import gettothepoint.unicatapi.filestorage.infrastructure.storage.config.DefaultFileStorageCommandConfig;
 import gettothepoint.unicatapi.filestorage.infrastructure.storage.DefaultFileNameTransformer;
 import gettothepoint.unicatapi.filestorage.infrastructure.storage.DefaultFileStorageCommandValidator;
 import org.junit.jupiter.api.DisplayName;
@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * 공통 테스트 로직을 정의하여 중복 코드를 제거합니다.
  */
 @SpringJUnitConfig(classes = {
-        FileStorageCommandConfig.class,
+        DefaultFileStorageCommandConfig.class,
         DefaultFileStorageCommandValidator.class,
         DefaultFileNameTransformer.class,
         FileUploadUseCase.class,

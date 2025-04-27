@@ -1,5 +1,6 @@
 package gettothepoint.unicatapi.filestorage.domain.storage;
 
+import gettothepoint.unicatapi.filestorage.infrastructure.storage.DefaultFileStorageCommand;
 import lombok.Builder;
 import org.apache.commons.codec.binary.Hex;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,7 +21,7 @@ public class StoredFile {
     private final String contentType;
 
     public FileStorageCommand toCommand() {
-        return FileStorageCommand.builder()
+        return DefaultFileStorageCommand.builder()
                 .filename(filename)
                 .content(content)
                 .size(size)
