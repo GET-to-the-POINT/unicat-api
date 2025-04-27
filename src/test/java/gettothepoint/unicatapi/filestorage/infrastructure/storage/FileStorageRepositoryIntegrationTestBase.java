@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.UrlResource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
@@ -31,16 +30,14 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringJUnitConfig(classes = {
         DefaultFileStorageCommandConfig.class,
         DefaultFileStorageCommandValidator.class,
-        DefaultFileNameTransformer.class
+        DefaultFileNameValidator.class,
+        HashBasedFileNameTransformer.class
 })
 public abstract class FileStorageRepositoryIntegrationTestBase {
 
     // 상수 정의 영역
     private static final Random random = new Random();
     private static final int LARGE_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-
-    @Autowired
-    protected FileStorageRepository repository;
 
     // ======= 추상 메서드 영역 (구현체에서 반드시 구현해야 함) =======
     
@@ -109,7 +106,7 @@ public abstract class FileStorageRepositoryIntegrationTestBase {
 
             // When & Then: 파일 저장이 예외 없이 성공하는지 확인합니다
             assertDoesNotThrow(() -> {
-                repository.store(command);
+                getRepository().store(command);
             }, "기본 파일 저장 중 예상치 못한 예외가 발생했습니다");
         }
 
@@ -130,13 +127,13 @@ public abstract class FileStorageRepositoryIntegrationTestBase {
             .build();
 
             // When: 대용량 파일을 저장합니다
-            String key = repository.store(command);
+            String key = getRepository().store(command);
 
             // Then: 저장이 성공하고 내용이 올바른지 확인합니다
             assertThat(key).isNotBlank().withFailMessage("생성된 파일 키가 비어있습니다");
 
             // 대용량 파일 로드 및 내용 확인
-            Optional<UrlResource> resource = repository.load(key);
+            Optional<UrlResource> resource = getRepository().load(key);
             assertThat(resource).isPresent().withFailMessage("저장된 대용량 파일을 찾을 수 없습니다");
 
             try {
@@ -161,13 +158,13 @@ public abstract class FileStorageRepositoryIntegrationTestBase {
             FileStorageCommand command = createTestFileCommand(filename, TEST_CONTENT);
 
             // When: 파일을 저장합니다
-            String key = repository.store(command);
+            String key = getRepository().store(command);
 
             // Then: 저장이 성공하고 내용이 올바른지 확인합니다
             assertThat(key).isNotBlank().withFailMessage("생성된 파일 키가 비어있습니다");
 
             // 내용 확인
-            Optional<UrlResource> resource = repository.load(key);
+            Optional<UrlResource> resource = getRepository().load(key);
             assertThat(resource).isPresent().withFailMessage("특수 문자가 포함된 파일명의 파일을 찾을 수 없습니다");
 
             String loadedContent = new String(resource.get().getInputStream().readAllBytes());
@@ -190,7 +187,7 @@ public abstract class FileStorageRepositoryIntegrationTestBase {
             String key = storeTestFile(TEST_FILENAME, TEST_CONTENT);
 
             // When: 저장된 파일을 로드합니다
-            Optional<UrlResource> resource = repository.load(key);
+            Optional<UrlResource> resource = getRepository().load(key);
 
             // Then: 파일이 로드되고 내용이 일치하는지 확인합니다
             assertThat(resource).isPresent().withFailMessage("저장된 파일을 찾을 수 없습니다");
@@ -204,7 +201,7 @@ public abstract class FileStorageRepositoryIntegrationTestBase {
         @DisplayName("존재하지 않는 파일 로드시 Optional.empty 반환")
         void loadNonExistentFileShouldReturnEmpty() {
             // When: 존재하지 않는 파일의 키로 로드를 시도합니다
-            Optional<UrlResource> resource = repository.load("nonexistent-" + System.currentTimeMillis() + ".txt");
+            Optional<UrlResource> resource = getRepository().load("nonexistent-" + System.currentTimeMillis() + ".txt");
 
             // Then: 결과가 비어있는지 확인합니다
             assertThat(resource).isEmpty()
@@ -220,10 +217,10 @@ public abstract class FileStorageRepositoryIntegrationTestBase {
             String wrongKey = key + "-wrong";
 
             // When & Then: 정확한 키로는 로드되고, 잘못된 키로는 로드되지 않는지 확인합니다
-            assertThat(repository.load(key)).isPresent()
+            assertThat(getRepository().load(key)).isPresent()
                     .withFailMessage("정확한 키로 파일을 로드할 수 없습니다");
             
-            assertThat(repository.load(wrongKey)).isEmpty()
+            assertThat(getRepository().load(wrongKey)).isEmpty()
                     .withFailMessage("잘못된 키로 파일이 로드되었습니다");
         }
 
@@ -235,7 +232,7 @@ public abstract class FileStorageRepositoryIntegrationTestBase {
             String key = storeTestFile("integrity_test.txt", content);
 
             // When: 저장된 파일을 로드합니다
-            Optional<UrlResource> resource = repository.load(key);
+            Optional<UrlResource> resource = getRepository().load(key);
 
             // Then: 내용이 정확하게 유지되는지 확인합니다
             assertThat(resource).isPresent()
@@ -258,7 +255,7 @@ public abstract class FileStorageRepositoryIntegrationTestBase {
      */
     protected String storeTestFile(String filename, String content) {
         FileStorageCommand command = createTestFileCommand(filename, content);
-        return repository.store(command);
+        return getRepository().store(command);
     }
 
     /**

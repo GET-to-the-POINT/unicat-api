@@ -1,8 +1,9 @@
 package gettothepoint.unicatapi.filestorage.application;
 
 import gettothepoint.unicatapi.filestorage.infrastructure.config.DefaultFileStorageCommandConfig;
-import gettothepoint.unicatapi.filestorage.infrastructure.storage.DefaultFileNameTransformer;
+import gettothepoint.unicatapi.filestorage.infrastructure.storage.DefaultFileNameValidator;
 import gettothepoint.unicatapi.filestorage.infrastructure.storage.DefaultFileStorageCommandValidator;
+import gettothepoint.unicatapi.filestorage.infrastructure.storage.HashBasedFileNameTransformer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +20,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringJUnitConfig(classes = {
         DefaultFileStorageCommandConfig.class,
         DefaultFileStorageCommandValidator.class,
-        DefaultFileNameTransformer.class,
+        HashBasedFileNameTransformer.class,
         FileUploadUseCase.class,
+        DefaultFileNameValidator.class,
 })
 public abstract class FileUploadUseCaseTestBase {
 

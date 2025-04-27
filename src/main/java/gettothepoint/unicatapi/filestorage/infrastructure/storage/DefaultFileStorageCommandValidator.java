@@ -1,17 +1,23 @@
 package gettothepoint.unicatapi.filestorage.infrastructure.storage;
 
+import gettothepoint.unicatapi.filestorage.domain.storage.FileNameValidator;
 import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageCommandValidator;
 import gettothepoint.unicatapi.filestorage.domain.exception.FileStorageErrorCode;
 import gettothepoint.unicatapi.filestorage.domain.exception.FileStorageException;
+import lombok.RequiredArgsConstructor;
 import org.apache.tika.Tika;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
-import java.util.regex.Pattern;
 
+/**
+ * 파일 저장 커맨드의 유효성을 검증하는 기본 구현체입니다.
+ * 파일명, 파일 크기, 콘텐츠 타입 등 다양한 측면의 검증을 담당합니다.
+ */
 @Component
+@RequiredArgsConstructor
 public class DefaultFileStorageCommandValidator implements FileStorageCommandValidator {
 
     private static final Tika tika = new Tika();
@@ -23,43 +29,13 @@ public class DefaultFileStorageCommandValidator implements FileStorageCommandVal
             ".txt",  "text/plain"
     );
 
-    private static final Pattern PATH_TRAVERSAL_PATTERN = Pattern.compile("(^|[\\\\/])\\.\\.($|[\\\\/])");
-    private static final Pattern LEADING_DOT_PATTERN = Pattern.compile("^\\.(?![\\\\/])");
-    private static final Pattern MULTIPLE_DOTS_PATTERN = Pattern.compile("\\.\\.");
-    private static final Pattern FORBIDDEN_CHARS_PATTERN = Pattern.compile("[:*?\"<>|]");
+    private final FileNameValidator fileNameValidator;
 
     @Override
     public void validate(String filename, InputStream content, long size, String contentType) {
-        validateFilename(filename);
+        fileNameValidator.validate(filename);
         validatePositiveSize(size);
         validateContent(content, filename, size, contentType);
-    }
-
-    private void validateFilename(String filename) {
-        if (filename.isBlank()) {
-            throw new FileStorageException(FileStorageErrorCode.EMPTY_FILENAME);
-        }
-        if (PATH_TRAVERSAL_PATTERN.matcher(filename).find()) {
-            throw new FileStorageException(FileStorageErrorCode.PATH_TRAVERSAL_DETECTED, filename);
-        }
-        if (filename.startsWith("/") || filename.startsWith("\\") || filename.matches("^[a-zA-Z]:[\\\\/].*")) {
-            throw new FileStorageException(FileStorageErrorCode.ABSOLUTE_PATH_DETECTED, filename);
-        }
-        if (LEADING_DOT_PATTERN.matcher(filename).find()) {
-            throw new FileStorageException(FileStorageErrorCode.LEADING_DOT_FILENAME, filename);
-        }
-        if (MULTIPLE_DOTS_PATTERN.matcher(filename).find()) {
-            throw new FileStorageException(FileStorageErrorCode.MULTIPLE_DOTS_DETECTED, filename);
-        }
-        if (FORBIDDEN_CHARS_PATTERN.matcher(filename).find()) {
-            throw new FileStorageException(FileStorageErrorCode.FORBIDDEN_CHARACTERS, filename);
-        }
-
-        if (System.getProperty("os.name").toLowerCase().contains("win")) {
-            if (filename.endsWith(".") || filename.endsWith(" ")) {
-                throw new FileStorageException(FileStorageErrorCode.WINDOWS_SPECIAL_RULE_VIOLATION, filename);
-            }
-        }
     }
 
     private void validatePositiveSize(long size) {

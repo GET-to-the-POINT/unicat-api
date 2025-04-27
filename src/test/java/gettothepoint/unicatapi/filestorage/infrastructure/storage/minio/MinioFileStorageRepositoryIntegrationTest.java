@@ -35,9 +35,6 @@ class MinioFileStorageRepositoryIntegrationTest extends FileStorageRepositoryInt
             .withEnv("MINIO_ROOT_USER", "minioadmin")
             .withEnv("MINIO_ROOT_PASSWORD", "minioadmin");
 
-    @Autowired
-    private FileStorageRepository repository;
-
     @DynamicPropertySource
     static void configureMinioProperties(DynamicPropertyRegistry registry) {
         minio.start();
@@ -46,6 +43,9 @@ class MinioFileStorageRepositoryIntegrationTest extends FileStorageRepositoryInt
         registry.add("app.minio.accessKeyId", minio::getUserName);
         registry.add("app.minio.secretAccessKey", minio::getPassword);
     }
+
+    @Autowired
+    private FileStorageRepository repository;
 
     // ======= FileStorageRepositoryIntegrationTestBase 구현 =======
 

@@ -8,8 +8,12 @@ import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+/**
+ * 파일명을 SHA-256 해시 기반으로 변환하는 구현체입니다.
+ * 원본 파일명 + 파일 내용의 해시값을 조합하여 고유한 파일명을 생성합니다.
+ */
 @Component
-public class DefaultFileNameTransformer implements FileNameTransformer {
+public class HashBasedFileNameTransformer implements FileNameTransformer {
 
     @Override
     public String transform(String filename, InputStream content) {

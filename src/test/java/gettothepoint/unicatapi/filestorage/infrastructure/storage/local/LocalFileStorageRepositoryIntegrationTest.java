@@ -2,6 +2,7 @@ package gettothepoint.unicatapi.filestorage.infrastructure.storage.local;
 
 import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageRepository;
 import gettothepoint.unicatapi.filestorage.infrastructure.config.LocalFileStorageConfig;
+import gettothepoint.unicatapi.filestorage.infrastructure.persistence.local.LocalFileStorageRepository;
 import gettothepoint.unicatapi.filestorage.infrastructure.storage.FileStorageRepositoryIntegrationTestBase;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.io.TempDir;
@@ -18,9 +19,6 @@ import java.nio.file.Path;
 @DisplayName("Local 파일 저장소 통합 테스트")
 class LocalFileStorageRepositoryIntegrationTest extends FileStorageRepositoryIntegrationTestBase {
 
-    @Autowired
-    private FileStorageRepository repository;
-
     @TempDir
     private static Path tempDir;
 
@@ -28,6 +26,9 @@ class LocalFileStorageRepositoryIntegrationTest extends FileStorageRepositoryInt
     static void overrideProps(DynamicPropertyRegistry registry) {
         registry.add("app.filestorage.local-root", tempDir::toAbsolutePath);
     }
+
+    @Autowired
+    private FileStorageRepository repository;
 
     // ======= FileStorageRepositoryIntegrationTestBase 구현 =======
 
