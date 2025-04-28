@@ -1,6 +1,7 @@
 package gettothepoint.unicatapi.filestorage;
 
 import lombok.Getter;
+import lombok.NonNull;
 import org.apache.tika.Tika;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -106,10 +107,7 @@ public final class FileResource {
      * @throws IllegalArgumentException 파일이 비어있거나 파일명이 유효하지 않은 경우
      * @throws SecurityException 보안 위험이 있는 파일명인 경우
      */
-    public FileResource(String originalFilename, byte[] content) {
-        Objects.requireNonNull(originalFilename, "originalFilename must not be null");
-        Objects.requireNonNull(content, "content must not be null");
-
+    public FileResource(@NonNull String originalFilename, byte @NonNull [] content) {
         validateFileName(originalFilename);
 
         this.data = content;

@@ -114,18 +114,6 @@ class FileResourceTest {
     @DisplayName("파일명 검증 테스트")
     class FileNameValidationTests {
 
-        @Test
-        @DisplayName("null 파일명은 NullPointerException 발생")
-        void nullFilenameThrowsException() {
-            // given
-            byte[] content = "test".getBytes();
-
-            // when & then
-            assertThatNullPointerException()
-                    .isThrownBy(() -> new FileResource(null, content))
-                    .withMessage("originalFilename must not be null");
-        }
-
         @ParameterizedTest
         @NullSource
         @DisplayName("null 파일명은 NullPointerException 발생")
@@ -136,7 +124,7 @@ class FileResourceTest {
             // when & then
             assertThatNullPointerException()
                     .isThrownBy(() -> new FileResource(invalidName, content))
-                    .withMessage("originalFilename must not be null");
+                    .withMessage("originalFilename is marked non-null but is null");
         }
 
         @ParameterizedTest
@@ -229,7 +217,7 @@ class FileResourceTest {
 
         @Test
         @DisplayName("확장자와 실제 파일 내용의 MIME 타입이 불일치하면 예외 발생")
-        void mismatchedMimeTypeThrowsException() throws IOException {
+        void mismatchedMimeTypeThrowsException() {
             // given - JPG 확장자이지만 텍스트 내용의 파일
             String filename = "fake-image.jpg";
             byte[] content = "This is not an image file".getBytes();
@@ -246,12 +234,12 @@ class FileResourceTest {
     @DisplayName("파일 내용 검증 테스트")
     class FileContentValidationTests {
 
-        @Test
+        @ParameterizedTest
+        @EmptySource
         @DisplayName("내용이 없는 파일은 예외 발생")
-        void emptyContentThrowsException() {
+        void emptyContentThrowsException(byte[] emptyContent) {
             // given
             String filename = "empty.txt";
-            byte[] emptyContent = new byte[0];
 
             // when & then
             assertThatExceptionOfType(IllegalArgumentException.class)
@@ -259,17 +247,17 @@ class FileResourceTest {
                     .withMessageContaining("파일이 비어 있습니다");
         }
 
-        @Test
+        @ParameterizedTest
+        @NullSource
         @DisplayName("null 내용은 NullPointerException 발생")
-        void nullContentThrowsException() {
+        void nullContentThrowsException(InputStream nullContent) {
             // given
             String filename = "test.txt";
-            byte[] nullContent = null;
 
             // when & then
             assertThatNullPointerException()
                     .isThrownBy(() -> new FileResource(filename, nullContent))
-                    .withMessage("content must not be null");
+                    .withMessage("Cannot invoke \"java.io.InputStream.readAllBytes()\" because \"in\" is null");
         }
 
         @Test
