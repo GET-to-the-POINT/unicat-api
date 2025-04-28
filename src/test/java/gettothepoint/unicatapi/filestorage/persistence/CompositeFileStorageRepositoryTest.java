@@ -5,8 +5,10 @@ import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.errors.*;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.core.io.UrlResource;
 import org.testcontainers.containers.MinIOContainer;
@@ -17,7 +19,6 @@ import org.testcontainers.utility.DockerImageName;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -49,7 +50,7 @@ class CompositeFileStorageRepositoryTest {
     /* ---------- repository builders ---------- */
 
     private CompositeFileStorageRepository localOnly() {
-        FileStorageRepository local = new LocalFileStorageRepository(tempDir.getFileName());
+        FileStorageRepository local = new LocalFileStorageRepository(tempDir);
         return new CompositeFileStorageRepository(List.of(local));
     }
 
@@ -68,7 +69,7 @@ class CompositeFileStorageRepositoryTest {
         }
 
         FileStorageRepository s3    = new MinioFileStorageRepository(client, BUCKET);
-        FileStorageRepository local = new LocalFileStorageRepository(tempDir.getFileName());
+        FileStorageRepository local = new LocalFileStorageRepository(tempDir);
 
         return new CompositeFileStorageRepository(List.of(local, s3));
     }
