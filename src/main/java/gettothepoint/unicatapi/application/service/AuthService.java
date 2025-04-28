@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.application.service;
 
-import gettothepoint.unicatapi.application.service.email.EmailService;
+import gettothepoint.unicatapi.email.infrastructure.email.SyncMailSender;
 import gettothepoint.unicatapi.application.service.member.MemberService;
 import gettothepoint.unicatapi.common.util.JwtUtil;
 import gettothepoint.unicatapi.domain.dto.sign.SignInRequest;
@@ -23,7 +23,7 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final MessageSource messageSource;
     private final MemberService memberService;
-    private final EmailService emailService;
+    private final SyncMailSender syncMailSender;
 
     public String signUp(SignUpRequest signUpRequest) {
         Member member = memberService.create(signUpRequest.email(), signUpRequest.password(), signUpRequest.name(), signUpRequest.phoneNumber());

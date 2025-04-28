@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.filestorage.presentation;
 
-import gettothepoint.unicatapi.filestorage.application.FileDownloadUseCase;
-import gettothepoint.unicatapi.filestorage.application.FileUploadUseCase;
+import gettothepoint.unicatapi.filestorage.application.port.in.FileDownloadUseCase;
+import gettothepoint.unicatapi.filestorage.application.port.in.FileUploadUseCase;
 import gettothepoint.unicatapi.filestorage.presentation.dto.FileResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.UrlResource;
