@@ -1,4 +1,4 @@
-package gettothepoint.unicatapi.email.config;
+package gettothepoint.unicatapi.mail.config;
 
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -6,12 +6,8 @@ import org.springframework.core.task.SyncTaskExecutor;
 
 import java.util.concurrent.Executor;
 
-/**
- * 비동기 메일 발송 테스트를 위한 수동 테스트 설정 클래스.
- * 실제로는 동기식으로 실행되어 테스트 결과를 예측 가능하게 합니다.
- */
 @TestConfiguration
-public class SyncTaskExecutorTestConfig {
+public class SyncTaskExecutorConfig {
 
     /**
      * 동기식 작업 실행기를 생성하여 비동기 작업을 동기식으로 처리합니다.

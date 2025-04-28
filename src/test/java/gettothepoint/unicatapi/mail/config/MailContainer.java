@@ -1,10 +1,11 @@
-package gettothepoint.unicatapi.email.config;
+package gettothepoint.unicatapi.mail.config;
 
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
+
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 
 /**
  * Testcontainers 기반 MailPit 컨테이너 구현.
