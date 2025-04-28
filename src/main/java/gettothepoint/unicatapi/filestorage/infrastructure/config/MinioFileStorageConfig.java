@@ -1,6 +1,7 @@
 package gettothepoint.unicatapi.filestorage.infrastructure.config;
 
 import gettothepoint.unicatapi.filestorage.application.port.out.FileStorageRepository;
+import gettothepoint.unicatapi.filestorage.infrastructure.exception.MinioFileStorageException;
 import gettothepoint.unicatapi.filestorage.infrastructure.persistence.minio.MinioFileStorageRepository;
 import io.minio.BucketExistsArgs;
 import io.minio.MinioClient;
@@ -31,8 +32,7 @@ public class MinioFileStorageConfig {
                 client.makeBucket(MakeBucketArgs.builder().bucket(props.bucket()).build());
             }
         } catch (Exception e) {
-            // Log or handle the exception as needed
-            throw new RuntimeException("Failed to create or verify bucket", e);
+            throw MinioFileStorageException.connectionError(e);
         }
         return client;
     }
@@ -41,5 +41,4 @@ public class MinioFileStorageConfig {
     public FileStorageRepository minioFileStorageRepository(MinioClient minioClient, MinioFileStorageProperties props) {
         return new MinioFileStorageRepository(minioClient, props.bucket());
     }
-
 }

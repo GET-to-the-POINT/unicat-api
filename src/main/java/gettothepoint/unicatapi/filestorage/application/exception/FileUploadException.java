@@ -1,32 +1,25 @@
 package gettothepoint.unicatapi.filestorage.application.exception;
 
-import lombok.Getter;
+import gettothepoint.unicatapi.common.exception.BaseException;
 
 /**
  * 파일 업로드 과정에서 발생하는 예외
  */
-@Getter
-public class FileUploadException extends RuntimeException {
-
-    private final FileUploadErrorCode errorCode;
+public class FileUploadException extends BaseException {
 
     public FileUploadException(FileUploadErrorCode errorCode) {
-        super(errorCode.getMessage());
-        this.errorCode = errorCode;
+        super(errorCode);
     }
 
     public FileUploadException(FileUploadErrorCode errorCode, Object... args) {
-        super(errorCode.formatMessage(args));
-        this.errorCode = errorCode;
+        super(errorCode, args);
     }
 
     public FileUploadException(FileUploadErrorCode errorCode, Throwable cause) {
-        super(errorCode.getMessage(), cause);
-        this.errorCode = errorCode;
+        super(errorCode, cause);
     }
 
     public FileUploadException(FileUploadErrorCode errorCode, Throwable cause, Object... args) {
-        super(errorCode.formatMessage(args), cause);
-        this.errorCode = errorCode;
+        super(errorCode, cause, args);
     }
 }

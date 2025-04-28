@@ -9,16 +9,16 @@ public class MinioFileStorageException extends FileStorageInfraException {
         super(errorCode);
     }
     
-    public MinioFileStorageException(FileStorageInfraErrorCode errorCode, String details) {
-        super(errorCode, errorCode.formatMessage(details));
+    public MinioFileStorageException(FileStorageInfraErrorCode errorCode, Object... args) {
+        super(errorCode, args);
     }
     
     public MinioFileStorageException(FileStorageInfraErrorCode errorCode, Throwable cause) {
         super(errorCode, cause);
     }
     
-    public MinioFileStorageException(FileStorageInfraErrorCode errorCode, String details, Throwable cause) {
-        super(errorCode, errorCode.formatMessage(details), cause);
+    public MinioFileStorageException(FileStorageInfraErrorCode errorCode, Throwable cause, Object... args) {
+        super(errorCode, cause, args);
     }
     
     /**
@@ -64,7 +64,7 @@ public class MinioFileStorageException extends FileStorageInfraException {
      * @return 생성된 예외
      */
     public static MinioFileStorageException uploadError(String objectName, Throwable cause) {
-        return new MinioFileStorageException(FileStorageInfraErrorCode.MINIO_UPLOAD_ERROR, objectName, cause);
+        return new MinioFileStorageException(FileStorageInfraErrorCode.MINIO_UPLOAD_ERROR, cause, objectName);
     }
     
     /**
@@ -74,6 +74,6 @@ public class MinioFileStorageException extends FileStorageInfraException {
      * @return 생성된 예외
      */
     public static MinioFileStorageException downloadError(String objectName, Throwable cause) {
-        return new MinioFileStorageException(FileStorageInfraErrorCode.MINIO_DOWNLOAD_ERROR, objectName, cause);
+        return new MinioFileStorageException(FileStorageInfraErrorCode.MINIO_DOWNLOAD_ERROR, cause, objectName);
     }
 }

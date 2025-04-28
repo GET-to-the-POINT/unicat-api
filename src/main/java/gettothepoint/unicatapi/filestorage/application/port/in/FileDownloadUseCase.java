@@ -26,7 +26,7 @@ public class FileDownloadUseCase {
      */
     public Optional<UrlResource> downloadFile(@NonNull String fileKey) {
         if (!StringUtils.hasText(fileKey)) {
-            throw new FileDownloadException(FileDownloadErrorCode.INVALID_FILE_KEY);
+            throw new FileDownloadException(FileDownloadErrorCode.INVALID_DOWNLOAD_KEY);
         }
 
         return fileStorageRepository.load(fileKey);

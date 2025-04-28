@@ -1,19 +1,18 @@
 package gettothepoint.unicatapi.filestorage.domain.exception;
 
-import lombok.Getter;
+import gettothepoint.unicatapi.common.exception.BaseException;
+import gettothepoint.unicatapi.common.exception.ErrorCode;
 
-@Getter
-public class FileStorageException extends RuntimeException {
-    
-    private final FileStorageErrorCode errorCode;
+/**
+ * 파일 스토리지 도메인에서 발생하는 예외 
+ */
+public class FileStorageException extends BaseException {
     
     public FileStorageException(FileStorageErrorCode errorCode, Object... args) {
-        super(errorCode.formatMessage(args));
-        this.errorCode = errorCode;
+        super(errorCode, args);
     }
     
     public FileStorageException(FileStorageErrorCode errorCode, Throwable cause, Object... args) {
-        super(errorCode.formatMessage(args), cause);
-        this.errorCode = errorCode;
+        super(errorCode, cause, args);
     }
 }

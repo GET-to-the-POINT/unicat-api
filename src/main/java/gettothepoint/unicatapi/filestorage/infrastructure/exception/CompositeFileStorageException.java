@@ -1,30 +1,29 @@
 package gettothepoint.unicatapi.filestorage.infrastructure.exception;
 
+import lombok.Getter;
 import java.util.List;
 
 /**
  * 복합 파일 스토리지 관련 예외
  */
+@Getter
 public class CompositeFileStorageException extends FileStorageInfraException {
     
-    private final List<Throwable> causes;
+    private final List<Throwable> allCauses;
     
     public CompositeFileStorageException(FileStorageInfraErrorCode errorCode) {
         super(errorCode);
-        this.causes = List.of();
+        this.allCauses = List.of();
     }
     
     public CompositeFileStorageException(FileStorageInfraErrorCode errorCode, List<Throwable> causes) {
         super(errorCode);
-        this.causes = causes;
+        this.allCauses = causes;
     }
     
-    /**
-     * 이 예외를 발생시킨 모든 원인 예외들을 반환합니다.
-     * @return 원인 예외 목록
-     */
-    public List<Throwable> getAllCauses() {
-        return causes;
+    public CompositeFileStorageException(FileStorageInfraErrorCode errorCode, Throwable cause, List<Throwable> causes) {
+        super(errorCode, cause);
+        this.allCauses = causes;
     }
     
     /**

@@ -102,7 +102,7 @@ class FileDownloadUseCaseTest {
             // When & Then
             assertThatThrownBy(() -> useCase.downloadFile(invalidKey))
                     .isInstanceOf(FileDownloadException.class)
-                    .hasFieldOrPropertyWithValue("errorCode", FileDownloadErrorCode.INVALID_FILE_KEY);
+                    .hasFieldOrPropertyWithValue("errorCode", FileDownloadErrorCode.INVALID_DOWNLOAD_KEY);
             
             then(repository).shouldHaveNoInteractions();
         }

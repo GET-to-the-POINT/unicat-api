@@ -1,5 +1,6 @@
 package gettothepoint.unicatapi.filestorage.infrastructure.exception;
 
+import gettothepoint.unicatapi.common.exception.ErrorCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -8,7 +9,7 @@ import lombok.RequiredArgsConstructor;
  */
 @Getter
 @RequiredArgsConstructor
-public enum FileStorageInfraErrorCode {
+public enum FileStorageInfraErrorCode implements ErrorCode {
     
     // 공통 에러 코드
     UNKNOWN_ERROR("FSI-000", "알 수 없는 오류가 발생했습니다"),
@@ -35,17 +36,4 @@ public enum FileStorageInfraErrorCode {
     
     private final String code;
     private final String message;
-    
-    /**
-     * 포맷팅된 메시지를 반환합니다.
-     * @param args 메시지 포맷팅에 사용할 인자들
-     * @return 포맷팅된 메시지
-     */
-    public String formatMessage(Object... args) {
-        try {
-            return String.format(message, args);
-        } catch (Exception e) {
-            return message;
-        }
-    }
 }

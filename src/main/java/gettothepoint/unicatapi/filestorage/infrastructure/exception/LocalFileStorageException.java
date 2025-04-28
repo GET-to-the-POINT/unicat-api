@@ -11,16 +11,16 @@ public class LocalFileStorageException extends FileStorageInfraException {
         super(errorCode);
     }
     
-    public LocalFileStorageException(FileStorageInfraErrorCode errorCode, String path) {
-        super(errorCode, errorCode.formatMessage(path));
+    public LocalFileStorageException(FileStorageInfraErrorCode errorCode, Object... args) {
+        super(errorCode, args);
     }
     
-    public LocalFileStorageException(FileStorageInfraErrorCode errorCode, IOException cause) {
+    public LocalFileStorageException(FileStorageInfraErrorCode errorCode, Throwable cause) {
         super(errorCode, cause);
     }
     
-    public LocalFileStorageException(FileStorageInfraErrorCode errorCode, String path, IOException cause) {
-        super(errorCode, errorCode.formatMessage(path), cause);
+    public LocalFileStorageException(FileStorageInfraErrorCode errorCode, Throwable cause, Object... args) {
+        super(errorCode, cause, args);
     }
     
     /**
@@ -30,7 +30,7 @@ public class LocalFileStorageException extends FileStorageInfraException {
      * @return 생성된 예외
      */
     public static LocalFileStorageException directoryCreationFailed(String path, IOException cause) {
-        return new LocalFileStorageException(FileStorageInfraErrorCode.LOCAL_DIRECTORY_CREATION_FAILED, path, cause);
+        return new LocalFileStorageException(FileStorageInfraErrorCode.LOCAL_DIRECTORY_CREATION_FAILED, cause, path);
     }
     
     /**
@@ -40,7 +40,7 @@ public class LocalFileStorageException extends FileStorageInfraException {
      * @return 생성된 예외
      */
     public static LocalFileStorageException fileIOError(String path, IOException cause) {
-        return new LocalFileStorageException(FileStorageInfraErrorCode.LOCAL_FILE_IO_ERROR, path, cause);
+        return new LocalFileStorageException(FileStorageInfraErrorCode.LOCAL_FILE_IO_ERROR, cause, path);
     }
     
     /**
@@ -59,6 +59,6 @@ public class LocalFileStorageException extends FileStorageInfraException {
      * @return 생성된 예외
      */
     public static LocalFileStorageException permissionDenied(String path, IOException cause) {
-        return new LocalFileStorageException(FileStorageInfraErrorCode.LOCAL_FILE_PERMISSION_DENIED, path, cause);
+        return new LocalFileStorageException(FileStorageInfraErrorCode.LOCAL_FILE_PERMISSION_DENIED, cause, path);
     }
 }
