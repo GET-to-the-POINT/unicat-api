@@ -20,21 +20,6 @@ spring:
       ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
     open-in-view: false
 
-  mail:
-    host: ${SPRING_MAIL_HOST:localhost}
-    port: ${SPRING_MAIL_PORT:587}
-    username: ${SPRING_MAIL_USERNAME}
-    password: ${SPRING_MAIL_PASSWORD}
-    properties:
-      mail:
-        smtp:
-          auth: ${SPRING_MAIL_SMTP_AUTH:true}
-          starttls:
-            enable: ${SPRING_MAIL_STARTTLS_ENABLE:true}
-            required: ${SPRING_MAIL_STARTTLS_REQUIRED:true}
-          connectiontimeout: ${SPRING_MAIL_CONNECTION_TIMEOUT:20000}
-          timeout: ${SPRING_MAIL_TIMEOUT:20000}
-          writetimeout: ${SPRING_MAIL_WRITE_TIMEOUT:20000}
   servlet:
     multipart:
       max-file-size: 50MB
