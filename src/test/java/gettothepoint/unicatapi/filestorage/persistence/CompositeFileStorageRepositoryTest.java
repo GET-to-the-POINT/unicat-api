@@ -16,6 +16,7 @@ import org.testcontainers.utility.DockerImageName;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.security.InvalidKeyException;
@@ -24,6 +25,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @DisplayName("CompositeFileStorageRepository")
 @Testcontainers
@@ -85,16 +88,16 @@ class CompositeFileStorageRepositoryTest {
         @DisplayName("store()와 load()가 정상 동작한다")
         void storeAndLoadSuccessfully() {
             // given
-            String filename = "local.txt";
-            byte[] bytes = "Hello Local!".getBytes(StandardCharsets.UTF_8);
+            String filename = "mocked-file.txt";
+            byte[] bytes = "Mocked Content".getBytes();
+            InputStream contentStream = new ByteArrayInputStream(bytes);
 
-            FileResource file = new FileResource(
-                    filename,
-                    bytes
-            );
+            FileResource mockFileResource = mock(FileResource.class);
+            when(mockFileResource.getFilename()).thenReturn(filename);
+            when(mockFileResource.getContent()).thenReturn(contentStream);
 
             // when
-            String storedKey = repository.store(file);
+            String storedKey = repository.store(mockFileResource);
             Optional<UrlResource> loaded = repository.load(storedKey);
 
             // then
@@ -123,16 +126,16 @@ class CompositeFileStorageRepositoryTest {
         @DisplayName("store()와 load()가 정상 동작한다")
         void storeAndLoadSuccessfully() {
             // given
-            String filename = "both.txt";
-            byte[] bytes = "Hello Both!".getBytes(StandardCharsets.UTF_8);
+            String filename = "mocked-file.txt";
+            byte[] bytes = "Mocked Content".getBytes();
+            InputStream contentStream = new ByteArrayInputStream(bytes);
 
-            FileResource file = new FileResource(
-                    filename,
-                    new ByteArrayInputStream(bytes)
-            );
+            FileResource mockFileResource = mock(FileResource.class);
+            when(mockFileResource.getFilename()).thenReturn(filename);
+            when(mockFileResource.getContent()).thenReturn(contentStream);
 
             // when
-            String storedKey = repository.store(file);
+            String storedKey = repository.store(mockFileResource);
             Optional<UrlResource> loaded = repository.load(storedKey);
 
             // then

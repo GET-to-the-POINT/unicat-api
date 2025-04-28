@@ -13,13 +13,17 @@ import org.testcontainers.containers.MinIOContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @Testcontainers
 @DisplayName("MinIO 파일 저장소 통합 테스트")
@@ -45,13 +49,18 @@ class MinioFileStorageRepositoryTest {
     @DisplayName("파일을 저장하고 다시 불러올 수 있다")
     void shouldStoreAndLoadFileSuccessfully() {
         // given
-        String filename = "hello.txt";
-        byte[] bytes = "Hello MinIO!".getBytes(StandardCharsets.UTF_8);
+        String filename = "mocked-file.txt";
+        byte[] bytes = "Mocked Content".getBytes();
+        InputStream contentStream = new ByteArrayInputStream(bytes);
 
-        FileResource file = new FileResource(filename, bytes);
+        FileResource mockFileResource = mock(FileResource.class);
+        when(mockFileResource.getFilename()).thenReturn(filename);
+        when(mockFileResource.getContent()).thenReturn(contentStream);
+        when(mockFileResource.getContentType()).thenReturn("text/plain");
+        when(mockFileResource.getSize()).thenReturn((long) bytes.length);
 
         // when
-        String storedKey = repository.store(file);          // 업로드
+        String storedKey = repository.store(mockFileResource);          // 업로드
         Optional<UrlResource> presigned = repository.load(storedKey); // presigned URL 조회
 
         // then
