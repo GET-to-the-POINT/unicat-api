@@ -21,7 +21,7 @@ public class PaymentService {
     private final TossPaymentGateway tossPaymentGateway;
     private final OrderService orderService;
     private final BillingService billingService;
-    private final SubscriptionUseCase subscriptionService;
+    private final SubscriptionUseCase subscriptionUseCase;
     private final PaymentRecordService paymentRecordService;
     private final MemberService memberService;
 
@@ -47,7 +47,7 @@ public class PaymentService {
         orderService.markAsDone(order);
         paymentRecordService.save(order, approvalResult);
         billingService.applyRecurring(billing); //recurring 갱신
-        subscriptionService.changePlan(order.getMember(), order.getPlan());
+        subscriptionUseCase.changePlan(order.getMember(), order.getPlan().getName());
 
         return approvalResult;
     }

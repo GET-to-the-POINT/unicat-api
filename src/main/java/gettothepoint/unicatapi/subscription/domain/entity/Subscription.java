@@ -17,46 +17,44 @@ public class Subscription extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "plan_id")
+    private Plan plan;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
+
     @Embedded
     private SubscriptionPeriod period;
 
-    @ManyToOne
-    private Plan plan;
-
-    @OneToOne
-    private Member member;
-
     @Builder
-    public Subscription(Member member,Plan plan) {
+    public Subscription(Member member, Plan plan) {
         this.member = member;
-        this.plan = (plan != null) ? plan : getDefaultPlan();
-        this.period = SubscriptionPeriod.startNowIndefinitely();
-    }
-
-    private Plan getDefaultPlan() {
-        return Plan.builder()
-                .name("BASIC")
-                .description("기본 플랜")
-                .price(0L)
-                .build();
+        this.plan = plan;
+        this.period = plan.isBasicPlan() 
+            ? SubscriptionPeriod.startNowIndefinitely() 
+            : SubscriptionPeriod.forOneMonthFromNow();
     }
 
     public void changePlan(Plan newPlan) {
-        if (newPlan == null) {
-            throw new IllegalArgumentException("새로운 플랜은 null일 수 없습니다.");
-        }
-        if (newPlan.equals(this.plan)) {
-            throw new IllegalStateException("동일한 플랜으로는 변경할 수 없습니다.");
-        }
         this.plan = newPlan;
-        this.period = SubscriptionPeriod.forOneMonthFromNow();
-    }
-    public boolean isExpired() {
-        return period.isExpired();
+        
+        // 베이직 플랜이 아닌 경우 구독 기간 갱신
+        if (!newPlan.isBasicPlan()) {
+            this.period = SubscriptionPeriod.forOneMonthFromNow();
+        }
     }
 
     public void expireToBasicPlan(Plan basicPlan) {
+        if (!basicPlan.isBasicPlan()) {
+            throw new IllegalArgumentException("기본 플랜이 아닙니다");
+        }
         this.plan = basicPlan;
         this.period = SubscriptionPeriod.startNowIndefinitely();
+    }
+
+    public boolean isExpired() {
+        return this.period.isExpired();
     }
 }

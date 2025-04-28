@@ -1,7 +1,7 @@
-package gettothepoint.unicatapi.application.service.payment;
+package gettothepoint.unicatapi.subscription.application.service;
 
 import gettothepoint.unicatapi.subscription.domain.entity.Plan;
-import gettothepoint.unicatapi.domain.repository.PlanRepository;
+import gettothepoint.unicatapi.subscription.domain.repository.PlanRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -14,9 +14,15 @@ public class PlanService {
 
     private final PlanRepository planRepository;
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Plan getPlanByName(String name) {
         return planRepository.findByName(name)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Plan not found: " + name));
+    }
+    
+    @Transactional(readOnly = true)
+    public Plan getBasicPlan() {
+        return planRepository.findByName("BASIC")
+                .orElseThrow(() -> new IllegalStateException("기본 플랜이 존재하지 않습니다."));
     }
 }

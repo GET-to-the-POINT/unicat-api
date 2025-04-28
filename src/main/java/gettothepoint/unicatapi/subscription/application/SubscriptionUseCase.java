@@ -1,71 +1,68 @@
 package gettothepoint.unicatapi.subscription.application;
 
 import gettothepoint.unicatapi.domain.entity.member.Member;
+import gettothepoint.unicatapi.subscription.application.service.PlanService;
+import gettothepoint.unicatapi.subscription.application.service.SubscriptionService;
 import gettothepoint.unicatapi.subscription.domain.entity.Plan;
 import gettothepoint.unicatapi.subscription.domain.entity.Subscription;
-import gettothepoint.unicatapi.domain.repository.PlanRepository;
-import gettothepoint.unicatapi.subscription.domain.repository.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * 구독 관련 비즈니스 로직을 처리하는 유스케이스
+ * 구독 생성, 변경, 만료 처리 등을 담당합니다.
+ */
 @Service
 @RequiredArgsConstructor
 public class SubscriptionUseCase {
 
-    private final SubscriptionRepository subscriptionRepository;
-    private final PlanRepository planRepository;
+    private final SubscriptionService subscriptionService;
+    private final PlanService planService;
 
     /**
-     * 멤버에게 구독을 새로 생성
-     * (회원 가입 직후 등)
+     * 멤버에게 구독을 새로 생성합니다.
+     * 회원 가입 직후 등에 호출됩니다.
+     * 
+     * @param member 구독을 생성할 멤버
      */
+    @Transactional
     public void createSubscription(Member member) {
-        Plan basicPlan = getBasicPlan();
-
-        Subscription subscription = Subscription.builder()
-                .member(member)
-                .plan(basicPlan)
-                .build();
-
-        member.setSubscription(subscription); // 양방향 연관 설정
-        subscriptionRepository.save(subscription);
+        subscriptionService.createSubscription(member);
     }
 
     /**
-     * 현재 구독을 BASIC 플랜으로 전환
-     * (구독 만료 등 자동 전환 시 사용)
+     * 현재 구독을 BASIC 플랜으로 전환합니다.
+     * 구독 만료 등 자동 전환 시 사용됩니다.
+     * 
+     * @param member 플랜을 변경할 멤버
      */
+    @Transactional
     public void changeToBasicPlan(Member member) {
-        Plan basicPlan = getBasicPlan();
+        subscriptionService.changeToBasicPlan(member);
+    }
+
+    /**
+     * 원하는 이름의 플랜으로 구독을 변경합니다.
+     * 
+     * @param member 구독을 변경할 멤버
+     * @param planName 변경할 플랜 이름
+     */
+    @Transactional
+    public void changePlan(Member member, String planName) {
         Subscription subscription = member.getSubscription();
-
-        subscription.expireToBasicPlan(basicPlan);
-        subscriptionRepository.save(subscription);
+        Plan plan = planService.getPlanByName(planName);
+        subscriptionService.changePlan(subscription, plan);
     }
 
     /**
-     * 원하는 이름의 플랜으로 구독 변경
+     * 구독이 만료되었는지 확인하고, 만료된 경우 기본 플랜으로 변경합니다.
+     * 스케줄러나 마이페이지 확인 시 호출됩니다.
+     * 
+     * @param member 구독 상태를 확인할 멤버
      */
-    public void changePlan(Member member, Plan plan) {
-        Subscription subscription = member.getSubscription();
-        subscription.changePlan(plan);
-        subscriptionRepository.save(subscription);
-    }
-
-    /**
-     * 기본(BASIC) 플랜 조회
-     */
-    private Plan getBasicPlan() {
-        return planRepository.findByName("BASIC")
-                .orElseThrow(() -> new IllegalStateException("기본 플랜이 존재하지 않습니다."));
-    }
-    /**
-     * 만료되었으면 기본 플랜으로 변경 스케줄러나 마이페이지 확인용
-     */
+    @Transactional
     public void checkAndExpireIfNeeded(Member member) {
-        Subscription subscription = member.getSubscription();
-        if (subscription.isExpired()) {
-            changeToBasicPlan(member);
-        }
+        subscriptionService.checkAndExpireIfNeeded(member);
     }
 }
