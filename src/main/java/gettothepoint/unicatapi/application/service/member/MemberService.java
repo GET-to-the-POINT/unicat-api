@@ -1,6 +1,7 @@
 package gettothepoint.unicatapi.application.service.member;
 
-import gettothepoint.unicatapi.application.service.payment.SubscriptionService;
+
+import gettothepoint.unicatapi.subscription.application.SubscriptionUseCase;
 import gettothepoint.unicatapi.domain.dto.member.member.MemberUpdateDto;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.entity.member.OAuthLink;
@@ -22,7 +23,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final OAuthLinkRepository oAuthLinkRepository;
     private final PasswordEncoder passwordEncoder;
-    private final SubscriptionService subscriptionService;
+    private final SubscriptionUseCase subscriptionUseCase;
 
 
     @Transactional
@@ -34,7 +35,7 @@ public class MemberService {
                 .phoneNumber(phoneNumber)
                 .build();
 
-        subscriptionService.createSubscription(member);
+        subscriptionUseCase.createSubscription(member);
         return memberRepository.save(member);
     }
 
@@ -69,7 +70,7 @@ public class MemberService {
                                     .build()
                     );
 
-                    subscriptionService.createSubscription(savedMember);
+                    subscriptionUseCase.createSubscription(savedMember);
 
                     return savedMember;
                 });

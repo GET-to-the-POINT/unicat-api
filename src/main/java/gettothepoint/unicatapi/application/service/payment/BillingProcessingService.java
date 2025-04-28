@@ -1,5 +1,6 @@
 package gettothepoint.unicatapi.application.service.payment;
 
+import gettothepoint.unicatapi.subscription.application.SubscriptionUseCase;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.entity.payment.Billing;
 import gettothepoint.unicatapi.domain.entity.payment.Order;
@@ -20,7 +21,7 @@ public class BillingProcessingService {
     private final BillingRepository billingRepository;
     private final PaymentService paymentService;
     private final OrderService orderService;
-    private final SubscriptionService subscriptionService;
+    private final SubscriptionUseCase subscriptionUseCase;
 
     /**
      * 이미 결제가 진행중인(유료) 회원에 대해 자동 결제 처리
@@ -45,15 +46,16 @@ public class BillingProcessingService {
      */
     @Transactional
     public void processExpiredSubscriptions() {
-        // 만료일 조건: 구독이 어제까지 사용된 경우 → 어제 날짜를 기준으로 검색
         LocalDate expiredDate = LocalDate.now().minusDays(1);
         List<Billing> expiredList = billingRepository.findNonRecurringMembersWithExpiredSubscription(expiredDate);
 
         log.info("구독 만료 대상 Billing 수: {}", expiredList.size());
         for (Billing billing : expiredList) {
             Member member = billing.getMember();
-            subscriptionService.changeToBasicPlan(member);
-            log.info("구독 BASIC 전환 완료: 회원 {}", member.getEmail());
+
+            subscriptionUseCase.checkAndExpireIfNeeded(member);
+
+            log.info("구독 상태 체크 및 처리 완료: 회원 {}", member.getEmail());
         }
     }
 }

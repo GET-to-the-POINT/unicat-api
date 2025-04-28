@@ -1,4 +1,4 @@
-package gettothepoint.unicatapi.domain.entity.payment;
+package gettothepoint.unicatapi.subscription.domain.entity;
 
 import gettothepoint.unicatapi.domain.entity.BaseEntity;
 import jakarta.persistence.*;

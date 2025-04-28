@@ -1,6 +1,7 @@
 package gettothepoint.unicatapi.application.service.payment;
 
 import gettothepoint.unicatapi.application.service.member.MemberService;
+import gettothepoint.unicatapi.subscription.application.SubscriptionUseCase;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.entity.payment.Billing;
 import gettothepoint.unicatapi.domain.entity.payment.Order;
@@ -20,7 +21,7 @@ public class PaymentService {
     private final TossPaymentGateway tossPaymentGateway;
     private final OrderService orderService;
     private final BillingService billingService;
-    private final SubscriptionService subscriptionService;
+    private final SubscriptionUseCase subscriptionService;
     private final PaymentRecordService paymentRecordService;
     private final MemberService memberService;
 
@@ -46,7 +47,7 @@ public class PaymentService {
         orderService.markAsDone(order);
         paymentRecordService.save(order, approvalResult);
         billingService.applyRecurring(billing); //recurring 갱신
-        subscriptionService.subscribe(order.getMember(), order.getPlan());
+        subscriptionService.changePlan(order.getMember(), order.getPlan());
 
         return approvalResult;
     }

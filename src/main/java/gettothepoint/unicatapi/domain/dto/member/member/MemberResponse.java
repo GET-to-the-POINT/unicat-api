@@ -3,7 +3,7 @@ package gettothepoint.unicatapi.domain.dto.member.member;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.entity.payment.Billing;
-import gettothepoint.unicatapi.domain.entity.payment.Subscription;
+import gettothepoint.unicatapi.subscription.domain.entity.Subscription;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDate;
@@ -42,7 +42,7 @@ record SubscriptionResponse(
         @Schema(example =  "9999-12-31T23:59:59")
         String endDate) {
 public static SubscriptionResponse fromEntity(Subscription subscription) {
-        return new SubscriptionResponse(subscription.getId(), subscription.getPlan().getName(), subscription.getStartDate().toString(), subscription.getEndDate().toString());
+        return new SubscriptionResponse(subscription.getId(), subscription.getPlan().getName(), subscription.getPeriod().getStartDate().toString(), subscription.getPeriod().getEndDate().toString());
     }
 }
 

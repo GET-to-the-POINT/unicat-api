@@ -1,6 +1,6 @@
-package gettothepoint.unicatapi.domain.repository;
+package gettothepoint.unicatapi.subscription.domain.repository;
 
-import gettothepoint.unicatapi.domain.entity.payment.Subscription;
+import gettothepoint.unicatapi.subscription.domain.entity.Subscription;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

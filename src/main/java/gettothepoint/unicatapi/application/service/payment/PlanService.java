@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.application.service.payment;
 
-import gettothepoint.unicatapi.domain.entity.payment.Plan;
+import gettothepoint.unicatapi.subscription.domain.entity.Plan;
 import gettothepoint.unicatapi.domain.repository.PlanRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

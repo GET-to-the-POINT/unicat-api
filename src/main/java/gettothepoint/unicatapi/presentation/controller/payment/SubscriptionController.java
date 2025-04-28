@@ -2,7 +2,7 @@ package gettothepoint.unicatapi.presentation.controller.payment;
 
 import gettothepoint.unicatapi.application.service.payment.OrderService;
 import gettothepoint.unicatapi.application.service.payment.PlanService;
-import gettothepoint.unicatapi.domain.entity.payment.Plan;
+import gettothepoint.unicatapi.subscription.domain.entity.Plan;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

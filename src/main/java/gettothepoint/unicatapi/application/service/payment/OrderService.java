@@ -3,7 +3,7 @@ package gettothepoint.unicatapi.application.service.payment;
 import gettothepoint.unicatapi.application.service.member.MemberService;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.entity.payment.Order;
-import gettothepoint.unicatapi.domain.entity.payment.Plan;
+import gettothepoint.unicatapi.subscription.domain.entity.Plan;
 import gettothepoint.unicatapi.domain.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

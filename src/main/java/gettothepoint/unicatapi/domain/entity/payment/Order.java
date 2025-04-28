@@ -3,6 +3,7 @@ package gettothepoint.unicatapi.domain.entity.payment;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import gettothepoint.unicatapi.domain.entity.BaseEntity;
 import gettothepoint.unicatapi.domain.entity.member.Member;
+import gettothepoint.unicatapi.subscription.domain.entity.Plan;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;

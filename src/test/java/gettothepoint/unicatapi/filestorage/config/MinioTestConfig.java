@@ -1,5 +1,6 @@
 package gettothepoint.unicatapi.filestorage.config;
 
+import gettothepoint.unicatapi.filestorage.infrastructure.storage.config.MinioFileStorageProperties;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;

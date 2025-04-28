@@ -1,9 +1,10 @@
 package gettothepoint.unicatapi.filestorage.infrastructure.storage.local;
 
-import gettothepoint.unicatapi.filestorage.config.LocalFileStorageConfig;
+
 import gettothepoint.unicatapi.filestorage.config.LocalTestConfig;
 import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageCommand;
 import gettothepoint.unicatapi.filestorage.domain.storage.FileStorageRepository;
+import gettothepoint.unicatapi.filestorage.infrastructure.storage.config.LocalFileStorageConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
