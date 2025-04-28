@@ -25,4 +25,9 @@ public class PlanService {
         return planRepository.findByName("BASIC")
                 .orElseThrow(() -> new IllegalStateException("기본 플랜이 존재하지 않습니다."));
     }
+
+    public Plan getOrElseThrow(Long planId) {
+        return planRepository.findById(planId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Plan not found with id: " + planId));
+    }
 }
