@@ -1,26 +1,28 @@
-package gettothepoint.unicatapi.filestorage.infrastructure.persistence.local;
+package gettothepoint.unicatapi.filestorage.infrastructure.persistence.minio;
 
 import gettothepoint.unicatapi.filestorage.application.port.out.FileStorageRepository;
 import gettothepoint.unicatapi.filestorage.domain.model.StoredFile;
-import gettothepoint.unicatapi.filestorage.infrastructure.config.LocalFileStorageConfig;
+import gettothepoint.unicatapi.filestorage.infrastructure.config.MinioFileStorageConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.UrlResource;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import org.testcontainers.containers.MinIOContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
@@ -30,18 +32,27 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.mock;
+import static org.mockito.Mockito.mock;
 
-@SpringJUnitConfig(classes = {LocalFileStorageConfig.class})
-@DisplayName("로컬 파일 저장소 테스트")
-class LocalFileStorageRepositoryTest {
+@SpringJUnitConfig(classes = {MinioFileStorageConfig.class})
+@ActiveProfiles("dev")
+@DisplayName("Minio 파일 저장소 테스트")
+@Testcontainers
+class MinioFileStorageRepositoryTest {
 
-    @TempDir
-    static Path tempDir;
+    private static final String TEST_BUCKET_PREFIX = "test-bucket-";
+
+    @Container
+    static final MinIOContainer minio = new MinIOContainer("minio/minio:latest")
+            .withEnv("MINIO_ROOT_USER", "minioadmin")
+            .withEnv("MINIO_ROOT_PASSWORD", "minioadmin");
 
     @DynamicPropertySource
-    static void overrideProps(DynamicPropertyRegistry registry) {
-        registry.add("app.filestorage.local-root", tempDir::toAbsolutePath);
+    static void configureMinioProperties(DynamicPropertyRegistry registry) {
+        registry.add("app.minio.bucket", () -> TEST_BUCKET_PREFIX + UUID.randomUUID());
+        registry.add("app.minio.endpoint", minio::getS3URL);
+        registry.add("app.minio.accessKeyId", minio::getUserName);
+        registry.add("app.minio.secretAccessKey", minio::getPassword);
     }
 
     @Autowired
@@ -88,13 +99,13 @@ class LocalFileStorageRepositoryTest {
         @DisplayName("바이너리 파일 저장 및 로드")
         void shouldStoreAndLoadBinaryFile() {
             // Given: 테스트 바이너리 파일
-            byte[] binaryContent = new byte[1024];
+            byte[] binaryContent = new byte[1024]; 
             Arrays.fill(binaryContent, (byte)42);
-
+            
             String filename = generateUniqueFilename(".bin");
             StoredFile storedFile = createMockStoredFile(
-                    filename,
-                    binaryContent,
+                    filename, 
+                    binaryContent, 
                     "application/octet-stream"
             );
 
@@ -124,7 +135,7 @@ class LocalFileStorageRepositoryTest {
     @Nested
     @DisplayName("특수 케이스 처리")
     class SpecialCases {
-
+        
         @Test
         @DisplayName("존재하지 않는 파일 로드")
         void shouldReturnEmptyOptionalForNonExistentFile() {
@@ -185,16 +196,16 @@ class LocalFileStorageRepositoryTest {
             // Given: 10MB 크기의 파일 생성
             int fileSize = 10 * 1024 * 1024; // 10MB
             byte[] largeContent = new byte[fileSize];
-
+            
             // 패턴화된 데이터로 채우기
             for (int i = 0; i < fileSize; i++) {
                 largeContent[i] = (byte)(i % 256);
             }
-
+            
             String filename = generateUniqueFilename(".dat");
             StoredFile storedFile = createMockStoredFile(
-                    filename,
-                    largeContent,
+                    filename, 
+                    largeContent, 
                     "application/octet-stream"
             );
 
@@ -240,7 +251,7 @@ class LocalFileStorageRepositoryTest {
                         }
                     }));
         }
-
+        
         @ParameterizedTest(name = "{0}KB 파일 처리")
         @DisplayName("다양한 크기의 파일 저장 및 로드")
         @MethodSource("fileSizeProvider")
@@ -248,16 +259,16 @@ class LocalFileStorageRepositoryTest {
             // Given: 다양한 크기의 테스트 파일
             int fileSize = sizeInKB * 1024;
             byte[] content = new byte[fileSize];
-
+            
             // 의미 있는 패턴으로 데이터 채우기
             for (int i = 0; i < fileSize; i++) {
                 content[i] = (byte)((i * 7) % 256); // 단순 패턴보다 다양한 값 생성
             }
-
+            
             String filename = generateUniqueFilename("-" + sizeInKB + "KB.dat");
             StoredFile storedFile = createMockStoredFile(
-                    filename,
-                    content,
+                    filename, 
+                    content, 
                     "application/octet-stream"
             );
 
@@ -306,14 +317,14 @@ class LocalFileStorageRepositoryTest {
                         }
                     }));
         }
-
+        
         static Stream<Arguments> fileSizeProvider() {
             return Stream.of(
-                    Arguments.of(1, "매우 작은 파일 (1KB)"),
-                    Arguments.of(10, "작은 파일 (10KB)"),
-                    Arguments.of(100, "일반 파일 (100KB)"),
-                    Arguments.of(1024, "중간 크기 파일 (1MB)"),
-                    Arguments.of(5 * 1024, "대용량 파일 (5MB)")
+                Arguments.of(1, "매우 작은 파일 (1KB)"),
+                Arguments.of(10, "작은 파일 (10KB)"),
+                Arguments.of(100, "일반 파일 (100KB)"),
+                Arguments.of(1024, "중간 크기 파일 (1MB)"),
+                Arguments.of(5 * 1024, "대용량 파일 (5MB)")
             );
         }
     }
@@ -321,7 +332,7 @@ class LocalFileStorageRepositoryTest {
     @Nested
     @DisplayName("여러 파일 동시 저장 및 로드")
     class MultipleFilesTest {
-
+        
         @Test
         @DisplayName("여러 파일 저장 및 로드")
         void shouldHandleMultipleFiles() {
@@ -330,31 +341,31 @@ class LocalFileStorageRepositoryTest {
             String[] filenames = new String[fileCount];
             String[] contents = new String[fileCount];
             String[] keys = new String[fileCount];
-
+            
             // When: 다양한 파일들 저장
             for (int i = 0; i < fileCount; i++) {
                 filenames[i] = generateUniqueFilename("-" + i + ".txt");
                 contents[i] = "파일 " + i + "의 테스트 내용: " + UUID.randomUUID();
-
+                
                 StoredFile storedFile = createMockStoredFile(
-                        filenames[i],
+                        filenames[i], 
                         contents[i]
                 );
-
+                
                 keys[i] = repository.store(storedFile);
             }
-
+            
             // Then: 각 파일 저장 결과 확인
             for (int i = 0; i < fileCount; i++) {
                 assertThat(keys[i])
                         .as("%d번째 파일의 키가 파일명과 일치해야 함", i)
                         .isEqualTo(filenames[i]);
             }
-
+            
             // And When: 모든 파일 로드
             for (int i = 0; i < fileCount; i++) {
                 final int index = i; // 람다에서 사용하기 위한 final 변수
-
+                
                 // Then: 각 파일 로드 결과 검증
                 assertThat(repository.load(keys[i]))
                         .as("%d번째 파일이 성공적으로 로드되어야 함", i)
@@ -370,11 +381,11 @@ class LocalFileStorageRepositoryTest {
             }
         }
     }
-
+    
     @Nested
     @DisplayName("다양한 MIME 타입 처리")
     class MimeTypeTests {
-
+        
         @ParameterizedTest(name = "{0} 파일 처리")
         @MethodSource("mimeTypeProvider")
         @DisplayName("다양한 MIME 타입 파일 저장 및 로드")
@@ -409,39 +420,39 @@ class LocalFileStorageRepositoryTest {
                         }
                     }));
         }
-
+        
         static Stream<Arguments> mimeTypeProvider() {
             return Stream.of(
-                    Arguments.of(
-                            "텍스트 파일",
-                            ".txt",
-                            "text/plain",
-                            "일반 텍스트 파일입니다.".getBytes(StandardCharsets.UTF_8)
-                    ),
-                    Arguments.of(
-                            "HTML 파일",
-                            ".html",
-                            "text/html",
-                            "<html><body><h1>HTML 테스트</h1></body></html>".getBytes(StandardCharsets.UTF_8)
-                    ),
-                    Arguments.of(
-                            "JSON 파일",
-                            ".json",
-                            "application/json",
-                            "{\"name\":\"테스트\",\"value\":123}".getBytes(StandardCharsets.UTF_8)
-                    ),
-                    Arguments.of(
-                            "바이너리 파일",
-                            ".bin",
-                            "application/octet-stream",
-                            new byte[]{0x01, 0x02, 0x03, 0x04, 0x05}
-                    ),
-                    Arguments.of(
-                            "PDF 더미 파일",
-                            ".pdf",
-                            "application/pdf",
-                            "%PDF-1.5\nDummy PDF Content".getBytes(StandardCharsets.UTF_8)
-                    )
+                Arguments.of(
+                    "텍스트 파일", 
+                    ".txt", 
+                    "text/plain", 
+                    "일반 텍스트 파일입니다.".getBytes(StandardCharsets.UTF_8)
+                ),
+                Arguments.of(
+                    "HTML 파일", 
+                    ".html", 
+                    "text/html", 
+                    "<html><body><h1>HTML 테스트</h1></body></html>".getBytes(StandardCharsets.UTF_8)
+                ),
+                Arguments.of(
+                    "JSON 파일", 
+                    ".json", 
+                    "application/json", 
+                    "{\"name\":\"테스트\",\"value\":123}".getBytes(StandardCharsets.UTF_8)
+                ),
+                Arguments.of(
+                    "바이너리 파일", 
+                    ".bin", 
+                    "application/octet-stream", 
+                    new byte[]{0x01, 0x02, 0x03, 0x04, 0x05}
+                ),
+                Arguments.of(
+                    "PDF 더미 파일", 
+                    ".pdf", 
+                    "application/pdf", 
+                    "%PDF-1.5\nDummy PDF Content".getBytes(StandardCharsets.UTF_8)
+                )
             );
         }
     }

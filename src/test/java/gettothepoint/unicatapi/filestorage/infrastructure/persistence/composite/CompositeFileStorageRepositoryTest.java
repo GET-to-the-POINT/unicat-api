@@ -1,8 +1,10 @@
-package gettothepoint.unicatapi.filestorage.infrastructure.persistence.local;
+package gettothepoint.unicatapi.filestorage.infrastructure.persistence.composite;
 
 import gettothepoint.unicatapi.filestorage.application.port.out.FileStorageRepository;
 import gettothepoint.unicatapi.filestorage.domain.model.StoredFile;
+import gettothepoint.unicatapi.filestorage.infrastructure.config.CompositeFileStorageConfig;
 import gettothepoint.unicatapi.filestorage.infrastructure.config.LocalFileStorageConfig;
+import gettothepoint.unicatapi.filestorage.infrastructure.config.MinioFileStorageConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -13,9 +15,12 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.UrlResource;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import org.testcontainers.containers.MinIOContainer;
+import org.testcontainers.junit.jupiter.Container;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -30,22 +35,33 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.mock;
+import static org.mockito.Mockito.mock;
 
-@SpringJUnitConfig(classes = {LocalFileStorageConfig.class})
-@DisplayName("로컬 파일 저장소 테스트")
-class LocalFileStorageRepositoryTest {
+@SpringJUnitConfig(classes = {CompositeFileStorageConfig.class, MinioFileStorageConfig.class, LocalFileStorageConfig.class})
+@DisplayName("복합 파일 저장소 테스트")
+@ActiveProfiles("dev")
+class CompositeFileStorageRepositoryTest {
+
+    @Container
+    static final MinIOContainer minio = new MinIOContainer("minio/minio:latest");
 
     @TempDir
-    static Path tempDir;
+    private static Path tempDir;
 
     @DynamicPropertySource
     static void overrideProps(DynamicPropertyRegistry registry) {
         registry.add("app.filestorage.local-root", tempDir::toAbsolutePath);
+
+        minio.start();
+        registry.add("app.minio.bucket", () -> "test-bucket-" + UUID.randomUUID());
+        registry.add("app.minio.endpoint", minio::getS3URL);
+        registry.add("app.minio.accessKeyId", minio::getUserName);
+        registry.add("app.minio.secretAccessKey", minio::getPassword);
     }
 
     @Autowired
     private FileStorageRepository repository;
+
 
     @Nested
     @DisplayName("기본 파일 저장 및 로드 기능")
