@@ -72,12 +72,6 @@ app:
     billing-url: ${APP_TOSS_BILLING_URL:https://api.tosspayments.com/v1/billing/authorizations/issue}
   frontend:
     url: ${APP_FRONTEND_URL:https://unicat.day}
-  minio:
-    enabled: ${MINIO_ENABLED:false}
-    endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
-    access-key-id: ${MINIO_ACCESS_KEY_ID:test-minio}
-    secret-access-key: ${MINIO_SECRET_KEY:test-minio}
-    bucket: ${MINIO_BUCKET:unicat}
   filestorage:
     local-root: ${APP_FILESTORAGE_LOCAL_ROOT:${user.home}/unicat}
   cors:

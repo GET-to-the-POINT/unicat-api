@@ -9,11 +9,11 @@ import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 
 import java.util.List;
 
@@ -29,7 +29,7 @@ public class FileStorageConfig {
 
     /* ---------- MinIO ---------- */
     @Bean
-    @ConditionalOnProperty(name = "app.minio.enabled", havingValue = "true")
+    @Profile("minio")
     public MinioClient minioClient(MinioFileStorageProperties props) {
         MinioClient client = MinioClient.builder().endpoint(props.endpoint()).credentials(props.accessKeyId(), props.secretAccessKey()).build();
 
@@ -45,7 +45,7 @@ public class FileStorageConfig {
     }
 
     @Bean
-    @ConditionalOnProperty(name = "app.minio.enabled", havingValue = "true")
+    @Profile("minio")
     public FileStorageRepository minioFileStorageRepository(MinioClient client, MinioFileStorageProperties props) {
         return new MinioFileStorageRepository(client, props.bucket());
     }
