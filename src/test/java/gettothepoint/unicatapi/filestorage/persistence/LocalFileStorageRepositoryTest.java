@@ -7,11 +7,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.core.io.UrlResource;
 
-import java.nio.charset.StandardCharsets;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @DisplayName("로컬 파일 저장소 테스트")
 class LocalFileStorageRepositoryTest {
@@ -23,20 +26,23 @@ class LocalFileStorageRepositoryTest {
 
     @BeforeAll
     static void setUpRepository() {
-        repository = new LocalFileStorageRepository(tempDir.getFileName());
+        repository = new LocalFileStorageRepository(tempDir);
     }
 
     @Test
     @DisplayName("파일을 저장하고 다시 불러올 수 있다")
     void shouldStoreAndLoadFileSuccessfully() {
         // given
-        String filename = "hello.txt";
-        byte[] bytes = "Hello MinIO!".getBytes(StandardCharsets.UTF_8);
+        String filename = "mocked-file.txt";
+        byte[] bytes = "Mocked Content".getBytes();
+        InputStream contentStream = new ByteArrayInputStream(bytes);
 
-        FileResource file = new FileResource(filename, bytes);
+        FileResource mockFileResource = mock(FileResource.class);
+        when(mockFileResource.getFilename()).thenReturn(filename);
+        when(mockFileResource.getContent()).thenReturn(contentStream);
 
         // when
-        String storedKey = repository.store(file);          // 업로드
+        String storedKey = repository.store(mockFileResource);
 
         // then
         assertThat(storedKey).as("store() 는 원본 파일명을 반환해야 한다").isEqualTo(filename);
