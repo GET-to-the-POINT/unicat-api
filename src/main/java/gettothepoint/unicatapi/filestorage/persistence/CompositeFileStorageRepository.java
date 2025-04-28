@@ -1,8 +1,6 @@
-package gettothepoint.unicatapi.filestorage.infrastructure.persistence;
+package gettothepoint.unicatapi.filestorage.persistence;
 
-import gettothepoint.unicatapi.filestorage.application.port.out.FileStorageRepository;
-import gettothepoint.unicatapi.filestorage.domain.model.FileResource;
-import gettothepoint.unicatapi.filestorage.infrastructure.exception.CompositeFileStorageException;
+import gettothepoint.unicatapi.filestorage.FileResource;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.io.UrlResource;
@@ -19,7 +17,7 @@ public class CompositeFileStorageRepository implements FileStorageRepository {
     @Override
     public String store(FileResource file) {
         if (delegates.isEmpty()) {
-            throw CompositeFileStorageException.noDelegates();
+            throw new IllegalStateException("위임할 저장소가 없습니다");
         }
 
         List<Throwable> failures = new ArrayList<>();
@@ -35,13 +33,14 @@ public class CompositeFileStorageRepository implements FileStorageRepository {
         }
 
         if (!atLeastOneSuccess) {
-            throw CompositeFileStorageException.completeFailure(failures);
+            Throwable cause = failures.isEmpty() ? null : failures.get(0);
+            throw new IllegalStateException("모든 저장소에 저장 실패", cause);
         } else if (!failures.isEmpty()) {
             // 일부 성공, 일부 실패인 경우 - 로깅하고 계속 진행 (또는 정책에 따라 예외 발생 가능)
             // logger.warn("일부 저장소에 저장 실패: {}", failures);
         }
 
-        return file.filename();
+        return file.getFilename();
     }
 
     @Override

@@ -1,8 +1,6 @@
-package gettothepoint.unicatapi.filestorage.infrastructure.persistence;
+package gettothepoint.unicatapi.filestorage.persistence;
 
-import gettothepoint.unicatapi.filestorage.application.port.out.FileStorageRepository;
-import gettothepoint.unicatapi.filestorage.domain.model.FileResource;
-import gettothepoint.unicatapi.filestorage.infrastructure.exception.MinioFileStorageException;
+import gettothepoint.unicatapi.filestorage.FileResource;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
@@ -13,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.core.io.UrlResource;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.MalformedURLException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -32,18 +31,18 @@ public class MinioFileStorageRepository implements FileStorageRepository {
             minioClient.putObject(
                     PutObjectArgs.builder()
                             .bucket(bucket)
-                            .object(file.filename())
-                            .stream(file.content(), file.size(), -1)
-                            .contentType(file.contentType())
+                            .object(file.getFilename())
+                            .stream(file.getContent(), file.getSize(), -1)
+                            .contentType(file.getContentType())
                             .build()
             );
-            return file.filename();
+            return file.getFilename();
         } catch (MinioException e) {
-            throw MinioFileStorageException.uploadError(file.filename(), e);
+            throw new IllegalStateException("파일 업로드 실패: " + file.getFilename(), e);
         } catch (InvalidKeyException | NoSuchAlgorithmException e) {
-            throw MinioFileStorageException.authenticationError(e);
+            throw new IllegalStateException("MinIO 인증 실패", e);
         } catch (IOException e) {
-            throw MinioFileStorageException.uploadError(file.filename(), e);
+            throw new UncheckedIOException("파일 업로드 I/O 오류: " + file.getFilename(), e);
         }
     }
 
@@ -76,8 +75,7 @@ public class MinioFileStorageRepository implements FileStorageRepository {
             // logger.warn("잘못된 URL 형식: {}", key, e);
             return Optional.empty();
         } catch (InvalidKeyException | NoSuchAlgorithmException e) {
-            // 인증 오류 (구성 문제)
-            throw MinioFileStorageException.authenticationError(e);
+            throw new IllegalStateException("MinIO 인증 실패", e);
         } catch (IOException e) {
             // I/O 오류는 보통 네트워크 문제
             // logger.warn("Minio 서버 연결 오류: {}", e.getMessage());

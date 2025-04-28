@@ -1,13 +1,12 @@
-package gettothepoint.unicatapi.filestorage.infrastructure.persistence;
+package gettothepoint.unicatapi.filestorage.persistence;
 
-import gettothepoint.unicatapi.filestorage.application.port.out.FileStorageRepository;
-import gettothepoint.unicatapi.filestorage.domain.model.FileResource;
-import gettothepoint.unicatapi.filestorage.infrastructure.exception.LocalFileStorageException;
+import gettothepoint.unicatapi.filestorage.FileResource;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.io.UrlResource;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,14 +22,14 @@ public class LocalFileStorageRepository implements FileStorageRepository {
         try {
             Files.createDirectories(this.root);
         } catch (IOException e) {
-            throw LocalFileStorageException.directoryCreationFailed(root.toString(), e);
+            throw new IllegalStateException("로컬 저장소 디렉터리 생성 실패: " + root, e);
         }
     }
 
     @Override
     public String store(FileResource file) {
         try {
-            Path destination = root.resolve(file.filename());
+            Path destination = root.resolve(file.getFilename());
             
             // 부모 디렉토리가 존재하지 않을 경우 생성
             Path parent = destination.getParent();
@@ -38,17 +37,17 @@ public class LocalFileStorageRepository implements FileStorageRepository {
                 try {
                     Files.createDirectories(parent);
                 } catch (IOException e) {
-                    throw gettothepoint.unicatapi.filestorage.infrastructure.exception.LocalFileStorageException.directoryCreationFailed(parent.toString(), e);
+                    throw new UncheckedIOException("디렉터리 생성 실패: " + parent, e);
                 }
             }
 
-            try (InputStream inputStream = file.content()) {
+            try (InputStream inputStream = file.getContent()) {
                 Files.copy(inputStream, destination, StandardCopyOption.REPLACE_EXISTING);
             }
 
-            return file.filename();
+            return file.getFilename();
         } catch (IOException e) {
-            throw gettothepoint.unicatapi.filestorage.infrastructure.exception.LocalFileStorageException.fileIOError(file.filename(), e);
+            throw new UncheckedIOException("파일 저장 실패: " + file.getFilename(), e);
         }
     }
 

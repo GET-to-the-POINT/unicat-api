@@ -1,6 +1,6 @@
-package gettothepoint.unicatapi.filestorage.application.port.out;
+package gettothepoint.unicatapi.filestorage.persistence;
 
-import gettothepoint.unicatapi.filestorage.domain.model.FileResource;
+import gettothepoint.unicatapi.filestorage.FileResource;
 import lombok.NonNull;
 import org.springframework.core.io.UrlResource;
 

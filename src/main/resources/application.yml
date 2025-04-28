@@ -73,10 +73,11 @@ app:
   frontend:
     url: ${APP_FRONTEND_URL:https://unicat.day}
   minio:
-    endpoint: ${SUPABASE_S3_ENDPOINT:http://localhost:9000}
-    access-key-id: ${SUPABASE_S3_ACCESS_KEY_ID:test-minio}
-    secret-access-key: ${SUPABASE_S3_SECRET_KEY:test-minio}
-    bucket: ${SUPABASE_S3_BUCKET:unicat}
+    enabled: ${MINIO_ENABLED:false}
+    endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
+    access-key-id: ${MINIO_ACCESS_KEY_ID:test-minio}
+    secret-access-key: ${MINIO_SECRET_KEY:test-minio}
+    bucket: ${MINIO_BUCKET:unicat}
   filestorage:
     local-root: ${APP_FILESTORAGE_LOCAL_ROOT:${user.home}/unicat}
   cors:
