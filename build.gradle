@@ -5,10 +5,6 @@ plugins {
 	id 'com.github.ben-manes.versions' version '0.52.0'
 }
 
-ext {
-	springAiVersion = "1.0.0-M6"
-}
-
 group = 'gettothepoint'
 if (!project.hasProperty('version')) {
 	throw new GradleException("Missing version property in gradle.properties")
@@ -79,9 +75,7 @@ dependencies {
 }
 
 tasks.named('test') {
-	useJUnitPlatform {
-		excludeTags 'manual'
-	}
+	useJUnitPlatform
 }
 
 configurations.configureEach {

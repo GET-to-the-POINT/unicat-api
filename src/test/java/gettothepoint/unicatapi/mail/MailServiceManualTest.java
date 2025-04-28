@@ -24,7 +24,6 @@ import static org.mockito.Mockito.verify;
  * 비동기 메일 전송 수동 통합 테스트
  * 실제 SMTP 서버를 통한 비동기 메일 전송을 검증합니다.
  */
-@Tag("manual")
 @SpringJUnitConfig(classes = {MailSenderAutoConfiguration.class, MailService.class, SyncTaskExecutorConfig.class})
 @TestPropertySource(properties = {
         "spring.mail.host=smtp.gmail.com",
