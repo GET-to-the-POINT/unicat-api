@@ -1,6 +1,6 @@
 <configuration>
     <springProperty name="lokiUrl" source="logging.loki.url"/>
-    <springProperty name="ROOT_LOG_LEVEL" source="logging.level.root" defaultValue="WARN"/>
+    <springProperty name="ROOT_LOG_LEVEL" source="logging.level.root" defaultValue="INFO"/>
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -19,14 +19,13 @@
             </http>
             <format>
                 <label>
-                    <pattern>app=unicat-api,level=%level</pattern>
+                    <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
                 </label>
                 <message>
                     <pattern>l=%level c=%logger{20} t=%thread | %msg %ex</pattern>
                 </message>
             </format>
         </appender>
-
         <root level="${ROOT_LOG_LEVEL}">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="LOKI"/>
