@@ -2,7 +2,7 @@ package gettothepoint.unicatapi.filestorage.infrastructure.config;
 
 import gettothepoint.unicatapi.filestorage.application.port.out.FileStorageRepository;
 import gettothepoint.unicatapi.filestorage.infrastructure.exception.MinioFileStorageException;
-import gettothepoint.unicatapi.filestorage.infrastructure.persistence.minio.MinioFileStorageRepository;
+import gettothepoint.unicatapi.filestorage.infrastructure.persistence.MinioFileStorageRepository;
 import io.minio.BucketExistsArgs;
 import io.minio.MinioClient;
 import io.minio.MakeBucketArgs;
