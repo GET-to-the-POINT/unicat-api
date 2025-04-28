@@ -4,5 +4,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.nio.file.Path;
 
-@ConfigurationProperties(prefix = "app.filestorage")
-public record LocalFileStorageProperties(Path localRoot) {}
+@ConfigurationProperties(prefix = "filestorage.local")
+public record LocalFileStorageProperties(Path root) {}

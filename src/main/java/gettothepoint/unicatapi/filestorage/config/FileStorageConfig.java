@@ -24,7 +24,7 @@ public class FileStorageConfig {
     /* ---------- Local ---------- */
     @Bean
     public FileStorageRepository localFileStorageRepository(LocalFileStorageProperties props) {
-        return new LocalFileStorageRepository(props.localRoot());
+        return new LocalFileStorageRepository(props.root());
     }
 
     /* ---------- MinIO ---------- */

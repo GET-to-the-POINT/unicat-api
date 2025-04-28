@@ -56,8 +56,6 @@ app:
     billing-url: ${APP_TOSS_BILLING_URL:https://api.tosspayments.com/v1/billing/authorizations/issue}
   frontend:
     url: ${APP_FRONTEND_URL:https://unicat.day}
-  filestorage:
-    local-root: ${APP_FILESTORAGE_LOCAL_ROOT:${user.home}/unicat}
   cors:
     allowed-origins:
       - ${APP_CORS_ALLOWED_ORIGINS:https://unicat.day}
@@ -82,6 +80,10 @@ app:
   supertone:
     api-key: ${APP_SUPERTONE_API_KEY}
     default-voice-id: ${APP_SUPERTONE_DEFAULT_VOICE_ID:d9Hi4iF7HEXpGWo6cC5YbZ}
+
+filestorage:
+  local:
+    root: ${APP_FILESTORAGE_LOCAL_ROOT:${user.home}/unicat}
 
 server:
   port: 443
