@@ -39,7 +39,6 @@ spring:
     multipart:
       max-file-size: 50MB
       max-request-size: 50MB
-      location: ${APP_MULTIPART_LOCATION:${java.io.tmpdir}/unicat/multipart}
   ai:
     openai:
       api-key: ${SPRING_AI_OPENAI_API_KEY}

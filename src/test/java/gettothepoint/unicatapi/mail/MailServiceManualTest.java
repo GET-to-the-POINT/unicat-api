@@ -2,7 +2,6 @@ package gettothepoint.unicatapi.mail;
 
 import gettothepoint.unicatapi.mail.config.SyncTaskExecutorConfig;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration;
@@ -24,7 +23,7 @@ import static org.mockito.Mockito.verify;
  * 비동기 메일 전송 수동 통합 테스트
  * 실제 SMTP 서버를 통한 비동기 메일 전송을 검증합니다.
  */
-@SpringJUnitConfig(classes = {MailSenderAutoConfiguration.class, MailService.class, SyncTaskExecutorConfig.class})
+@SpringJUnitConfig(classes = {MailSenderAutoConfiguration.class, MailServiceImpl.class, SyncTaskExecutorConfig.class})
 @TestPropertySource(properties = {
         "spring.mail.host=smtp.gmail.com",
         "spring.mail.port=587",
