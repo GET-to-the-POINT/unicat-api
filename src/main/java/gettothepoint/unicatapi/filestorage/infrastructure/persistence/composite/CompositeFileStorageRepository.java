@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.filestorage.infrastructure.persistence.composite;
 
 import gettothepoint.unicatapi.filestorage.application.port.out.FileStorageRepository;
-import gettothepoint.unicatapi.filestorage.domain.model.StoredFile;
+import gettothepoint.unicatapi.filestorage.domain.model.FileResource;
 import gettothepoint.unicatapi.filestorage.infrastructure.exception.CompositeFileStorageException;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -17,7 +17,7 @@ public class CompositeFileStorageRepository implements FileStorageRepository {
     private final List<FileStorageRepository> delegates;
 
     @Override
-    public String store(StoredFile file) {
+    public String store(FileResource file) {
         if (delegates.isEmpty()) {
             throw CompositeFileStorageException.noDelegates();
         }

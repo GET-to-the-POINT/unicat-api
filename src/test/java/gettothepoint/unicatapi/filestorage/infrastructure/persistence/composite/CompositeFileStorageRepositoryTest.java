@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.filestorage.infrastructure.persistence.composite;
 
 import gettothepoint.unicatapi.filestorage.application.port.out.FileStorageRepository;
-import gettothepoint.unicatapi.filestorage.domain.model.StoredFile;
+import gettothepoint.unicatapi.filestorage.domain.model.FileResource;
 import gettothepoint.unicatapi.filestorage.infrastructure.config.CompositeFileStorageConfig;
 import gettothepoint.unicatapi.filestorage.infrastructure.config.LocalFileStorageConfig;
 import gettothepoint.unicatapi.filestorage.infrastructure.config.MinioFileStorageConfig;
@@ -73,10 +73,10 @@ class CompositeFileStorageRepositoryTest {
             // Given: 테스트 텍스트 파일
             String content = "미니오 파일 저장소 테스트 텍스트입니다";
             String filename = generateUniqueFilename(".txt");
-            StoredFile storedFile = createMockStoredFile(filename, content);
+            FileResource fileResource = createMockStoredFile(filename, content);
 
             // When: 파일 저장
-            String key = repository.store(storedFile);
+            String key = repository.store(fileResource);
 
             // Then: 저장 결과 확인
             assertThat(key)
@@ -108,14 +108,14 @@ class CompositeFileStorageRepositoryTest {
             Arrays.fill(binaryContent, (byte)42);
 
             String filename = generateUniqueFilename(".bin");
-            StoredFile storedFile = createMockStoredFile(
+            FileResource fileResource = createMockStoredFile(
                     filename,
                     binaryContent,
                     "application/octet-stream"
             );
 
             // When: 파일 저장
-            String key = repository.store(storedFile);
+            String key = repository.store(fileResource);
 
             // Then: 저장 결과 확인
             assertThat(key).isEqualTo(filename);
@@ -168,10 +168,10 @@ class CompositeFileStorageRepositoryTest {
             // Given: 특수 문자가 포함된 파일명
             String content = "특수 파일명 테스트 내용";
             String filename = UUID.randomUUID() + "-" + specialFilename;
-            StoredFile storedFile = createMockStoredFile(filename, content);
+            FileResource fileResource = createMockStoredFile(filename, content);
 
             // When: 파일 저장
-            String key = repository.store(storedFile);
+            String key = repository.store(fileResource);
 
             // Then: 저장 결과 확인
             assertThat(key).isEqualTo(filename);
@@ -208,14 +208,14 @@ class CompositeFileStorageRepositoryTest {
             }
 
             String filename = generateUniqueFilename(".dat");
-            StoredFile storedFile = createMockStoredFile(
+            FileResource fileResource = createMockStoredFile(
                     filename,
                     largeContent,
                     "application/octet-stream"
             );
 
             // When: 파일 저장
-            String key = repository.store(storedFile);
+            String key = repository.store(fileResource);
 
             // Then: 저장 결과 확인
             assertThat(key).isEqualTo(filename);
@@ -271,14 +271,14 @@ class CompositeFileStorageRepositoryTest {
             }
 
             String filename = generateUniqueFilename("-" + sizeInKB + "KB.dat");
-            StoredFile storedFile = createMockStoredFile(
+            FileResource fileResource = createMockStoredFile(
                     filename,
                     content,
                     "application/octet-stream"
             );
 
             // When: 파일 저장
-            String key = repository.store(storedFile);
+            String key = repository.store(fileResource);
 
             // Then: 저장 결과 확인
             assertThat(key).isEqualTo(filename);
@@ -352,12 +352,12 @@ class CompositeFileStorageRepositoryTest {
                 filenames[i] = generateUniqueFilename("-" + i + ".txt");
                 contents[i] = "파일 " + i + "의 테스트 내용: " + UUID.randomUUID();
 
-                StoredFile storedFile = createMockStoredFile(
+                FileResource fileResource = createMockStoredFile(
                         filenames[i],
                         contents[i]
                 );
 
-                keys[i] = repository.store(storedFile);
+                keys[i] = repository.store(fileResource);
             }
 
             // Then: 각 파일 저장 결과 확인
@@ -397,14 +397,14 @@ class CompositeFileStorageRepositoryTest {
         void shouldHandleVariousMimeTypes(String description, String extension, String mimeType, byte[] sampleContent) {
             // Given: 특정 MIME 타입의 파일
             String filename = generateUniqueFilename(extension);
-            StoredFile storedFile = createMockStoredFile(
+            FileResource fileResource = createMockStoredFile(
                     filename,
                     sampleContent,
                     mimeType
             );
 
             // When: 파일 저장
-            String key = repository.store(storedFile);
+            String key = repository.store(fileResource);
 
             // Then: 저장 결과 확인
             assertThat(key).isEqualTo(filename);
@@ -468,17 +468,17 @@ class CompositeFileStorageRepositoryTest {
         return "test-file-" + UUID.randomUUID() + extension;
     }
 
-    private StoredFile createMockStoredFile(String filename, String content) {
+    private FileResource createMockStoredFile(String filename, String content) {
         byte[] contentBytes = content.getBytes(StandardCharsets.UTF_8);
         return createMockStoredFile(filename, contentBytes, "text/plain");
     }
 
-    private StoredFile createMockStoredFile(String filename, byte[] content, String contentType) {
-        StoredFile storedFile = mock(StoredFile.class);
-        given(storedFile.filename()).willReturn(filename);
-        given(storedFile.content()).willReturn(new ByteArrayInputStream(content));
-        given(storedFile.size()).willReturn((long) content.length);
-        given(storedFile.contentType()).willReturn(contentType);
-        return storedFile;
+    private FileResource createMockStoredFile(String filename, byte[] content, String contentType) {
+        FileResource fileResource = mock(FileResource.class);
+        given(fileResource.filename()).willReturn(filename);
+        given(fileResource.content()).willReturn(new ByteArrayInputStream(content));
+        given(fileResource.size()).willReturn((long) content.length);
+        given(fileResource.contentType()).willReturn(contentType);
+        return fileResource;
     }
 }

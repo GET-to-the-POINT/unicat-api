@@ -3,8 +3,8 @@ package gettothepoint.unicatapi.filestorage.application.port.in;
 import gettothepoint.unicatapi.filestorage.application.port.out.FileStorageRepository;
 import gettothepoint.unicatapi.filestorage.application.exception.FileUploadErrorCode;
 import gettothepoint.unicatapi.filestorage.application.exception.FileUploadException;
-import gettothepoint.unicatapi.filestorage.domain.model.StoredFile;
-import gettothepoint.unicatapi.filestorage.infrastructure.command.StoredFileFactory;
+import gettothepoint.unicatapi.filestorage.domain.model.FileResource;
+import gettothepoint.unicatapi.filestorage.domain.service.FileResourceFactory;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +19,7 @@ public class FileUploadUseCase {
     private static final Path EMPTY_PATH = Path.of("");
 
     private final FileStorageRepository fileStorageRepository;
+    private final FileResourceFactory fileResourceFactory;
 
     public String uploadFile(@NonNull MultipartFile file) {
         return uploadFile(file, EMPTY_PATH);
@@ -30,8 +31,8 @@ public class FileUploadUseCase {
         }
 
         // 간소화된 StoredFile 생성 및 저장
-        StoredFile storedFile = StoredFileFactory.fromMultipartFile(file, path);
-        return fileStorageRepository.store(storedFile);
+        FileResource fileResource = fileResourceFactory.fromMultipartFile(file, path);
+        return fileStorageRepository.store(fileResource);
     }
 
     public String uploadFile(@NonNull File file) {
@@ -43,8 +44,8 @@ public class FileUploadUseCase {
             throw new FileUploadException(FileUploadErrorCode.INVALID_FILE);
         }
 
-        // 간소화된 StoredFile 생성 및 저장
-        StoredFile storedFile = StoredFileFactory.fromFile(file, path);
-        return fileStorageRepository.store(storedFile);
+        // 인스턴스 메서드 호출로 변경
+        FileResource fileResource = fileResourceFactory.fromFile(file, path);
+        return fileStorageRepository.store(fileResource);
     }
 }

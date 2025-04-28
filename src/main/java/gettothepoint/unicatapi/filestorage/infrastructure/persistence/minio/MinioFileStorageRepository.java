@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.filestorage.infrastructure.persistence.minio;
 
 import gettothepoint.unicatapi.filestorage.application.port.out.FileStorageRepository;
-import gettothepoint.unicatapi.filestorage.domain.model.StoredFile;
+import gettothepoint.unicatapi.filestorage.domain.model.FileResource;
 import gettothepoint.unicatapi.filestorage.infrastructure.exception.MinioFileStorageException;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
@@ -27,7 +27,7 @@ public class MinioFileStorageRepository implements FileStorageRepository {
     private final String bucket;
 
     @Override
-    public String store(StoredFile file) {
+    public String store(FileResource file) {
         try {
             minioClient.putObject(
                     PutObjectArgs.builder()
