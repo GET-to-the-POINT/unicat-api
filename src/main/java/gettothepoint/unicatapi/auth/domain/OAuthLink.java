@@ -1,6 +1,7 @@
-package gettothepoint.unicatapi.member.domain;
+package gettothepoint.unicatapi.auth.domain;
 
-import gettothepoint.unicatapi.domain.entity.BaseEntity;
+import gettothepoint.unicatapi.common.domain.BaseEntity;
+import gettothepoint.unicatapi.member.domain.Member;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;

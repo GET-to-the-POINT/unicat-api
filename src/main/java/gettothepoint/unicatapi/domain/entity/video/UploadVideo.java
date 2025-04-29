@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.domain.entity.video;
 
-import gettothepoint.unicatapi.domain.entity.BaseEntity;
+import gettothepoint.unicatapi.common.domain.BaseEntity;
 import gettothepoint.unicatapi.domain.entity.project.Project;
 import jakarta.persistence.*;
 import lombok.*;

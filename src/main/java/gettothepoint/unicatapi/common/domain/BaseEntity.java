@@ -1,4 +1,4 @@
-package gettothepoint.unicatapi.domain.entity;
+package gettothepoint.unicatapi.common.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;

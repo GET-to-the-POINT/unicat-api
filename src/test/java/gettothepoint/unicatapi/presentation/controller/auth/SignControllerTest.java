@@ -1,7 +1,7 @@
 //package gettothepoint.unicatapi.presentation.controller.auth;
 //
 //import com.fasterxml.jackson.databind.ObjectMapper;
-//import gettothepoint.unicatapi.application.service.AuthService;
+//import gettothepoint.unicatapi.auth.AuthService;
 //import gettothepoint.unicatapi.domain.dto.sign.SignInDto;
 //import gettothepoint.unicatapi.domain.dto.sign.SignUpRequest;
 //import gettothepoint.unicatapi.test.config.TestDummyTextToSpeechConfiguration;

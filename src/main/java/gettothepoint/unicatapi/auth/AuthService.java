@@ -1,11 +1,10 @@
-package gettothepoint.unicatapi.application.service;
+package gettothepoint.unicatapi.auth;
 
-import gettothepoint.unicatapi.member.application.MemberService;
 import gettothepoint.unicatapi.common.util.JwtUtil;
 import gettothepoint.unicatapi.domain.dto.sign.SignInRequest;
 import gettothepoint.unicatapi.domain.dto.sign.SignUpRequest;
+import gettothepoint.unicatapi.member.application.MemberService;
 import gettothepoint.unicatapi.member.domain.Member;
-import gettothepoint.unicatapi.mail.MailService;
 import gettothepoint.unicatapi.subscription.entity.Plan;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -23,11 +22,9 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final MessageSource messageSource;
     private final MemberService memberService;
-    private final MailService mailService;
 
     public String signUp(SignUpRequest signUpRequest) {
         Member member = memberService.create(signUpRequest.email(), signUpRequest.password(), signUpRequest.name(), signUpRequest.phoneNumber());
-//        emailService.sendVerificationEmail(member);
         return generateAndAddJwtToken(member);
     }
 
@@ -36,7 +33,6 @@ public class AuthService {
         validateCredentials(member, signInRequest.password());
         return generateAndAddJwtToken(member);
     }
-
 
     private void validateCredentials(Member member, String password) {
         if (!passwordEncoder.matches(password, member.getPassword())) {

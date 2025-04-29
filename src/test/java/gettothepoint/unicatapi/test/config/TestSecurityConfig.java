@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.test.config;
 
-import gettothepoint.unicatapi.application.service.AuthService;
+import gettothepoint.unicatapi.auth.AuthService;
 import gettothepoint.unicatapi.member.application.MemberService;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.TestConfiguration;

@@ -1,4 +1,4 @@
-package gettothepoint.unicatapi.presentation.config;
+package gettothepoint.unicatapi.common.config;
 
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.ControllerAdvice;

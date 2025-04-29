@@ -1,10 +1,10 @@
 package gettothepoint.unicatapi.member.application;
 
 import gettothepoint.unicatapi.domain.dto.member.member.MemberUpdateDto;
-import gettothepoint.unicatapi.domain.repository.OAuthLinkRepository;
+import gettothepoint.unicatapi.auth.persistence.OAuthLinkRepository;
 import gettothepoint.unicatapi.member.domain.Member;
 import gettothepoint.unicatapi.member.persistence.MemberRepository;
-import gettothepoint.unicatapi.member.domain.OAuthLink;
+import gettothepoint.unicatapi.auth.domain.OAuthLink;
 import gettothepoint.unicatapi.subscription.service.SubscriptionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
