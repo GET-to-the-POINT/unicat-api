@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.common.security.oauth2.client;
 
-import gettothepoint.unicatapi.infrastructure.security.oauth2.client.authorizedclient.VendorOAuth2AuthorizedClientHandler;
+import gettothepoint.unicatapi.common.security.oauth2.client.authorizedclient.VendorOAuth2AuthorizedClientHandler;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.JdbcOAuth2AuthorizedClientService;
@@ -9,7 +9,8 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.stereotype.Service;
 
-import static gettothepoint.unicatapi.infrastructure.security.oauth2.client.authorizedclient.VendorOAuth2AuthorizedClientHandler.getHandler;
+import static gettothepoint.unicatapi.common.security.oauth2.client.authorizedclient.VendorOAuth2AuthorizedClientHandler.getHandler;
+
 
 @Service
 public class CustomJdbcOAuth2AuthorizedClientService implements OAuth2AuthorizedClientService {

@@ -34,3 +34,10 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### H2 Database Files ###
+*.db
+*.mv.db
+*.trace.db
+*.lock.db
+unicatdb*

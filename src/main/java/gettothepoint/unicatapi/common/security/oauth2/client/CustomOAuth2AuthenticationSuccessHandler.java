@@ -1,10 +1,10 @@
 package gettothepoint.unicatapi.common.security.oauth2.client;
 
+import gettothepoint.unicatapi.common.security.oauth2.client.authorizedclient.HttpCookieOAuth2AuthorizationRequestRepository;
 import gettothepoint.unicatapi.common.util.CookieUtil;
 import gettothepoint.unicatapi.common.util.JwtUtil;
 import gettothepoint.unicatapi.member.domain.Member;
 import gettothepoint.unicatapi.member.persistence.MemberRepository;
-import gettothepoint.unicatapi.infrastructure.security.oauth2.client.authorizedclient.HttpCookieOAuth2AuthorizationRequestRepository;
 import gettothepoint.unicatapi.subscription.domain.Subscription;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.Cookie;

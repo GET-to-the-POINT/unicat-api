@@ -21,7 +21,7 @@ public class Section extends BaseEntity {
      * 섹션의 고유 식별자입니다.
      */
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Setter
     @Schema(description = "섹션의 고유 식별자입니다.", example = "1")
     private Long id;
@@ -92,14 +92,14 @@ public class Section extends BaseEntity {
      * @param transitionKey 전환 효과 URL
      */
     @Builder
-    private Section(Project project, String voiceModel,String script, String contentKey, String audioKey, String frameKey, String transitionKey) {
+    private Section(Project project, String language, String voiceModel,String script, String contentKey, String audioKey, String transitionKey) {
         this.project = project;
+        this.language = language;
         this.voiceModel = voiceModel;
         this.sortOrder = project.getSections().size() + 1L;
         this.script = script;
         this.contentKey = contentKey;
         this.audioKey = audioKey;
-        this.frameKey = frameKey;
         this.transitionKey = transitionKey;
     }
 

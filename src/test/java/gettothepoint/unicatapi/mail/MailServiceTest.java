@@ -28,7 +28,7 @@ import static org.awaitility.Awaitility.await;
  * 비동기 메일 전송 통합 테스트
  * Mailpit 컨테이너를 사용해 비동기 메일 전송과 수신을 검증합니다.
  */
-@SpringJUnitConfig(classes = {MailServiceTestConfig.class, MailService.class, SyncTaskExecutorConfig.class})
+@SpringJUnitConfig(classes = {MailServiceTestConfig.class, MailServiceImpl.class, SyncTaskExecutorConfig.class})
 @Testcontainers
 @DisplayName("비동기 메일 전송 통합 테스트")
 class MailServiceTest {

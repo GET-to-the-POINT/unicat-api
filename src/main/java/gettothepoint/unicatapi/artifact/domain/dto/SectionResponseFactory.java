@@ -18,8 +18,6 @@ public class SectionResponseFactory {
                 .sortOrder(section.getSortOrder())
                 .contentUrl(section.getContentKey() != null ? fileService.downloadFile(section.getContentKey()).toString() : null)
                 .audioUrl(section.getAudioKey() != null ? fileService.downloadFile(section.getAudioKey()).toString() : null)
-                .frameUrl(section.getFrameKey() != null ? fileService.downloadFile(section.getFrameKey()).toString() : null)
-                .alt(section.getAlt())
                 .voiceModel(section.getVoiceModel())
                 .transitionUrl(section.getTransitionKey() != null ? fileService.downloadFile(section.getTransitionKey()).toString() : null)
                 .build();

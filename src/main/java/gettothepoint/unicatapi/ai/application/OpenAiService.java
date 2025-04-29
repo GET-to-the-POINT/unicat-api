@@ -85,7 +85,7 @@ public class OpenAiService {
                 .map(s -> s.startsWith("\"") && s.endsWith("\"") ? s.substring(1, s.length() - 1) : s)
                 .orElse("");
 
-        return new CreateResourceResponse(null, null, script);
+        return new CreateResourceResponse(null, script);
     }
 
     public CreateResourceResponse createImage(Long projectId, Long sectionId, PromptRequest scriptRequest) {
@@ -98,7 +98,7 @@ public class OpenAiService {
 
         CreateResourceResponse imageResponse = generateImageAI(imageStyle, scriptRequest);
 
-        saveImageToSection(sectionId, imageResponse.imageUrl(), imageResponse.alt());
+        saveImageToSection(sectionId, imageResponse.imageUrl());
         return imageResponse;
     }
 
@@ -120,10 +120,9 @@ public class OpenAiService {
 
         Image image = response.getResult().getOutput();
 
-        String alt = String.format("'%s' 내용을 기반으로 AI가 생성한 이미지", request.prompt());
         String imageUrl = image.getUrl();
 
-        return new CreateResourceResponse(processAndUploadImage(imageUrl), alt, null);
+        return new CreateResourceResponse(processAndUploadImage(imageUrl), null);
     }
 
     private String processAndUploadImage(String imageUrl) {
@@ -137,11 +136,10 @@ public class OpenAiService {
         return fileService.uploadFile(multipartFile);
     }
 
-    private void saveImageToSection(Long sectionId, String imageUrl, String alt) {
+    private void saveImageToSection(Long sectionId, String imageUrl) {
         Section section = sectionService.getOrElseThrow(sectionId);
 
         section.setContentKey(imageUrl);
-        section.setAlt(alt);
         sectionService.update(section);
     }
 
@@ -153,7 +151,7 @@ public class OpenAiService {
         } else {
             CreateResourceResponse imageResponse = createImage(projectId, sectionId, promptRequest);
             CreateResourceResponse scriptResponse = createScript(projectId, sectionId, promptRequest);
-            return new CreateResourceResponse(imageResponse.imageUrl(), imageResponse.alt(), scriptResponse.script());
+            return new CreateResourceResponse(imageResponse.imageUrl(), scriptResponse.script());
         }
     }
 

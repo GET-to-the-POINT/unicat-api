@@ -1,10 +1,10 @@
 package gettothepoint.unicatapi.common.config;
 
-import gettothepoint.unicatapi.infrastructure.security.oauth2.client.CustomOAuth2AuthenticationSuccessHandler;
-import gettothepoint.unicatapi.infrastructure.security.oauth2.client.CustomOAuth2UserService;
-import gettothepoint.unicatapi.infrastructure.security.oauth2.client.authorizedclient.HttpCookieOAuth2AuthorizationRequestRepository;
-import gettothepoint.unicatapi.infrastructure.security.oauth2.resourceserver.CustomAuthenticationEntryPoint;
-import gettothepoint.unicatapi.infrastructure.security.oauth2.resourceserver.MultiBearerTokenResolver;
+import gettothepoint.unicatapi.common.security.oauth2.client.CustomOAuth2AuthenticationSuccessHandler;
+import gettothepoint.unicatapi.common.security.oauth2.client.CustomOAuth2UserService;
+import gettothepoint.unicatapi.common.security.oauth2.client.authorizedclient.HttpCookieOAuth2AuthorizationRequestRepository;
+import gettothepoint.unicatapi.common.security.oauth2.resourceserver.CustomAuthenticationEntryPoint;
+import gettothepoint.unicatapi.common.security.oauth2.resourceserver.MultiBearerTokenResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

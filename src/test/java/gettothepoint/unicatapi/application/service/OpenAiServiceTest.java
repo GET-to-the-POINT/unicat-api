@@ -84,7 +84,7 @@ class OpenAiServiceTest {
         when(chatClientRequestSpec.user(expectedPrompt)).thenReturn(chatClientRequestSpec);
 
         when(chatClientRequestSpec.call()).thenReturn(callResponseSpec);
-        CreateResourceResponse dummyResponse = new CreateResourceResponse(null, null,"보정된 스크립트 내용");
+        CreateResourceResponse dummyResponse = new CreateResourceResponse(null,"보정된 스크립트 내용");
         when(callResponseSpec.entity(ArgumentMatchers.<ParameterizedTypeReference<CreateResourceResponse>>any()))
                 .thenReturn(dummyResponse);
 

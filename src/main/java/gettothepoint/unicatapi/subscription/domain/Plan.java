@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 public class Plan extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;

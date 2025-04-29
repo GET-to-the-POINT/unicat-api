@@ -11,10 +11,10 @@ spring:
     locale: ko
     locale-resolver: accept-header
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/postgres}
-    username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
-    driver-class-name: org.postgresql.Driver
+    url: ${SPRING_DATASOURCE_URL:jdbc:h2:file:./unicatdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE}
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:org.h2.Driver}
+    username: ${SPRING_DATASOURCE_USERNAME:sa}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
   jpa:
     hibernate:
       ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
@@ -86,6 +86,8 @@ filestorage:
     root: ${APP_FILESTORAGE_LOCAL_ROOT:${user.home}/unicat}
 
 server:
+  http2:
+    enabled: true
   port: 443
   ssl:
     key-store: ${APP_SSL_KEY_STORE:classpath:unicat.day/unicat.day.p12}
