@@ -1,11 +1,11 @@
 package gettothepoint.unicatapi.application.service.payment;
 
 import gettothepoint.unicatapi.application.service.member.MemberService;
-import gettothepoint.unicatapi.subscription.application.SubscriptionUseCase;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.entity.payment.Billing;
 import gettothepoint.unicatapi.domain.entity.payment.Order;
 import gettothepoint.unicatapi.infrastructure.gateway.TossPaymentGateway;
+import gettothepoint.unicatapi.subscription.service.SubscriptionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ public class PaymentService {
     private final TossPaymentGateway tossPaymentGateway;
     private final OrderService orderService;
     private final BillingService billingService;
-    private final SubscriptionUseCase subscriptionUseCase;
+    private final SubscriptionService subscriptionService;
     private final PaymentRecordService paymentRecordService;
     private final MemberService memberService;
 
@@ -47,7 +47,7 @@ public class PaymentService {
         orderService.markAsDone(order);
         paymentRecordService.save(order, approvalResult);
         billingService.applyRecurring(billing); //recurring 갱신
-        subscriptionUseCase.changePlan(order.getMember(), order.getPlan().getName());
+        subscriptionService.changePlan(order.getMember(), order.getPlan());
 
         return approvalResult;
     }

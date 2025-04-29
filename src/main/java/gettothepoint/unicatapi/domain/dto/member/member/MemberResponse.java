@@ -3,10 +3,11 @@ package gettothepoint.unicatapi.domain.dto.member.member;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.entity.payment.Billing;
-import gettothepoint.unicatapi.subscription.domain.entity.Subscription;
+import gettothepoint.unicatapi.subscription.entity.Subscription;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 public record MemberResponse(
@@ -38,11 +39,11 @@ record SubscriptionResponse(
         @Schema(example = "BASIC")
         String plan,
         @Schema(example = "2025-03-28T18:12:01.574263")
-        String startDate,
+        LocalDateTime startDate,
         @Schema(example =  "9999-12-31T23:59:59")
-        String endDate) {
+        LocalDateTime endDate) {
 public static SubscriptionResponse fromEntity(Subscription subscription) {
-        return new SubscriptionResponse(subscription.getId(), subscription.getPlan().getName(), subscription.getPeriod().getStartDate().toString(), subscription.getPeriod().getEndDate().toString());
+        return new SubscriptionResponse(subscription.getId(), subscription.getPlan().getName(), subscription.getStartDate(), subscription.getEndDate());
     }
 }
 

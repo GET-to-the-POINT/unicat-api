@@ -1,9 +1,9 @@
-package gettothepoint.unicatapi.subscription.application.service;
+package gettothepoint.unicatapi.subscription.service;
 
 import gettothepoint.unicatapi.domain.entity.member.Member;
-import gettothepoint.unicatapi.subscription.domain.entity.Plan;
-import gettothepoint.unicatapi.subscription.domain.entity.Subscription;
-import gettothepoint.unicatapi.subscription.domain.repository.SubscriptionRepository;
+import gettothepoint.unicatapi.subscription.entity.Plan;
+import gettothepoint.unicatapi.subscription.entity.Subscription;
+import gettothepoint.unicatapi.subscription.persistence.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,24 +36,8 @@ public class SubscriptionService {
         subscriptionRepository.save(subscription);
     }
 
-    /**
-     * 현재 구독을 BASIC 플랜으로 전환
-     * (구독 만료 등 자동 전환 시 사용)
-     */
-    @Transactional
-    public void changeToBasicPlan(Member member) {
-        Plan basicPlan = planService.getBasicPlan();
+    public void changePlan(Member member, Plan plan) {
         Subscription subscription = member.getSubscription();
-
-        subscription.expireToBasicPlan(basicPlan);
-        subscriptionRepository.save(subscription);
-    }
-
-    /**
-     * 특정 플랜으로 구독 변경
-     */
-    @Transactional
-    public void changePlan(Subscription subscription, Plan plan) {
         subscription.changePlan(plan);
         subscriptionRepository.save(subscription);
     }
@@ -62,10 +46,13 @@ public class SubscriptionService {
      * 만료되었으면 기본 플랜으로 변경 스케줄러나 마이페이지 확인용
      */
     @Transactional
-    public void checkAndExpireIfNeeded(Member member) {
+    public void expiredThenChangeBasicPlan(Member member) {
         Subscription subscription = member.getSubscription();
-        if (subscription.isExpired()) {
-            changeToBasicPlan(member);
+        if (!subscription.isExpired()) {
+            return;
         }
+
+        Plan basicPlan = planService.getBasicPlan();
+        subscription.changePlan(basicPlan);
     }
 }

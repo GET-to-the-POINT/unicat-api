@@ -6,7 +6,7 @@ import gettothepoint.unicatapi.domain.dto.sign.SignInRequest;
 import gettothepoint.unicatapi.domain.dto.sign.SignUpRequest;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.mail.MailService;
-import gettothepoint.unicatapi.subscription.domain.entity.Plan;
+import gettothepoint.unicatapi.subscription.entity.Plan;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;

@@ -1,12 +1,13 @@
-package gettothepoint.unicatapi.subscription.domain.entity;
+package gettothepoint.unicatapi.subscription.entity;
 
 import gettothepoint.unicatapi.domain.entity.BaseEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 /**
  * 구독 플랜 정보를 나타내는 엔티티
@@ -32,9 +33,6 @@ public class Plan extends BaseEntity {
     private Long aiScriptCount;
 
     private Long artifactCount;
-
-    @OneToMany(mappedBy = "plan")
-    private List<Subscription> subscription;
 
     @Builder
     public Plan(String name, String description, Long price, Long aiImageCount, Long aiScriptCount, Long artifactCount) {

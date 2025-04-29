@@ -1,12 +1,12 @@
 package gettothepoint.unicatapi.application.service.member;
 
 
-import gettothepoint.unicatapi.subscription.application.SubscriptionUseCase;
 import gettothepoint.unicatapi.domain.dto.member.member.MemberUpdateDto;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.entity.member.OAuthLink;
 import gettothepoint.unicatapi.domain.repository.MemberRepository;
 import gettothepoint.unicatapi.domain.repository.OAuthLinkRepository;
+import gettothepoint.unicatapi.subscription.service.SubscriptionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -23,7 +23,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final OAuthLinkRepository oAuthLinkRepository;
     private final PasswordEncoder passwordEncoder;
-    private final SubscriptionUseCase subscriptionUseCase;
+    private final SubscriptionService subscriptionService;
 
 
     @Transactional
@@ -35,7 +35,7 @@ public class MemberService {
                 .phoneNumber(phoneNumber)
                 .build();
 
-        subscriptionUseCase.createSubscription(member);
+        subscriptionService.createSubscription(member);
         return memberRepository.save(member);
     }
 
@@ -70,7 +70,7 @@ public class MemberService {
                                     .build()
                     );
 
-                    subscriptionUseCase.createSubscription(savedMember);
+                    subscriptionService.createSubscription(savedMember);
 
                     return savedMember;
                 });

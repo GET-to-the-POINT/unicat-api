@@ -1,10 +1,10 @@
 package gettothepoint.unicatapi.application.service.payment;
 
-import gettothepoint.unicatapi.subscription.application.SubscriptionUseCase;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.entity.payment.Billing;
 import gettothepoint.unicatapi.domain.entity.payment.Order;
 import gettothepoint.unicatapi.domain.repository.BillingRepository;
+import gettothepoint.unicatapi.subscription.service.SubscriptionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ public class BillingProcessingService {
     private final BillingRepository billingRepository;
     private final PaymentService paymentService;
     private final OrderService orderService;
-    private final SubscriptionUseCase subscriptionUseCase;
+    private final SubscriptionService subscriptionService;
 
     /**
      * 이미 결제가 진행중인(유료) 회원에 대해 자동 결제 처리
@@ -53,7 +53,7 @@ public class BillingProcessingService {
         for (Billing billing : expiredList) {
             Member member = billing.getMember();
 
-            subscriptionUseCase.checkAndExpireIfNeeded(member);
+            subscriptionService.expiredThenChangeBasicPlan(member);
 
             log.info("구독 상태 체크 및 처리 완료: 회원 {}", member.getEmail());
         }
