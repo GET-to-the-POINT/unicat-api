@@ -11,7 +11,7 @@ spring:
     locale: ko
     locale-resolver: accept-header
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:h2:file:./unicatdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE}
+    url: ${SPRING_DATASOURCE_URL:jdbc:h2:file:./unicat;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE}
     driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:org.h2.Driver}
     username: ${SPRING_DATASOURCE_USERNAME:sa}
     password: ${SPRING_DATASOURCE_PASSWORD:}
