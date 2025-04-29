@@ -2,6 +2,7 @@ package gettothepoint.unicatapi.ai.application;
 
 import com.google.cloud.texttospeech.v1.*;
 import gettothepoint.unicatapi.common.util.FileUtil;
+import gettothepoint.unicatapi.filestorage.application.FileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.annotation.Primary;
@@ -14,9 +15,10 @@ import java.nio.file.Path;
 @Log4j2
 @Service
 @RequiredArgsConstructor
-public class GoogleTextToSpeechService implements TTSService {
+public class TTSServiceGoogle implements TTSService {
 
     private final TextToSpeechClient textToSpeechClient;
+    private final FileService fileService;
 
     @Override
     public File create(String script, String voiceModel) {

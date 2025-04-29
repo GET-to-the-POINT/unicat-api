@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.application.service.voice;
 
-import gettothepoint.unicatapi.ai.application.SuperToneService;
+import gettothepoint.unicatapi.ai.application.TTSServiceSuperTone;
 import gettothepoint.unicatapi.common.properties.SupertoneProperties;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,11 +18,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {SuperToneServiceTest.TestConfig.class, SuperToneService.class})
-class SuperToneServiceTest {
+@ContextConfiguration(classes = {TTSServiceSuperToneTest.TestConfig.class, TTSServiceSuperTone.class})
+class TTSServiceSuperToneTest {
 
     @Autowired
-    SuperToneService superToneService;
+    TTSServiceSuperTone TTSServiceSuperTone;
 
     @TestConfiguration
     static class TestConfig {
@@ -42,7 +42,7 @@ class SuperToneServiceTest {
     void testCreateIntegration() {
 
         String script = "안녕하세요, 테스트입니다.";
-        File resultFile = superToneService.create(script, null);
+        File resultFile = TTSServiceSuperTone.create(script, null);
 
         assertNotNull(resultFile, "생성된 파일이 null이어서는 안 됩니다.");
         assertTrue(resultFile.exists(), "파일이 실제로 존재해야 합니다.");

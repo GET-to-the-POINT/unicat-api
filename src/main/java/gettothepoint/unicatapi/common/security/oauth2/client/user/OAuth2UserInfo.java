@@ -1,14 +1,15 @@
 package gettothepoint.unicatapi.common.security.oauth2.client.user;
 
 import java.util.Map;
+import java.util.UUID;
 
 public interface OAuth2UserInfo {
     String getId();
     String getEmail();
     String getPicture();
     String getName();
-    Long getMemberId();
-    void setMemberId(Long memberId);
+    UUID getMemberId();
+    void setMemberId(UUID memberId);
 
     Map<String, Object> getAttributes();
 

@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 public class KakaoOAuth2UserInfo implements OAuth2UserInfo {
@@ -14,7 +15,7 @@ public class KakaoOAuth2UserInfo implements OAuth2UserInfo {
 
     @Setter
     @Getter
-    private Long memberId;
+    private UUID memberId;
 
     @Override
     public String getId() {

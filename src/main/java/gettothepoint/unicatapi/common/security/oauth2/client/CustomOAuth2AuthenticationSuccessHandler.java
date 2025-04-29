@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.WebUtils;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -27,7 +28,7 @@ public class CustomOAuth2AuthenticationSuccessHandler extends SimpleUrlAuthentic
             throws IOException {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
 
-        Long memberId = oAuth2User.getAttribute("memberId");
+        UUID memberId = oAuth2User.getAttribute("memberId");
         assert memberId != null;
         String token = jwtUtil.generateJwtToken(memberId);
         Cookie jwtCookie = cookieUtil.createJwtCookie(token);

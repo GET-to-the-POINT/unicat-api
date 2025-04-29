@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.test.config;
 
-import gettothepoint.unicatapi.ai.application.GoogleTextToSpeechService;
+import gettothepoint.unicatapi.ai.application.TTSServiceGoogle;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -11,7 +11,7 @@ public class TestDummyTextToSpeechConfiguration {
 
     @Bean
     @Primary
-    public GoogleTextToSpeechService textToSpeechService() {
-        return Mockito.mock(GoogleTextToSpeechService.class);
+    public TTSServiceGoogle textToSpeechService() {
+        return Mockito.mock(TTSServiceGoogle.class);
     }
 }

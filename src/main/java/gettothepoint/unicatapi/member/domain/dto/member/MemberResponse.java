@@ -9,10 +9,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 public record MemberResponse(
         @Schema(example = "1")
-        Long id,
+        UUID id,
         @Schema(example = "김유니")
         String name,
         @Schema(example = "01012345678")

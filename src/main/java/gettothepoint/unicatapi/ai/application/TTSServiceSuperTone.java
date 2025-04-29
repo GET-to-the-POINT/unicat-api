@@ -19,7 +19,7 @@ import java.util.Map;
 @Service
 @Log4j2
 @RequiredArgsConstructor
-public class SuperToneService implements TTSService {
+public class TTSServiceSuperTone implements TTSService {
 
     private final SupertoneProperties supertoneProperties;
     private final RestTemplate restTemplate;

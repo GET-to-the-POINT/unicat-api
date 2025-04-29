@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.util.Map;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 public class GoogleOAuth2UserInfo implements OAuth2UserInfo {
@@ -13,7 +14,7 @@ public class GoogleOAuth2UserInfo implements OAuth2UserInfo {
 
     @Setter
     @Getter
-    private Long memberId;
+    private UUID memberId;
 
     @Override
     public String getId() {
