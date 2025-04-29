@@ -5,8 +5,6 @@ import gettothepoint.unicatapi.common.properties.JwtProperties;
 import gettothepoint.unicatapi.common.schema.ErrorResponse;
 import gettothepoint.unicatapi.common.schema.UnauthorizedErrorResponse;
 import gettothepoint.unicatapi.common.util.CookieUtil;
-import gettothepoint.unicatapi.domain.dto.sign.SignInRequest;
-import gettothepoint.unicatapi.domain.dto.sign.SignUpRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

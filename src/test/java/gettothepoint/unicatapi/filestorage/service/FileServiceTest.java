@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.filestorage.service;
 
-import gettothepoint.unicatapi.filestorage.FileResource;
-import gettothepoint.unicatapi.filestorage.FileService;
+import gettothepoint.unicatapi.filestorage.domain.FileResource;
+import gettothepoint.unicatapi.filestorage.application.FileService;
 import gettothepoint.unicatapi.filestorage.persistence.FileStorageRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

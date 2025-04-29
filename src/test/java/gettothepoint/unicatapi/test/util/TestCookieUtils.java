@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.test.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import gettothepoint.unicatapi.domain.dto.sign.SignInRequest;
+import gettothepoint.unicatapi.auth.presentation.SignInRequest;
 import jakarta.servlet.http.Cookie;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;

@@ -4,7 +4,7 @@
 //import gettothepoint.unicatapi.domain.dto.member.password.AnonymousChangePasswordRequest;
 //import gettothepoint.unicatapi.domain.dto.member.password.AuthorizedChangePasswordRequest;
 //import gettothepoint.unicatapi.domain.dto.member.password.PasswordResetEmailRequest;
-//import gettothepoint.unicatapi.domain.dto.sign.SignUpRequest;
+//import gettothepoint.unicatapi.auth.presentation.SignUpRequest;
 //import gettothepoint.unicatapi.test.config.TestDummyEmailServiceConfiguration;
 //import gettothepoint.unicatapi.test.config.TestDummyTextToSpeechConfiguration;
 //import org.junit.jupiter.api.BeforeEach;

@@ -1,9 +1,10 @@
 package gettothepoint.unicatapi.order.service;
 
-import gettothepoint.unicatapi.domain.entity.member.Member;
-import gettothepoint.unicatapi.order.entity.Order;
-import gettothepoint.unicatapi.order.persistence.OrderRepository;
-import gettothepoint.unicatapi.subscription.entity.Plan;
+import gettothepoint.unicatapi.member.domain.Member;
+import gettothepoint.unicatapi.payment.domain.Order;
+import gettothepoint.unicatapi.payment.persistence.OrderRepository;
+import gettothepoint.unicatapi.payment.application.OrderService;
+import gettothepoint.unicatapi.subscription.domain.Plan;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

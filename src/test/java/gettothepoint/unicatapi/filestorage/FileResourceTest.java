@@ -1,5 +1,6 @@
 package gettothepoint.unicatapi.filestorage;
 
+import gettothepoint.unicatapi.filestorage.domain.FileResource;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.subscription.persistence;
 
-import gettothepoint.unicatapi.subscription.entity.Plan;
+import gettothepoint.unicatapi.subscription.domain.Plan;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

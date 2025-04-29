@@ -3,7 +3,7 @@
 //import com.fasterxml.jackson.databind.ObjectMapper;
 //import gettothepoint.unicatapi.auth.AuthService;
 //import gettothepoint.unicatapi.domain.dto.sign.SignInDto;
-//import gettothepoint.unicatapi.domain.dto.sign.SignUpRequest;
+//import gettothepoint.unicatapi.auth.presentation.SignUpRequest;
 //import gettothepoint.unicatapi.test.config.TestDummyTextToSpeechConfiguration;
 //import gettothepoint.unicatapi.test.config.TestSecurityConfig;
 //import jakarta.servlet.http.HttpServletResponse;

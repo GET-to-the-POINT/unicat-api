@@ -1,11 +1,11 @@
 package gettothepoint.unicatapi.auth;
 
 import gettothepoint.unicatapi.common.util.JwtUtil;
-import gettothepoint.unicatapi.domain.dto.sign.SignInRequest;
-import gettothepoint.unicatapi.domain.dto.sign.SignUpRequest;
+import gettothepoint.unicatapi.auth.presentation.SignInRequest;
+import gettothepoint.unicatapi.auth.presentation.SignUpRequest;
 import gettothepoint.unicatapi.member.application.MemberService;
 import gettothepoint.unicatapi.member.domain.Member;
-import gettothepoint.unicatapi.subscription.entity.Plan;
+import gettothepoint.unicatapi.subscription.domain.Plan;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;

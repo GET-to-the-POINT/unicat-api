@@ -2,10 +2,10 @@
 //
 //import com.fasterxml.jackson.databind.ObjectMapper;
 //import gettothepoint.unicatapi.application.service.OpenAiService;
-//import gettothepoint.unicatapi.application.service.project.ProjectService;
-//import gettothepoint.unicatapi.application.service.project.SectionService;
-//import gettothepoint.unicatapi.domain.dto.project.CreateResourceResponse;
-//import gettothepoint.unicatapi.domain.dto.project.PromptRequest;
+//import gettothepoint.unicatapi.artifact.application.ProjectService;
+//import gettothepoint.unicatapi.artifact.application.SectionService;
+//import gettothepoint.unicatapi.ai.domain.dto.CreateResourceResponse;
+//import gettothepoint.unicatapi.ai.domain.dto.PromptRequest;
 //import gettothepoint.unicatapi.domain.dto.project.ProjectResponse;
 //import gettothepoint.unicatapi.presentation.controller.project.ProjectController;
 //import gettothepoint.unicatapi.test.config.TestDummyTextToSpeechConfiguration;

@@ -1,9 +1,9 @@
 package gettothepoint.unicatapi.member.presentation;
 
-import gettothepoint.unicatapi.domain.dto.member.member.MemberResponse;
-import gettothepoint.unicatapi.domain.dto.member.member.MemberUpdateDto;
 import gettothepoint.unicatapi.member.application.MemberService;
 import gettothepoint.unicatapi.member.domain.Member;
+import gettothepoint.unicatapi.member.domain.dto.member.MemberResponse;
+import gettothepoint.unicatapi.member.domain.dto.member.MemberUpdateDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

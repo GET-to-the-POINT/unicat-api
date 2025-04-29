@@ -2,9 +2,9 @@ package gettothepoint.unicatapi.member.domain;
 
 import gettothepoint.unicatapi.auth.domain.OAuthLink;
 import gettothepoint.unicatapi.common.domain.BaseEntity;
-import gettothepoint.unicatapi.domain.entity.payment.Billing;
-import gettothepoint.unicatapi.order.entity.Order;
-import gettothepoint.unicatapi.subscription.entity.Subscription;
+import gettothepoint.unicatapi.payment.domain.Billing;
+import gettothepoint.unicatapi.payment.domain.Order;
+import gettothepoint.unicatapi.subscription.domain.Subscription;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;

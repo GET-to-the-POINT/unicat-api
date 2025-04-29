@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.test.config;
 
-import gettothepoint.unicatapi.application.service.voice.GoogleTextToSpeechService;
+import gettothepoint.unicatapi.ai.application.GoogleTextToSpeechService;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;

@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.subscription.persistence;
 
-import gettothepoint.unicatapi.subscription.entity.Subscription;
+import gettothepoint.unicatapi.subscription.domain.Subscription;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

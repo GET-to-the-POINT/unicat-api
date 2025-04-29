@@ -1,12 +1,14 @@
 package gettothepoint.unicatapi.application.service.payment;
 
 import gettothepoint.unicatapi.member.domain.Member;
-import gettothepoint.unicatapi.domain.entity.payment.Billing;
-import gettothepoint.unicatapi.domain.repository.BillingRepository;
-import gettothepoint.unicatapi.order.service.OrderService;
-import gettothepoint.unicatapi.subscription.entity.Plan;
-import gettothepoint.unicatapi.subscription.entity.Subscription;
-import gettothepoint.unicatapi.subscription.service.SubscriptionService;
+import gettothepoint.unicatapi.payment.domain.Billing;
+import gettothepoint.unicatapi.payment.persistence.BillingRepository;
+import gettothepoint.unicatapi.payment.application.BillingProcessingService;
+import gettothepoint.unicatapi.payment.application.OrderService;
+import gettothepoint.unicatapi.payment.application.PaymentService;
+import gettothepoint.unicatapi.subscription.domain.Plan;
+import gettothepoint.unicatapi.subscription.domain.Subscription;
+import gettothepoint.unicatapi.subscription.application.SubscriptionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

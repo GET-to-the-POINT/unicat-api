@@ -1,13 +1,13 @@
 package gettothepoint.unicatapi.application.service;
 
-import gettothepoint.unicatapi.application.service.ai.OpenAiService;
+import gettothepoint.unicatapi.ai.application.OpenAiService;
 import gettothepoint.unicatapi.common.properties.OpenAIProperties;
-import gettothepoint.unicatapi.domain.dto.project.CreateResourceResponse;
-import gettothepoint.unicatapi.domain.dto.project.PromptRequest;
-import gettothepoint.unicatapi.domain.entity.project.Project;
-import gettothepoint.unicatapi.domain.entity.project.Section;
-import gettothepoint.unicatapi.domain.repository.ProjectRepository;
-import gettothepoint.unicatapi.domain.repository.SectionRepository;
+import gettothepoint.unicatapi.ai.domain.dto.CreateResourceResponse;
+import gettothepoint.unicatapi.ai.domain.dto.PromptRequest;
+import gettothepoint.unicatapi.artifact.domain.Project;
+import gettothepoint.unicatapi.artifact.domain.Section;
+import gettothepoint.unicatapi.artifact.persistence.ProjectRepository;
+import gettothepoint.unicatapi.artifact.persistence.SectionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

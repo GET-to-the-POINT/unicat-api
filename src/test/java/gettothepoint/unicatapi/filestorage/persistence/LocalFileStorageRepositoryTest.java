@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.filestorage.persistence;
 
-import gettothepoint.unicatapi.filestorage.FileResource;
+import gettothepoint.unicatapi.filestorage.domain.FileResource;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
