@@ -14,6 +14,6 @@ public record SignInRequest(
         String email,
 
         @NotBlank(message = "{password.required}")
-        @Schema(description = "사용자 비밀번호", example = "StrongPassword123")
+        @Schema(description = "사용자 비밀번호", example = "Strong@123")
         String password
 ) {}
