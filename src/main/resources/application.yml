@@ -20,26 +20,10 @@ spring:
       ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
     open-in-view: false
 
-  mail:
-    host: ${SPRING_MAIL_HOST:localhost}
-    port: ${SPRING_MAIL_PORT:587}
-    username: ${SPRING_MAIL_USERNAME}
-    password: ${SPRING_MAIL_PASSWORD}
-    properties:
-      mail:
-        smtp:
-          auth: ${SPRING_MAIL_SMTP_AUTH:true}
-          starttls:
-            enable: ${SPRING_MAIL_STARTTLS_ENABLE:true}
-            required: ${SPRING_MAIL_STARTTLS_REQUIRED:true}
-          connectiontimeout: ${SPRING_MAIL_CONNECTION_TIMEOUT:20000}
-          timeout: ${SPRING_MAIL_TIMEOUT:20000}
-          writetimeout: ${SPRING_MAIL_WRITE_TIMEOUT:20000}
   servlet:
     multipart:
       max-file-size: 50MB
       max-request-size: 50MB
-      location: ${APP_MULTIPART_LOCATION:${java.io.tmpdir}/unicat/multipart}
   ai:
     openai:
       api-key: ${SPRING_AI_OPENAI_API_KEY}
@@ -72,13 +56,6 @@ app:
     billing-url: ${APP_TOSS_BILLING_URL:https://api.tosspayments.com/v1/billing/authorizations/issue}
   frontend:
     url: ${APP_FRONTEND_URL:https://unicat.day}
-  minio:
-    endpoint: ${SUPABASE_S3_ENDPOINT:http://localhost:9000}
-    access-key-id: ${SUPABASE_S3_ACCESS_KEY_ID:test-minio}
-    secret-access-key: ${SUPABASE_S3_SECRET_KEY:test-minio}
-    bucket: ${SUPABASE_S3_BUCKET:unicat}
-  filestorage:
-    local-root: ${APP_FILESTORAGE_LOCAL_ROOT:${user.home}/unicat}
   cors:
     allowed-origins:
       - ${APP_CORS_ALLOWED_ORIGINS:https://unicat.day}
@@ -103,6 +80,10 @@ app:
   supertone:
     api-key: ${APP_SUPERTONE_API_KEY}
     default-voice-id: ${APP_SUPERTONE_DEFAULT_VOICE_ID:d9Hi4iF7HEXpGWo6cC5YbZ}
+
+filestorage:
+  local:
+    root: ${APP_FILESTORAGE_LOCAL_ROOT:${user.home}/unicat}
 
 server:
   port: 443

@@ -1,14 +1,7 @@
 spring:
-  config:
-    activate:
-      on-profile: prod
-  datasource:
-    hikari:
-      maximum-pool-size: 1
-      minimum-idle: 1
-      idle-timeout: 10000
-      max-lifetime: 30000
-      connection-timeout: 10000
+  jpa:
+    hibernate:
+      ddl-auto: validate
 
 logging:
   loki:

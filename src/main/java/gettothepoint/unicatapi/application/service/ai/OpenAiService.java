@@ -8,7 +8,7 @@ import gettothepoint.unicatapi.domain.dto.project.AutoArtifact;
 import gettothepoint.unicatapi.domain.dto.project.CreateResourceResponse;
 import gettothepoint.unicatapi.domain.dto.project.PromptRequest;
 import gettothepoint.unicatapi.domain.entity.project.Section;
-import gettothepoint.unicatapi.filestorage.application.port.in.FileUploadUseCase;
+import gettothepoint.unicatapi.filestorage.FileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.ai.chat.client.ChatClient;
@@ -37,7 +37,7 @@ public class OpenAiService {
 
     private final OpenAIProperties openAIProperties;
     private final RestTemplate restTemplate;
-    private final FileUploadUseCase fileUploadUseCase;
+    private final FileService fileService;
     private final OpenAiImageModel openAiImageModel;
     private final OpenAiChatModel openAiChatModel;
     private final ProjectService projectService;
@@ -134,7 +134,7 @@ public class OpenAiService {
         }
 
         MultipartFile multipartFile = new MultipartFileUtil(imageBytes, "download", "image/jpeg");
-        return fileUploadUseCase.uploadFile(multipartFile);
+        return fileService.uploadFile(multipartFile);
     }
 
     private void saveImageToSection(Long sectionId, String imageUrl, String alt) {

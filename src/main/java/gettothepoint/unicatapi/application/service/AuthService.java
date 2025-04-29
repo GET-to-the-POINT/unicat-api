@@ -1,12 +1,12 @@
 package gettothepoint.unicatapi.application.service;
 
-import gettothepoint.unicatapi.email.infrastructure.email.SyncMailSender;
 import gettothepoint.unicatapi.application.service.member.MemberService;
 import gettothepoint.unicatapi.common.util.JwtUtil;
 import gettothepoint.unicatapi.domain.dto.sign.SignInRequest;
 import gettothepoint.unicatapi.domain.dto.sign.SignUpRequest;
 import gettothepoint.unicatapi.domain.entity.member.Member;
-import gettothepoint.unicatapi.subscription.domain.entity.Plan;
+import gettothepoint.unicatapi.mail.MailService;
+import gettothepoint.unicatapi.subscription.entity.Plan;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -23,7 +23,7 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final MessageSource messageSource;
     private final MemberService memberService;
-    private final SyncMailSender syncMailSender;
+    private final MailService mailService;
 
     public String signUp(SignUpRequest signUpRequest) {
         Member member = memberService.create(signUpRequest.email(), signUpRequest.password(), signUpRequest.name(), signUpRequest.phoneNumber());

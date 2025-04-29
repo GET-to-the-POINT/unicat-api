@@ -8,7 +8,7 @@ import gettothepoint.unicatapi.domain.dto.project.section.SectionResponseFactory
 import gettothepoint.unicatapi.domain.entity.project.Project;
 import gettothepoint.unicatapi.domain.entity.project.Section;
 import gettothepoint.unicatapi.domain.repository.SectionRepository;
-import gettothepoint.unicatapi.filestorage.application.port.in.FileUploadUseCase;
+import gettothepoint.unicatapi.filestorage.FileService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +34,7 @@ public class SectionService {
 
     private final ProjectService projectService;
     private final SectionRepository sectionRepository;
-    private final FileUploadUseCase fileUploadUseCase;
+    private final FileService fileService;
     private final SectionResponseFactory sectionResponseFactory;
     private static final String SECTION_NOT_FOUND_MSG = "Section not found with id: ";
 
@@ -88,7 +88,7 @@ public class SectionService {
         String voiceModel = StringUtils.hasText(sectionResourceRequest.voiceModel()) ? sectionResourceRequest.voiceModel() : supertoneDefaultVoiceId;
         String contentKey = null;
         if (sectionResourceRequest.multipartFile() != null) {
-            contentKey = fileUploadUseCase.uploadFile(sectionResourceRequest.multipartFile());
+            contentKey = fileService.uploadFile(sectionResourceRequest.multipartFile());
         }
 
         Section newSection = Section.builder()
@@ -120,7 +120,7 @@ public class SectionService {
             changed = true;
         }
         if (sectionResourceRequest.multipartFile() != null && !sectionResourceRequest.multipartFile().isEmpty()) {
-            String uploadedKey = fileUploadUseCase.uploadFile(sectionResourceRequest.multipartFile());
+            String uploadedKey = fileService.uploadFile(sectionResourceRequest.multipartFile());
             section.setContentKey(uploadedKey);
             changed = true;
         }

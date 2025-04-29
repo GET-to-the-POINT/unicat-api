@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.domain.dto.project.project;
 
 import gettothepoint.unicatapi.domain.entity.project.Project;
-import gettothepoint.unicatapi.filestorage.application.port.in.FileDownloadUseCase;
+import gettothepoint.unicatapi.filestorage.FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ProjectResponseFactory {
 
-    private final FileDownloadUseCase fileDownloadUseCase;
+    private final FileService fileService;
 
     public ProjectResponse fromEntity(Project project) {
         return ProjectResponse.builder()
@@ -17,9 +17,9 @@ public class ProjectResponseFactory {
                 .title(project.getTitle())
                 .subtitle(project.getSubtitle())
                 .description(project.getDescription())
-                .thumbnailUrl(project.getThumbnailUrl() != null ? fileDownloadUseCase.downloadFile(project.getThumbnailUrl()).toString() : null)
-                .titleUrl(project.getTitleImageKey() != null ? fileDownloadUseCase.downloadFile(project.getTitleImageKey()).toString() : null)
-                .artifactUrl(project.getArtifactKey() != null ? fileDownloadUseCase.downloadFile(project.getArtifactKey()).toString() : null)
+                .thumbnailUrl(project.getThumbnailUrl() != null ? fileService.downloadFile(project.getThumbnailUrl()).toString() : null)
+                .titleUrl(project.getTitleImageKey() != null ? fileService.downloadFile(project.getTitleImageKey()).toString() : null)
+                .artifactUrl(project.getArtifactKey() != null ? fileService.downloadFile(project.getArtifactKey()).toString() : null)
                 .scriptTone(project.getScriptTone())
                 .imageStyle(project.getImageStyle())
                 .createdAt(project.getCreatedAt())

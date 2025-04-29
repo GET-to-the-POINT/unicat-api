@@ -8,7 +8,7 @@ import gettothepoint.unicatapi.domain.dto.project.project.ProjectResponseFactory
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.entity.project.Project;
 import gettothepoint.unicatapi.domain.repository.ProjectRepository;
-import gettothepoint.unicatapi.filestorage.application.port.in.FileUploadUseCase;
+import gettothepoint.unicatapi.filestorage.FileService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,7 +25,7 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
     private final MemberService memberService;
-    private final FileUploadUseCase fileUploadUseCase;
+    private final FileService fileService;
     private final ProjectResponseFactory projectResponseFactory;
 
     public Page<ProjectResponse> getAll(Pageable pageable) {
@@ -55,7 +55,7 @@ public class ProjectService {
 
         String titleImageKey = null;
         if (request.titleImage() != null) {
-            titleImageKey = fileUploadUseCase.uploadFile(request.titleImage());
+            titleImageKey = fileService.uploadFile(request.titleImage());
         }
 
         Project project = Project.builder()
@@ -104,7 +104,7 @@ public class ProjectService {
             changed = true;
         }
         if (request.titleImage() != null) {
-            String titleUrl = fileUploadUseCase.uploadFile(request.titleImage());
+            String titleUrl = fileService.uploadFile(request.titleImage());
             project.setTitleImageKey(titleUrl);
             changed = true;
         }

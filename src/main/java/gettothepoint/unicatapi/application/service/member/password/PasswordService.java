@@ -1,9 +1,9 @@
 package gettothepoint.unicatapi.application.service.member.password;
 
 import gettothepoint.unicatapi.application.service.member.MemberService;
-import gettothepoint.unicatapi.email.infrastructure.email.SyncMailSender;
 import gettothepoint.unicatapi.common.util.JwtUtil;
 import gettothepoint.unicatapi.domain.entity.member.Member;
+import gettothepoint.unicatapi.mail.MailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,7 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class PasswordService {
 
     private final MemberService memberService;
-    private final SyncMailSender syncMailSender;
+    private final MailService mailService;
     private final JwtUtil jwtUtil;
 
     public void sendResetEmail(String email, String url) {
