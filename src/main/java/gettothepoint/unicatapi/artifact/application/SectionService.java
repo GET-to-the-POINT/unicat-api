@@ -1,19 +1,18 @@
 package gettothepoint.unicatapi.artifact.application;
 
 import gettothepoint.unicatapi.ai.domain.dto.ResourceResponse;
+import gettothepoint.unicatapi.artifact.domain.Project;
+import gettothepoint.unicatapi.artifact.domain.Section;
 import gettothepoint.unicatapi.artifact.domain.dto.SectionResourceRequest;
 import gettothepoint.unicatapi.artifact.domain.dto.SectionResourceRequestWithoutFile;
 import gettothepoint.unicatapi.artifact.domain.dto.SectionResponse;
 import gettothepoint.unicatapi.artifact.domain.dto.SectionResponseFactory;
-import gettothepoint.unicatapi.artifact.domain.Project;
-import gettothepoint.unicatapi.artifact.domain.Section;
 import gettothepoint.unicatapi.artifact.persistence.SectionRepository;
 import gettothepoint.unicatapi.filestorage.application.FileService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -29,37 +28,30 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SectionService {
 
-    @Value("${app.supertone.default-voice-id}")
-    private String supertoneDefaultVoiceId;
-
     private final ProjectService projectService;
     private final SectionRepository sectionRepository;
     private final FileService fileService;
     private final SectionResponseFactory sectionResponseFactory;
     private static final String SECTION_NOT_FOUND_MSG = "Section not found with id: ";
 
-    // 컬렉션 페이지네이션
+    // DTO 컬렉션 조회
     public Page<SectionResponse> getAll(Long projectId, Pageable pageable) {
         Page<Section> sections = sectionRepository.findAllByProjectIdOrderBySortOrderAsc(projectId, pageable);
         return sections.map(sectionResponseFactory::fromEntity);
     }
 
-    // 컬렉션 전체
-    public List<SectionResponse> getSectionResponseAll(Long projectId) {
-        List<Section> sections = sectionRepository.findAllByProjectIdOrderBySortOrderAsc(projectId);
-        return sections.stream().map(sectionResponseFactory::fromEntity).toList();
-    }
-
+    // 엔티티 컬렉션 조회
     public List<Section> getSectionAll(Long projectId) {
         return sectionRepository.findAllByProjectIdOrderBySortOrderAsc(projectId);
     }
 
-    // 싱글
+    // DTO 싱글 조회
     public SectionResponse get(Long projectId, Long sectionId) {
         Section section = this.getOrElseThrow(projectId, sectionId);
         return sectionResponseFactory.fromEntity(section);
     }
 
+    // DTO 싱글 생성
     public SectionResponse create(Long projectId) {
         Project project = projectService.getOrElseThrow(projectId);
         Section newSection = Section.builder()
@@ -68,6 +60,7 @@ public class SectionService {
         return create(newSection);
     }
 
+    // DTO 싱글 생성
     public SectionResponse create(Long projectId, SectionResourceRequestWithoutFile sectionResourceRequestWithoutFile) {
         Project project = projectService.getOrElseThrow(projectId);
         Section newSection = Section.builder()
@@ -84,7 +77,7 @@ public class SectionService {
     public SectionResponse create(Long projectId, SectionResourceRequest sectionResourceRequest) {
         Project project = projectService.getOrElseThrow(projectId);
 
-        String voiceModel = StringUtils.hasText(sectionResourceRequest.voiceModel()) ? sectionResourceRequest.voiceModel() : supertoneDefaultVoiceId;
+        String voiceModel = StringUtils.hasText(sectionResourceRequest.voiceModel()) ? sectionResourceRequest.voiceModel() : null;
         String contentKey = null;
         if (sectionResourceRequest.multipartFile() != null) {
             contentKey = fileService.store(sectionResourceRequest.multipartFile());
