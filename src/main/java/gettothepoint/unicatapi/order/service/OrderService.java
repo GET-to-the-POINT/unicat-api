@@ -1,9 +1,11 @@
-package gettothepoint.unicatapi.order.application.service;
+package gettothepoint.unicatapi.order.service;
 
 import gettothepoint.unicatapi.domain.entity.member.Member;
-import gettothepoint.unicatapi.order.domain.entity.Order;
-import gettothepoint.unicatapi.order.repository.OrderRepository;
-import gettothepoint.unicatapi.subscription.domain.entity.Plan;
+import gettothepoint.unicatapi.order.entity.Order;
+import gettothepoint.unicatapi.order.persistence.OrderRepository;
+
+
+import gettothepoint.unicatapi.subscription.entity.Plan;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

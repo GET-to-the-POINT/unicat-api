@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.application.service.payment;
 
-import gettothepoint.unicatapi.order.domain.entity.Order;
+import gettothepoint.unicatapi.order.entity.Order;
 import gettothepoint.unicatapi.domain.entity.payment.Payment;
 import gettothepoint.unicatapi.domain.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;

@@ -3,7 +3,7 @@ package gettothepoint.unicatapi.infrastructure.gateway;
 import gettothepoint.unicatapi.common.properties.TossProperties;
 import gettothepoint.unicatapi.common.util.ApiUtil;
 import gettothepoint.unicatapi.domain.dto.payment.TossApprovalRequest;
-import gettothepoint.unicatapi.order.domain.entity.Order;
+import gettothepoint.unicatapi.order.entity.Order;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;

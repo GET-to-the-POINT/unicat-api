@@ -2,8 +2,9 @@ package gettothepoint.unicatapi.application.service.payment;
 
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.entity.payment.Billing;
-import gettothepoint.unicatapi.domain.entity.payment.Order;
 import gettothepoint.unicatapi.domain.repository.BillingRepository;
+import gettothepoint.unicatapi.order.entity.Order;
+import gettothepoint.unicatapi.order.service.OrderService;
 import gettothepoint.unicatapi.subscription.service.SubscriptionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +36,7 @@ public class BillingProcessingService {
         log.info("자동 결제 대상 Billing 수: {}", recurringList.size());
         for (Billing billing : recurringList) {
             Member member = billing.getMember();
-            Order order = orderService.create(member.getId(), member.getSubscription().getPlan());
+            Order order = orderService.create(member, member.getSubscription().getPlan());
             paymentService.approveAutoPayment(order, billing);
             log.info("자동 결제 처리 완료: 회원 {}", member.getEmail());
         }

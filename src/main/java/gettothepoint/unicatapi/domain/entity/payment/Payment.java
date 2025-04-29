@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.domain.entity.payment;
 
 import gettothepoint.unicatapi.domain.entity.BaseEntity;
-import gettothepoint.unicatapi.order.domain.entity.Order;
+import gettothepoint.unicatapi.order.entity.Order;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;

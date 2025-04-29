@@ -1,4 +1,4 @@
-package gettothepoint.unicatapi.order.domain.entity;
+package gettothepoint.unicatapi.order.entity;
 
 public enum OrderStatus {
     PENDING,

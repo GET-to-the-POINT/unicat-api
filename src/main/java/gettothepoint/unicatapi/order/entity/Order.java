@@ -1,10 +1,10 @@
-package gettothepoint.unicatapi.order.domain.entity;
+package gettothepoint.unicatapi.order.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import gettothepoint.unicatapi.domain.entity.BaseEntity;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.entity.payment.Payment;
-import gettothepoint.unicatapi.subscription.domain.entity.Plan;
+import gettothepoint.unicatapi.subscription.entity.Plan;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;

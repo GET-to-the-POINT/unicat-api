@@ -47,7 +47,7 @@ class CompositeFileStorageRepositoryTest {
 
     private CompositeFileStorageRepository repository;
 
-    /* ---------- repository builders ---------- */
+    /* ---------- persistence builders ---------- */
 
     private CompositeFileStorageRepository localOnly() {
         FileStorageRepository local = new LocalFileStorageRepository(tempDir);
