@@ -79,11 +79,6 @@ app:
     protocol: https
     domain: api.unicat.day
     port: 443
-  toss:
-    client-key: ${APP_TOSS_CLIENT_KEY:test_ck_D5GePWvyJnrK0W0k6q8gLzN97Eoq} # 토스가 공개적으로 제공하는 키
-    secret-key: ${APP_TOSS_SECRET_KEY:test_sk_zXLkKEypNArWmo50nX3lmeaxYG5R} # 토스가 공개적으로 제공하는 키
-    approve-url: ${APP_TOSS_APPROVE_URL:https://api.tosspayments.com/v1/billing}
-    billing-url: ${APP_TOSS_BILLING_URL:https://api.tosspayments.com/v1/billing/authorizations/issue}
   frontend:
     url: ${APP_FRONTEND_URL:https://unicat.day}
   cors:
