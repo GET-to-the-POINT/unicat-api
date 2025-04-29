@@ -1,4 +1,4 @@
-package gettothepoint.unicatapi.presentation.controller.auth;
+package gettothepoint.unicatapi.auth.presentation;
 
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.JWK;
@@ -7,7 +7,7 @@ import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 import gettothepoint.unicatapi.common.properties.ApiProperties;
 import gettothepoint.unicatapi.common.properties.JwtProperties;
-import gettothepoint.unicatapi.domain.dto.oauth.OAuthLinkDto;
+import gettothepoint.unicatapi.auth.domain.OAuthLinkDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;

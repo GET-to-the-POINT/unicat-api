@@ -1,6 +1,7 @@
 package gettothepoint.unicatapi.member.domain;
 
-import gettothepoint.unicatapi.domain.entity.BaseEntity;
+import gettothepoint.unicatapi.auth.domain.OAuthLink;
+import gettothepoint.unicatapi.common.domain.BaseEntity;
 import gettothepoint.unicatapi.domain.entity.payment.Billing;
 import gettothepoint.unicatapi.domain.entity.payment.Order;
 import gettothepoint.unicatapi.subscription.entity.Subscription;

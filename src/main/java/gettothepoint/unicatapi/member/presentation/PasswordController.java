@@ -1,4 +1,4 @@
-package gettothepoint.unicatapi.presentation.controller.password;
+package gettothepoint.unicatapi.member.presentation;
 
 import gettothepoint.unicatapi.member.application.MemberService;
 import gettothepoint.unicatapi.member.application.PasswordService;
