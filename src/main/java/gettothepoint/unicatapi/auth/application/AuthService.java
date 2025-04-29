@@ -1,4 +1,4 @@
-package gettothepoint.unicatapi.auth;
+package gettothepoint.unicatapi.auth.application;
 
 import gettothepoint.unicatapi.common.util.JwtUtil;
 import gettothepoint.unicatapi.auth.presentation.SignInRequest;
