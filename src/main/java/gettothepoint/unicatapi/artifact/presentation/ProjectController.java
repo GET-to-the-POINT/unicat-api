@@ -1,14 +1,13 @@
-package gettothepoint.unicatapi.presentation.controller.project;
+package gettothepoint.unicatapi.artifact.presentation;
 
 import com.google.api.services.youtubeAnalytics.v2.model.QueryResponse;
+import gettothepoint.unicatapi.ai.domain.dto.PromptRequest;
 import gettothepoint.unicatapi.artifact.application.ArtifactService;
 import gettothepoint.unicatapi.artifact.application.ProjectService;
-import gettothepoint.unicatapi.youtube.application.YouTubeAnalyticsProxyService;
 import gettothepoint.unicatapi.artifact.domain.dto.ProjectRequest;
 import gettothepoint.unicatapi.artifact.domain.dto.ProjectRequestWithoutFile;
 import gettothepoint.unicatapi.artifact.domain.dto.ProjectResponse;
-import gettothepoint.unicatapi.common.progress.ProgressManager;
-import gettothepoint.unicatapi.ai.domain.dto.PromptRequest;
+import gettothepoint.unicatapi.youtube.application.YouTubeAnalyticsProxyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,10 +27,8 @@ import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2Aut
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.Map;
-import java.util.concurrent.Executors;
 
 @Log4j2
 @Tag(name = "Project", description = "프로젝트 API")
@@ -43,7 +40,6 @@ public class ProjectController {
     private final ProjectService projectService;
     private final YouTubeAnalyticsProxyService youtubeAnalyticsProxyService;
     private final ArtifactService artifactService;
-    private final ProgressManager progressManager;
 
     @Operation(
             summary = "프로젝트 목록 조회",
@@ -160,36 +156,4 @@ public class ProjectController {
         artifactService.build(projectId,"artifact", null);
     }
 
-    @Operation(
-            summary = "진행률 SSE 테스트",
-            description = "샘플 데이터를 사용해 0~100%까지 진행률을 SSE 방식으로 전달합니다. 프론트엔드에서 진행률 UI를 테스트할 수 있습니다."
-    )
-    @PreAuthorize("@projectService.verifyProjectOwner(#jwt.subject, #projectId)")
-    @GetMapping("/{projectId}/progress")
-    public SseEmitter progress(@AuthenticationPrincipal Jwt jwt, @PathVariable String projectId) {
-        SseEmitter emitter = new SseEmitter(3 * 60 * 1000L);
-        Executors.newSingleThreadExecutor().submit(() -> {
-            try {
-                for (int i = 0; i <= 100; i += 10) {
-                    emitter.send(SseEmitter.event()
-                            .name("progress")
-                            .data(i));
-                    Thread.sleep(500);
-                }
-                emitter.complete();
-            } catch (Exception e) {
-                emitter.completeWithError(e);
-            }
-        });
-        return emitter;
-    }
-
-//    @Operation(
-//            summary = "프로젝트 업로드 진행률 구독",
-//            description = "특정 프로젝트의 유튜브 업로드 진행률을 SSE 방식으로 구독합니다. projectId 경로 변수를 사용합니다."
-//    )
-//    @GetMapping("/{projectId}/progress")
-//    public SseEmitter subscribe(@PathVariable Long projectId) {
-//        return progressManager.createEmitter(projectId);
-//    }
 }

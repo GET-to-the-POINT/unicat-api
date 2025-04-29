@@ -1,15 +1,11 @@
 package gettothepoint.unicatapi.artifact.presentation;
 
-import gettothepoint.unicatapi.ai.application.OpenAiService;
 import gettothepoint.unicatapi.artifact.application.SectionService;
-import gettothepoint.unicatapi.ai.domain.dto.CreateResourceResponse;
-import gettothepoint.unicatapi.ai.domain.dto.PromptRequest;
 import gettothepoint.unicatapi.artifact.domain.dto.SectionResourceRequest;
 import gettothepoint.unicatapi.artifact.domain.dto.SectionResourceRequestWithoutFile;
 import gettothepoint.unicatapi.artifact.domain.dto.SectionResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
@@ -30,7 +26,6 @@ import org.springframework.web.bind.annotation.*;
 public class SectionController {
 
     private final SectionService sectionService;
-    private final OpenAiService openAiService;
 
     @Operation(
             summary = "프로젝트 내 섹션 목록 조회",
@@ -100,16 +95,6 @@ public class SectionController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void update(@AuthenticationPrincipal Jwt jwt, @PathVariable Long projectId, @PathVariable Long sectionId, @RequestBody SectionResourceRequestWithoutFile request) {
         sectionService.update(projectId, sectionId, request);
-    }
-
-    @Operation(
-            summary = "AI를 통한 콘텐츠 생성",
-            description = "OpenAI API를 사용하여 프롬프트 기반 콘텐츠(스크립트, 이미지)를 생성하고, 해당 섹션에 추가합니다. 'type' 파라미터에 따라 콘텐츠 종류를 지정할 수 있습니다."
-    )
-    @PreAuthorize("@projectService.verifyProjectOwner(#jwt.subject, #projectId)")
-    @PostMapping(value = "/{sectionId}/ai", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public CreateResourceResponse createContent(@AuthenticationPrincipal Jwt jwt, @PathVariable Long projectId, @PathVariable Long sectionId, @RequestParam(required = false) String type, @Valid @RequestBody PromptRequest scriptRequest) {
-        return openAiService.createResource(projectId, sectionId, type, scriptRequest);
     }
 
     @Operation(
