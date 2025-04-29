@@ -1,6 +1,7 @@
 package gettothepoint.unicatapi.auth.presentation;
 
 import gettothepoint.unicatapi.auth.application.AuthService;
+import gettothepoint.unicatapi.common.properties.ApiProperties;
 import gettothepoint.unicatapi.common.properties.JwtProperties;
 import gettothepoint.unicatapi.common.schema.ErrorResponse;
 import gettothepoint.unicatapi.common.schema.UnauthorizedErrorResponse;
@@ -18,7 +19,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.WebUtils;
+
+import java.net.URI;
 
 @RestController
 @RequestMapping("/auth")
@@ -29,6 +33,7 @@ public class SignController {
     private final AuthService authService;
     private final JwtProperties jwtProperties;
     private final CookieUtil cookieUtil;
+    private final ApiProperties apiProperties;
 
     @PostMapping(value = "/sign-up", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
@@ -59,7 +64,14 @@ public class SignController {
             @Valid @RequestBody SignUpRequest signUpRequest,
             HttpServletResponse response
     ) {
-        String jwtToken = authService.signUp(signUpRequest);
+        URI uri = UriComponentsBuilder.newInstance()
+                .scheme(apiProperties.protocol())
+                .host(apiProperties.domain())
+                .port(apiProperties.port())
+                .path("/members/verify-email")
+                .build()
+                .toUri();
+        String jwtToken = authService.signUp(signUpRequest, uri);
         Cookie jwtCookie = cookieUtil.createJwtCookie(jwtToken);
         response.addCookie(jwtCookie);
     }

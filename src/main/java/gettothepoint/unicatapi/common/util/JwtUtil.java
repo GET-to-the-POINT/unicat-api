@@ -18,12 +18,10 @@ public class JwtUtil {
     private final JwtEncoder jwtEncoder;
     private final JwtDecoder jwtDecoder;
 
-    public String generateJwtToken(Long memberId, String email, String plan) {
+    public String generateJwtToken(Long memberId) {
         Instant now = Instant.now();
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .subject(memberId.toString())
-                .claim("email", email)
-                .claim("plan", plan)
                 .issuedAt(now)
                 .expiresAt(now.plus(jwtProperties.cookie().maxAge(), ChronoUnit.SECONDS))
                 .build();
@@ -38,19 +36,10 @@ public class JwtUtil {
         return jwtEncoder.encode(parameters).getTokenValue();
     }
 
-    public Long getMemberId(String jwtToken) {
+    public long getMemberId(String jwtToken) {
         try {
             Jwt decodedJwt = jwtDecoder.decode(jwtToken);
             return Long.parseLong(decodedJwt.getSubject());
-        } catch (JwtException | IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다.");
-        }
-    }
-
-    public String getEmail(String jwtToken) {
-        try {
-            Jwt decodedJwt = jwtDecoder.decode(jwtToken);
-            return decodedJwt.getClaim("email");
         } catch (JwtException | IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다.");
         }

@@ -1,8 +1,10 @@
 package gettothepoint.unicatapi.auth.application;
 
+import gettothepoint.unicatapi.common.properties.ApiProperties;
 import gettothepoint.unicatapi.common.util.JwtUtil;
 import gettothepoint.unicatapi.auth.presentation.SignInRequest;
 import gettothepoint.unicatapi.auth.presentation.SignUpRequest;
+import gettothepoint.unicatapi.mail.MailService;
 import gettothepoint.unicatapi.member.application.MemberService;
 import gettothepoint.unicatapi.member.domain.Member;
 import gettothepoint.unicatapi.subscription.domain.Plan;
@@ -14,6 +16,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.net.URI;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -22,9 +26,11 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final MessageSource messageSource;
     private final MemberService memberService;
+    private final MailService mailService;
 
-    public String signUp(SignUpRequest signUpRequest) {
+    public String signUp(SignUpRequest signUpRequest, URI uri) {
         Member member = memberService.create(signUpRequest.email(), signUpRequest.password(), signUpRequest.name(), signUpRequest.phoneNumber());
+        mailService.confirmEmail(member, uri);
         return generateAndAddJwtToken(member);
     }
 
@@ -46,7 +52,7 @@ public class AuthService {
         if (currentPlan == null) {
             throw new IllegalStateException("활성화된 플랜이 없습니다.");
         }
-        return jwtUtil.generateJwtToken(member.getId(), member.getEmail(), currentPlan.getName());
+        return jwtUtil.generateJwtToken(member.getId());
     }
 }
 

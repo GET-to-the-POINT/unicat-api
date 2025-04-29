@@ -3,10 +3,6 @@ package gettothepoint.unicatapi.common.security.oauth2.client;
 import gettothepoint.unicatapi.common.security.oauth2.client.authorizedclient.HttpCookieOAuth2AuthorizationRequestRepository;
 import gettothepoint.unicatapi.common.util.CookieUtil;
 import gettothepoint.unicatapi.common.util.JwtUtil;
-import gettothepoint.unicatapi.member.domain.Member;
-import gettothepoint.unicatapi.member.persistence.MemberRepository;
-import gettothepoint.unicatapi.subscription.domain.Subscription;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -24,7 +20,6 @@ import java.io.IOException;
 public class CustomOAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JwtUtil jwtUtil;
-    private final MemberRepository memberRepository;
     private final CookieUtil cookieUtil;
 
     @Override
@@ -34,12 +29,7 @@ public class CustomOAuth2AuthenticationSuccessHandler extends SimpleUrlAuthentic
 
         Long memberId = oAuth2User.getAttribute("memberId");
         assert memberId != null;
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new EntityNotFoundException("Member not found: " + memberId));
-        Subscription subscription = member.getSubscription();
-        String email = oAuth2User.getAttribute("email");
-
-        String token = jwtUtil.generateJwtToken(memberId, email, subscription.getPlan().getName());
+        String token = jwtUtil.generateJwtToken(memberId);
         Cookie jwtCookie = cookieUtil.createJwtCookie(token);
         response.addCookie(jwtCookie);
 

@@ -1,10 +1,11 @@
 package gettothepoint.unicatapi.member.application;
 
+import gettothepoint.unicatapi.auth.domain.OAuthLink;
 import gettothepoint.unicatapi.auth.persistence.OAuthLinkRepository;
+import gettothepoint.unicatapi.mail.MailService;
 import gettothepoint.unicatapi.member.domain.Member;
 import gettothepoint.unicatapi.member.domain.dto.member.MemberUpdateDto;
 import gettothepoint.unicatapi.member.persistence.MemberRepository;
-import gettothepoint.unicatapi.auth.domain.OAuthLink;
 import gettothepoint.unicatapi.subscription.application.SubscriptionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,7 @@ public class MemberService {
     private final OAuthLinkRepository oAuthLinkRepository;
     private final PasswordEncoder passwordEncoder;
     private final SubscriptionService subscriptionService;
+    private final MailService mailService;
 
     @Transactional
     public Member create(String email, String password, String name, String phoneNumber) {
@@ -87,6 +89,8 @@ public class MemberService {
         Member member = getOrElseThrow(memberId);
         member.setPassword(passwordEncoder.encode(newPassword));
         memberRepository.save(member);
+
+        mailService.changedPassword(member);
     }
 
     public void update(Member member) {
@@ -99,10 +103,8 @@ public class MemberService {
         member.setPhoneNumber(dto.phoneNumber());
         memberRepository.save(member);
     }
-    public void verifyEmail(String email) {
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Member not found"));
-
+    public void verifyMail(long memberId) {
+        Member member = getOrElseThrow(memberId);
         member.verified();
         memberRepository.save(member);
     }
