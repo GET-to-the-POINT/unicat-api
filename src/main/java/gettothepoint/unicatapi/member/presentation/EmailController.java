@@ -1,8 +1,8 @@
-package gettothepoint.unicatapi.presentation.controller;
+package gettothepoint.unicatapi.member.presentation;
 
-import gettothepoint.unicatapi.application.service.member.MemberService;
 import gettothepoint.unicatapi.common.properties.FrontendProperties;
 import gettothepoint.unicatapi.common.util.JwtUtil;
+import gettothepoint.unicatapi.member.application.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;

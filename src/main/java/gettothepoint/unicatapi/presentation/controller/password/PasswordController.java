@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.presentation.controller.password;
 
-import gettothepoint.unicatapi.application.service.member.MemberService;
-import gettothepoint.unicatapi.application.service.member.password.PasswordService;
+import gettothepoint.unicatapi.member.application.MemberService;
+import gettothepoint.unicatapi.member.application.PasswordService;
 import gettothepoint.unicatapi.common.util.JwtUtil;
 import gettothepoint.unicatapi.domain.dto.member.password.AnonymousChangePasswordRequest;
 import gettothepoint.unicatapi.domain.dto.member.password.AuthorizedChangePasswordRequest;

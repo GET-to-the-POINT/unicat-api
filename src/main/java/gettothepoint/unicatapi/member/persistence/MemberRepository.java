@@ -1,8 +1,8 @@
-package gettothepoint.unicatapi.domain.repository;
+package gettothepoint.unicatapi.member.persistence;
 
+import gettothepoint.unicatapi.member.domain.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import gettothepoint.unicatapi.domain.entity.member.Member;
 
 import java.util.Optional;
 

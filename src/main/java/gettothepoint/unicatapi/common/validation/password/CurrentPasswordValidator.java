@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.common.validation.password;
 
-import gettothepoint.unicatapi.application.service.member.MemberService;
+import gettothepoint.unicatapi.member.application.MemberService;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import lombok.RequiredArgsConstructor;

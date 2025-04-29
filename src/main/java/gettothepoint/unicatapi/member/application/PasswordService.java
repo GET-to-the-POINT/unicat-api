@@ -1,11 +1,11 @@
-package gettothepoint.unicatapi.application.service.member.password;
+package gettothepoint.unicatapi.member.application;
 
-import gettothepoint.unicatapi.application.service.member.MemberService;
 import gettothepoint.unicatapi.common.util.JwtUtil;
-import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.mail.MailService;
+import gettothepoint.unicatapi.member.domain.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -27,7 +27,12 @@ public class PasswordService {
             String content = "<h1>비밀번호 재설정</h1><p>아래 링크를 클릭하여 비밀번호를 재설정하세요.</p>" +
                     "<a href=\"" + href + "\">비밀번호 재설정</a>";
 
-//            smtpEmailSender.send(email, "비밀번호 재설정", content);
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(email);
+            message.setSubject("비밀번호 재설정");
+            message.setText(content);
+
+            mailService.send(message);
         } catch (ResponseStatusException e) {
             log.info("사용자가 없는 이메일로 발송 요청");
         }

@@ -1,10 +1,10 @@
 package gettothepoint.unicatapi.application.service;
 
-import gettothepoint.unicatapi.application.service.member.MemberService;
+import gettothepoint.unicatapi.member.application.MemberService;
 import gettothepoint.unicatapi.common.util.JwtUtil;
 import gettothepoint.unicatapi.domain.dto.sign.SignInRequest;
 import gettothepoint.unicatapi.domain.dto.sign.SignUpRequest;
-import gettothepoint.unicatapi.domain.entity.member.Member;
+import gettothepoint.unicatapi.member.domain.Member;
 import gettothepoint.unicatapi.mail.MailService;
 import gettothepoint.unicatapi.subscription.entity.Plan;
 import lombok.RequiredArgsConstructor;

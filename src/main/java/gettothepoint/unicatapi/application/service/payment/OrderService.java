@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.application.service.payment;
 
-import gettothepoint.unicatapi.application.service.member.MemberService;
-import gettothepoint.unicatapi.domain.entity.member.Member;
+import gettothepoint.unicatapi.member.application.MemberService;
+import gettothepoint.unicatapi.member.domain.Member;
 import gettothepoint.unicatapi.domain.entity.payment.Order;
 import gettothepoint.unicatapi.domain.repository.OrderRepository;
 import gettothepoint.unicatapi.subscription.entity.Plan;

@@ -1,4 +1,4 @@
-package gettothepoint.unicatapi.domain.entity.member;
+package gettothepoint.unicatapi.member.domain;
 
 import gettothepoint.unicatapi.domain.entity.BaseEntity;
 import jakarta.persistence.*;

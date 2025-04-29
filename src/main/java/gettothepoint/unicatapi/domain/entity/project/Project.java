@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.domain.entity.project;
 
 import gettothepoint.unicatapi.domain.entity.BaseEntity;
-import gettothepoint.unicatapi.domain.entity.member.Member;
+import gettothepoint.unicatapi.member.domain.Member;
 import gettothepoint.unicatapi.domain.entity.video.UploadVideo;
 import jakarta.persistence.*;
 import lombok.Builder;

@@ -1,11 +1,11 @@
 package gettothepoint.unicatapi.application.service.project;
 
-import gettothepoint.unicatapi.application.service.member.MemberService;
+import gettothepoint.unicatapi.member.application.MemberService;
 import gettothepoint.unicatapi.domain.dto.project.project.ProjectRequest;
 import gettothepoint.unicatapi.domain.dto.project.project.ProjectRequestWithoutFile;
 import gettothepoint.unicatapi.domain.dto.project.project.ProjectResponse;
 import gettothepoint.unicatapi.domain.dto.project.project.ProjectResponseFactory;
-import gettothepoint.unicatapi.domain.entity.member.Member;
+import gettothepoint.unicatapi.member.domain.Member;
 import gettothepoint.unicatapi.domain.entity.project.Project;
 import gettothepoint.unicatapi.domain.repository.ProjectRepository;
 import gettothepoint.unicatapi.filestorage.FileService;
