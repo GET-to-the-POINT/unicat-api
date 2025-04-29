@@ -27,7 +27,7 @@ public class FileService {
      * @return 파일 리소스 (Optional)
      * @throws IllegalArgumentException 파일 키가 유효하지 않은 경우
      */
-    public Optional<UrlResource> downloadFile(@NonNull String fileKey) {
+    public Optional<UrlResource> load(@NonNull String fileKey) {
         if (!StringUtils.hasText(fileKey)) {
             throw new IllegalArgumentException("유효하지 않은 다운로드 키입니다");
         }
@@ -42,8 +42,8 @@ public class FileService {
      * @return 저장된 파일 식별자
      * @throws IllegalArgumentException 파일이 비어있거나 크기가 0인 경우
      */
-    public String uploadFile(@NonNull MultipartFile file) {
-        return uploadFile(file, EMPTY_PATH);
+    public String store(MultipartFile file) {
+        return store(file, EMPTY_PATH);
     }
 
     /**
@@ -54,7 +54,7 @@ public class FileService {
      * @return 저장된 파일 식별자
      * @throws IllegalArgumentException 파일이 비어있거나 크기가 0인 경우
      */
-    public String uploadFile(@NonNull MultipartFile file, @NonNull Path path) {
+    public String store(@NonNull MultipartFile file, @NonNull Path path) {
         if (file.isEmpty() || file.getSize() == 0) {
             throw new IllegalArgumentException("빈 파일은 업로드할 수 없습니다");
         }
@@ -70,11 +70,11 @@ public class FileService {
      * @return 저장된 파일 식별자
      * @throws IllegalArgumentException 파일이 존재하지 않거나, 읽을 수 없거나, 비어있는 경우
      */
-    public String uploadFile(@NonNull File file) {
-        return uploadFile(file, EMPTY_PATH);
+    public String store(File file) {
+        return store(file, EMPTY_PATH);
     }
 
-    private String uploadFile(@NonNull File file, @NonNull Path path) {
+    private String store(@NonNull File file, @NonNull Path path) {
         if (!file.exists() || file.length() == 0 || !file.canRead()) {
             throw new IllegalArgumentException("유효하지 않은 파일입니다");
         }

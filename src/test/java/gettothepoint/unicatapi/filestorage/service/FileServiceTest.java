@@ -44,7 +44,7 @@ class FileServiceTest {
             String emptyKey = "";
 
             // when & then
-            assertThatThrownBy(() -> fileService.downloadFile(emptyKey))
+            assertThatThrownBy(() -> fileService.load(emptyKey))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("유효하지 않은 다운로드 키입니다");
         }
@@ -56,7 +56,7 @@ class FileServiceTest {
             String blankKey = "   ";
 
             // when & then
-            assertThatThrownBy(() -> fileService.downloadFile(blankKey))
+            assertThatThrownBy(() -> fileService.load(blankKey))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("유효하지 않은 다운로드 키입니다");
         }
@@ -73,7 +73,7 @@ class FileServiceTest {
             MultipartFile emptyFile = new MockMultipartFile("file", "", "text/plain", new byte[0]);
 
             // when and then
-            assertThatThrownBy(() -> fileService.uploadFile(emptyFile))
+            assertThatThrownBy(() -> fileService.store(emptyFile))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("빈 파일은 업로드할 수 없습니다");
         }
@@ -94,7 +94,7 @@ class FileServiceTest {
             File nonExistentFile = new File(tempDir.toFile(), "non-existent.txt");
 
             // when & then
-            assertThatThrownBy(() -> fileService.uploadFile(nonExistentFile))
+            assertThatThrownBy(() -> fileService.store(nonExistentFile))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("유효하지 않은 파일입니다");
         }
@@ -106,7 +106,7 @@ class FileServiceTest {
             File emptyFile = Files.createFile(tempDir.resolve("empty.txt")).toFile();
 
             // when & then
-            assertThatThrownBy(() -> fileService.uploadFile(emptyFile))
+            assertThatThrownBy(() -> fileService.store(emptyFile))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("유효하지 않은 파일입니다");
         }
@@ -119,7 +119,7 @@ class FileServiceTest {
             unreadableFile.setReadable(false);
 
             // when & then
-            assertThatThrownBy(() -> fileService.uploadFile(unreadableFile))
+            assertThatThrownBy(() -> fileService.store(unreadableFile))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("유효하지 않은 파일입니다");
         }
@@ -137,7 +137,7 @@ class FileServiceTest {
             when(fileStorageRepository.store(any(FileResource.class))).thenThrow(new RuntimeException("저장소 오류"));
 
             // when & then
-            assertThatThrownBy(() -> fileService.uploadFile(validFile))
+            assertThatThrownBy(() -> fileService.store(validFile))
                     .isInstanceOf(RuntimeException.class)
                     .hasMessageContaining("저장소 오류");
         }

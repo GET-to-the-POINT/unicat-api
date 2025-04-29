@@ -55,7 +55,7 @@ public class ProjectService {
 
         String titleImageKey = null;
         if (request.titleImage() != null) {
-            titleImageKey = fileService.uploadFile(request.titleImage());
+            titleImageKey = fileService.store(request.titleImage());
         }
 
         Project project = Project.builder()
@@ -104,7 +104,7 @@ public class ProjectService {
             changed = true;
         }
         if (request.titleImage() != null) {
-            String titleUrl = fileService.uploadFile(request.titleImage());
+            String titleUrl = fileService.store(request.titleImage());
             project.setTitleImageKey(titleUrl);
             changed = true;
         }

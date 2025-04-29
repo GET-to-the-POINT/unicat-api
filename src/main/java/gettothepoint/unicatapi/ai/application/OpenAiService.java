@@ -133,7 +133,7 @@ public class OpenAiService {
         }
 
         MultipartFile multipartFile = new MultipartFileUtil(imageBytes, "download", "image/jpeg");
-        return fileService.uploadFile(multipartFile);
+        return fileService.store(multipartFile);
     }
 
     private void saveImageToSection(Long sectionId, String imageUrl) {

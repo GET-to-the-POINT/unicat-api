@@ -16,10 +16,10 @@ public class SectionResponseFactory {
                 .id(section.getId())
                 .script(section.getScript())
                 .sortOrder(section.getSortOrder())
-                .contentUrl(section.getContentKey() != null ? fileService.downloadFile(section.getContentKey()).toString() : null)
-                .audioUrl(section.getAudioKey() != null ? fileService.downloadFile(section.getAudioKey()).toString() : null)
+                .contentUrl(section.getContentKey() != null ? fileService.load(section.getContentKey()).toString() : null)
+                .audioUrl(section.getAudioKey() != null ? fileService.load(section.getAudioKey()).toString() : null)
                 .voiceModel(section.getVoiceModel())
-                .transitionUrl(section.getTransitionKey() != null ? fileService.downloadFile(section.getTransitionKey()).toString() : null)
+                .transitionUrl(section.getTransitionKey() != null ? fileService.load(section.getTransitionKey()).toString() : null)
                 .build();
     }
 }

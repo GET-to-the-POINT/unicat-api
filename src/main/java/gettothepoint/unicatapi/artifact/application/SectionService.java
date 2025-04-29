@@ -87,7 +87,7 @@ public class SectionService {
         String voiceModel = StringUtils.hasText(sectionResourceRequest.voiceModel()) ? sectionResourceRequest.voiceModel() : supertoneDefaultVoiceId;
         String contentKey = null;
         if (sectionResourceRequest.multipartFile() != null) {
-            contentKey = fileService.uploadFile(sectionResourceRequest.multipartFile());
+            contentKey = fileService.store(sectionResourceRequest.multipartFile());
         }
 
         Section newSection = Section.builder()
@@ -114,7 +114,7 @@ public class SectionService {
             changed = true;
         }
         if (sectionResourceRequest.multipartFile() != null && !sectionResourceRequest.multipartFile().isEmpty()) {
-            String uploadedKey = fileService.uploadFile(sectionResourceRequest.multipartFile());
+            String uploadedKey = fileService.store(sectionResourceRequest.multipartFile());
             section.setContentKey(uploadedKey);
             changed = true;
         }
