@@ -53,20 +53,12 @@ public class ProjectService {
     public ProjectResponse create(Long memberId, ProjectRequest request) {
         Member member = memberService.getOrElseThrow(memberId);
 
-        String titleImageKey = null;
-        if (request.titleImage() != null) {
-            titleImageKey = fileService.store(request.titleImage());
-        }
-
         Project project = Project.builder()
                 .member(member)
                 .scriptTone(request.scriptTone())
                 .imageStyle(request.imageStyle())
                 .description(request.description())
                 .title(request.title())
-                .subtitle(request.subtitle())
-                .templateKey(request.templateKey())
-                .titleImageKey(titleImageKey)
                 .build();
 
         this.update(project);
@@ -89,33 +81,16 @@ public class ProjectService {
 
     public void update(Long projectId, ProjectRequest request) {
         Project project = getOrElseThrow(projectId);
-        boolean changed = false;
 
         if (request.scriptTone() != null) {
             project.setScriptTone(request.scriptTone());
-            changed = true;
         }
         if (request.imageStyle() != null) {
             project.setImageStyle(request.imageStyle());
-            changed = true;
-        }
-        if (request.templateKey() != null) {
-            project.setTemplateKey(request.templateKey());
-            changed = true;
-        }
-        if (request.titleImage() != null) {
-            String titleUrl = fileService.store(request.titleImage());
-            project.setTitleImageKey(titleUrl);
-            changed = true;
         }
 
         if (StringUtils.hasText(request.description())) project.setDescription(request.description());
         if (StringUtils.hasText(request.title())) project.setTitle(request.title());
-        if (StringUtils.hasText(request.subtitle())) project.setSubtitle(request.subtitle());
-
-        if (changed) {
-            project.setArtifactKey(null);
-        }
 
         update(project);
     }

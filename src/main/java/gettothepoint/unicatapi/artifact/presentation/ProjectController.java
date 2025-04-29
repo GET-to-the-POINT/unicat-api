@@ -7,7 +7,6 @@ import gettothepoint.unicatapi.artifact.application.ProjectService;
 import gettothepoint.unicatapi.artifact.domain.dto.ProjectRequest;
 import gettothepoint.unicatapi.artifact.domain.dto.ProjectRequestWithoutFile;
 import gettothepoint.unicatapi.artifact.domain.dto.ProjectResponse;
-import gettothepoint.unicatapi.youtube.application.YouTubeAnalyticsProxyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -38,7 +37,6 @@ import java.util.Map;
 public class ProjectController {
 
     private final ProjectService projectService;
-    private final YouTubeAnalyticsProxyService youtubeAnalyticsProxyService;
     private final ArtifactService artifactService;
 
     @Operation(
@@ -131,17 +129,6 @@ public class ProjectController {
                        @PathVariable Long projectId,
                        @RequestBody ProjectRequestWithoutFile request) {
         projectService.update(projectId, request);
-    }
-
-    @Operation(
-            summary = "유튜브 분석 데이터 조회",
-            description = "현재 인증된 사용자의 유튜브 분석 데이터를 쿼리 파라미터와 함께 조회합니다. (예: startDate, endDate, metrics)"
-    )
-    @GetMapping("/youtube-analytics")
-    @PreAuthorize("isAuthenticated()")
-    public QueryResponse getYouTubeAnalytics(@RegisteredOAuth2AuthorizedClient("google") OAuth2AuthorizedClient authorizedClient, @RequestParam Map<String, String> queryParams) {
-        Long memberId = Long.valueOf(authorizedClient.getPrincipalName());
-        return youtubeAnalyticsProxyService.getYouTubeAnalyticsData(authorizedClient.getAccessToken(), queryParams, memberId);
     }
 
     @Operation(

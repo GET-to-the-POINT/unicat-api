@@ -107,32 +107,21 @@ public class SectionService {
 
     public ResourceResponse update(Long projectId, Long sectionId, SectionResourceRequest sectionResourceRequest) {
         Section section = this.getOrElseThrow(projectId, sectionId);
-        boolean changed = false;
 
         if (sectionResourceRequest.script() != null) {
             section.setScript(sectionResourceRequest.script());
-            changed = true;
         }
         if (sectionResourceRequest.multipartFile() != null && !sectionResourceRequest.multipartFile().isEmpty()) {
             String uploadedKey = fileService.store(sectionResourceRequest.multipartFile());
             section.setContentKey(uploadedKey);
-            changed = true;
         }
         if (sectionResourceRequest.transitionKey() != null) {
             section.setTransitionKey(sectionResourceRequest.transitionKey());
-            changed = true;
-        }
-
-        if (changed) {
-            // 섹션 데이터가 변경되면 새로 빌드되어야하기 때문에 널이 되어야 한다.
-            section.getProject().setArtifactKey(null);
-            projectService.update(section.getProject());
         }
 
         this.update(section);
 
         Project project = section.getProject();
-        project.setArtifactKey(null);
         projectService.update(project);
 
         return ResourceResponse.fromEntity(section);
