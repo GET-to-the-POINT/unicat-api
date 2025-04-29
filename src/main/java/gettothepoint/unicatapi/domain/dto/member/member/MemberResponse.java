@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.domain.dto.member.member;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import gettothepoint.unicatapi.domain.entity.member.Member;
+import gettothepoint.unicatapi.member.domain.Member;
 import gettothepoint.unicatapi.domain.entity.payment.Billing;
 import gettothepoint.unicatapi.subscription.entity.Subscription;
 import io.swagger.v3.oas.annotations.media.Schema;

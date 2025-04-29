@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.order.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import gettothepoint.unicatapi.domain.entity.BaseEntity;
+import gettothepoint.unicatapi.common.domain.BaseEntity;
 import gettothepoint.unicatapi.domain.entity.member.Member;
 import gettothepoint.unicatapi.domain.entity.payment.Payment;
 import gettothepoint.unicatapi.subscription.entity.Plan;

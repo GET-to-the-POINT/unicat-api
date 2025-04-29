@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.domain.entity.payment;
 
-import gettothepoint.unicatapi.domain.entity.member.Member;
+import gettothepoint.unicatapi.member.domain.Member;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;

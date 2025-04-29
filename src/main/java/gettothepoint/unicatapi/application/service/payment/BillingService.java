@@ -1,9 +1,9 @@
 package gettothepoint.unicatapi.application.service.payment;
 
-import gettothepoint.unicatapi.application.service.member.MemberService;
+import gettothepoint.unicatapi.member.application.MemberService;
 import gettothepoint.unicatapi.common.properties.TossProperties;
 import gettothepoint.unicatapi.common.util.ApiUtil;
-import gettothepoint.unicatapi.domain.entity.member.Member;
+import gettothepoint.unicatapi.member.domain.Member;
 import gettothepoint.unicatapi.domain.entity.payment.Billing;
 import gettothepoint.unicatapi.domain.repository.BillingRepository;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package gettothepoint.unicatapi.domain.dto.oauth;
+package gettothepoint.unicatapi.auth.domain;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;

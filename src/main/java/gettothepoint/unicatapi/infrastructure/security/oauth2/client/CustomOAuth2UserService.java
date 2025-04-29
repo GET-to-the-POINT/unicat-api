@@ -1,7 +1,7 @@
 package gettothepoint.unicatapi.infrastructure.security.oauth2.client;
 
-import gettothepoint.unicatapi.application.service.member.MemberService;
-import gettothepoint.unicatapi.domain.entity.member.Member;
+import gettothepoint.unicatapi.member.application.MemberService;
+import gettothepoint.unicatapi.member.domain.Member;
 import gettothepoint.unicatapi.infrastructure.security.oauth2.client.user.OAuth2UserInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;

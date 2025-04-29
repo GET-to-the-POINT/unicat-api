@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.subscription.entity;
 
-import gettothepoint.unicatapi.domain.entity.BaseEntity;
+import gettothepoint.unicatapi.common.domain.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;

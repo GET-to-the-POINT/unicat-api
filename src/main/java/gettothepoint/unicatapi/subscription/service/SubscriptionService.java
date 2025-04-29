@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.subscription.service;
 
-import gettothepoint.unicatapi.domain.entity.member.Member;
+import gettothepoint.unicatapi.member.domain.Member;
 import gettothepoint.unicatapi.subscription.entity.Plan;
 import gettothepoint.unicatapi.subscription.entity.Subscription;
 import gettothepoint.unicatapi.subscription.persistence.SubscriptionRepository;

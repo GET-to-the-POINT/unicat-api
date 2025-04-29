@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.domain.repository;
 
-import gettothepoint.unicatapi.domain.entity.member.Member;
+import gettothepoint.unicatapi.member.domain.Member;
 import gettothepoint.unicatapi.domain.entity.payment.Billing;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

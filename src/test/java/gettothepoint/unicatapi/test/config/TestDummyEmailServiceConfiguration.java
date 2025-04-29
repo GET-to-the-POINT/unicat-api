@@ -1,7 +1,7 @@
 //package gettothepoint.unicatapi.test.config;
 //
 //import gettothepoint.unicatapi.email.infrastructure.email.SmtpEmailSender;
-//import gettothepoint.unicatapi.domain.entity.member.Member;
+//import gettothepoint.unicatapi.member.domain.Member;
 //import org.springframework.boot.test.context.TestConfiguration;
 //import org.springframework.context.annotation.Bean;
 //import org.springframework.context.annotation.Primary;

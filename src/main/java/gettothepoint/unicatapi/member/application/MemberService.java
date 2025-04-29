@@ -1,11 +1,10 @@
-package gettothepoint.unicatapi.application.service.member;
-
+package gettothepoint.unicatapi.member.application;
 
 import gettothepoint.unicatapi.domain.dto.member.member.MemberUpdateDto;
-import gettothepoint.unicatapi.domain.entity.member.Member;
-import gettothepoint.unicatapi.domain.entity.member.OAuthLink;
-import gettothepoint.unicatapi.domain.repository.MemberRepository;
-import gettothepoint.unicatapi.domain.repository.OAuthLinkRepository;
+import gettothepoint.unicatapi.auth.persistence.OAuthLinkRepository;
+import gettothepoint.unicatapi.member.domain.Member;
+import gettothepoint.unicatapi.member.persistence.MemberRepository;
+import gettothepoint.unicatapi.auth.domain.OAuthLink;
 import gettothepoint.unicatapi.subscription.service.SubscriptionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +23,6 @@ public class MemberService {
     private final OAuthLinkRepository oAuthLinkRepository;
     private final PasswordEncoder passwordEncoder;
     private final SubscriptionService subscriptionService;
-
 
     @Transactional
     public Member create(String email, String password, String name, String phoneNumber) {
