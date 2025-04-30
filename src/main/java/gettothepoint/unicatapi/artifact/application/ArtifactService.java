@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.artifact.application;
 
-import gettothepoint.unicatapi.ai.application.OpenAiService;
+import gettothepoint.unicatapi.ai.application.OpenAIService;
 import gettothepoint.unicatapi.ai.application.TTSService;
 import gettothepoint.unicatapi.artifact.domain.Project;
 import gettothepoint.unicatapi.ai.domain.dto.PromptRequest;
@@ -20,7 +20,7 @@ public class ArtifactService {
     private final SectionService sectionService;
     private final FileService fileService;
     private final TTSService ttsService;
-    private final OpenAiService openAiService;
+    private final OpenAIService openAiService;
 //    private final TransitionSoundService transitionSoundService;
 
     public void build(Long projectId) {

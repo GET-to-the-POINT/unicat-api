@@ -1,6 +1,6 @@
 package gettothepoint.unicatapi.application.service;
 
-import gettothepoint.unicatapi.ai.application.OpenAiService;
+import gettothepoint.unicatapi.ai.application.OpenAIService;
 import gettothepoint.unicatapi.common.properties.OpenAIProperties;
 import gettothepoint.unicatapi.ai.domain.dto.CreateResourceResponse;
 import gettothepoint.unicatapi.ai.domain.dto.PromptRequest;
@@ -25,7 +25,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class OpenAiServiceTest {
+class OpenAIServiceTest {
 
     @Mock
     private ChatClient.Builder chatClientBuilder;
@@ -52,7 +52,7 @@ class OpenAiServiceTest {
     private OpenAIProperties.Script openAI;
 
     @Mock
-    private OpenAiService openAiService;
+    private OpenAIService openAiService;
 
     @BeforeEach
     void setUp() {

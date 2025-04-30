@@ -46,6 +46,11 @@ public class FileService {
         return store(file, EMPTY_PATH);
     }
 
+    public String store(String finename, byte[] content) {
+        FileResource fileResource = new FileResource(finename, content);
+        return fileStorageRepository.store(fileResource);
+    }
+
     /**
      * 지정된 경로에 MultipartFile을 업로드합니다.
      * 
