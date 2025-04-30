@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Slf4j
@@ -47,14 +49,15 @@ public class BillingProcessingService {
     @Transactional
     public void processExpiredSubscriptions() {
         LocalDate expiredDate = LocalDate.now().minusDays(1);
-        List<Billing> expiredList = billingRepository.findNonRecurringMembersWithExpiredSubscription(expiredDate);
+        LocalDateTime startOfDay = expiredDate.atStartOfDay();
+        LocalDateTime endOfDay = expiredDate.atTime(LocalTime.MAX);
+
+        List<Billing> expiredList = billingRepository.findNonRecurringMembersWithExpiredSubscription(startOfDay, endOfDay);
 
         log.info("구독 만료 대상 Billing 수: {}", expiredList.size());
         for (Billing billing : expiredList) {
             Member member = billing.getMember();
-
             subscriptionService.expiredThenChangeBasicPlan(member);
-
             log.info("구독 상태 체크 및 처리 완료: 회원 {}", member.getEmail());
         }
     }

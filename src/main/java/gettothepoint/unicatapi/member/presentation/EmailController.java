@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.UUID;
 
 @Tag(name = "Member", description = "이메일 관련 API")
 @RestController
@@ -28,7 +29,7 @@ public class EmailController {
     )
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void verifyEmail(@RequestParam("token") String token, HttpServletResponse response) throws IOException {
-        long memberId = jwtUtil.getMemberId(token);
+        UUID memberId = jwtUtil.getMemberIdAsUUID(token);
         memberService.verifyMail(memberId);
         response.sendRedirect("/");
     }

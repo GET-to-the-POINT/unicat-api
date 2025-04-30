@@ -13,6 +13,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @Tag(name = "Member", description = "멤버 관련 API")
 @RestController
 @RequestMapping("/members")
@@ -27,10 +29,11 @@ public class MemberController {
     )
     @GetMapping("/me")
     public MemberResponse getMember(@AuthenticationPrincipal Jwt jwt) {
-        Long memberId = Long.valueOf(jwt.getSubject());
+        UUID memberId = UUID.fromString(jwt.getSubject());
         Member member = memberService.getOrElseThrow(memberId);
         return MemberResponse.fromEntity(member);
     }
+
 
     @Operation(
             summary = "멤버 정보 수정",
@@ -41,7 +44,7 @@ public class MemberController {
     public void updateMember(
             @AuthenticationPrincipal Jwt jwt,
             @Valid @RequestBody MemberUpdateDto memberUpdateDto) {
-        Long memberId = Long.valueOf(jwt.getSubject());
+        UUID memberId = UUID.fromString(jwt.getSubject());
         memberService.updateMember(memberId, memberUpdateDto);
     }
 }
