@@ -46,4 +46,21 @@ public class JwtUtil {
         }
     }
 
+    public String getCustomerKey(String jwtToken) {
+        try {
+            Jwt decodedJwt = jwtDecoder.decode(jwtToken);
+            return decodedJwt.getSubject();
+        } catch (JwtException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다.");
+        }
+    }
+
+    public UUID getMemberIdAsUUID(String jwtToken) {
+        try {
+            Jwt decodedJwt = jwtDecoder.decode(jwtToken);
+            return UUID.fromString(decodedJwt.getSubject());
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다.");
+        }
+    }
 }
