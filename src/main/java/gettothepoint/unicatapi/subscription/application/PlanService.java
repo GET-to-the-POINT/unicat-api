@@ -17,4 +17,9 @@ public class PlanService {
         return planRepository.findByName("BASIC")
                 .orElseThrow(() -> new IllegalStateException("기본 플랜이 존재하지 않습니다."));
     }
+
+    public Plan getOrElseThrow(String premium) {
+        return planRepository.findByName(premium)
+                .orElseThrow(() -> new IllegalStateException("프리미엄 플랜이 존재하지 않습니다."));
+    }
 }

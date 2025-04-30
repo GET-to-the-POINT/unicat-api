@@ -3,6 +3,7 @@ package gettothepoint.unicatapi.member.presentation;
 import gettothepoint.unicatapi.member.application.MemberService;
 import gettothepoint.unicatapi.member.application.PasswordService;
 import gettothepoint.unicatapi.common.util.JwtUtil;
+import gettothepoint.unicatapi.member.domain.Member;
 import gettothepoint.unicatapi.member.domain.dto.password.AnonymousChangePasswordRequest;
 import gettothepoint.unicatapi.member.domain.dto.password.AuthorizedChangePasswordRequest;
 import gettothepoint.unicatapi.member.domain.dto.password.PasswordResetEmailRequest;
@@ -14,6 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,8 +36,10 @@ public class PasswordController {
     public void resetPasswordForLoggedInUser(
             @AuthenticationPrincipal Jwt jwt,
             @Valid @RequestBody AuthorizedChangePasswordRequest request) {
-        Long memberId = Long.parseLong(jwt.getSubject());
-        memberService.updatePassword(memberId, request.newPassword());
+
+        String customerKey = jwt.getSubject(); // UUID 그대로 받기
+        Member member = memberService.getByCustomerKey(customerKey); // customerKey로 Member 조회
+        memberService.updatePassword(member.getId(), request.newPassword());
     }
 
     @PatchMapping("/anonymous/password")
@@ -44,8 +49,9 @@ public class PasswordController {
     )
     public void resetPasswordForNonLoggedInUser(
             @Valid @RequestBody AnonymousChangePasswordRequest request) {
-        Long memberId = jwtUtil.getMemberId(request.token());
-        memberService.updatePassword(memberId, request.newPassword());
+        String customerKey = jwtUtil.getCustomerKey(request.token());
+        Member member = memberService.getByCustomerKey(customerKey);
+        memberService.updatePassword(member.getId(), request.newPassword());
     }
 
     @PostMapping("/anonymous/password")

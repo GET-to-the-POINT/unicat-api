@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.UUID;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -39,7 +41,7 @@ public class MemberService {
         return memberRepository.save(member);
     }
 
-    public Member getOrElseThrow(Long memberId) {
+    public Member getOrElseThrow(UUID memberId) {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Member not found with id: " + memberId));
     }
@@ -80,12 +82,12 @@ public class MemberService {
         return memberRepository.findByEmail(email).isPresent();
     }
 
-    public boolean validCurrentPassword(Long memberId, String currentPassword) {
+    public boolean validCurrentPassword(UUID memberId, String currentPassword) {
         Member member = getOrElseThrow(memberId);
         return passwordEncoder.matches(currentPassword, member.getPassword());
     }
 
-    public void updatePassword(Long memberId, String newPassword) {
+    public void updatePassword(UUID memberId, String newPassword) {
         Member member = getOrElseThrow(memberId);
         member.setPassword(passwordEncoder.encode(newPassword));
         memberRepository.save(member);
@@ -97,16 +99,23 @@ public class MemberService {
         memberRepository.save(member);
     }
 
-    public void updateMember(Long memberId, MemberUpdateDto dto) {
+    public void updateMember(UUID memberId, MemberUpdateDto dto) {
         Member member = getOrElseThrow(memberId);
         member.setName(dto.name());
         member.setPhoneNumber(dto.phoneNumber());
         memberRepository.save(member);
     }
-    public void verifyMail(long memberId) {
+    public void verifyMail(UUID memberId) {
         Member member = getOrElseThrow(memberId);
         member.verified();
         memberRepository.save(member);
+    }
+
+    @Transactional(readOnly = true)
+    public Member getByCustomerKey(String customerKey) {
+        UUID memberId = UUID.fromString(customerKey);
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Member not found"));
     }
 }
 

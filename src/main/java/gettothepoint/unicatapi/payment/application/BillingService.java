@@ -15,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -26,13 +27,13 @@ public class BillingService {
     private final MemberService memberService;
     private final ApiUtil apiUtil;
 
-    public void saveBillingKey(String authKey, Long memberId) {
+    public void saveBillingKey(String authKey, UUID memberId) {
         Member member = memberService.getOrElseThrow(memberId);
         issueSuccessAndCreate(member, authKey);
     }
 
     private void issueSuccessAndCreate(Member member, String authKey) {
-        Map<String, Object> billingResponse = requestBillingKey(authKey, member.getEmail());
+        Map<String, Object> billingResponse = requestBillingKey(authKey, member.getId().toString());
 
         String billingKey = (String) billingResponse.get("billingKey");
         String cardCompany = (String) billingResponse.get("cardCompany");
@@ -57,11 +58,11 @@ public class BillingService {
         memberService.update(member);
     }
 
-    private Map<String, Object> requestBillingKey(String authKey, String email) {
+    private Map<String, Object> requestBillingKey(String authKey, String customerKey) {
         HttpHeaders headers = apiUtil.createHeaders(apiUtil.encodeSecretKey());
         Map<String, String> requestBody = Map.of(
                 "authKey", authKey,
-                "customerKey", email
+                "customerKey", customerKey
         );
         HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(requestBody, headers);
 
@@ -82,7 +83,7 @@ public class BillingService {
     }
 
 
-    public void cancelRecurringByMember(Long memberId) {
+    public void cancelRecurringByMember(UUID memberId) {
         Member member = memberService.getOrElseThrow(memberId);
         Billing billing = billingRepository.findByMember(member)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Billing not found"));

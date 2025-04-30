@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +27,7 @@ public class PaymentService {
     private final MemberService memberService;
 
     @Transactional
-    public Map<String, Object> approveAutoPayment(Long memberId) {
+    public Map<String, Object> approveAutoPayment(UUID memberId) {
         Member member = memberService.getOrElseThrow(memberId);
         Billing billing = member.getBilling();
         Order order = member.getOrders().stream()
@@ -39,14 +40,14 @@ public class PaymentService {
     }
 
     public Map<String, Object> approveAutoPayment(Order order, Billing billing) {
-        String email = billing.getMember().getEmail();
+        String customerKey = billing.getMember().getId().toString();
 
         Map<String, Object> approvalResult = tossPaymentGateway.requestApproval(
-                order, billing.getBillingKey(), email
+                order, billing.getBillingKey(), customerKey
         );
         orderService.markAsDone(order);
         paymentRecordService.save(order, approvalResult);
-        billingService.applyRecurring(billing); //recurring 갱신
+        billingService.applyRecurring(billing);
         subscriptionService.changePlan(order.getMember(), order.getPlan());
 
         return approvalResult;

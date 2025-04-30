@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class ProjectService {
@@ -39,18 +41,18 @@ public class ProjectService {
         return projectResponseFactory.fromEntity(project);
     }
 
-    public ProjectResponse create(Long memberId) {
+    public ProjectResponse create(UUID memberId) {
         ProjectRequestWithoutFile emptyRequest = ProjectRequestWithoutFile.basic();
         return create(memberId, emptyRequest);
     }
 
     // 생성
-    public ProjectResponse create(Long memberId, ProjectRequestWithoutFile request) {
+    public ProjectResponse create(UUID memberId, ProjectRequestWithoutFile request) {
         ProjectRequest projectRequest = ProjectRequest.fromProjectRequestWithoutFile(request);
         return create(memberId, projectRequest);
     }
 
-    public ProjectResponse create(Long memberId, ProjectRequest request) {
+    public ProjectResponse create(UUID memberId, ProjectRequest request) {
         Member member = memberService.getOrElseThrow(memberId);
 
         Project project = Project.builder()

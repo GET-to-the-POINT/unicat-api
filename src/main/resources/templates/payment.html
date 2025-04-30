@@ -1,34 +1,33 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
 <head>
-	<title>결제하기</title>
-	<meta charset="utf-8" />
-	<!-- 토스페이먼츠 결제창 SDK 추가 -->
-	<script src="https://js.tosspayments.com/v1/payment"></script>
+  <meta charset="utf-8" />
+  <script src="https://js.tosspayments.com/v2/standard"></script>
 </head>
 <body>
-<script th:inline="javascript">
-	/* <![CDATA[ */
-	// 클라이언트 키와 고객 키를 서버에서 전달받은 값으로 설정
-	var clientKey = /*[[${clientKey}]]*/ null;
-	var customerKey = /*[[${customerKey}]]*/ null;
+<button class="button" style="margin-top: 30px" onclick="requestBillingAuth()">카드 등록하기</button>
 
-	// ------ 클라이언트 키로 객체 초기화 ------
-	var tossPayments = TossPayments(clientKey);
-	tossPayments
-			.requestBillingAuth("카드", {
-				// 결제 정보 파라미터
-				customerKey: customerKey,
-				successUrl: window.location.origin + "/toss/approve",
-				failUrl:window.location.origin + "/fail",
-			})
-			.catch(function (error) {
-				if (error.code === "USER_CANCEL") {
-					// 구매자가 결제창을 닫았을 때 처리
-					alert("결제가 취소되었습니다.");
-				}
-			});
-	/* ]]> */
+<script th:inline="javascript">
+  const clientKey = /*[[${clientKey}]]*/ null;
+  const customerKey = /*[[${customerKey}]]*/ null;
+  const customerName = /*[[${customerName}]]*/ null;
+  const customerEmail = /*[[${customerEmail}]]*/ null;
+
+  debugger;
+
+  const tossPayments = TossPayments(clientKey);
+  const payment = tossPayments.payment({ customerKey });
+
+  async function requestBillingAuth() {
+    await payment.requestBillingAuth({
+      method: "CARD",
+      successUrl: window.location.origin + "/toss/approve",
+      failUrl: window.location.origin + "/fail",
+      customerEmail: customerEmail,
+      customerName: customerName,
+    });
+  }
 </script>
 </body>
 </html>

@@ -23,7 +23,10 @@ public interface BillingRepository extends JpaRepository<Billing, Long> {
             JOIN FETCH b.member m
             JOIN FETCH m.subscription s
             WHERE b.recurring = false
-            AND FUNCTION('DATE', s.endDate) = :expiredDate
+            AND s.endDate BETWEEN :startOfDay AND :endOfDay
             """)
-    List<Billing> findNonRecurringMembersWithExpiredSubscription(@Param("expiredDate") LocalDate expiredDate);
+    List<Billing> findNonRecurringMembersWithExpiredSubscription(
+            @Param("startOfDay") java.time.LocalDateTime startOfDay,
+            @Param("endOfDay") java.time.LocalDateTime endOfDay
+    );
 }

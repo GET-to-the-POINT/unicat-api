@@ -12,7 +12,8 @@ public class BillingScheduler {
 
     private final BillingProcessingService billingProcessingService;
 
-    @Scheduled(cron = "0 0 9 * * ?")
+//    @Scheduled(cron = "0 0 9 * * ?")
+    @Scheduled(cron = "0 0/3 * * * ?")
     public void processAutoBilling() {
         log.info("자동 빌링 처리 시작");
         billingProcessingService.processRecurringPayments();

@@ -28,6 +28,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.UUID;
 
 @Log4j2
 @Tag(name = "Project", description = "프로젝트 API")
@@ -60,7 +61,7 @@ public class ProjectController {
     @ResponseStatus(HttpStatus.CREATED)
     public ProjectResponse create(@AuthenticationPrincipal Jwt jwt,
                                   @ModelAttribute ProjectRequest request) {
-        Long memberId = Long.valueOf(jwt.getSubject());
+        UUID memberId = UUID.fromString(jwt.getSubject());
         return projectService.create(memberId, request);
     }
 
@@ -72,7 +73,7 @@ public class ProjectController {
     @ResponseStatus(HttpStatus.CREATED)
     public ProjectResponse create(@AuthenticationPrincipal Jwt jwt,
                                   @RequestBody ProjectRequestWithoutFile request) {
-        Long memberId = Long.valueOf(jwt.getSubject());
+        UUID memberId = UUID.fromString(jwt.getSubject());
         return projectService.create(memberId, request);
     }
 
