@@ -20,14 +20,5 @@ public record ProjectRequestWithoutFile(
         @Schema(description = "프로젝트 부제목", example = "마녀의 이야기", nullable = true, requiredMode = Schema.RequiredMode.NOT_REQUIRED)
         String subtitle
 ) {
-    public static ProjectRequestWithoutFile basic() {
-        return new ProjectRequestWithoutFile(
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
-    }
+
 }
